@@ -593,13 +593,14 @@ footer{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){return r.json()}).then(function(data){
     var isOpen,openT='',closeT='';
+    var closedAllDay=false;
     if(data&&data.length>0){
       var entry=data[0];
       if(entry.closed_all_day){
-        isOpen=false;
+        isOpen=false;closedAllDay=true;
       }else{
-        openT=(entry.open_time||'11:00').substring(0,5);
-        closeT=(entry.close_time||'22:00').substring(0,5);
+        openT=(entry.open_time||'10:00').substring(0,5);
+        closeT=(entry.close_time||'20:00').substring(0,5);
         var nowMins=today.getHours()*60+today.getMinutes();
         var openMins=parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]);
         var closeMins=parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]);
@@ -608,25 +609,52 @@ footer{
     }else{
       isOpen=fallback();
     }
-    localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT}));
-    showWithTimes(isOpen,openT,closeT);
+    localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
+    showWithTimes(isOpen,openT,closeT,closedAllDay);
   }).catch(function(){show(fallback())});
 
-  function showWithTimes(isOpen,openT,closeT){
+  function showWithTimes(isOpen,openT,closeT,closedAllDay){
     var dot=document.getElementById('dot');
     var stxt=document.getElementById('stxt');
     var ssub=document.getElementById('ssub');
     var widget=document.getElementById('status-widget');
     if(!dot||!stxt||!ssub)return;
-    if(isOpen){
+
+    var now=new Date();
+    var nowMins=now.getHours()*60+now.getMinutes();
+    var oM=openT?parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]):600;
+    var cM=closeT?parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]):1200;
+    var timeStr=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':'10:00 \u2013 20:00 Uhr';
+
+    if(closedAllDay){
+      // Ganzer Tag geschlossen
+      dot.classList.add('closed');
+      stxt.textContent='Aktuell geschlossen';
+      ssub.textContent='Heute ganzt\u00e4gig geschlossen';
+      if(widget)widget.classList.add('is-closed');
+    }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
+      // 1 Stunde vor Schliessung
       dot.classList.remove('closed');
-      stxt.textContent='Heute ge\u00f6ffnet';
-      ssub.textContent=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':'10:00 \u2013 20:00 Uhr';
+      stxt.textContent='Wir schlie\u00dfen gleich';
+      ssub.textContent=timeStr;
+      if(widget)widget.classList.remove('is-closed');
+    }else if(!isOpen&&(oM-nowMins<=60)&&(oM-nowMins>0)){
+      // 1 Stunde vor Oeffnung
+      dot.classList.add('closed');
+      stxt.textContent='Wir \u00f6ffnen gleich';
+      ssub.textContent=timeStr;
+      if(widget)widget.classList.add('is-closed');
+    }else if(isOpen){
+      // Aktuell geoeffnet
+      dot.classList.remove('closed');
+      stxt.textContent='Aktuell ge\u00f6ffnet';
+      ssub.textContent=timeStr;
       if(widget)widget.classList.remove('is-closed');
     }else{
+      // Aktuell geschlossen
       dot.classList.add('closed');
-      stxt.textContent='Heute geschlossen';
-      ssub.textContent='';
+      stxt.textContent='Aktuell geschlossen';
+      ssub.textContent=timeStr;
       if(widget)widget.classList.add('is-closed');
     }
   }
