@@ -589,7 +589,10 @@ footer{
   var today=new Date();
   var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
 
-  fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+todayStr+'&select=is_open,closed_all_day,open_time,close_time',{
+  var maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+7);
+  var maxStr=maxDate.getFullYear()+'-'+String(maxDate.getMonth()+1).padStart(2,'0')+'-'+String(maxDate.getDate()).padStart(2,'0');
+
+  fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+todayStr+'&date=lte.'+maxStr+'&order=date&select=date,is_open,closed_all_day,open_time,close_time',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){return r.json()}).then(function(data){
     var isOpen,openT='',closeT='';
@@ -610,10 +613,12 @@ footer{
       isOpen=fallback();
     }
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
-    showWithTimes(isOpen,openT,closeT,closedAllDay);
+    showWithTimes(isOpen,openT,closeT,closedAllDay,data);
   }).catch(function(){show(fallback())});
 
-  function showWithTimes(isOpen,openT,closeT,closedAllDay){
+  var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  function showWithTimes(isOpen,openT,closeT,closedAllDay,schedule){
     var dot=document.getElementById('dot');
     var stxt=document.getElementById('stxt');
     var ssub=document.getElementById('ssub');
@@ -624,37 +629,50 @@ footer{
     var nowMins=now.getHours()*60+now.getMinutes();
     var oM=openT?parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]):600;
     var cM=closeT?parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]):1200;
-    var timeStr=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':'10:00 \u2013 20:00 Uhr';
+
+    // Finde naechsten Oeffnungstag
+    function findNextOpen(){
+      if(!schedule||!schedule.length)return null;
+      for(var i=0;i<schedule.length;i++){
+        var s=schedule[i];
+        if(s.date<=todayStr)continue;
+        if(!s.closed_all_day&&s.is_open){
+          var d=new Date(s.date+'T12:00:00');
+          var ot=(s.open_time||'10:00').substring(0,5);
+          return DAYS_DE[d.getDay()]+' ab '+ot+' Uhr';
+        }
+      }
+      return null;
+    }
 
     if(closedAllDay){
-      // Ganzer Tag geschlossen
       dot.classList.add('closed');
       stxt.textContent='Aktuell geschlossen';
-      ssub.textContent='Heute ganzt\u00e4gig geschlossen';
+      var next=findNextOpen();
+      ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
       if(widget)widget.classList.add('is-closed');
     }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
-      // 1 Stunde vor Schliessung
       dot.classList.remove('closed');
       stxt.textContent='Wir schlie\u00dfen gleich';
-      ssub.textContent=timeStr;
+      ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
-    }else if(!isOpen&&(oM-nowMins<=60)&&(oM-nowMins>0)){
-      // 1 Stunde vor Oeffnung
+    }else if(!isOpen&&nowMins<oM&&(oM-nowMins<=60)){
+      // Am Tag der Oeffnung, 1h vorher
       dot.classList.add('closed');
-      stxt.textContent='Wir \u00f6ffnen gleich';
-      ssub.textContent=timeStr;
+      stxt.textContent='Wir \u00f6ffnen bald';
+      ssub.textContent='Ab '+openT+' Uhr';
       if(widget)widget.classList.add('is-closed');
     }else if(isOpen){
-      // Aktuell geoeffnet
       dot.classList.remove('closed');
       stxt.textContent='Aktuell ge\u00f6ffnet';
-      ssub.textContent=timeStr;
+      ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
     }else{
-      // Aktuell geschlossen
+      // Nach Schliessung oder vor Oeffnung (>1h)
       dot.classList.add('closed');
       stxt.textContent='Aktuell geschlossen';
-      ssub.textContent=timeStr;
+      var next=findNextOpen();
+      ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
       if(widget)widget.classList.add('is-closed');
     }
   }
