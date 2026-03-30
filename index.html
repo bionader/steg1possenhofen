@@ -555,8 +555,8 @@ footer{
   var CACHE_TTL=5*60*1000;
 
   function fallback(){
-    var h=new Date().getHours(),d=new Date().getDay();
-    return(d>=1&&d<=5&&h>=11&&h<22)||((d===0||d===6)&&h>=10&&h<23);
+    var h=new Date().getHours();
+    return h>=10&&h<20;
   }
 
   function show(isOpen){
@@ -621,7 +621,7 @@ footer{
     if(isOpen){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet';
-      ssub.textContent=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':((new Date().getDay()===0||new Date().getDay()===6)?'10:00 \u2013 23:00 Uhr':'11:00 \u2013 22:00 Uhr');
+      ssub.textContent=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':'10:00 \u2013 20:00 Uhr';
       if(widget)widget.classList.remove('is-closed');
     }else{
       dot.classList.add('closed');

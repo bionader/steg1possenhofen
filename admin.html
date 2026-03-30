@@ -131,14 +131,13 @@
 
     function fmtDate(d){return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()}
 
-    function defaultTimes(d){
-      var day=d.getDay();
-      return{open:(day===0||day===6)?'10:00':'11:00',close:(day===0||day===6)?'23:00':'22:00'};
+    function defaultTimes(){
+      return{open:'10:00',close:'20:00'};
     }
 
     function getDays(){
       var days=[],now=new Date();
-      for(var i=-3;i<=6;i++){
+      for(var i=-1;i<=6;i++){
         var d=new Date(now);d.setDate(d.getDate()+i);
         days.push({date:dateStr(d),dateObj:d,dayName:DAYS_DE[d.getDay()],formatted:fmtDate(d),isToday:i===0,isPast:i<0});
       }
