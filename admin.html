@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Steg 1 Possenhofen</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #E8732A 0%, #F4EDD8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(43, 92, 63, 0.15);
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      color: #18180F;
+      margin-bottom: 10px;
+    }
+    .subtitle { color: #7A7668; margin-bottom: 30px; font-size: 0.95rem; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; color: #4A4840; font-weight: 500; margin-bottom: 8px; font-size: 0.9rem; }
+    input[type="password"], input[type="email"], input[type="datetime-local"] {
+      width: 100%; padding: 12px; border: 2px solid #E6D9B8; border-radius: 8px;
+      font-family: inherit; font-size: 1rem; transition: border-color 0.2s;
+    }
+    input:focus { outline: none; border-color: #E8732A; }
+    button {
+      width: 100%; padding: 12px; background: #E8732A; color: white; border: none;
+      border-radius: 100px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    button:hover { background: #D4641F; }
+    button:disabled { background: #CCC; cursor: not-allowed; }
+    .dashboard { display: none; }
+    .status-card {
+      background: #F4EDD8; padding: 24px; border-radius: 12px; margin-bottom: 20px; text-align: center;
+    }
+    .status-dot {
+      width: 16px; height: 16px; border-radius: 50%; background: #E8732A;
+      display: inline-block; margin-right: 8px;
+    }
+    .status-dot.closed { background: #999; }
+    .status-text {
+      font-size: 1.3rem; color: #18180F; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    .button-group button { flex: 1; }
+    .logout-btn { background: #7A7668 !important; }
+    .logout-btn:hover { background: #4A4840 !important; }
+    .override-section {
+      background: #F9F7F3; padding: 16px; border-radius: 12px; margin-top: 20px;
+      border-left: 4px solid #E8732A;
+    }
+    .override-section h3 { color: #18180F; font-size: 1rem; margin-bottom: 12px; }
+    .message { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.95rem; }
+    .message.success { background: #D4EDDA; color: #155724; }
+    .message.error { background: #F8D7DA; color: #721C24; }
+    .spinner {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid #E8732A; border-right-color: transparent;
+      border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="login">
+      <h1>Admin</h1>
+      <p class="subtitle">Steg 1 Possenhofen</p>
+      <div id="login-message"></div>
+      <div class="form-group">
+        <label for="email">E-Mail</label>
+        <input type="email" id="email" value="admin@steg1possenhofen.de">
+      </div>
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input type="password" id="password" placeholder="Passwort eingeben">
+      </div>
+      <button type="button" id="btn-login">Anmelden</button>
+    </div>
+
+    <div class="dashboard" id="dashboard">
+      <h1>Status</h1>
+      <p class="subtitle">Verwalte den heutigen Status</p>
+      <div id="message"></div>
+      <div class="status-card">
+        <div class="status-text">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Laden...</span>
+        </div>
+      </div>
+      <div class="button-group">
+        <button type="button" id="btn-toggle">Status aendern</button>
+        <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
+      </div>
+      <div class="override-section">
+        <h3>Temporaerer Override</h3>
+        <p style="color: #7A7668; font-size: 0.9rem; margin-bottom: 12px;">
+          Schliesse den Steg z.B. wegen Schlechtwetter bis zu einer bestimmten Zeit.
+        </p>
+        <div class="form-group">
+          <label for="override-until">Wieder offen ab:</label>
+          <input type="datetime-local" id="override-until">
+        </div>
+        <button type="button" id="btn-override" style="background: #7A7668;">Override setzen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Supabase Config (anon key ist public, designed for browser use)
+    var SUPABASE_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+    var accessToken = '';
+
+    function showMessage(text, type, targetId) {
+      var msg = document.getElementById(targetId || 'message');
+      msg.className = 'message ' + (type || 'success');
+      msg.textContent = text;
+      setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 4000);
+    }
+
+    // Supabase Auth: Login
+    document.getElementById('btn-login').addEventListener('click', function() {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      var btn = this;
+
+      if (!email || !password) {
+        showMessage('Bitte E-Mail und Passwort eingeben', 'error', 'login-message');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Anmelden...';
+
+      fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ email: email, password: password })
+      })
+      .then(function(res) {
+        if (!res.ok) {
+          showMessage('Falsches Passwort oder E-Mail!', 'error', 'login-message');
+          btn.disabled = false;
+          btn.textContent = 'Anmelden';
+          return null;
+        }
+        return res.json();
+      })
+      .then(function(data) {
+        if (!data || !data.access_token) return;
+        accessToken = data.access_token;
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadStatus();
+        btn.disabled = false;
+        btn.textContent = 'Anmelden';
+      })
+      .catch(function() {
+        showMessage('Verbindungsfehler', 'error', 'login-message');
+        btn.disabled = false;
+        btn.textContent = 'Anmelden';
+      });
+    });
+
+    // Logout
+    document.getElementById('btn-logout').addEventListener('click', function() {
+      accessToken = '';
+      document.getElementById('login').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('password').value = '';
+    });
+
+    // Status laden (public, kein Auth noetig)
+    function loadStatus() {
+      fetch(SUPABASE_URL + '/rest/v1/opening_status?id=eq.1&select=is_open', {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data && data.length > 0) updateStatusDisplay(data[0].is_open);
+      })
+      .catch(function() {
+        showMessage('Fehler beim Laden', 'error');
+      });
+    }
+
+    function updateStatusDisplay(isOpen) {
+      var dot = document.getElementById('status-dot');
+      var text = document.getElementById('status-text');
+      if (isOpen) {
+        dot.classList.remove('closed');
+        text.textContent = 'Heute geoeffnet';
+      } else {
+        dot.classList.add('closed');
+        text.textContent = 'Heute geschlossen';
+      }
+    }
+
+    // Status toggle (Auth erforderlich, RLS prueft)
+    document.getElementById('btn-toggle').addEventListener('click', function() {
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Wird aktualisiert...';
+
+      // Erst aktuellen Status holen
+      fetch(SUPABASE_URL + '/rest/v1/opening_status?id=eq.1&select=is_open', {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + accessToken
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data || data.length === 0) throw new Error('No data');
+        var newStatus = !data[0].is_open;
+
+        return fetch(SUPABASE_URL + '/rest/v1/opening_status?id=eq.1', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + accessToken,
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            is_open: newStatus,
+            manual_override: false,
+            override_until: null,
+            last_updated: new Date().toISOString()
+          })
+        });
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('Update failed');
+        return res.json();
+      })
+      .then(function(data) {
+        if (data && data.length > 0) {
+          updateStatusDisplay(data[0].is_open);
+          showMessage('Status aktualisiert!');
+        }
+      })
+      .catch(function() {
+        showMessage('Fehler beim Update', 'error');
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Status aendern';
+      });
+    });
+
+    // Override setzen
+    document.getElementById('btn-override').addEventListener('click', function() {
+      var untilStr = document.getElementById('override-until').value;
+      if (!untilStr) {
+        showMessage('Bitte Zeit waehlen', 'error');
+        return;
+      }
+
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Wird gespeichert...';
+
+      fetch(SUPABASE_URL + '/rest/v1/opening_status?id=eq.1', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + accessToken,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          is_open: false,
+          manual_override: true,
+          override_until: new Date(untilStr).toISOString(),
+          last_updated: new Date().toISOString()
+        })
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('Update failed');
+        return res.json();
+      })
+      .then(function(data) {
+        if (data && data.length > 0) {
+          updateStatusDisplay(false);
+          showMessage('Override gespeichert!');
+        }
+      })
+      .catch(function() {
+        showMessage('Fehler beim Speichern', 'error');
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Override setzen';
+      });
+    });
+  </script>
+</body>
+</html>

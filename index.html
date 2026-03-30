@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steg 1 Possenhofen — Beach Club am Starnberger See</title>
+<meta name="description" content="Steg 1 Possenhofen — Beach Club, Biergarten & SUP-Verleih direkt am Starnberger See. Frische Küche, Stand-Up Paddeln und SUP Yoga mit Alpenblick.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <img src="images/logo.svg" alt="Steg 1 Possenhofen" class="logo-img">
+    </a>
+    <ul class="nav-links">
+      <li><a href="#atmosphaere">Am See</a></li>
+      <li><a href="#sup">SUP & Yoga</a></li>
+      <li><a href="#speisekarte">Speisekarte</a></li>
+      <li><a href="#gutscheine">Gutscheine</a></li>
+    </ul>
+    <a href="#sup" class="nav-cta">Jetzt buchen</a>
+    <button class="hamburger" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu">
+  <a href="#atmosphaere">Am See</a>
+  <a href="#sup">SUP & Yoga</a>
+  <a href="#speisekarte">Speisekarte</a>
+  <a href="#gutscheine">Gutscheine</a>
+  <a href="#kontakt">Kontakt</a>
+  <a href="#sup" class="mobile-cta">Jetzt buchen</a>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-left">
+    <p class="eyebrow">Possenhofen · Starnberger See</p>
+    <h1>Wo der See<br><em>beginnt.</em></h1>
+    <p class="hero-sub">Beach Club, SUP-Verleih und SUP Yoga — direkt am Ufer. Frische Küche und das beste Wasser Bayerns.</p>
+
+    <div class="status">
+      <div class="dot-wrap">
+        <div class="dot" id="dot"></div>
+        <div class="ripple"></div>
+      </div>
+      <div class="status-text">
+        <strong id="stxt">Heute geöffnet</strong>
+        <span id="ssub">11:00 – 22:00 Uhr</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="#sup" class="btn btn-p">SUP buchen</a>
+      <a href="#gutscheine" class="btn btn-o">Gutschein kaufen</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="images/hero-sup.jpg" alt="Stand-Up Paddling und Baden am Starnberger See bei Possenhofen" loading="eager">
+  </div>
+</header>
+
+<!-- WETTERBAR -->
+<div class="wbar">
+  <div class="wi">
+    <div class="wi-icon">&#9728;</div>
+    <div class="wi-data">
+      <div class="val">22 °C</div>
+      <div class="lbl">Lufttemperatur</div>
+    </div>
+  </div>
+  <div class="wi">
+    <div class="wi-icon">&#127754;</div>
+    <div class="wi-data">
+      <div class="val">18 °C</div>
+      <div class="lbl">Wassertemperatur</div>
+    </div>
+  </div>
+  <div class="wi">
+    <div class="wi-icon">&#127788;</div>
+    <div class="wi-data">
+      <div class="val">SW 8 km/h</div>
+      <div class="lbl">Wind</div>
+    </div>
+  </div>
+  <div class="wi">
+    <div class="wi-icon">&#128336;</div>
+    <div class="wi-data">
+      <div class="val" id="wbar-status">Geöffnet</div>
+      <div class="lbl" id="wbar-hours">11:00 – 22:00 Uhr</div>
+    </div>
+  </div>
+</div>
+
+<!-- ATMOSPHÄRE -->
+<section class="atm reveal" id="atmosphaere">
+  <div class="atm-img">
+    <img src="images/sunset-steg.jpg" alt="Sonnenuntergang am Steg 1 Possenhofen mit Liegestühlen" loading="lazy">
+  </div>
+  <div class="atm-text">
+    <p class="stag">Am See</p>
+    <h2>Jeden Abend ein anderer Sonnenuntergang.</h2>
+    <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
+  </div>
+</section>
+
+<!-- SUP -->
+<section class="sec sup-section reveal" id="sup">
+  <div class="sec-inner">
+    <p class="stag">Am Wasser</p>
+    <h2>Stand-Up Paddeln & SUP Yoga</h2>
+    <p class="ssub">Equipment und Sicherheit inklusive — direkt am Steg.</p>
+    <div class="sup-inner">
+      <div class="sup-img">
+        <img src="images/sup-board.jpg" alt="SUP-Board auf dem Steg am Starnberger See" loading="lazy">
+      </div>
+      <div class="sup-right">
+        <div class="sup-cards">
+          <div class="sc">
+            <div class="sc-left">
+              <h3>SUP-Verleih</h3>
+              <p>Board, Paddel, Schwimmweste · Einweisung inkl.</p>
+            </div>
+            <div class="sc-price">15 €<span>/ Stunde</span></div>
+          </div>
+          <div class="sc">
+            <div class="sc-left">
+              <h3>SUP Yoga</h3>
+              <p>90 min · alle Levels · Ausblick auf die Alpen</p>
+            </div>
+            <div class="sc-price">35 €<span>/ Person</span></div>
+          </div>
+          <div class="sc">
+            <div class="sc-left">
+              <h3>Tagesmiete</h3>
+              <p>Den ganzen Tag auf dem See</p>
+            </div>
+            <div class="sc-price">49 €<span>/ Tag</span></div>
+          </div>
+          <div class="sc">
+            <div class="sc-left">
+              <h3>Zehnerkarte</h3>
+              <p>10 × 1 Stunde SUP · übertragbar</p>
+            </div>
+            <div class="sc-price">135 €<span>statt 150 €</span></div>
+          </div>
+        </div>
+        <a href="#" class="book-btn">Jetzt buchen &#8594;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPEISEKARTE -->
+<section class="sec reveal" id="speisekarte">
+  <div class="sec-inner">
+    <p class="stag">Küche & Karte</p>
+    <h2>Frisch. Regional. Am Wasser.</h2>
+    <p class="ssub">Unsere Küche wechselt saisonal — hier ein Auszug aus der aktuellen Karte.</p>
+    <div class="menu-grid">
+      <div class="mcat">
+        <div class="mcat-title">Brotzeiten</div>
+        <div class="mi">
+          <div><div class="mi-name">Brettljause</div><div class="mi-desc">Wurst, Käse, Radieschen, Butter</div></div>
+          <span class="mi-price">14,50 €</span>
+        </div>
+        <div class="mi">
+          <div><div class="mi-name">Laugenbrezel</div><div class="mi-desc">Mit Obazda oder Butter</div></div>
+          <span class="mi-price">4,90 €</span>
+        </div>
+        <div class="mi">
+          <div><div class="mi-name">Starnberger Teller</div><div class="mi-desc">Gemüse, Dip, Bauernbrot</div></div>
+          <span class="mi-price">11,80 €</span>
+        </div>
+      </div>
+
+      <div class="mcat">
+        <div class="mcat-title">Küche</div>
+        <div class="mi">
+          <div><div class="mi-name">Felchenfilet</div><div class="mi-desc">Vom Starnberger See · Kartoffelsalat</div></div>
+          <span class="mi-price">22,50 €</span>
+        </div>
+        <div class="mi">
+          <div><div class="mi-name">Flammkuchen</div><div class="mi-desc">Speck & Zwiebel oder vegetarisch</div></div>
+          <span class="mi-price">13,80 €</span>
+        </div>
+        <div class="mi">
+          <div><div class="mi-name">Tagesgericht</div><div class="mi-desc">Saisonal, Tafel fragen</div></div>
+          <span class="mi-price">ab 15 €</span>
+        </div>
+      </div>
+
+      <div class="mcat">
+        <div class="mcat-title">Getränke</div>
+        <div class="mi">
+          <div class="mi-name">Augustiner Helles 0,5 l</div>
+          <span class="mi-price">4,80 €</span>
+        </div>
+        <div class="mi">
+          <div class="mi-name">Radler 0,5 l</div>
+          <span class="mi-price">4,80 €</span>
+        </div>
+        <div class="mi">
+          <div class="mi-name">Aperol Spritz</div>
+          <span class="mi-price">8,50 €</span>
+        </div>
+        <div class="mi">
+          <div class="mi-name">Wasser / Softdrink</div>
+          <span class="mi-price">3,50 €</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOTOBAND -->
+<div class="photo-band reveal">
+  <div class="pb-main">
+    <img src="images/strand-segel.jpg" alt="Strand mit Segelbooten am Starnberger See" loading="lazy">
+  </div>
+  <div class="pb-side">
+    <img src="images/biergarten.jpg" alt="Biergarten Steg 1 Possenhofen im Sommer" loading="lazy">
+    <img src="images/cappuccino.jpg" alt="Cappuccino auf dem Steg mit Seeblick" loading="lazy">
+  </div>
+</div>
+
+<!-- GUTSCHEINE -->
+<section class="sec voucher-section reveal" id="gutscheine">
+  <div class="sec-inner">
+    <p class="stag">Verschenken</p>
+    <h2>Ein Stück See verschenken.</h2>
+    <p class="ssub">Per E-Mail als PDF — sofort lieferbar, kein Ablaufdatum.</p>
+    <div class="voucher-grid">
+      <div class="vc">
+        <div class="vamt">25 €</div>
+        <div class="vlabel">Kleiner Genuss</div>
+        <ul class="vfeats">
+          <li>Für Speisen & Getränke</li>
+          <li>Kein Ablaufdatum</li>
+          <li>PDF per E-Mail</li>
+        </ul>
+        <button class="vbtn">Kaufen</button>
+      </div>
+      <div class="vc feat">
+        <div class="fbadge">Beliebt</div>
+        <div class="vamt">50 €</div>
+        <div class="vlabel">Steg-Erlebnis</div>
+        <ul class="vfeats">
+          <li>Für alles am Steg</li>
+          <li>SUP & Yoga einlösbar</li>
+          <li>Kein Ablaufdatum</li>
+          <li>PDF per E-Mail</li>
+        </ul>
+        <button class="vbtn">Kaufen</button>
+      </div>
+      <div class="vc">
+        <div class="vamt">100 €</div>
+        <div class="vlabel">Großes Geschenk</div>
+        <ul class="vfeats">
+          <li>Für alles am Steg</li>
+          <li>SUP & Yoga einlösbar</li>
+          <li>Kein Ablaufdatum</li>
+          <li>PDF per E-Mail</li>
+        </ul>
+        <button class="vbtn">Kaufen</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="kontakt">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="flogo">Steg 1<br>Possenhofen</div>
+      <p class="fdesc">Beach Club & SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+    </div>
+    <div class="fcol">
+      <h4>Navigation</h4>
+      <a href="#sup">SUP & Yoga</a>
+      <a href="#speisekarte">Speisekarte</a>
+      <a href="#gutscheine">Gutscheine</a>
+    </div>
+    <div class="fcol">
+      <h4>Kontakt</h4>
+      <a href="#">Kurt-Stieler-Str. 68, 82343 Possenhofen</a>
+      <a href="tel:+49000000000">+49 (0) ... ...</a>
+      <a href="mailto:hallo@stegeins.de">hallo@stegeins.de</a>
+    </div>
+    <div class="fcol">
+      <h4>Rechtliches</h4>
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Steg 1 Possenhofen</span>
+    <span>Mit &#9829; am See</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
