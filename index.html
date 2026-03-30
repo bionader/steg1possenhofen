@@ -585,13 +585,18 @@ footer{
     if(c){var cd=JSON.parse(c);if(Date.now()-cd.t<CACHE_TTL){show(cd.v);}}
   }catch(e){localStorage.removeItem(CACHE_KEY);}
 
-  fetch(SB_URL+'/rest/v1/opening_status?id=eq.1&select=is_open,manual_override,override_until',{
+  // Lade heutigen Status aus daily_schedule
+  var today=new Date();
+  var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+
+  fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+todayStr+'&select=is_open',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){return r.json()}).then(function(data){
-    if(!data||!data.length)return;
-    var isOpen=data[0].is_open;
-    if(data[0].manual_override&&data[0].override_until){
-      if(new Date()>=new Date(data[0].override_until))isOpen=fallback();
+    var isOpen;
+    if(data&&data.length>0){
+      isOpen=data[0].is_open;
+    }else{
+      isOpen=fallback();
     }
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now()}));
     show(isOpen);
