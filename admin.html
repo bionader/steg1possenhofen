@@ -27,53 +27,60 @@
     .logout-row{display:flex;justify-content:flex-end;margin-bottom:20px}
     .logout-btn{width:auto;padding:8px 20px;background:#7A7668;font-size:.82rem;border-radius:100px}
     .logout-btn:hover{background:#4A4840}
-
-    /* Calendar */
     .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     .cal-header h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#18180F}
-    .cal-hint{font-size:.75rem;color:#7A7668}
+    .cal-hint{font-size:.72rem;color:#7A7668}
     .day-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-    .day-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:#FDFAF4;border:1.5px solid #F0E8D6;transition:all .2s;position:relative}
+
+    .day-card{padding:14px 16px;border-radius:14px;background:#FDFAF4;border:1.5px solid #F0E8D6;transition:all .2s}
     .day-card.today{border-color:#E8732A;background:linear-gradient(135deg,rgba(232,115,42,.04),rgba(232,115,42,.08));box-shadow:0 2px 12px rgba(232,115,42,.1)}
-    .day-card.past{opacity:.5}
-    .day-info{flex:1;min-width:0}
+    .day-card.past{opacity:.45;pointer-events:none}
+    .day-card.is-closed{background:#FBF5F5;border-color:#E8D0D0}
+
+    .day-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
+    .day-top.has-details{margin-bottom:10px}
+    .day-info{flex:1}
     .day-name{font-weight:600;font-size:.9rem;color:#18180F}
-    .day-date{font-size:.75rem;color:#7A7668;margin-top:1px}
-    .day-card.today .day-name::after{content:'HEUTE';font-size:.6rem;background:#E8732A;color:white;padding:2px 7px;border-radius:20px;margin-left:8px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
-    .day-note{font-size:.72rem;color:#7A7668;font-style:italic;margin-top:2px}
+    .day-date{font-size:.73rem;color:#7A7668;margin-top:1px}
+    .day-card.today .day-name::after{content:'HEUTE';font-size:.58rem;background:#E8732A;color:white;padding:2px 7px;border-radius:20px;margin-left:8px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
 
-    /* Toggle Switch */
-    .toggle{position:relative;width:52px;height:28px;flex-shrink:0}
-    .toggle input{opacity:0;width:0;height:0}
-    .toggle .slider{position:absolute;inset:0;background:#D94F4F;border-radius:28px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1)}
-    .toggle .slider::before{content:'';position:absolute;height:22px;width:22px;left:3px;bottom:3px;background:white;border-radius:50%;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.15)}
-    .toggle input:checked+.slider{background:#34D058}
-    .toggle input:checked+.slider::before{transform:translateX(24px)}
-    .toggle input:disabled+.slider{opacity:.4;cursor:not-allowed}
+    .day-details{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .time-group{display:flex;align-items:center;gap:6px}
+    .time-label{font-size:.72rem;color:#7A7668;font-weight:500}
+    .time-input{width:80px;padding:6px 8px;border:1.5px solid #E6D9B8;border-radius:8px;font-family:inherit;font-size:.82rem;text-align:center;transition:border-color .2s}
+    .time-input:focus{outline:none;border-color:#E8732A}
+    .time-sep{font-size:.82rem;color:#B8AE9C;font-weight:300}
 
-    /* Note input */
-    .note-input{width:100%;padding:6px 10px;border:1px solid #E6D9B8;border-radius:8px;font-family:inherit;font-size:.75rem;margin-top:4px;transition:border-color .2s}
+    .note-input{flex:1;min-width:120px;padding:6px 10px;border:1.5px solid #E6D9B8;border-radius:8px;font-family:inherit;font-size:.75rem;transition:border-color .2s}
     .note-input:focus{outline:none;border-color:#E8732A}
     .note-input::placeholder{color:#B8AE9C}
+    .day-note{font-size:.72rem;color:#7A7668;font-style:italic;margin-top:6px}
+
+    .day-closed-info{font-size:.78rem;color:#D94F4F;font-weight:500;margin-top:4px}
+
+    /* Toggle */
+    .toggle{position:relative;width:48px;height:26px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0}
+    .toggle .slider{position:absolute;inset:0;background:#D94F4F;border-radius:26px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1)}
+    .toggle .slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+    .toggle input:checked+.slider{background:#34D058}
+    .toggle input:checked+.slider::before{transform:translateX(22px)}
+    .toggle input:disabled+.slider{opacity:.4;cursor:not-allowed}
 
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
-    .btn-secondary{background:#7A7668}
-    .btn-secondary:hover{background:#4A4840}
-
-    .spinner{display:inline-block;width:12px;height:12px;border:2px solid #E8732A;border-right-color:transparent;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px}
-    @keyframes spin{to{transform:rotate(360deg)}}
 
     @media(max-width:500px){
-      .container{padding:24px 20px;border-radius:16px}
+      .container{padding:24px 18px;border-radius:16px}
       h1{font-size:1.8rem}
       .day-card{padding:12px}
+      .day-details{gap:6px}
+      .time-input{width:70px;font-size:.78rem}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Login -->
     <div id="login">
       <h1>Admin</h1>
       <p class="subtitle">Steg 1 Possenhofen</p>
@@ -89,14 +96,13 @@
       <button type="button" id="btn-login">Anmelden</button>
     </div>
 
-    <!-- Dashboard -->
     <div class="dashboard" id="dashboard">
       <div class="logout-row">
         <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
       </div>
       <div class="cal-header">
         <h2>Wochenplaner</h2>
-        <span class="cal-hint">Toggle = offen/geschlossen</span>
+        <span class="cal-hint">Rot = ganzer Tag geschlossen</span>
       </div>
       <div id="message"></div>
       <div class="day-grid" id="day-grid"></div>
@@ -112,167 +118,206 @@
     var token='';
     var failedAttempts=0;
     var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-    var DAYS_SHORT=['So','Mo','Di','Mi','Do','Fr','Sa'];
 
     function msg(text,type,target){
       var el=document.getElementById(target||'message');
-      el.className='message '+(type||'success');
-      el.textContent=text;
-      setTimeout(function(){el.textContent='';el.className='';},3500);
+      el.className='message '+(type||'success');el.textContent=text;
+      setTimeout(function(){el.textContent='';el.className=''},3500);
     }
 
     function dateStr(d){
-      var y=d.getFullYear();
-      var m=String(d.getMonth()+1).padStart(2,'0');
-      var dd=String(d.getDate()).padStart(2,'0');
-      return y+'-'+m+'-'+dd;
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     }
 
-    function formatDate(d){
-      return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear();
+    function fmtDate(d){return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()}
+
+    function defaultTimes(d){
+      var day=d.getDay();
+      return{open:(day===0||day===6)?'10:00':'11:00',close:(day===0||day===6)?'23:00':'22:00'};
     }
 
-    // Generate 10 days: 3 past + today + 6 future
     function getDays(){
-      var days=[];
-      var now=new Date();
+      var days=[],now=new Date();
       for(var i=-3;i<=6;i++){
-        var d=new Date(now);
-        d.setDate(d.getDate()+i);
-        days.push({
-          date:dateStr(d),
-          dateObj:d,
-          dayName:DAYS_DE[d.getDay()],
-          dayShort:DAYS_SHORT[d.getDay()],
-          formatted:formatDate(d),
-          isToday:i===0,
-          isPast:i<0
-        });
+        var d=new Date(now);d.setDate(d.getDate()+i);
+        days.push({date:dateStr(d),dateObj:d,dayName:DAYS_DE[d.getDay()],formatted:fmtDate(d),isToday:i===0,isPast:i<0});
       }
       return days;
     }
 
-    function defaultOpen(d){
-      var day=d.getDay(),h=12;
-      return(day>=1&&day<=5)||(day===0||day===6);
-    }
-
-    // Build calendar UI
     function buildCalendar(schedule){
       var grid=document.getElementById('day-grid');
       grid.innerHTML='';
-      var days=getDays();
+      getDays().forEach(function(day){
+        var s=schedule.find(function(r){return r.date===day.date});
+        var def=defaultTimes(day.dateObj);
+        var openTime=s?s.open_time||def.open:def.open;
+        var closeTime=s?s.close_time||def.close:def.close;
+        var closedAllDay=s?s.closed_all_day:false;
+        var isOpen=s?s.is_open:true;
+        var note=s?s.note||'':'';
 
-      days.forEach(function(day){
-        var existing=schedule.find(function(s){return s.date===day.date});
-        var isOpen=existing?existing.is_open:defaultOpen(day.dateObj);
-        var note=existing?existing.note||'':'';
+        // Trim seconds from time
+        openTime=openTime.substring(0,5);
+        closeTime=closeTime.substring(0,5);
 
         var card=document.createElement('div');
-        card.className='day-card'+(day.isToday?' today':'')+(day.isPast?' past':'');
+        card.className='day-card'+(day.isToday?' today':'')+(day.isPast?' past':'')+(closedAllDay?' is-closed':'');
         card.dataset.date=day.date;
+
+        var top=document.createElement('div');
+        top.className='day-top'+(day.isPast?'':' has-details');
 
         var info=document.createElement('div');
         info.className='day-info';
         info.innerHTML='<div class="day-name">'+day.dayName+'</div><div class="day-date">'+day.formatted+'</div>';
+        top.appendChild(info);
 
-        if(!day.isPast){
-          var noteInput=document.createElement('input');
-          noteInput.type='text';
-          noteInput.className='note-input';
-          noteInput.placeholder='Notiz (z.B. Schlechtwetter)';
-          noteInput.value=note;
-          noteInput.dataset.date=day.date;
-          info.appendChild(noteInput);
-        }else if(note){
-          info.innerHTML+='<div class="day-note">'+note+'</div>';
-        }
-
+        // Toggle (open/closed all day)
         var toggle=document.createElement('label');
         toggle.className='toggle';
+        toggle.title=closedAllDay?'Ganzer Tag geschlossen':'Ge\u00f6ffnet';
         var cb=document.createElement('input');
         cb.type='checkbox';
-        cb.checked=isOpen;
+        cb.checked=!closedAllDay;
         cb.dataset.date=day.date;
         if(day.isPast)cb.disabled=true;
         var slider=document.createElement('span');
         slider.className='slider';
         toggle.appendChild(cb);
         toggle.appendChild(slider);
+        top.appendChild(toggle);
 
-        card.appendChild(info);
-        card.appendChild(toggle);
+        card.appendChild(top);
+
+        // Details row (only for non-past, non-closed days)
+        if(!day.isPast){
+          var details=document.createElement('div');
+          details.className='day-details';
+          details.dataset.date=day.date;
+
+          if(closedAllDay){
+            details.innerHTML='<span class="day-closed-info">Ganzer Tag geschlossen</span>';
+          }else{
+            // Time inputs
+            var tg=document.createElement('div');
+            tg.className='time-group';
+            tg.innerHTML='<span class="time-label">Von</span>'
+              +'<input type="time" class="time-input open-time" value="'+openTime+'" data-date="'+day.date+'">'
+              +'<span class="time-sep">&ndash;</span>'
+              +'<span class="time-label">Bis</span>'
+              +'<input type="time" class="time-input close-time" value="'+closeTime+'" data-date="'+day.date+'">';
+            details.appendChild(tg);
+          }
+
+          // Note
+          var noteInput=document.createElement('input');
+          noteInput.type='text';
+          noteInput.className='note-input';
+          noteInput.placeholder='Notiz';
+          noteInput.value=note;
+          noteInput.dataset.date=day.date;
+          details.appendChild(noteInput);
+
+          card.appendChild(details);
+
+          // Toggle handler: show/hide time inputs
+          cb.addEventListener('change',function(){
+            var date=this.dataset.date;
+            var det=document.querySelector('.day-details[data-date="'+date+'"]');
+            var c=this.closest('.day-card');
+            if(!this.checked){
+              c.classList.add('is-closed');
+              var tg=det.querySelector('.time-group');
+              if(tg)tg.remove();
+              var ci=det.querySelector('.day-closed-info');
+              if(!ci){
+                var span=document.createElement('span');
+                span.className='day-closed-info';
+                span.textContent='Ganzer Tag geschlossen';
+                det.insertBefore(span,det.firstChild);
+              }
+            }else{
+              c.classList.remove('is-closed');
+              var ci=det.querySelector('.day-closed-info');
+              if(ci)ci.remove();
+              var existingTg=det.querySelector('.time-group');
+              if(!existingTg){
+                var def2=defaultTimes(new Date(date+'T12:00:00'));
+                var tg2=document.createElement('div');
+                tg2.className='time-group';
+                tg2.innerHTML='<span class="time-label">Von</span>'
+                  +'<input type="time" class="time-input open-time" value="'+def2.open+'" data-date="'+date+'">'
+                  +'<span class="time-sep">&ndash;</span>'
+                  +'<span class="time-label">Bis</span>'
+                  +'<input type="time" class="time-input close-time" value="'+def2.close+'" data-date="'+date+'">';
+                det.insertBefore(tg2,det.firstChild);
+              }
+            }
+          });
+        }else if(note){
+          card.innerHTML+='<div class="day-note">'+note+'</div>';
+        }
+
         grid.appendChild(card);
       });
     }
 
-    // Load schedule from Supabase
     function loadSchedule(){
       var days=getDays();
-      var minDate=days[0].date;
-      var maxDate=days[days.length-1].date;
-
-      fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+minDate+'&date=lte.'+maxDate+'&order=date',{
+      fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+days[0].date+'&date=lte.'+days[days.length-1].date+'&order=date',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
-      .then(function(data){
-        if(Array.isArray(data))buildCalendar(data);
-        else buildCalendar([]);
-      })
+      .then(function(data){buildCalendar(Array.isArray(data)?data:[])})
       .catch(function(){buildCalendar([])});
     }
 
-    // Save schedule to Supabase
+    // Save
     document.getElementById('btn-save').addEventListener('click',function(){
-      var btn=this;
-      btn.disabled=true;
-      btn.textContent='Speichern...';
-
-      var checkboxes=document.querySelectorAll('.day-card:not(.past) input[type="checkbox"]');
-      var notes=document.querySelectorAll('.note-input');
-      var noteMap={};
-      notes.forEach(function(n){noteMap[n.dataset.date]=n.value});
+      var btn=this;btn.disabled=true;btn.textContent='Speichern...';
 
       var records=[];
-      checkboxes.forEach(function(cb){
+      var cards=document.querySelectorAll('.day-card:not(.past)');
+      cards.forEach(function(card){
+        var date=card.dataset.date;
+        var cb=card.querySelector('input[type="checkbox"]');
+        var closedAllDay=!cb.checked;
+        var openTime=null,closeTime=null;
+        var ot=card.querySelector('.open-time[data-date="'+date+'"]');
+        var ct=card.querySelector('.close-time[data-date="'+date+'"]');
+        if(ot)openTime=ot.value;
+        if(ct)closeTime=ct.value;
+        var noteEl=card.querySelector('.note-input[data-date="'+date+'"]');
+        var note=noteEl?noteEl.value:'';
+
         records.push({
-          date:cb.dataset.date,
-          is_open:cb.checked,
-          note:noteMap[cb.dataset.date]||''
+          date:date,
+          is_open:!closedAllDay,
+          closed_all_day:closedAllDay,
+          open_time:closedAllDay?null:openTime,
+          close_time:closedAllDay?null:closeTime,
+          note:note
         });
       });
 
-      // Upsert all records
       fetch(SB_URL+'/rest/v1/daily_schedule',{
         method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'apikey':SB_KEY,
-          'Authorization':'Bearer '+token,
-          'Prefer':'resolution=merge-duplicates'
-        },
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates'},
         body:JSON.stringify(records)
       })
       .then(function(r){
-        if(!r.ok)throw new Error('Save failed');
+        if(!r.ok)throw new Error('fail');
         msg('Wochenplan gespeichert!');
         loadSchedule();
       })
-      .catch(function(){
-        msg('Fehler beim Speichern','error');
-      })
-      .finally(function(){
-        btn.disabled=false;
-        btn.textContent='Speichern';
-      });
+      .catch(function(){msg('Fehler beim Speichern','error')})
+      .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
 
-      // Cleanup: Delete entries older than 4 days
-      var cutoff=new Date();
-      cutoff.setDate(cutoff.getDate()-4);
+      // Cleanup old entries
+      var cutoff=new Date();cutoff.setDate(cutoff.getDate()-4);
       fetch(SB_URL+'/rest/v1/daily_schedule?date=lt.'+dateStr(cutoff),{
-        method:'DELETE',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       });
     });
 
@@ -285,14 +330,11 @@
       if(failedAttempts>=3){
         var w=Math.min(Math.pow(2,failedAttempts-2)*5,60);
         msg('Zu viele Versuche. Bitte '+w+'s warten.','error','login-message');
-        btn.disabled=true;
-        setTimeout(function(){btn.disabled=false;btn.textContent='Anmelden'},w*1000);
-        return;
+        btn.disabled=true;setTimeout(function(){btn.disabled=false;btn.textContent='Anmelden'},w*1000);return;
       }
       btn.disabled=true;btn.textContent='Anmelden...';
       fetch(SB_URL+'/auth/v1/token?grant_type=password',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':SB_KEY},
+        method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},
         body:JSON.stringify({email:email,password:password})
       })
       .then(function(r){
@@ -301,8 +343,7 @@
       })
       .then(function(data){
         if(!data||!data.access_token)return;
-        token=data.access_token;
-        failedAttempts=0;
+        token=data.access_token;failedAttempts=0;
         document.getElementById('login').style.display='none';
         document.getElementById('dashboard').style.display='block';
         loadSchedule();
@@ -313,12 +354,9 @@
 
     // Logout
     document.getElementById('btn-logout').addEventListener('click',function(){
-      fetch(SB_URL+'/auth/v1/logout',{
-        method:'POST',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
-      }).finally(function(){
-        token='';
-        document.getElementById('login').style.display='block';
+      fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}})
+      .finally(function(){
+        token='';document.getElementById('login').style.display='block';
         document.getElementById('dashboard').style.display='none';
         document.getElementById('password').value='';
       });

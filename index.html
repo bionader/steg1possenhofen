@@ -585,22 +585,51 @@ footer{
     if(c){var cd=JSON.parse(c);if(Date.now()-cd.t<CACHE_TTL){show(cd.v);}}
   }catch(e){localStorage.removeItem(CACHE_KEY);}
 
-  // Lade heutigen Status aus daily_schedule
+  // Lade heutigen Status aus daily_schedule (mit Uhrzeiten)
   var today=new Date();
   var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
 
-  fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+todayStr+'&select=is_open',{
+  fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+todayStr+'&select=is_open,closed_all_day,open_time,close_time',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){return r.json()}).then(function(data){
-    var isOpen;
+    var isOpen,openT='',closeT='';
     if(data&&data.length>0){
-      isOpen=data[0].is_open;
+      var entry=data[0];
+      if(entry.closed_all_day){
+        isOpen=false;
+      }else{
+        openT=(entry.open_time||'11:00').substring(0,5);
+        closeT=(entry.close_time||'22:00').substring(0,5);
+        var nowMins=today.getHours()*60+today.getMinutes();
+        var openMins=parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]);
+        var closeMins=parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]);
+        isOpen=nowMins>=openMins&&nowMins<closeMins;
+      }
     }else{
       isOpen=fallback();
     }
-    localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now()}));
-    show(isOpen);
+    localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT}));
+    showWithTimes(isOpen,openT,closeT);
   }).catch(function(){show(fallback())});
+
+  function showWithTimes(isOpen,openT,closeT){
+    var dot=document.getElementById('dot');
+    var stxt=document.getElementById('stxt');
+    var ssub=document.getElementById('ssub');
+    var widget=document.getElementById('status-widget');
+    if(!dot||!stxt||!ssub)return;
+    if(isOpen){
+      dot.classList.remove('closed');
+      stxt.textContent='Heute ge\u00f6ffnet';
+      ssub.textContent=(openT&&closeT)?openT+' \u2013 '+closeT+' Uhr':((new Date().getDay()===0||new Date().getDay()===6)?'10:00 \u2013 23:00 Uhr':'11:00 \u2013 22:00 Uhr');
+      if(widget)widget.classList.remove('is-closed');
+    }else{
+      dot.classList.add('closed');
+      stxt.textContent='Heute geschlossen';
+      ssub.textContent='';
+      if(widget)widget.classList.add('is-closed');
+    }
+  }
 })();
 var obs=new IntersectionObserver(function(e){e.forEach(function(en){
   if(en.isIntersecting){en.target.classList.add('visible');obs.unobserve(en.target)}
