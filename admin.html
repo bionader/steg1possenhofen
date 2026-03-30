@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Steg 1 Possenhofen</title>
+  <meta name="robots" content="noindex, nofollow">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -84,7 +85,7 @@
       <div id="login-message"></div>
       <div class="form-group">
         <label for="email">E-Mail</label>
-        <input type="email" id="email" value="admin@steg1possenhofen.de">
+        <input type="email" id="email" placeholder="E-Mail eingeben">
       </div>
       <div class="form-group">
         <label for="password">Passwort</label>
@@ -127,6 +128,7 @@
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
 
     var accessToken = '';
+    var failedAttempts = 0;
 
     function showMessage(text, type, targetId) {
       var msg = document.getElementById(targetId || 'message');
@@ -146,6 +148,15 @@
         return;
       }
 
+      // Rate-Limiting: Exponentieller Backoff nach fehlgeschlagenen Versuchen
+      if (failedAttempts >= 3) {
+        var waitSeconds = Math.min(Math.pow(2, failedAttempts - 2) * 5, 60);
+        showMessage('Zu viele Versuche. Bitte ' + waitSeconds + 's warten.', 'error', 'login-message');
+        btn.disabled = true;
+        setTimeout(function() { btn.disabled = false; btn.textContent = 'Anmelden'; }, waitSeconds * 1000);
+        return;
+      }
+
       btn.disabled = true;
       btn.textContent = 'Anmelden...';
 
@@ -159,6 +170,7 @@
       })
       .then(function(res) {
         if (!res.ok) {
+          failedAttempts++;
           showMessage('Falsches Passwort oder E-Mail!', 'error', 'login-message');
           btn.disabled = false;
           btn.textContent = 'Anmelden';
@@ -182,12 +194,20 @@
       });
     });
 
-    // Logout
+    // Logout (serverseitig Session invalidieren)
     document.getElementById('btn-logout').addEventListener('click', function() {
-      accessToken = '';
-      document.getElementById('login').style.display = 'block';
-      document.getElementById('dashboard').style.display = 'none';
-      document.getElementById('password').value = '';
+      fetch(SUPABASE_URL + '/auth/v1/logout', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + accessToken
+        }
+      }).finally(function() {
+        accessToken = '';
+        document.getElementById('login').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('password').value = '';
+      });
     });
 
     // Status laden (public, kein Auth noetig)
