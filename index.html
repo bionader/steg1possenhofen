@@ -377,9 +377,8 @@ footer{
         <span id="ssub">11:00 &ndash; 22:00 Uhr</span>
       </div>
       <div class="status-divider"></div>
-      <div class="status-weather">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <span>Sch&ouml;nes Wetter</span>
+      <div class="status-weather" id="weather-badge" style="display:none">
+        <span id="weather-text"></span>
       </div>
     </div>
 
@@ -645,35 +644,45 @@ footer{
       return null;
     }
 
+    var wb=document.getElementById('weather-badge');
+    var wt=document.getElementById('weather-text');
+    function showWeather(on){
+      if(wb){wb.style.display=on?'flex':'none'}
+      if(wt&&on){wt.textContent='\u{1F30A} Seewetter'}
+    }
+
     if(closedAllDay){
       dot.classList.add('closed');
       stxt.textContent='Aktuell geschlossen';
       var next=findNextOpen();
       ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
       if(widget)widget.classList.add('is-closed');
+      showWeather(false);
     }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
       dot.classList.remove('closed');
       stxt.textContent='Wir schlie\u00dfen gleich';
       ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
+      showWeather(true);
     }else if(!isOpen&&nowMins<oM&&(oM-nowMins<=60)){
-      // Am Tag der Oeffnung, 1h vorher
       dot.classList.add('closed');
       stxt.textContent='Wir \u00f6ffnen bald';
       ssub.textContent='Ab '+openT+' Uhr';
       if(widget)widget.classList.add('is-closed');
+      showWeather(false);
     }else if(isOpen){
       dot.classList.remove('closed');
       stxt.textContent='Aktuell ge\u00f6ffnet';
       ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
+      showWeather(true);
     }else{
-      // Nach Schliessung oder vor Oeffnung (>1h)
       dot.classList.add('closed');
       stxt.textContent='Aktuell geschlossen';
       var next=findNextOpen();
       ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
       if(widget)widget.classList.add('is-closed');
+      showWeather(false);
     }
   }
 })();
