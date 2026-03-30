@@ -105,22 +105,35 @@ h1 em{font-style:italic;color:var(--g);display:block;margin-top:.08em}
 
 /* STATUS */
 .status{
-  display:inline-flex;align-items:center;gap:.85rem;
-  background:var(--w);border-radius:14px;
-  padding:1rem 1.4rem;
-  box-shadow:0 4px 24px rgba(232,115,42,.09), 0 1px 3px rgba(232,115,42,.06);
-  margin-bottom:2rem;align-self:flex-start;
+  display:inline-flex;align-items:center;gap:1rem;
+  background:rgba(253,250,244,.85);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-radius:18px;
+  padding:1.1rem 1.6rem 1.1rem 1.3rem;
+  box-shadow:0 8px 32px rgba(232,115,42,.08), 0 2px 8px rgba(0,0,0,.04), inset 0 0 0 1px rgba(232,115,42,.08);
+  margin-bottom:2.2rem;align-self:flex-start;
   position:relative;z-index:1;
-  border:.5px solid rgba(232,115,42,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
 }
-.dot-wrap{position:relative;width:12px;height:12px;flex-shrink:0}
-.dot{width:12px;height:12px;border-radius:50%;background:#3DBF6E}
-.dot.closed{background:#D94F4F}
-.ripple{position:absolute;inset:0;border-radius:50%;background:rgba(61,191,110,.4);animation:rp 2s ease-out infinite}
-.dot.closed+.ripple{background:rgba(217,79,79,.35)}
-@keyframes rp{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.8);opacity:0}}
-.status-text strong{font-size:.9rem;font-weight:500;display:block}
-.status-text span{font-size:.75rem;color:var(--text3)}
+.status:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(232,115,42,.12), 0 4px 12px rgba(0,0,0,.06), inset 0 0 0 1px rgba(232,115,42,.12);
+}
+.status.is-closed{
+  background:rgba(253,250,244,.7);
+}
+.dot-wrap{position:relative;width:14px;height:14px;flex-shrink:0}
+.dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#34D058,#28A745);box-shadow:0 2px 8px rgba(52,208,88,.4)}
+.dot.closed{background:linear-gradient(135deg,#E85D4A,#D94F4F);box-shadow:0 2px 8px rgba(217,79,79,.4)}
+.ripple{position:absolute;inset:0;border-radius:50%;background:rgba(52,208,88,.35);animation:rp 2.2s cubic-bezier(.4,0,.6,1) infinite}
+.dot.closed+.ripple{background:rgba(217,79,79,.3);animation:rp 3s cubic-bezier(.4,0,.6,1) infinite}
+@keyframes rp{0%{transform:scale(1);opacity:.7}50%{opacity:.3}100%{transform:scale(3);opacity:0}}
+.status-text strong{font-size:.92rem;font-weight:600;display:block;letter-spacing:.01em;color:var(--text)}
+.status-text span{font-size:.76rem;color:var(--text3);letter-spacing:.01em;margin-top:2px;display:block}
+.status-divider{width:1px;height:28px;background:linear-gradient(to bottom,transparent,rgba(232,115,42,.15),transparent);flex-shrink:0}
+.status-weather{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text3)}
+.status-weather svg{width:16px;height:16px;opacity:.6}
 
 .actions{display:flex;gap:.85rem;position:relative;z-index:1}
 .btn{
@@ -354,14 +367,19 @@ footer{
     <h1>Wo der See<br><em>beginnt.</em></h1>
     <p class="hero-sub">Biergarten, SUP-Verleih und SUP Yoga — direkt am Ufer. Frische Küche und das beste Wasser Bayerns.</p>
 
-    <div class="status">
+    <div class="status" id="status-widget">
       <div class="dot-wrap">
         <div class="dot" id="dot"></div>
         <div class="ripple"></div>
       </div>
       <div class="status-text">
-        <strong id="stxt">Heute geöffnet</strong>
-        <span id="ssub">11:00 – 22:00 Uhr · ☀ Schönes Wetter</span>
+        <strong id="stxt">Heute ge&ouml;ffnet</strong>
+        <span id="ssub">11:00 &ndash; 22:00 Uhr</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-weather">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span>Sch&ouml;nes Wetter</span>
       </div>
     </div>
 
@@ -525,24 +543,64 @@ footer{
   </div>
 </footer>
 <div class="fbot">
-  <span>© 2025 Steg eins Possenhofen</span>
+  <span>© 2026 Steg 1 Possenhofen</span>
   <span>Mit ♥ am See</span>
 </div>
 
 <script>
 (function(){
-  const h=new Date().getHours(),d=new Date().getDay();
-  const open=(d>=1&&d<=5&&h>=11&&h<22)||((d===0||d===6)&&h>=10&&h<23);
-  if(!open){
-    document.getElementById('dot').classList.add('closed');
-    document.getElementById('stxt').textContent='Heute geschlossen';
-    document.getElementById('ssub').textContent='Morgen ab 11:00 Uhr wieder da';
+  var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  var CACHE_KEY='steg1_status';
+  var CACHE_TTL=5*60*1000;
+
+  function fallback(){
+    var h=new Date().getHours(),d=new Date().getDay();
+    return(d>=1&&d<=5&&h>=11&&h<22)||((d===0||d===6)&&h>=10&&h<23);
   }
+
+  function show(isOpen){
+    var dot=document.getElementById('dot');
+    var stxt=document.getElementById('stxt');
+    var ssub=document.getElementById('ssub');
+    var widget=document.getElementById('status-widget');
+    if(!dot||!stxt||!ssub)return;
+    var d=new Date().getDay();
+    if(isOpen){
+      dot.classList.remove('closed');
+      stxt.textContent='Heute ge\u00f6ffnet';
+      ssub.textContent=(d===0||d===6)?'10:00 \u2013 23:00 Uhr':'11:00 \u2013 22:00 Uhr';
+      if(widget)widget.classList.remove('is-closed');
+    }else{
+      dot.classList.add('closed');
+      stxt.textContent='Heute geschlossen';
+      var tm=(d+1)%7;
+      ssub.textContent='Morgen ab '+((tm===0||tm===6)?'10:00':'11:00')+' Uhr';
+      if(widget)widget.classList.add('is-closed');
+    }
+  }
+
+  try{
+    var c=localStorage.getItem(CACHE_KEY);
+    if(c){var cd=JSON.parse(c);if(Date.now()-cd.t<CACHE_TTL){show(cd.v);}}
+  }catch(e){localStorage.removeItem(CACHE_KEY);}
+
+  fetch(SB_URL+'/rest/v1/opening_status?id=eq.1&select=is_open,manual_override,override_until',{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(r){return r.json()}).then(function(data){
+    if(!data||!data.length)return;
+    var isOpen=data[0].is_open;
+    if(data[0].manual_override&&data[0].override_until){
+      if(new Date()>=new Date(data[0].override_until))isOpen=fallback();
+    }
+    localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now()}));
+    show(isOpen);
+  }).catch(function(){show(fallback())});
 })();
-const obs=new IntersectionObserver(e=>e.forEach(en=>{
+var obs=new IntersectionObserver(function(e){e.forEach(function(en){
   if(en.isIntersecting){en.target.classList.add('visible');obs.unobserve(en.target)}
-}),{threshold:.1});
-document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(function(r){obs.observe(r)});
 </script>
 <script>
 window.addEventListener('scroll',function(){
