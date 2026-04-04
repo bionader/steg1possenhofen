@@ -419,6 +419,23 @@ footer{
   <div class="wi"><div class="val">Geöffnet</div><div class="lbl">11:00 – 22:00 Uhr</div></div>
 </div>
 
+<!-- INFO: Maps + Öffnungszeiten -->
+<section class="sec reveal" id="info">
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Hier findet Ihr uns</h3>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="info-card">
+      <h3>Öffnungszeiten</h3>
+      <div class="schedule-list" id="schedule-list">
+        <div class="schedule-row"><span class="day">Laden…</span><span class="time"></span></div>
+      </div>
+      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
+    </div>
+  </div>
+</section>
+
 <!-- ATMOSPHÄRE -->
 <div class="atm">
   <div class="atm-img">
@@ -537,23 +554,6 @@ footer{
   </div>
 </section>
 
-<!-- INFO: Maps + Öffnungszeiten -->
-<section class="sec reveal" id="info">
-  <div class="info-grid">
-    <div class="info-card">
-      <h3>Hier findet Ihr uns</h3>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-    <div class="info-card">
-      <h3>Öffnungszeiten</h3>
-      <div class="schedule-list" id="schedule-list">
-        <div class="schedule-row"><span class="day">Laden…</span><span class="time"></span></div>
-      </div>
-      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
-    </div>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer id="kontakt">
   <div>
@@ -600,7 +600,7 @@ footer{
     var d=new Date().getDay();
     if(isOpen){
       dot.classList.remove('closed');
-      var zeit=(d===0||d===6)?'10:00 \u2013 20:00':'11:00 \u2013 20:00';
+      var zeit='10:00 \u2013 20:00';
       stxt.textContent='Heute ge\u00f6ffnet: '+zeit+' Uhr';
       if(widget)widget.classList.remove('is-closed');
     }else{
@@ -676,7 +676,7 @@ footer{
       }else{
         // Fallback: Standard-Öffnungszeiten
         var wd=d.getDay();
-        time=(wd===0||wd===6)?'10:00 \u2013 20:00 Uhr':'11:00 \u2013 20:00 Uhr';
+        time='10:00 \u2013 20:00 Uhr';
       }
       var cls='schedule-row'+(isToday?' today':'')+(closed?' closed':'');
       html+='<div class="'+cls+'"><span class="day">'+(isToday?'Heute':dayName)+', '+dateStr+'</span><span class="time">'+time+'</span></div>';
