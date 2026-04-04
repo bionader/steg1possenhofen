@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUP Verleih — Steg eins Possenhofen am Starnberger See</title>
+<meta name="description" content="Stand-Up Paddeln am Starnberger See. Board, Paddel, Schwimmweste & Einweisung inklusive. Jetzt SUP buchen bei Steg eins Possenhofen.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#E8732A;--g2:#D4641F;
+  --sand:#F4EDD8;--sand2:#E6D9B8;
+  --text:#18180F;--text2:#4A4840;--text3:#7A7668;
+  --w:#FDFAF4;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,250,244,.78);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:.5px solid rgba(232,115,42,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(232,115,42,.06);
+  border-bottom-color:rgba(232,115,42,.1);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.45rem;font-weight:600;
+  color:var(--g);letter-spacing:.03em;
+  text-decoration:none;
+}
+.logo em{font-style:italic;font-weight:400;opacity:.7}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--g)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--g)}
+.nav-links a.active::after{width:100%}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'DM Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(232,115,42,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(232,115,42,.22);
+}
+
+/* Hamburger menu button */
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* ── HERO (full-width image) ── */
+.sup-hero{
+  position:relative;
+  min-height:75vh;
+  display:flex;align-items:flex-end;
+  overflow:hidden;
+}
+.sup-hero img{
+  position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;
+  object-position:center 60%;
+}
+.sup-hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top, rgba(24,24,15,.72) 0%, rgba(24,24,15,.25) 45%, transparent 100%);
+  pointer-events:none;
+}
+.sup-hero-content{
+  position:relative;z-index:2;
+  padding:3rem 3.5rem 3.5rem;
+  max-width:700px;
+}
+.sup-hero-content .eyebrow{
+  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(253,250,244,.65);display:flex;align-items:center;gap:.7rem;
+  margin-bottom:1.2rem;
+}
+.sup-hero-content .eyebrow::before{
+  content:'';width:28px;height:1.5px;
+  background:rgba(253,250,244,.4);
+}
+.sup-hero-content h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.6rem,5vw,4.2rem);
+  line-height:1.05;font-weight:600;color:#fff;
+  margin-bottom:1rem;letter-spacing:-.02em;
+}
+.sup-hero-content p{
+  font-size:1rem;color:rgba(253,250,244,.75);
+  line-height:1.7;max-width:480px;font-weight:300;
+  margin-bottom:1.8rem;
+}
+.sup-hero-content .btn{
+  padding:.75rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;
+  font-family:'DM Sans',sans-serif;text-decoration:none;cursor:pointer;border:none;
+  display:inline-block;transition:all .25s cubic-bezier(.4,0,.2,1);
+  letter-spacing:.01em;
+  background:var(--g);color:var(--w);
+  box-shadow:0 2px 14px rgba(232,115,42,.3);
+}
+.sup-hero-content .btn:hover{
+  background:var(--g2);transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(232,115,42,.35);
+}
+
+/* ── SECTION DEFAULTS ── */
+.sec{padding:4.5rem 3rem}
+.stag{
+  font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;
+}
+.stag::before{content:'';width:16px;height:1px;background:var(--g)}
+h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;margin-bottom:.75rem}
+.ssub{font-size:.95rem;color:var(--text2);line-height:1.7;max-width:480px}
+
+/* ── LEISTUNGEN (what's included) ── */
+.leistungen{background:var(--w)}
+.leist-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1.25rem;margin-top:2.5rem;
+}
+.leist-card{
+  background:var(--sand);border-radius:14px;
+  padding:1.75rem 1.4rem;text-align:center;
+  border:.5px solid transparent;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.leist-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(232,115,42,.09);
+  border-color:rgba(232,115,42,.12);
+}
+.leist-icon{
+  width:52px;height:52px;margin:0 auto 1rem;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--w);border-radius:50%;
+  box-shadow:0 2px 12px rgba(232,115,42,.08);
+}
+.leist-icon svg{width:24px;height:24px;color:var(--g)}
+.leist-card h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:600;margin-bottom:.4rem;
+}
+.leist-card p{font-size:.82rem;color:var(--text2);line-height:1.6}
+
+/* ── PREIS ── */
+.preis-section{background:var(--sand)}
+.preis-wrap{
+  display:flex;justify-content:center;margin-top:2.5rem;
+}
+.preis-card{
+  background:var(--w);border-radius:16px;
+  padding:2.5rem 2.5rem 2rem;text-align:center;
+  max-width:400px;width:100%;
+  border:1.5px solid rgba(232,115,42,.15);
+  box-shadow:0 4px 24px rgba(232,115,42,.11);
+  position:relative;overflow:hidden;
+}
+.preis-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(to right, var(--g), var(--g2));
+}
+.preis-amount{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.5rem;font-weight:600;color:var(--g);
+  line-height:1;margin-bottom:.15rem;
+}
+.preis-unit{
+  font-size:1rem;color:var(--text2);margin-bottom:1.5rem;
+}
+.preis-features{
+  list-style:none;text-align:left;margin-bottom:1.5rem;
+  padding:0;
+}
+.preis-features li{
+  font-size:.85rem;color:var(--text2);
+  padding:.45rem 0;
+  border-bottom:.5px solid var(--sand);
+  display:flex;align-items:center;gap:.5rem;
+}
+.preis-features li:last-child{border-bottom:none}
+.preis-features li::before{content:'\2713';color:var(--g);font-weight:600;font-size:.9rem}
+.preis-note{
+  font-size:.78rem;color:var(--text3);
+  line-height:1.6;margin-top:1rem;
+}
+.preis-cta{
+  display:block;width:100%;text-align:center;
+  background:var(--g);color:var(--w);
+  padding:.8rem;border-radius:100px;
+  font-size:.9rem;font-weight:500;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;margin-top:1.25rem;
+  text-decoration:none;transition:all .2s ease;
+  box-shadow:0 2px 12px rgba(232,115,42,.18);
+}
+.preis-cta:hover{
+  background:var(--g2);transform:translateY(-1px);
+  box-shadow:0 4px 18px rgba(232,115,42,.25);
+}
+
+/* ── BOOKING PLACEHOLDER ── */
+.booking-section{background:var(--w)}
+.booking-placeholder{
+  margin-top:2rem;
+  min-height:260px;
+  background:var(--sand);
+  border-radius:16px;
+  border:2px dashed var(--sand2);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:.8rem;
+  color:var(--text3);font-size:.9rem;
+}
+.booking-placeholder svg{width:40px;height:40px;opacity:.4}
+
+/* ── FAQ ── */
+.faq-section{background:var(--sand)}
+.faq-list{
+  max-width:680px;margin:2rem auto 0;
+}
+.faq-item{
+  border-bottom:.5px solid var(--sand2);
+}
+.faq-item:first-child{border-top:.5px solid var(--sand2)}
+.faq-q{
+  width:100%;background:none;border:none;
+  text-align:left;cursor:pointer;
+  padding:1.15rem 0;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:1rem;
+  font-family:'DM Sans',sans-serif;
+  font-size:.92rem;font-weight:500;color:var(--text);
+  transition:color .2s ease;
+}
+.faq-q:hover{color:var(--g)}
+.faq-q svg{
+  width:18px;height:18px;flex-shrink:0;
+  transition:transform .3s ease;color:var(--text3);
+}
+.faq-item.open .faq-q svg{transform:rotate(180deg);color:var(--g)}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease, padding .35s ease;
+}
+.faq-item.open .faq-a{
+  max-height:200px;
+}
+.faq-a-inner{
+  padding:0 0 1.15rem;
+  font-size:.86rem;color:var(--text2);line-height:1.7;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--text);color:rgba(253,250,244,.6);
+  padding:3rem 3rem 1.5rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
+.fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
+.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
+.fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.fcol a:hover{color:#fff}
+.fbot{
+  background:var(--text);padding:.75rem 3rem 1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:rgba(255,255,255,.25);
+  border-top:.5px solid rgba(255,255,255,.07);
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ── HERO ENTRANCE ── */
+.sup-hero-content>*{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.sup-hero.loaded .sup-hero-content>*{opacity:1;transform:none}
+.sup-hero.loaded .sup-hero-content>*:nth-child(1){transition-delay:.15s}
+.sup-hero.loaded .sup-hero-content>*:nth-child(2){transition-delay:.28s}
+.sup-hero.loaded .sup-hero-content>*:nth-child(3){transition-delay:.42s}
+.sup-hero.loaded .sup-hero-content>*:nth-child(4){transition-delay:.55s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:.85rem 1.5rem}
+  nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+
+  /* Mobile menu overlay */
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'DM Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu a.active{color:var(--g);font-weight:500}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(232,115,42,.18);
+  }
+
+  .sup-hero{min-height:60vh}
+  .sup-hero-content{padding:2rem 1.5rem 2.5rem}
+  .sec{padding:3rem 1.5rem}
+  .leist-grid{grid-template-columns:1fr 1fr;gap:1rem}
+  .preis-card{padding:2rem 1.5rem 1.5rem}
+  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  .fbot{padding:.75rem 1.5rem 1rem}
+}
+@media(max-width:480px){
+  .leist-grid{grid-template-columns:1fr 1fr}
+  .sup-hero-content h1{font-size:clamp(2rem,7vw,2.8rem)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Steg <em>eins</em></a>
+  <ul class="nav-links">
+    <li><a href="sup.html" class="active">SUP &amp; Yoga</a></li>
+    <li><a href="index.html#speisekarte">Speisekarte</a></li>
+    <li><a href="index.html#gutscheine">Gutscheine</a></li>
+    <li><a href="index.html#kontakt">Kontakt</a></li>
+  </ul>
+  <a href="#booking" class="nav-cta">Jetzt buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="sup.html" class="active">SUP &amp; Yoga</a>
+  <a href="index.html#speisekarte">Speisekarte</a>
+  <a href="index.html#gutscheine">Gutscheine</a>
+  <a href="index.html#kontakt">Kontakt</a>
+  <a href="#booking" class="mm-cta">Jetzt buchen</a>
+</div>
+
+<!-- HERO -->
+<section class="sup-hero" id="top">
+  <img src="images/sup-wasser.jpg" alt="Stand-Up Paddeln im türkisen Wasser am Starnberger See">
+  <div class="sup-hero-overlay"></div>
+  <div class="sup-hero-content">
+    <p class="eyebrow">SUP Verleih · Possenhofen</p>
+    <h1>Stand-Up Paddeln am Starnberger See</h1>
+    <p>Board, Paddel &amp; Schwimmweste inklusive. Einweisung vor Ort — direkt vom Steg ins Wasser.</p>
+    <a href="#booking" class="btn">Jetzt SUP buchen</a>
+  </div>
+</section>
+
+<!-- LEISTUNGEN -->
+<section class="sec leistungen reveal">
+  <div class="stag">Inklusive</div>
+  <h2>Alles dabei, was du brauchst</h2>
+  <p class="ssub">Einfach vorbeikommen — wir kümmern uns um den Rest. Alle Leistungen sind im Preis enthalten.</p>
+
+  <div class="leist-grid">
+    <!-- Board -->
+    <div class="leist-card">
+      <div class="leist-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="12" rx="3.5" ry="10"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+        </svg>
+      </div>
+      <h3>SUP Board</h3>
+      <p>Hochwertige Allround-Boards für Anfänger und Fortgeschrittene</p>
+    </div>
+
+    <!-- Paddel -->
+    <div class="leist-card">
+      <div class="leist-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="2" x2="12" y2="22"/>
+          <path d="M8 2 h8 l-2 8 h-4 z"/>
+        </svg>
+      </div>
+      <h3>Paddel</h3>
+      <p>Leichte, höhenverstellbare Paddel — passend für jede Größe</p>
+    </div>
+
+    <!-- Schwimmweste -->
+    <div class="leist-card">
+      <div class="leist-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C9 2 7 4 7 6v3c0 1 .5 2 1.5 2.5L7 22h10l-1.5-10.5C16.5 11 17 10 17 9V6c0-2-2-4-5-4z"/>
+          <line x1="12" y1="8" x2="12" y2="14"/>
+        </svg>
+      </div>
+      <h3>Schwimmweste</h3>
+      <p>Sicherheit geht vor — Schwimmwesten in allen Größen verfügbar</p>
+    </div>
+
+    <!-- Einweisung -->
+    <div class="leist-card">
+      <div class="leist-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="4"/>
+          <path d="M5.5 21c0-3.5 3-6.5 6.5-6.5s6.5 3 6.5 6.5"/>
+          <path d="M15 11l2 2 4-4"/>
+        </svg>
+      </div>
+      <h3>Einweisung</h3>
+      <p>Kurze Einweisung vor Ort — auch ohne Vorkenntnisse sofort startklar</p>
+    </div>
+  </div>
+</section>
+
+<!-- PREISE -->
+<section class="sec preis-section reveal">
+  <div class="stag">Preise</div>
+  <h2>Einfach &amp; fair</h2>
+  <p class="ssub">Ein Preis, alles drin. Keine versteckten Kosten.</p>
+
+  <div class="preis-wrap">
+    <div class="preis-card">
+      <div class="preis-amount">15 €</div>
+      <div class="preis-unit">pro Stunde</div>
+      <ul class="preis-features">
+        <li>SUP Board inklusive</li>
+        <li>Paddel inklusive</li>
+        <li>Schwimmweste inklusive</li>
+        <li>Einweisung inklusive</li>
+        <li>Direkt vom Steg ins Wasser</li>
+      </ul>
+      <a href="#booking" class="preis-cta">Jetzt buchen</a>
+      <p class="preis-note">Mindestmietdauer: 1 Stunde · Bezahlung vor Ort</p>
+    </div>
+  </div>
+</section>
+
+<!-- BUCHUNGSKALENDER -->
+<section class="sec booking-section reveal" id="booking">
+  <div class="stag">Reservierung</div>
+  <h2>Jetzt SUP buchen</h2>
+  <p class="ssub">Wähle deinen Wunschtermin und reserviere dein Board online.</p>
+
+  <div class="booking-placeholder">
+    <!-- Calendar component will be injected here -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <span>Buchungskalender wird geladen …</span>
+    <div id="cal-root"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec faq-section reveal">
+  <div class="stag">Häufige Fragen</div>
+  <h2>Gut zu wissen</h2>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-q">
+        Brauche ich Erfahrung?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">Nein, überhaupt nicht! Vor jeder Session gibt es eine kurze Einweisung direkt am Steg. Die meisten stehen schon nach wenigen Minuten sicher auf dem Board.</div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Was passiert bei schlechtem Wetter?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">Bei schlechtem Wetter oder Gewitter kannst du deine Buchung kostenlos stornieren oder auf einen anderen Tag umbuchen. Sicherheit geht immer vor.</div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Ab welchem Alter darf man SUP fahren?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">Kinder ab 10 Jahren dürfen mit einer erwachsenen Begleitperson aufs Wasser. Schwimmwesten sind in Kindergrößen vorhanden.</div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Kann ich meine Buchung stornieren?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">Ja, bis 24 Stunden vor dem gebuchten Termin kannst du kostenlos stornieren. Danach bitten wir um Verständnis, dass eine Umbuchung nicht mehr möglich ist.</div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Was muss ich mitbringen?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">Nur Badesachen und Sonnencreme — den Rest stellen wir. Handtuch empfehlen wir auch, aber das war's schon. Einfach kommen und lospaddeln!</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="kontakt">
+  <div>
+    <div class="flogo">Steg eins Possenhofen</div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+  </div>
+  <div class="fcol">
+    <h4>Navigation</h4>
+    <a href="sup.html">SUP &amp; Yoga</a>
+    <a href="index.html#speisekarte">Speisekarte</a>
+    <a href="index.html#gutscheine">Gutscheine</a>
+  </div>
+  <div class="fcol">
+    <h4>Kontakt</h4>
+    <a href="#">Possenhofen, Starnberger See</a>
+    <a href="tel:+49000000000">+49 (0) … …</a>
+    <a href="mailto:hallo@stegeins.de">hallo@stegeins.de</a>
+    <a href="#">Impressum</a>
+    <a href="#">Datenschutz</a>
+  </div>
+</footer>
+<div class="fbot">
+  <span>&copy; 2026 Steg 1 Possenhofen</span>
+  <span>Mit ♥ am See</span>
+</div>
+
+<script>
+// Scroll effect for nav
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Hero entrance animation
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    document.querySelector('.sup-hero').classList.add('loaded');
+  }, 100);
+});
+
+// Scroll reveal observer
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      obs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) {
+  obs.observe(el);
+});
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var item = this.closest('.faq-item');
+    var wasOpen = item.classList.contains('open');
+
+    // Close all items
+    document.querySelectorAll('.faq-item').forEach(function(i) {
+      i.classList.remove('open');
+    });
+
+    // Toggle clicked item
+    if (!wasOpen) {
+      item.classList.add('open');
+    }
+  });
+});
+
+// Hamburger menu toggle
+(function() {
+  var burger = document.querySelector('.nav-burger');
+  var menu = document.getElementById('mobile-menu');
+  if (!burger || !menu) return;
+
+  burger.addEventListener('click', function() {
+    burger.classList.toggle('open');
+    menu.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  });
+
+  // Close menu when a link is clicked
+  menu.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      burger.classList.remove('open');
+      menu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+})();
+</script>
+</body>
+</html>
