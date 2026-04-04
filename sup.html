@@ -235,19 +235,27 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
   box-shadow:0 4px 18px rgba(232,115,42,.25);
 }
 
-/* ── BOOKING PLACEHOLDER ── */
+/* ── BOOKING ── */
 .booking-section{background:var(--w)}
-.booking-placeholder{
-  margin-top:2rem;
-  min-height:260px;
-  background:var(--sand);
-  border-radius:16px;
-  border:2px dashed var(--sand2);
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:.8rem;
-  color:var(--text3);font-size:.9rem;
-}
-.booking-placeholder svg{width:40px;height:40px;opacity:.4}
+
+/* Calendar */
+.cal-wrap{max-width:480px;margin:0 auto}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text)}
+.cal-nav button{background:none;border:1.5px solid var(--sand2);border-radius:100px;padding:6px 16px;font-family:inherit;font-size:.85rem;cursor:pointer;color:var(--text2);transition:all .2s}
+.cal-nav button:hover{border-color:var(--g);color:var(--g)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal-head{font-size:.7rem;color:var(--text3);font-weight:500;padding:8px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:.85rem;cursor:pointer;transition:all .2s;border:1.5px solid transparent;position:relative}
+.cal-day:hover{border-color:var(--g);background:rgba(232,115,42,.06)}
+.cal-day.today{font-weight:600;border-color:var(--g)}
+.cal-day.past{opacity:.35;pointer-events:none}
+.cal-day.closed{background:#FBF5F5;color:#D94F4F;pointer-events:none}
+.cal-day.selected{background:var(--g);color:white;border-color:var(--g)}
+.cal-day.empty{pointer-events:none}
+.cal-day.avail-full::after{content:'';position:absolute;bottom:4px;width:6px;height:6px;border-radius:50%;background:#34D058}
+.cal-day.avail-low::after{content:'';position:absolute;bottom:4px;width:6px;height:6px;border-radius:50%;background:#E8732A}
+.cal-day.avail-none::after{content:'';position:absolute;bottom:4px;width:6px;height:6px;border-radius:50%;background:#B8AE9C}
 
 /* ── FAQ ── */
 .faq-section{background:var(--sand)}
@@ -493,17 +501,7 @@ footer{
   <h2>Jetzt SUP buchen</h2>
   <p class="ssub">Wähle deinen Wunschtermin und reserviere dein Board online.</p>
 
-  <div class="booking-placeholder">
-    <!-- Calendar component will be injected here -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/>
-      <line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-    <span>Buchungskalender wird geladen …</span>
-    <div id="cal-root"></div>
-  </div>
+  <div id="cal-root"></div>
 </section>
 
 <!-- FAQ -->
@@ -623,6 +621,203 @@ document.querySelectorAll('.faq-q').forEach(function(btn) {
     }
   });
 });
+
+// ── CALENDAR ──
+var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+var calYear, calMonth, selectedDate = null;
+var closedDays = [];
+var bookingsCache = {};
+var settings = {};
+var now = new Date();
+calYear = now.getFullYear();
+calMonth = now.getMonth();
+
+// Helper: format date as YYYY-MM-DD
+function dateStr(d) {
+  var mm = String(d.getMonth() + 1).padStart(2, '0');
+  var dd = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+// Render the monthly calendar grid
+function renderCalendar() {
+  var root = document.getElementById('cal-root');
+  if (!root) return;
+
+  var monthNames = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var dayHeaders = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  var totalBoards = (settings && settings.total_boards) ? settings.total_boards : 10;
+  var todayStr = dateStr(new Date());
+
+  // First day of month (0=Sun, convert to Mon-based: 0=Mon)
+  var firstDay = new Date(calYear, calMonth, 1).getDay();
+  var startOffset = (firstDay === 0) ? 6 : firstDay - 1; // Mon-based offset
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  var html = '<div class="cal-wrap">';
+
+  // Navigation
+  html += '<div class="cal-nav">';
+  html += '<button onclick="prevMonth()">‹ Zurück</button>';
+  html += '<h3>' + monthNames[calMonth] + ' ' + calYear + '</h3>';
+  html += '<button onclick="nextMonth()">Weiter ›</button>';
+  html += '</div>';
+
+  // Grid
+  html += '<div class="cal-grid">';
+
+  // Day headers
+  for (var h = 0; h < 7; h++) {
+    html += '<div class="cal-head">' + dayHeaders[h] + '</div>';
+  }
+
+  // Empty cells before first day
+  for (var e = 0; e < startOffset; e++) {
+    html += '<div class="cal-day empty"></div>';
+  }
+
+  // Day cells
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dt = new Date(calYear, calMonth, d);
+    var ds = dateStr(dt);
+    var classes = ['cal-day'];
+
+    // Past days
+    if (ds < todayStr) {
+      classes.push('past');
+    }
+
+    // Today
+    if (ds === todayStr) {
+      classes.push('today');
+    }
+
+    // Closed days
+    if (closedDays.indexOf(ds) !== -1) {
+      classes.push('closed');
+    }
+
+    // Selected
+    if (ds === selectedDate) {
+      classes.push('selected');
+    }
+
+    // Availability indicator (only for non-past, non-closed days)
+    if (ds >= todayStr && closedDays.indexOf(ds) === -1) {
+      var booked = bookingsCache[ds] || 0;
+      var freeRatio = (totalBoards - booked) / totalBoards;
+      if (freeRatio <= 0) {
+        classes.push('avail-none');
+      } else if (freeRatio < 0.7) {
+        classes.push('avail-low');
+      } else {
+        classes.push('avail-full');
+      }
+    }
+
+    html += '<div class="' + classes.join(' ') + '" onclick="selectDay(\'' + ds + '\')">' + d + '</div>';
+  }
+
+  html += '</div>'; // cal-grid
+  html += '</div>'; // cal-wrap
+
+  root.innerHTML = html;
+}
+
+// Navigate to previous month
+function prevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  selectedDate = null;
+  hideSlotPicker();
+  loadMonthData();
+}
+
+// Navigate to next month
+function nextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  selectedDate = null;
+  hideSlotPicker();
+  loadMonthData();
+}
+
+// Select a day
+function selectDay(ds) {
+  selectedDate = ds;
+  renderCalendar();
+  showSlotPicker(ds);
+}
+
+// Stub: slot picker (replaced in Task 4)
+function showSlotPicker(ds) {
+  var el = document.getElementById('slot-section');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'slot-section';
+    el.style.cssText = 'max-width:480px;margin:20px auto;padding:16px;background:#F4EDD8;border-radius:12px;text-align:center;font-size:.88rem;color:#4A4840';
+    document.getElementById('cal-root').after(el);
+  }
+  el.textContent = 'Zeitslots für ' + ds + ' werden geladen...';
+  el.style.display = 'block';
+}
+
+function hideSlotPicker() {
+  var el = document.getElementById('slot-section');
+  if (el) el.style.display = 'none';
+}
+
+// Load data from Supabase for current month
+function loadMonthData() {
+  var firstDate = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-01';
+  var lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+  var lastDate = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-' + String(lastDay).padStart(2, '0');
+
+  var headers = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+
+  // Fetch settings, closed days, and bookings in parallel
+  var settingsReq = fetch(SB_URL + '/rest/v1/sup_settings?id=eq.1', { headers: headers })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject('settings'); })
+    .then(function(data) { if (data && data.length > 0) settings = data[0]; })
+    .catch(function() {
+      // Fallback defaults
+      settings = { total_boards: 10, price_per_hour: 15 };
+    });
+
+  var closedReq = fetch(SB_URL + '/rest/v1/sup_closed_days?date=gte.' + firstDate + '&date=lte.' + lastDate, { headers: headers })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject('closed'); })
+    .then(function(data) {
+      closedDays = [];
+      if (data && data.length > 0) {
+        data.forEach(function(row) { closedDays.push(row.date); });
+      }
+    })
+    .catch(function() { closedDays = []; });
+
+  var bookingsReq = fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDate + '&date=lte.' + lastDate + '&status=eq.confirmed&select=date,board_count', { headers: headers })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject('bookings'); })
+    .then(function(data) {
+      bookingsCache = {};
+      if (data && data.length > 0) {
+        data.forEach(function(row) {
+          bookingsCache[row.date] = (bookingsCache[row.date] || 0) + row.board_count;
+        });
+      }
+    })
+    .catch(function() { bookingsCache = {}; });
+
+  // Wait for all requests, then render
+  Promise.all([settingsReq, closedReq, bookingsReq]).then(function() {
+    renderCalendar();
+  }).catch(function() {
+    renderCalendar();
+  });
+}
+
+// Initial load
+loadMonthData();
 
 // Hamburger menu toggle
 (function() {
