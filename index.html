@@ -561,7 +561,7 @@ footer{
     var d=new Date().getDay();
     if(isOpen){
       dot.classList.remove('closed');
-      var zeit=(d===0||d===6)?'10:00 \u2013 23:00':'11:00 \u2013 22:00';
+      var zeit=(d===0||d===6)?'10:00 \u2013 20:00':'11:00 \u2013 20:00';
       stxt.textContent='Heute ge\u00f6ffnet: '+zeit+' Uhr';
       if(widget)widget.classList.remove('is-closed');
     }else{
@@ -574,7 +574,9 @@ footer{
 
   try{
     var c=localStorage.getItem(CACHE_KEY);
-    if(c){var cd=JSON.parse(c);if(Date.now()-cd.t<CACHE_TTL){show(cd.v);}}
+    if(c){var cd=JSON.parse(c);if(Date.now()-cd.t<CACHE_TTL){
+      if(cd.ot||cd.ct){showWithTimes(cd.v,cd.ot||'',cd.ct||'',cd.cad||false,[]);}else{show(cd.v);}
+    }}
   }catch(e){localStorage.removeItem(CACHE_KEY);}
 
   // Lade heutigen Status aus daily_schedule (mit Uhrzeiten)
