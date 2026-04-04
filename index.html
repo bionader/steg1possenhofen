@@ -428,9 +428,21 @@ footer{
     </div>
     <div class="info-card">
       <h3>Öffnungszeiten</h3>
-      <div class="schedule-list" id="schedule-list">
-        <div class="schedule-row"><span class="day">Laden…</span><span class="time"></span></div>
-      </div>
+      <div class="schedule-list" id="schedule-list"></div>
+      <script>
+        // Render default schedule immediately (before Supabase loads)
+        (function(){
+          var D=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+          var M=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+          var h='';
+          for(var j=0;j<7;j++){
+            var d=new Date();d.setDate(d.getDate()+j);
+            var n=j===0?'Heute':D[d.getDay()];
+            h+='<div class="schedule-row'+(j===0?' today':'')+'"><span class="day">'+n+', '+d.getDate()+'. '+M[d.getMonth()]+'</span><span class="time">10:00 \u2013 20:00 Uhr</span></div>';
+          }
+          document.getElementById('schedule-list').innerHTML=h;
+        })();
+      </script>
       <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
     </div>
   </div>
