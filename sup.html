@@ -1023,6 +1023,21 @@ document.getElementById('btn-book').addEventListener('click', function() {
       selectedDate.split('-').reverse().join('.') + ' · ' + selectedSlot + ' – ' + endTime + ' · ' + boards + (boards === 1 ? ' Board' : ' Boards') + ' · ' + price.toFixed(0) + ' € (Bezahlung vor Ort)';
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     loadMonthData();
+
+    // Send confirmation email (fire and forget)
+    fetch(SB_URL + '/functions/v1/send-booking-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({
+        email: email,
+        name: name,
+        date: selectedDate,
+        startTime: selectedSlot,
+        endTime: endTime,
+        boards: boards,
+        price: price.toFixed(0)
+      })
+    });
   })
   .catch(function() { alert('Fehler bei der Buchung. Bitte versuche es erneut.'); })
   .finally(function() { btn.disabled = false; btn.textContent = 'Jetzt reservieren'; });
