@@ -997,7 +997,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
   // POST booking to Supabase
   fetch(SB_URL + '/rest/v1/bookings', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Prefer': 'return=representation' },
+    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' },
     body: JSON.stringify({
       date: selectedDate,
       start_time: selectedSlot,
