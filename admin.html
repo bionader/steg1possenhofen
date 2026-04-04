@@ -9,7 +9,7 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#E8732A 0%,#F4EDD8 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:520px;width:100%;padding:36px;position:relative;overflow:hidden}
+    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:600px;width:100%;padding:36px;position:relative;overflow:hidden}
     .container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#E8732A,#F4A261,#E8732A)}
     h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#18180F;margin-bottom:4px}
     .subtitle{color:#7A7668;margin-bottom:24px;font-size:.88rem}
@@ -70,6 +70,42 @@
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
 
+    /* Tab navigation */
+    .tab-nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid #F0E8D6;padding-bottom:0}
+    .tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:inherit;font-size:.88rem;color:#7A7668;cursor:pointer;transition:all .2s;font-weight:500}
+    .tab-btn:hover{color:#18180F}
+    .tab-btn.active{color:#E8732A;border-bottom-color:#E8732A;font-weight:600}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    /* SUP Calendar */
+    .sup-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .sup-cal-nav h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem}
+    .sup-cal-nav button{background:none;border:1.5px solid #E6D9B8;border-radius:100px;padding:6px 14px;font-family:inherit;font-size:.82rem;cursor:pointer;color:#4A4840;width:auto}
+    .sup-cal-nav button:hover{border-color:#E8732A;color:#E8732A;background:none}
+    .sup-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px}
+    .sup-cal-head{font-size:.68rem;color:#7A7668;text-align:center;padding:6px 0;font-weight:500}
+    .sup-cal-day{padding:8px 4px;border-radius:10px;text-align:center;font-size:.82rem;border:1.5px solid #F0E8D6;background:#FDFAF4;cursor:pointer;transition:all .2s;min-height:60px}
+    .sup-cal-day.past{opacity:.35;pointer-events:none}
+    .sup-cal-day.empty{border:none;pointer-events:none}
+    .sup-cal-day.today{border-color:#E8732A}
+    .sup-cal-day.open{border-color:#34D058;background:rgba(52,208,88,.06)}
+    .sup-cal-day.closed{border-color:#D94F4F;background:rgba(217,79,79,.06)}
+    .sup-cal-day .day-num{font-weight:600;margin-bottom:2px}
+    .sup-cal-day .day-status{font-size:.6rem;font-weight:500}
+    .sup-cal-day.open .day-status{color:#34D058}
+    .sup-cal-day.closed .day-status{color:#D94F4F}
+    .sup-cal-day .day-bookings{font-size:.58rem;color:#7A7668;margin-top:2px}
+    .sup-cal-day.selected{box-shadow:0 0 0 2px #E8732A;border-color:#E8732A}
+    .sup-detail{margin-top:16px;padding:16px;background:#FDFAF4;border-radius:14px;border:1.5px solid #F0E8D6}
+    .sup-detail h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;margin-bottom:12px}
+    .sup-booking-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F0E8D6;font-size:.82rem;flex-wrap:wrap;gap:6px}
+    .sup-booking-item:last-child{border-bottom:none}
+    .sup-booking-cancel{background:#D94F4F;color:white;border:none;border-radius:100px;padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:inherit;width:auto}
+    .sup-booking-cancel:hover{background:#C0392B}
+    .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
+    .sup-day-toggle{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem}
+
     @media(max-width:500px){
       .container{padding:24px 18px;border-radius:16px}
       h1{font-size:1.8rem}
@@ -100,14 +136,33 @@
       <div class="logout-row">
         <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
       </div>
-      <div class="cal-header">
-        <h2>Wochenplaner</h2>
-        <span class="cal-hint">Rot = ganzer Tag geschlossen</span>
+
+      <div class="tab-nav" id="tab-nav">
+        <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
+        <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
       </div>
-      <div id="message"></div>
-      <div class="day-grid" id="day-grid"></div>
-      <div class="save-row">
-        <button type="button" id="btn-save">Speichern</button>
+
+      <!-- Tab 1: Öffnungszeiten (existing content) -->
+      <div class="tab-content active" id="content-schedule">
+        <div class="cal-header">
+          <h2>Wochenplaner</h2>
+          <span class="cal-hint">Rot = ganzer Tag geschlossen</span>
+        </div>
+        <div id="message"></div>
+        <div class="day-grid" id="day-grid"></div>
+        <div class="save-row">
+          <button type="button" id="btn-save">Speichern</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: SUP-Buchungen -->
+      <div class="tab-content" id="content-sup">
+        <div class="cal-header">
+          <h2>SUP-Kalender</h2>
+        </div>
+        <div id="sup-message"></div>
+        <div id="sup-cal"></div>
+        <div id="sup-day-detail"></div>
       </div>
     </div>
   </div>
@@ -118,6 +173,17 @@
     var token='';
     var failedAttempts=0;
     var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        document.getElementById('content-' + this.dataset.tab).classList.add('active');
+        if (this.dataset.tab === 'sup') loadSupCalendar();
+      });
+    });
 
     function msg(text,type,target){
       var el=document.getElementById(target||'message');
@@ -348,7 +414,22 @@
         token=data.access_token;failedAttempts=0;
         document.getElementById('login').style.display='none';
         document.getElementById('dashboard').style.display='block';
-        loadSchedule();
+
+        // Role-based tab visibility
+        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'admin';
+
+        if (userRole === 'sup') {
+          // SUP user sees only SUP tab
+          document.getElementById('tab-schedule').style.display = 'none';
+          document.getElementById('content-schedule').classList.remove('active');
+          document.getElementById('tab-sup').classList.add('active');
+          document.getElementById('content-sup').classList.add('active');
+          loadSupCalendar();
+        } else {
+          // Admin sees all tabs, starts on schedule
+          loadSchedule();
+        }
+
         btn.disabled=false;btn.textContent='Anmelden';
       })
       .catch(function(){msg('Verbindungsfehler','error','login-message');btn.disabled=false;btn.textContent='Anmelden'});
@@ -361,8 +442,170 @@
         token='';document.getElementById('login').style.display='block';
         document.getElementById('dashboard').style.display='none';
         document.getElementById('password').value='';
+        // Reset tabs to default state on logout
+        document.getElementById('tab-schedule').style.display='';
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+        document.getElementById('tab-schedule').classList.add('active');
+        document.getElementById('content-schedule').classList.add('active');
       });
     });
+
+    // --- SUP Calendar ---
+    var supYear, supMonth, supSelectedDate = null;
+    var supClosedDays = [];
+    var supBookings = {};
+
+    function initSupCal() {
+      var n = new Date();
+      supYear = n.getFullYear();
+      supMonth = n.getMonth();
+    }
+
+    function loadSupCalendar() {
+      if (!supYear) initSupCal();
+      var firstDay = supYear + '-' + String(supMonth+1).padStart(2,'0') + '-01';
+      var lastDay = supYear + '-' + String(supMonth+1).padStart(2,'0') + '-' + new Date(supYear, supMonth+1, 0).getDate();
+
+      Promise.all([
+        fetch(SB_URL + '/rest/v1/sup_closed_days?date=gte.' + firstDay + '&date=lte.' + lastDay, {
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        }).then(function(r) { return r.json(); }),
+        fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,id,total_price', {
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        }).then(function(r) { return r.json(); })
+      ]).then(function(results) {
+        supClosedDays = (results[0] || []).map(function(r) { return r.date; });
+        supBookings = {};
+        (results[1] || []).forEach(function(b) {
+          if (!supBookings[b.date]) supBookings[b.date] = [];
+          supBookings[b.date].push(b);
+        });
+        renderSupCalendar();
+      }).catch(function() { renderSupCalendar(); });
+    }
+
+    function renderSupCalendar() {
+      var months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+      var dayNames = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+      var today = new Date(); today.setHours(0,0,0,0);
+
+      var html = '<div class="sup-cal-nav">';
+      html += '<button onclick="supPrevMonth()">&larr;</button>';
+      html += '<h3>' + months[supMonth] + ' ' + supYear + '</h3>';
+      html += '<button onclick="supNextMonth()">&rarr;</button>';
+      html += '</div><div class="sup-cal-grid">';
+
+      dayNames.forEach(function(d) { html += '<div class="sup-cal-head">' + d + '</div>'; });
+
+      var firstDow = new Date(supYear, supMonth, 1).getDay();
+      firstDow = firstDow === 0 ? 6 : firstDow - 1;
+      var daysInMonth = new Date(supYear, supMonth + 1, 0).getDate();
+
+      for (var i = 0; i < firstDow; i++) html += '<div class="sup-cal-day empty"></div>';
+
+      for (var d = 1; d <= daysInMonth; d++) {
+        var date = new Date(supYear, supMonth, d);
+        var ds = dateStr(date);
+        var isPast = date < today;
+        var isClosed = supClosedDays.indexOf(ds) !== -1;
+        var bookCount = supBookings[ds] ? supBookings[ds].length : 0;
+        var sel = supSelectedDate === ds ? ' selected' : '';
+        var todayClass = (date.getTime() === today.getTime()) ? ' today' : '';
+
+        html += '<div class="sup-cal-day' + (isPast ? ' past' : '') + (isClosed ? ' closed' : ' open') + sel + todayClass + '" data-date="' + ds + '" onclick="supSelectDay(\'' + ds + '\')">';
+        html += '<div class="day-num">' + d + '</div>';
+        html += '<div class="day-status">' + (isClosed ? 'Zu' : 'Offen') + '</div>';
+        if (bookCount > 0) html += '<div class="day-bookings">' + bookCount + ' Buchung' + (bookCount > 1 ? 'en' : '') + '</div>';
+        html += '</div>';
+      }
+
+      html += '</div>';
+      document.getElementById('sup-cal').innerHTML = html;
+
+      // Re-show detail if day was selected
+      if (supSelectedDate) showSupDayDetail(supSelectedDate);
+    }
+
+    function supPrevMonth() {
+      supMonth--;
+      if (supMonth < 0) { supMonth = 11; supYear--; }
+      supSelectedDate = null;
+      document.getElementById('sup-day-detail').innerHTML = '';
+      loadSupCalendar();
+    }
+
+    function supNextMonth() {
+      supMonth++;
+      if (supMonth > 11) { supMonth = 0; supYear++; }
+      supSelectedDate = null;
+      document.getElementById('sup-day-detail').innerHTML = '';
+      loadSupCalendar();
+    }
+
+    function supSelectDay(ds) {
+      supSelectedDate = ds;
+      renderSupCalendar();
+      showSupDayDetail(ds);
+    }
+
+    function showSupDayDetail(ds) {
+      var detail = document.getElementById('sup-day-detail');
+      var d = new Date(ds + 'T12:00:00');
+      var isClosed = supClosedDays.indexOf(ds) !== -1;
+      var dayBookings = supBookings[ds] || [];
+
+      var html = '<div class="sup-detail">';
+      html += '<h3>' + DAYS_DE[d.getDay()] + ', ' + d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear() + '</h3>';
+      html += '<div class="sup-day-toggle">';
+      html += '<label class="toggle"><input type="checkbox" ' + (isClosed ? '' : 'checked') + ' onchange="supToggleDay(\'' + ds + '\', this.checked)"><span class="slider"></span></label>';
+      html += '<span>' + (isClosed ? 'Geschlossen für SUP' : 'Geöffnet für SUP') + '</span>';
+      html += '</div>';
+
+      if (dayBookings.length > 0) {
+        html += '<h4 style="margin-top:16px;font-size:.88rem;font-weight:600">' + dayBookings.length + ' Buchung' + (dayBookings.length > 1 ? 'en' : '') + '</h4>';
+        dayBookings.sort(function(a, b) { return a.start_time.localeCompare(b.start_time); });
+        dayBookings.forEach(function(b) {
+          html += '<div class="sup-booking-item">';
+          html += '<div><strong>' + b.start_time.substring(0,5) + '–' + b.end_time.substring(0,5) + '</strong> · ' + b.board_count + ' Board' + (b.board_count > 1 ? 's' : '') + ' · ' + b.customer_name + ' · ' + b.customer_phone + '</div>';
+          html += '<button class="sup-booking-cancel" onclick="supCancelBooking(\'' + b.id + '\',\'' + ds + '\')">Stornieren</button>';
+          html += '</div>';
+        });
+      } else {
+        html += '<p class="sup-no-bookings" style="margin-top:12px">Keine Buchungen für diesen Tag.</p>';
+      }
+      html += '</div>';
+      detail.innerHTML = html;
+    }
+
+    function supToggleDay(ds, isOpen) {
+      if (isOpen) {
+        // Remove from closed days
+        fetch(SB_URL + '/rest/v1/sup_closed_days?date=eq.' + ds, {
+          method: 'DELETE',
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
+      } else {
+        // Add to closed days
+        fetch(SB_URL + '/rest/v1/sup_closed_days', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ date: ds })
+        }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
+      }
+    }
+
+    function supCancelBooking(bookingId, ds) {
+      if (!confirm('Buchung wirklich stornieren?')) return;
+      fetch(SB_URL + '/rest/v1/bookings?id=eq.' + bookingId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ status: 'cancelled' })
+      }).then(function() {
+        loadSupCalendar();
+        setTimeout(function() { supSelectDay(ds); }, 500);
+      });
+    }
   </script>
 </body>
 </html>
