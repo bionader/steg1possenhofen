@@ -220,15 +220,20 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .sup-bg{background:var(--sand)}
 .sup-inner{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
 .sup-img{border-radius:16px;overflow:hidden;height:380px}
-.sup-img img{width:100%;height:100%;object-fit:cover}
+.sup-img img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.sup-img:hover img{transform:scale(1.04)}
 .sup-cards{display:grid;gap:.7rem}
 .sc{
   background:var(--w);border-radius:12px;padding:.95rem 1.2rem;
   border:.5px solid rgba(42,123,111,.1);
   display:flex;justify-content:space-between;align-items:center;
-  transition:transform .18s,box-shadow .18s;cursor:pointer;
+  transition:all .3s cubic-bezier(.16,1,.3,1);cursor:pointer;
 }
-.sc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,123,111,.09)}
+.sc:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(42,123,111,.1);
+  border-color:rgba(42,123,111,.2);
+}
 .sc-l h3{font-size:.9rem;font-weight:500}
 .sc-l p{font-size:.78rem;color:var(--text3);margin-top:.12rem}
 .sc-price{font-size:.95rem;font-weight:600;color:var(--accent);text-align:right;white-space:nowrap}
@@ -263,7 +268,11 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
   display:grid;grid-template-columns:2fr 1fr;
   height:340px;overflow:hidden;
 }
-.photo-band img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-band img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .7s cubic-bezier(.16,1,.3,1);
+}
+.photo-band img:hover{transform:scale(1.03)}
 .photo-band .pb-right{display:grid;grid-template-rows:1fr 1fr}
 .photo-band .pb-right img{height:100%}
 
@@ -274,7 +283,11 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
   border:.5px solid rgba(42,123,111,.1);position:relative;overflow:hidden;
   transition:transform .18s,box-shadow .18s;cursor:pointer;
 }
-.vc:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(42,123,111,.1)}
+.vc:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 36px rgba(42,123,111,.1);
+}
+.vc.feat:hover{box-shadow:0 12px 36px rgba(42,123,111,.15)}
 .vc.feat{border:1.5px solid var(--g)}
 .fbadge{
   position:absolute;top:0;right:0;
@@ -338,7 +351,7 @@ footer{
 .fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
 .fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
 .fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
-.fcol a:hover{color:#fff}
+.fcol a:hover{color:#2A7B6F}
 .fbot{
   background:var(--dark);padding:.75rem 3rem 1.25rem;
   display:flex;justify-content:space-between;
