@@ -542,7 +542,7 @@ footer{
   <div class="info-grid">
     <div class="info-card">
       <h3>Hier findet Ihr uns</h3>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2698.5!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479d9a1e2b8e1b5f%3A0x0!2sSteg+eins+Possenhofen!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
     <div class="info-card">
       <h3>Öffnungszeiten</h3>
@@ -648,26 +648,37 @@ footer{
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
     showWithTimes(isOpen,openT,closeT,closedAllDay,data);
     renderSchedule(data);
-  }).catch(function(){show(fallback())});
+  }).catch(function(){show(fallback());renderSchedule([]);});
 
   var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
   function renderSchedule(data){
     var list=document.getElementById('schedule-list');
-    if(!list||!data||!data.length)return;
+    if(!list)return;
+    var MONTHS=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
     var html='';
-    for(var i=0;i<data.length;i++){
-      var e=data[i];
-      var d=new Date(e.date+'T12:00:00');
+    // Build a map from date string to schedule entry
+    var map={};
+    if(data&&data.length){for(var i=0;i<data.length;i++){map[data[i].date]=data[i];}}
+    // Render next 7 days
+    for(var j=0;j<7;j++){
+      var d=new Date();d.setDate(d.getDate()+j);
+      var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
       var dayName=DAYS_DE[d.getDay()];
-      // Format: "4. Apr"
-      var dateStr=d.getDate()+'. '+['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][d.getMonth()];
-      var isToday=e.date===todayStr;
-      var cls='schedule-row'+(isToday?' today':'')+(e.closed_all_day?' closed':'');
-      var time='';
-      if(e.closed_all_day){time='Geschlossen';}
-      else if(e.is_open){time=(e.open_time||'10:00').substring(0,5)+' \u2013 '+(e.close_time||'20:00').substring(0,5)+' Uhr';}
-      else{time='Geschlossen';}
+      var dateStr=d.getDate()+'. '+MONTHS[d.getMonth()];
+      var isToday=j===0;
+      var e=map[ds];
+      var time='',closed=false;
+      if(e){
+        if(e.closed_all_day){time='Geschlossen';closed=true;}
+        else if(e.is_open){time=(e.open_time||'10:00').substring(0,5)+' \u2013 '+(e.close_time||'20:00').substring(0,5)+' Uhr';}
+        else{time='Geschlossen';closed=true;}
+      }else{
+        // Fallback: Standard-Öffnungszeiten
+        var wd=d.getDay();
+        time=(wd===0||wd===6)?'10:00 \u2013 20:00 Uhr':'11:00 \u2013 20:00 Uhr';
+      }
+      var cls='schedule-row'+(isToday?' today':'')+(closed?' closed':'');
       html+='<div class="'+cls+'"><span class="day">'+(isToday?'Heute':dayName)+', '+dateStr+'</span><span class="time">'+time+'</span></div>';
     }
     list.innerHTML=html;
