@@ -618,6 +618,9 @@ footer{
     var widget=document.getElementById('status-widget');
     if(!dot||!stxt)return;
 
+    // Fallback wenn keine Zeiten vorhanden
+    if(!openT&&!closeT&&!closedAllDay){show(isOpen);return;}
+
     var now=new Date();
     var nowMins=now.getHours()*60+now.getMinutes();
     var oM=openT?parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]):600;
