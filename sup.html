@@ -379,7 +379,7 @@ footer{
 .slot-section{max-width:480px;margin:20px auto 0;display:none}
 .slot-section.active{display:block}
 .slot-date{font-family:'Cormorant Garamond',serif;font-size:1.1rem;margin-bottom:12px;color:var(--text)}
-.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:20px}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px}
 .slot{padding:8px;border-radius:10px;border:1.5px solid var(--sand2);text-align:center;font-size:.8rem;cursor:pointer;transition:all .2s}
 .slot:hover{border-color:var(--g);background:rgba(232,115,42,.06)}
 .slot.selected{background:var(--g);color:white;border-color:var(--g)}
@@ -880,7 +880,7 @@ function renderSlots(ds, dayBookings) {
   var today = new Date();
   var isToday = ds === dateStr(today);
 
-  for (var m = start; m < end; m += interval) {
+  for (var m = start; m < end; m += 30) {
     var slotStart = minutesToTime(m);
     var slotEnd = minutesToTime(m + (settings.min_duration || 60));
     var booked = getBookedBoardsAtSlot(dayBookings, slotStart, slotEnd);
@@ -892,7 +892,7 @@ function renderSlots(ds, dayBookings) {
     // Past slots for today
     if (isToday && m <= today.getHours() * 60 + today.getMinutes()) {
       slot.className += ' unavail';
-      slot.innerHTML = slotStart + '<div class="slot-avail">vorbei</div>';
+      slot.textContent = slotStart;
       grid.appendChild(slot);
       continue;
     }
@@ -902,7 +902,7 @@ function renderSlots(ds, dayBookings) {
       slot.className += ' unavail';
       slot.innerHTML = slotStart + '<div class="slot-avail">ausgebucht</div>';
     } else {
-      slot.innerHTML = slotStart + '<div class="slot-avail">' + avail + ' frei</div>';
+      slot.textContent = slotStart;
       slot.addEventListener('click', (function(time, available) {
         return function() {
           selectedSlot = time;
