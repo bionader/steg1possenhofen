@@ -255,7 +255,10 @@
             }
           });
         }else if(note){
-          card.innerHTML+='<div class="day-note">'+note+'</div>';
+          var noteDiv=document.createElement('div');
+          noteDiv.className='day-note';
+          noteDiv.textContent=note;
+          card.appendChild(noteDiv);
         }
 
         grid.appendChild(card);
