@@ -352,7 +352,7 @@ footer{
 <nav>
   <div class="logo">Steg <em>eins</em></div>
   <ul class="nav-links">
-    <li><a href="sup.html">SUP & Yoga</a></li>
+    <li><a href="sup.html">SUP Verleih</a></li>
     <li><a href="#speisekarte">Speisekarte</a></li>
     <li><a href="#gutscheine">Gutscheine</a></li>
     <li><a href="#kontakt">Kontakt</a></li>
@@ -373,12 +373,7 @@ footer{
         <div class="ripple"></div>
       </div>
       <div class="status-text">
-        <strong id="stxt">Heute ge&ouml;ffnet</strong>
-        <span id="ssub">11:00 &ndash; 22:00 Uhr</span>
-      </div>
-      <div class="status-divider"></div>
-      <div class="status-weather" id="weather-badge" style="display:none">
-        <span id="weather-text"></span>
+        <strong id="stxt">Heute ge&ouml;ffnet: 11:00 &ndash; 22:00 Uhr</strong>
       </div>
     </div>
 
@@ -417,7 +412,7 @@ footer{
 <!-- SUP -->
 <section class="sec sup-bg reveal" id="sup">
   <p class="stag">Am Wasser</p>
-  <h2>Stand-Up Paddeln & SUP Yoga</h2>
+  <h2>SUP Verleih</h2>
   <p class="ssub">Equipment und Sicherheit inklusive — direkt am Steg.</p>
   <div class="sup-inner" style="margin-top:2.5rem">
     <div class="sup-img">
@@ -528,7 +523,7 @@ footer{
   </div>
   <div class="fcol">
     <h4>Navigation</h4>
-    <a href="sup.html">SUP & Yoga</a>
+    <a href="sup.html">SUP Verleih</a>
     <a href="#speisekarte">Speisekarte</a>
     <a href="#gutscheine">Gutscheine</a>
   </div>
@@ -561,20 +556,18 @@ footer{
   function show(isOpen){
     var dot=document.getElementById('dot');
     var stxt=document.getElementById('stxt');
-    var ssub=document.getElementById('ssub');
     var widget=document.getElementById('status-widget');
-    if(!dot||!stxt||!ssub)return;
+    if(!dot||!stxt)return;
     var d=new Date().getDay();
     if(isOpen){
       dot.classList.remove('closed');
-      stxt.textContent='Heute ge\u00f6ffnet';
-      ssub.textContent=(d===0||d===6)?'10:00 \u2013 23:00 Uhr':'11:00 \u2013 22:00 Uhr';
+      var zeit=(d===0||d===6)?'10:00 \u2013 23:00':'11:00 \u2013 22:00';
+      stxt.textContent='Heute ge\u00f6ffnet: '+zeit+' Uhr';
       if(widget)widget.classList.remove('is-closed');
     }else{
       dot.classList.add('closed');
-      stxt.textContent='Heute geschlossen';
       var tm=(d+1)%7;
-      ssub.textContent='Morgen ab '+((tm===0||tm===6)?'10:00':'11:00')+' Uhr';
+      stxt.textContent='Heute geschlossen \u2013 Morgen ab '+((tm===0||tm===6)?'10:00':'11:00')+' Uhr';
       if(widget)widget.classList.add('is-closed');
     }
   }
@@ -620,9 +613,8 @@ footer{
   function showWithTimes(isOpen,openT,closeT,closedAllDay,schedule){
     var dot=document.getElementById('dot');
     var stxt=document.getElementById('stxt');
-    var ssub=document.getElementById('ssub');
     var widget=document.getElementById('status-widget');
-    if(!dot||!stxt||!ssub)return;
+    if(!dot||!stxt)return;
 
     var now=new Date();
     var nowMins=now.getHours()*60+now.getMinutes();
@@ -644,45 +636,28 @@ footer{
       return null;
     }
 
-    var wb=document.getElementById('weather-badge');
-    var wt=document.getElementById('weather-text');
-    function showWeather(on){
-      if(wb){wb.style.display=on?'flex':'none'}
-      if(wt&&on){wt.textContent='\u{1F30A} Seewetter'}
-    }
-
     if(closedAllDay){
       dot.classList.add('closed');
-      stxt.textContent='Aktuell geschlossen';
       var next=findNextOpen();
-      ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
+      stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
-      showWeather(false);
     }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
       dot.classList.remove('closed');
-      stxt.textContent='Wir schlie\u00dfen gleich';
-      ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
+      stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
-      showWeather(true);
     }else if(!isOpen&&nowMins<oM&&(oM-nowMins<=60)){
       dot.classList.add('closed');
-      stxt.textContent='Wir \u00f6ffnen bald';
-      ssub.textContent='Ab '+openT+' Uhr';
+      stxt.textContent='Heute ge\u00f6ffnet: ab '+openT+' Uhr';
       if(widget)widget.classList.add('is-closed');
-      showWeather(false);
     }else if(isOpen){
       dot.classList.remove('closed');
-      stxt.textContent='Aktuell ge\u00f6ffnet';
-      ssub.textContent=openT+' \u2013 '+closeT+' Uhr';
+      stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
-      showWeather(true);
     }else{
       dot.classList.add('closed');
-      stxt.textContent='Aktuell geschlossen';
       var next=findNextOpen();
-      ssub.textContent=next?'Wir \u00f6ffnen wieder am '+next:'';
+      stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
-      showWeather(false);
     }
   }
 })();
