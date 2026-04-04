@@ -374,6 +374,37 @@ footer{
   .leist-grid{grid-template-columns:1fr 1fr}
   .sup-hero-content h1{font-size:clamp(2rem,7vw,2.8rem)}
 }
+
+/* Slot Picker */
+.slot-section{max-width:480px;margin:20px auto 0;display:none}
+.slot-section.active{display:block}
+.slot-date{font-family:'Cormorant Garamond',serif;font-size:1.1rem;margin-bottom:12px;color:var(--text)}
+.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:20px}
+.slot{padding:8px;border-radius:10px;border:1.5px solid var(--sand2);text-align:center;font-size:.8rem;cursor:pointer;transition:all .2s}
+.slot:hover{border-color:var(--g);background:rgba(232,115,42,.06)}
+.slot.selected{background:var(--g);color:white;border-color:var(--g)}
+.slot.unavail{opacity:.35;pointer-events:none;background:#f5f5f5}
+.slot-avail{font-size:.65rem;color:var(--text3);margin-top:2px}
+.slot.selected .slot-avail{color:rgba(255,255,255,.8)}
+
+/* Booking Form */
+.book-form{background:var(--w);border:1.5px solid var(--sand2);border-radius:16px;padding:24px;display:none;margin-top:16px}
+.book-form.active{display:block}
+.book-form h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;margin-bottom:16px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px}
+.form-row input,.form-row select{width:100%;padding:10px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--g)}
+.book-btn{width:100%;padding:14px;background:var(--g);color:white;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px}
+.book-btn:hover{background:var(--g2);transform:translateY(-1px)}
+.book-btn:disabled{background:#CCC;cursor:not-allowed;transform:none}
+.book-summary{font-size:.85rem;color:var(--text2);margin-bottom:16px;padding:12px;background:var(--sand);border-radius:10px}
+
+/* Confirmation */
+.confirm-box{max-width:480px;margin:20px auto;padding:24px;background:#D4EDDA;border-radius:16px;text-align:center;display:none}
+.confirm-box.active{display:block}
+.confirm-box h3{color:#155724;font-family:'Cormorant Garamond',serif;font-size:1.3rem;margin-bottom:8px}
+.confirm-box p{color:#155724;font-size:.88rem}
 </style>
 </head>
 <body>
@@ -502,6 +533,40 @@ footer{
   <p class="ssub">Wähle deinen Wunschtermin und reserviere dein Board online.</p>
 
   <div id="cal-root"></div>
+  <div class="slot-section" id="slot-section">
+    <h3 class="slot-date" id="slot-date"></h3>
+    <div class="slot-grid" id="slot-grid"></div>
+    <div class="book-form" id="book-form">
+      <h3>Reservierung</h3>
+      <div class="book-summary" id="book-summary"></div>
+      <div class="form-row">
+        <label for="b-duration">Dauer</label>
+        <select id="b-duration"></select>
+      </div>
+      <div class="form-row">
+        <label for="b-boards">Anzahl Boards</label>
+        <select id="b-boards"></select>
+      </div>
+      <div class="form-row">
+        <label for="b-name">Name *</label>
+        <input type="text" id="b-name" placeholder="Dein Name" required>
+      </div>
+      <div class="form-row">
+        <label for="b-email">E-Mail *</label>
+        <input type="email" id="b-email" placeholder="deine@email.de" required>
+      </div>
+      <div class="form-row">
+        <label for="b-phone">Telefon *</label>
+        <input type="tel" id="b-phone" placeholder="+49 ..." required>
+      </div>
+      <button class="book-btn" id="btn-book" type="button">Jetzt reservieren</button>
+    </div>
+  </div>
+  <div class="confirm-box" id="confirm-box">
+    <h3>Reservierung bestätigt!</h3>
+    <p id="confirm-details"></p>
+    <p style="margin-top:12px;font-size:.82rem">Du erhältst eine Bestätigung per E-Mail. Bezahlung vor Ort am Steg.</p>
+  </div>
 </section>
 
 <!-- FAQ -->
@@ -751,23 +816,217 @@ function selectDay(ds) {
   showSlotPicker(ds);
 }
 
-// Stub: slot picker (replaced in Task 4)
-function showSlotPicker(ds) {
-  var el = document.getElementById('slot-section');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'slot-section';
-    el.style.cssText = 'max-width:480px;margin:20px auto;padding:16px;background:#F4EDD8;border-radius:12px;text-align:center;font-size:.88rem;color:#4A4840';
-    document.getElementById('cal-root').after(el);
-  }
-  el.textContent = 'Zeitslots für ' + ds + ' werden geladen...';
-  el.style.display = 'block';
+// ── SLOT PICKER & BOOKING FORM ──
+var selectedSlot = null;
+
+// Convert "HH:MM" to minutes since midnight
+function timeToMinutes(t) {
+  var parts = t.split(':');
+  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
 }
 
-function hideSlotPicker() {
-  var el = document.getElementById('slot-section');
-  if (el) el.style.display = 'none';
+// Convert minutes since midnight to "HH:MM"
+function minutesToTime(m) {
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 }
+
+// Count how many boards are booked during a given slot window
+function getBookedBoardsAtSlot(bookings, slotStart, slotEnd) {
+  var count = 0;
+  bookings.forEach(function(b) {
+    if (b.start_time < slotEnd && b.end_time > slotStart) count += b.board_count;
+  });
+  return count;
+}
+
+// Show slot picker for a selected day
+function showSlotPicker(ds) {
+  var section = document.getElementById('slot-section');
+  section.classList.add('active');
+  document.getElementById('confirm-box').classList.remove('active');
+
+  var d = new Date(ds + 'T12:00:00');
+  var dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  document.getElementById('slot-date').textContent = dayNames[d.getDay()] + ', ' + d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear();
+
+  // Load bookings for this day
+  fetch(SB_URL + '/rest/v1/bookings?date=eq.' + ds + '&status=eq.confirmed&select=start_time,end_time,board_count', {
+    headers: { 'apikey': SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(dayBookings) { renderSlots(ds, dayBookings || []); })
+  .catch(function() { renderSlots(ds, []); });
+}
+
+// Hide slot picker, form, and confirmation
+function hideSlotPicker() {
+  document.getElementById('slot-section').classList.remove('active');
+  document.getElementById('book-form').classList.remove('active');
+  document.getElementById('confirm-box').classList.remove('active');
+  selectedSlot = null;
+}
+
+// Render time slots for a given day
+function renderSlots(ds, dayBookings) {
+  var grid = document.getElementById('slot-grid');
+  grid.innerHTML = '';
+  selectedSlot = null;
+  document.getElementById('book-form').classList.remove('active');
+
+  var start = timeToMinutes(settings.slot_start || '10:00');
+  var end = timeToMinutes(settings.slot_end || '19:00');
+  var interval = settings.slot_interval || 15;
+  var total = settings.total_boards || 10;
+  var today = new Date();
+  var isToday = ds === dateStr(today);
+
+  for (var m = start; m < end; m += interval) {
+    var slotStart = minutesToTime(m);
+    var slotEnd = minutesToTime(m + (settings.min_duration || 60));
+    var booked = getBookedBoardsAtSlot(dayBookings, slotStart, slotEnd);
+    var avail = total - booked;
+    var slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.dataset.time = slotStart;
+
+    // Past slots for today
+    if (isToday && m <= today.getHours() * 60 + today.getMinutes()) {
+      slot.className += ' unavail';
+      slot.innerHTML = slotStart + '<div class="slot-avail">vorbei</div>';
+      grid.appendChild(slot);
+      continue;
+    }
+
+    // Fully booked slots
+    if (avail <= 0) {
+      slot.className += ' unavail';
+      slot.innerHTML = slotStart + '<div class="slot-avail">ausgebucht</div>';
+    } else {
+      slot.innerHTML = slotStart + '<div class="slot-avail">' + avail + ' frei</div>';
+      slot.addEventListener('click', (function(time, available) {
+        return function() {
+          selectedSlot = time;
+          document.querySelectorAll('.slot').forEach(function(s) { s.classList.remove('selected'); });
+          this.classList.add('selected');
+          showBookingForm(ds, time, available, dayBookings);
+        };
+      })(slotStart, avail));
+    }
+    grid.appendChild(slot);
+  }
+}
+
+// Show and populate the booking form
+function showBookingForm(ds, startTime, maxAvail, dayBookings) {
+  var form = document.getElementById('book-form');
+  form.classList.add('active');
+
+  var durSelect = document.getElementById('b-duration');
+  durSelect.innerHTML = '';
+  var startMin = timeToMinutes(startTime);
+  var endMin = timeToMinutes(settings.slot_end || '19:00');
+  var minDur = settings.min_duration || 60;
+  var step = settings.duration_step || 30;
+
+  // Populate duration options
+  for (var dur = minDur; startMin + dur <= endMin; dur += step) {
+    var h = Math.floor(dur / 60);
+    var m = dur % 60;
+    var opt = document.createElement('option');
+    opt.value = dur;
+    opt.textContent = h + ':' + String(m).padStart(2, '0') + ' h';
+    durSelect.appendChild(opt);
+  }
+
+  // Populate board count options
+  var boardSelect = document.getElementById('b-boards');
+  boardSelect.innerHTML = '';
+  for (var i = 1; i <= maxAvail; i++) {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i + (i === 1 ? ' Board' : ' Boards');
+    boardSelect.appendChild(opt);
+  }
+
+  // Update booking summary on change
+  function updateSummary() {
+    var dur = parseInt(durSelect.value);
+    var boards = parseInt(boardSelect.value);
+    var hours = dur / 60;
+    var price = hours * (settings.price_per_hour || 15) * boards;
+    var endTime = minutesToTime(startMin + dur);
+    var booked = getBookedBoardsAtSlot(dayBookings, startTime, endTime);
+    var realAvail = (settings.total_boards || 10) - booked;
+    if (boards > realAvail) {
+      boardSelect.value = Math.max(1, realAvail);
+      boards = Math.max(1, realAvail);
+      price = hours * (settings.price_per_hour || 15) * boards;
+    }
+    document.getElementById('book-summary').textContent =
+      ds.split('-').reverse().join('.') + ' · ' + startTime + ' – ' + endTime + ' · ' + boards + (boards === 1 ? ' Board' : ' Boards') + ' · ' + price.toFixed(0) + ' €';
+  }
+
+  durSelect.onchange = updateSummary;
+  boardSelect.onchange = updateSummary;
+  updateSummary();
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Booking submission handler
+document.getElementById('btn-book').addEventListener('click', function() {
+  var btn = this;
+  var name = document.getElementById('b-name').value.trim();
+  var email = document.getElementById('b-email').value.trim();
+  var phone = document.getElementById('b-phone').value.trim();
+  var dur = parseInt(document.getElementById('b-duration').value);
+  var boards = parseInt(document.getElementById('b-boards').value);
+
+  // Validate required fields
+  if (!name || !email || !phone) { alert('Bitte alle Felder ausfüllen.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Bitte eine gültige E-Mail eingeben.'); return; }
+  if (!selectedDate || !selectedSlot) return;
+
+  var startMin = timeToMinutes(selectedSlot);
+  var endTime = minutesToTime(startMin + dur);
+  var hours = dur / 60;
+  var price = hours * (settings.price_per_hour || 15) * boards;
+
+  btn.disabled = true;
+  btn.textContent = 'Wird reserviert...';
+
+  // POST booking to Supabase
+  fetch(SB_URL + '/rest/v1/bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Prefer': 'return=representation' },
+    body: JSON.stringify({
+      date: selectedDate,
+      start_time: selectedSlot,
+      end_time: endTime,
+      board_count: boards,
+      customer_name: name,
+      customer_email: email,
+      customer_phone: phone,
+      total_price: price,
+      booking_type: 'rental'
+    })
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('Booking failed');
+    return r.json();
+  })
+  .then(function() {
+    // Show confirmation
+    document.getElementById('slot-section').classList.remove('active');
+    var box = document.getElementById('confirm-box');
+    box.classList.add('active');
+    document.getElementById('confirm-details').textContent =
+      selectedDate.split('-').reverse().join('.') + ' · ' + selectedSlot + ' – ' + endTime + ' · ' + boards + (boards === 1 ? ' Board' : ' Boards') + ' · ' + price.toFixed(0) + ' € (Bezahlung vor Ort)';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    loadMonthData();
+  })
+  .catch(function() { alert('Fehler bei der Buchung. Bitte versuche es erneut.'); })
+  .finally(function() { btn.disabled = false; btn.textContent = 'Jetzt reservieren'; });
+});
 
 // Load data from Supabase for current month
 function loadMonthData() {
