@@ -1,5 +1,12 @@
 # Verschlüsselte Zugangsdaten
 email-zugangsdaten.enc
 
+# Claude Code
+.claude/
+
+# Environment / Secrets
+.env
+.env.*
+
 # macOS
 .DS_Store
