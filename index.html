@@ -291,6 +291,28 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .vc:not(.feat) .vbtn{background:transparent;color:var(--g);border:1.5px solid var(--g)}
 .vc:not(.feat) .vbtn:hover{background:var(--g);color:#fff}
 
+/* ── INFO (Maps + Öffnungszeiten) ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem}
+.info-card{background:var(--w);border-radius:16px;overflow:hidden;border:.5px solid rgba(232,115,42,.08);box-shadow:0 4px 24px rgba(43,92,63,.06)}
+.info-card h3{
+  font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;
+  padding:1.4rem 1.6rem .8rem;color:var(--text)
+}
+.info-card iframe{width:100%;height:280px;border:none;display:block}
+.schedule-list{padding:0 1.6rem 1rem}
+.schedule-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.55rem 0;border-bottom:.5px solid var(--sand);font-size:.88rem
+}
+.schedule-row:last-child{border-bottom:none}
+.schedule-row .day{color:var(--text);font-weight:400}
+.schedule-row .time{color:var(--text2);font-weight:500}
+.schedule-row.today .day{color:var(--g);font-weight:600}
+.schedule-row.today .time{color:var(--g);font-weight:600}
+.schedule-row.closed .time{color:var(--text3);font-style:italic}
+.schedule-hint{font-size:.75rem;color:var(--text3);padding:.8rem 1.6rem 1.4rem;line-height:1.5}
+@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
+
 /* ── FOOTER ── */
 footer{
   background:var(--text);color:rgba(253,250,244,.6);
@@ -515,6 +537,23 @@ footer{
   </div>
 </section>
 
+<!-- INFO: Maps + Öffnungszeiten -->
+<section class="sec reveal" id="info">
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Hier findet Ihr uns</h3>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2698.5!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479d9a1e2b8e1b5f%3A0x0!2sSteg+eins+Possenhofen!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="info-card">
+      <h3>Öffnungszeiten</h3>
+      <div class="schedule-list" id="schedule-list">
+        <div class="schedule-row"><span class="day">Laden…</span><span class="time"></span></div>
+      </div>
+      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer id="kontakt">
   <div>
@@ -608,9 +647,31 @@ footer{
     }
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
     showWithTimes(isOpen,openT,closeT,closedAllDay,data);
+    renderSchedule(data);
   }).catch(function(){show(fallback())});
 
   var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  function renderSchedule(data){
+    var list=document.getElementById('schedule-list');
+    if(!list||!data||!data.length)return;
+    var html='';
+    for(var i=0;i<data.length;i++){
+      var e=data[i];
+      var d=new Date(e.date+'T12:00:00');
+      var dayName=DAYS_DE[d.getDay()];
+      // Format: "4. Apr"
+      var dateStr=d.getDate()+'. '+['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][d.getMonth()];
+      var isToday=e.date===todayStr;
+      var cls='schedule-row'+(isToday?' today':'')+(e.closed_all_day?' closed':'');
+      var time='';
+      if(e.closed_all_day){time='Geschlossen';}
+      else if(e.is_open){time=(e.open_time||'10:00').substring(0,5)+' \u2013 '+(e.close_time||'20:00').substring(0,5)+' Uhr';}
+      else{time='Geschlossen';}
+      html+='<div class="'+cls+'"><span class="day">'+(isToday?'Heute':dayName)+', '+dateStr+'</span><span class="time">'+time+'</span></div>';
+    }
+    list.innerHTML=html;
+  }
 
   function showWithTimes(isOpen,openT,closeT,closedAllDay,schedule){
     var dot=document.getElementById('dot');
