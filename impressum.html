@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Impressum — Steg eins Possenhofen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2A7B6F;--g2:#1F6358;
+  --sand:#F2EBD9;--sand2:#E4D9C4;
+  --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
+  --w:#FDFBF7;--dark:#1B2B28;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,250,244,.72);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border-bottom:.5px solid rgba(42,123,111,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(42,123,111,.06);
+  border-bottom-color:rgba(42,123,111,.1);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.45rem;font-weight:600;
+  color:var(--g);letter-spacing:.03em;
+  text-decoration:none;
+}
+.logo em{font-style:italic;font-weight:400;opacity:.7}
+.logo{transition:opacity .3s ease}
+.logo:hover{opacity:.75}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--g)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'DM Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(42,123,111,.22);
+}
+
+/* Hamburger menu button */
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* ── CONTENT ── */
+.legal-content{
+  max-width:700px;
+  margin:0 auto;
+  padding:7rem 2rem 4rem;
+}
+.legal-content h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:600;line-height:1.1;
+  margin-bottom:2.5rem;color:var(--text);
+}
+.legal-content h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.35rem;font-weight:600;
+  margin-top:2.5rem;margin-bottom:.75rem;
+  color:var(--text);line-height:1.2;
+}
+.legal-content p{
+  font-size:.9rem;color:var(--text2);
+  line-height:1.75;margin-bottom:.75rem;
+}
+.legal-content a{
+  color:var(--g);text-decoration:underline;
+  text-underline-offset:2px;
+  transition:color .2s ease;
+}
+.legal-content a:hover{color:var(--g2)}
+.back-link{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.84rem;color:var(--text3);text-decoration:none;
+  margin-bottom:2rem;transition:color .2s;
+}
+.back-link:hover{color:var(--g)}
+.back-link svg{width:16px;height:16px}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);color:rgba(253,250,244,.6);
+  padding:3rem 3rem 1.5rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
+.fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
+.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
+.fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.fcol a:hover{color:#2A7B6F}
+.fbot{
+  background:var(--dark);padding:.75rem 3rem 1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:rgba(255,255,255,.25);
+  border-top:.5px solid rgba(255,255,255,.07);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:.85rem 1.5rem}
+  nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+
+  /* Mobile menu overlay */
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'DM Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(42,123,111,.18);
+  }
+
+  .legal-content{padding:5.5rem 1.5rem 3rem}
+  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  .fbot{padding:.75rem 1.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Steg <em>eins</em></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Startseite</a></li>
+    <li><a href="sup.html">SUP Verleih</a></li>
+    <li><a href="index.html#speisekarte">Speisekarte</a></li>
+  </ul>
+  <a href="sup.html" class="nav-cta">SUP buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu">
+  <a href="index.html">Startseite</a>
+  <a href="sup.html">SUP Verleih</a>
+  <a href="index.html#speisekarte">Speisekarte</a>
+  <a href="index.html#gutscheine">Gutscheine</a>
+  <a href="sup.html" class="mm-cta">SUP buchen</a>
+</div>
+
+<!-- CONTENT -->
+<main class="legal-content">
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Zurück zur Startseite
+  </a>
+
+  <h1>Impressum</h1>
+
+  <h2>Angaben gemäß § 5 TMG</h2>
+  <p>
+    Steg 1<br>
+    Cathrin Dierks<br>
+    Kurt-Stieler-Straße 58<br>
+    82343 Pöcking Possenhofen
+  </p>
+
+  <h2>Kontakt</h2>
+  <p>
+    Telefon: 0171-xxxxx (PLATZHALTER)<br>
+    E-Mail: <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a>
+  </p>
+
+  <h2>Umsatzsteuer-ID</h2>
+  <p>Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: [PLATZHALTER]</p>
+
+  <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+  <p>
+    Cathrin Dierks<br>
+    Kurt-Stieler-Straße 58<br>
+    82343 Pöcking Possenhofen
+  </p>
+
+  <h2>Streitschlichtung</h2>
+  <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a></p>
+  <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+  <h2>Haftung für Inhalte</h2>
+  <p>Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+
+  <h2>Haftung für Links</h2>
+  <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich.</p>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="flogo">Steg eins Possenhofen</div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+  </div>
+  <div class="fcol">
+    <h4>Navigation</h4>
+    <a href="sup.html">SUP Verleih</a>
+    <a href="index.html#speisekarte">Speisekarte</a>
+    <a href="index.html#gutscheine">Gutscheine</a>
+  </div>
+  <div class="fcol">
+    <h4>Kontakt</h4>
+    <a href="#">Possenhofen, Starnberger See</a>
+    <a href="tel:+49000000000">+49 (0) … …</a>
+    <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+<div class="fbot">
+  <span>&copy; 2026 Steg 1 Possenhofen</span>
+  <span>Mit ♥ am See</span>
+</div>
+
+<script>
+// Scroll effect for nav
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Mobile menu toggle
+var burger = document.querySelector('.nav-burger');
+var mobileMenu = document.querySelector('.mobile-menu');
+if (burger && mobileMenu) {
+  burger.addEventListener('click', function() {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+}
+</script>
+</body>
+</html>

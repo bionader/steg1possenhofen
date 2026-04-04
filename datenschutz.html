@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Datenschutzerklärung — Steg eins Possenhofen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2A7B6F;--g2:#1F6358;
+  --sand:#F2EBD9;--sand2:#E4D9C4;
+  --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
+  --w:#FDFBF7;--dark:#1B2B28;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,250,244,.72);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border-bottom:.5px solid rgba(42,123,111,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(42,123,111,.06);
+  border-bottom-color:rgba(42,123,111,.1);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.45rem;font-weight:600;
+  color:var(--g);letter-spacing:.03em;
+  text-decoration:none;
+}
+.logo em{font-style:italic;font-weight:400;opacity:.7}
+.logo{transition:opacity .3s ease}
+.logo:hover{opacity:.75}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--g)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'DM Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(42,123,111,.22);
+}
+
+/* Hamburger menu button */
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* ── CONTENT ── */
+.legal-content{
+  max-width:700px;
+  margin:0 auto;
+  padding:7rem 2rem 4rem;
+}
+.legal-content h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:600;line-height:1.1;
+  margin-bottom:2.5rem;color:var(--text);
+}
+.legal-content h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.35rem;font-weight:600;
+  margin-top:2.5rem;margin-bottom:.75rem;
+  color:var(--text);line-height:1.2;
+}
+.legal-content h3{
+  font-family:'DM Sans',sans-serif;
+  font-size:.95rem;font-weight:500;
+  margin-top:1.5rem;margin-bottom:.5rem;
+  color:var(--text);
+}
+.legal-content p{
+  font-size:.9rem;color:var(--text2);
+  line-height:1.75;margin-bottom:.75rem;
+}
+.legal-content ul{
+  font-size:.9rem;color:var(--text2);
+  line-height:1.75;margin-bottom:.75rem;
+  padding-left:1.5rem;
+}
+.legal-content li{margin-bottom:.35rem}
+.legal-content a{
+  color:var(--g);text-decoration:underline;
+  text-underline-offset:2px;
+  transition:color .2s ease;
+}
+.legal-content a:hover{color:var(--g2)}
+.back-link{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.84rem;color:var(--text3);text-decoration:none;
+  margin-bottom:2rem;transition:color .2s;
+}
+.back-link:hover{color:var(--g)}
+.back-link svg{width:16px;height:16px}
+.legal-date{
+  margin-top:3rem;padding-top:1.5rem;
+  border-top:.5px solid var(--sand2);
+  font-size:.82rem;color:var(--text3);
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);color:rgba(253,250,244,.6);
+  padding:3rem 3rem 1.5rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
+.fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
+.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
+.fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.fcol a:hover{color:#2A7B6F}
+.fbot{
+  background:var(--dark);padding:.75rem 3rem 1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:rgba(255,255,255,.25);
+  border-top:.5px solid rgba(255,255,255,.07);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:.85rem 1.5rem}
+  nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+
+  /* Mobile menu overlay */
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'DM Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(42,123,111,.18);
+  }
+
+  .legal-content{padding:5.5rem 1.5rem 3rem}
+  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  .fbot{padding:.75rem 1.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Steg <em>eins</em></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Startseite</a></li>
+    <li><a href="sup.html">SUP Verleih</a></li>
+    <li><a href="index.html#speisekarte">Speisekarte</a></li>
+  </ul>
+  <a href="sup.html" class="nav-cta">SUP buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu">
+  <a href="index.html">Startseite</a>
+  <a href="sup.html">SUP Verleih</a>
+  <a href="index.html#speisekarte">Speisekarte</a>
+  <a href="index.html#gutscheine">Gutscheine</a>
+  <a href="sup.html" class="mm-cta">SUP buchen</a>
+</div>
+
+<!-- CONTENT -->
+<main class="legal-content">
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Zurück zur Startseite
+  </a>
+
+  <h1>Datenschutzerklärung</h1>
+
+  <!-- 1. Overview -->
+  <h2>1. Datenschutz auf einen Blick</h2>
+
+  <h3>Allgemeine Hinweise</h3>
+  <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer nachfolgenden Datenschutzerklärung.</p>
+
+  <h3>Datenerfassung auf dieser Website</h3>
+  <p>Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle" in dieser Datenschutzerklärung entnehmen.</p>
+  <p>Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen — beispielsweise durch Eingabe in ein Buchungsformular. Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z.&nbsp;B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs).</p>
+
+  <!-- 2. Controller -->
+  <h2>2. Verantwortliche Stelle</h2>
+  <p>
+    Cathrin Dierks<br>
+    Kurt-Stieler-Straße 58<br>
+    82343 Pöcking Possenhofen
+  </p>
+  <p>
+    E-Mail: <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a>
+  </p>
+  <p>Verantwortliche Stelle ist die natürliche Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z.&nbsp;B. Namen, E-Mail-Adressen o.&nbsp;Ä.) entscheidet.</p>
+
+  <!-- 3. Hosting -->
+  <h2>3. Hosting</h2>
+  <p>Diese Website wird bei GitHub Pages gehostet. Anbieter ist die GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA.</p>
+  <p>Wenn Sie diese Website besuchen, werden durch GitHub automatisch verschiedene Server-Log-Files erfasst. Details hierzu finden Sie in der Datenschutzerklärung von GitHub: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</p>
+  <p>Die Verwendung von GitHub Pages erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer zuverlässigen Darstellung unserer Website. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO.</p>
+
+  <!-- 4. SSL -->
+  <h2>4. SSL-Verschlüsselung</h2>
+  <p>Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte eine SSL-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://" auf „https://" wechselt und an dem Schloss-Symbol in Ihrer Browserzeile.</p>
+  <p>Wenn die SSL-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden.</p>
+
+  <!-- 5. Cookies -->
+  <h2>5. Cookies</h2>
+  <p>Diese Website verwendet keine Cookies. Es werden keine Tracking-, Analyse- oder Marketing-Cookies eingesetzt. Es ist daher kein Cookie-Banner erforderlich.</p>
+
+  <!-- 6. Server-Log-Files -->
+  <h2>6. Server-Log-Files</h2>
+  <p>Der Hosting-Provider (GitHub Pages) erhebt und speichert automatisch Informationen in sogenannten Server-Log-Files, die Ihr Browser automatisch übermittelt. Dies sind:</p>
+  <ul>
+    <li>Browsertyp und Browserversion</li>
+    <li>Verwendetes Betriebssystem</li>
+    <li>Referrer URL</li>
+    <li>IP-Adresse des zugreifenden Rechners</li>
+    <li>Uhrzeit der Serveranfrage</li>
+  </ul>
+  <p>Diese Daten werden nicht mit anderen Datenquellen zusammengeführt. Die Erfassung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der technisch fehlerfreien Darstellung und der Optimierung seiner Website.</p>
+
+  <!-- 7. Booking form -->
+  <h2>7. Buchungsformular</h2>
+  <p>Wenn Sie über unser Buchungsformular eine SUP-Buchung vornehmen, werden folgende personenbezogene Daten erhoben:</p>
+  <ul>
+    <li>Name</li>
+    <li>E-Mail-Adresse</li>
+    <li>Telefonnummer</li>
+  </ul>
+  <p>Diese Daten werden in einer Datenbank bei Supabase gespeichert. Supabase betreibt seine Server innerhalb der Europäischen Union (EU). Weitere Informationen finden Sie unter: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy Policy</a>.</p>
+  <p><strong>Rechtsgrundlage:</strong> Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen). Die Erhebung Ihrer Daten ist zur Durchführung der Buchung erforderlich.</p>
+  <p><strong>Speicherdauer:</strong> Ihre Buchungsdaten werden für die Dauer der Geschäftsbeziehung gespeichert und anschließend gemäß den gesetzlichen Aufbewahrungsfristen (in der Regel 6 bzw. 10 Jahre nach Handels- und Steuerrecht) aufbewahrt. Nach Ablauf dieser Fristen werden die Daten gelöscht.</p>
+
+  <!-- 8. E-Mail -->
+  <h2>8. E-Mail-Versand</h2>
+  <p>Für den Versand von Buchungsbestätigungen per E-Mail nutzen wir den Dienst Resend. Anbieter ist die Resend Inc.</p>
+  <p>Dabei wird Ihre E-Mail-Adresse an Resend übermittelt, um die Buchungsbestätigung zuzustellen. Die Nutzung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).</p>
+  <p>Weitere Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Resend: <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Resend Privacy Policy</a>.</p>
+
+  <!-- 9. Google Fonts -->
+  <h2>9. Google Fonts</h2>
+  <p>Diese Seite nutzt zur einheitlichen Darstellung von Schriftarten sogenannte Google Fonts, die von Google bereitgestellt werden. Beim Aufruf einer Seite lädt Ihr Browser die benötigten Schriftarten in Ihren Browsercache, um Texte und Schriftarten korrekt anzuzeigen.</p>
+  <p>Zu diesem Zweck muss der von Ihnen verwendete Browser Verbindung zu den Servern von Google aufnehmen. Hierdurch erlangt Google Kenntnis darüber, dass über Ihre IP-Adresse diese Website aufgerufen wurde.</p>
+  <p>Die Nutzung von Google Fonts erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der einheitlichen Darstellung des Schriftbildes auf seiner Website.</p>
+  <p>Weitere Informationen zu Google Fonts finden Sie unter <a href="https://fonts.google.com/about" target="_blank" rel="noopener">Google Fonts</a> und in der Datenschutzerklärung von Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+
+  <!-- 10. Google Maps -->
+  <h2>10. Google Maps</h2>
+  <p>Diese Seite nutzt den Kartendienst Google Maps. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
+  <p>Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert. Der Anbieter dieser Seite hat keinen Einfluss auf diese Datenübertragung.</p>
+  <p>Die Nutzung von Google Maps erfolgt im Interesse einer ansprechenden Darstellung unserer Online-Angebote und an einer leichten Auffindbarkeit der von uns auf der Website angegebenen Orte. Dies stellt ein berechtigtes Interesse im Sinne von Art. 6 Abs. 1 lit. f DSGVO dar.</p>
+  <p>Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+
+  <!-- 11. Rights -->
+  <h2>11. Ihre Rechte nach DSGVO</h2>
+  <p>Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:</p>
+  <ul>
+    <li><strong>Recht auf Auskunft (Art. 15 DSGVO):</strong> Sie haben das Recht, eine Bestätigung darüber zu verlangen, ob betreffende Daten verarbeitet werden, und auf Auskunft über diese Daten sowie auf weitere Informationen und Kopie der Daten.</li>
+    <li><strong>Recht auf Berichtigung (Art. 16 DSGVO):</strong> Sie haben das Recht, die Vervollständigung der Sie betreffenden Daten oder die Berichtigung der Sie betreffenden unrichtigen Daten zu verlangen.</li>
+    <li><strong>Recht auf Löschung (Art. 17 DSGVO):</strong> Sie haben das Recht, zu verlangen, dass betreffende Daten unverzüglich gelöscht werden, sofern einer der gesetzlich vorgesehenen Gründe zutrifft.</li>
+    <li><strong>Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO):</strong> Sie haben das Recht, die Einschränkung der Verarbeitung zu verlangen, wenn eine der gesetzlich vorgesehenen Voraussetzungen gegeben ist.</li>
+    <li><strong>Recht auf Datenübertragbarkeit (Art. 20 DSGVO):</strong> Sie haben das Recht, die Sie betreffenden Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten.</li>
+    <li><strong>Recht auf Widerspruch (Art. 21 DSGVO):</strong> Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung der Sie betreffenden personenbezogenen Daten Widerspruch einzulegen.</li>
+    <li><strong>Beschwerderecht bei einer Aufsichtsbehörde:</strong> Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Die für uns zuständige Aufsichtsbehörde ist das Bayerische Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach.</li>
+  </ul>
+
+  <!-- 12. Retention -->
+  <h2>12. Speicherdauer</h2>
+  <p>Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschersuchen geltend machen oder eine Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, sofern wir keine anderen rechtlich zulässigen Gründe für die Speicherung Ihrer personenbezogenen Daten haben (z.&nbsp;B. steuer- oder handelsrechtliche Aufbewahrungsfristen). Im letztgenannten Fall erfolgt die Löschung nach Fortfall dieser Gründe.</p>
+
+  <!-- 13. Revocation -->
+  <h2>13. Widerruf Ihrer Einwilligung zur Datenverarbeitung</h2>
+  <p>Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen Einwilligung möglich. Sie können eine bereits erteilte Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt.</p>
+  <p>Um Ihre Rechte auszuüben oder eine Einwilligung zu widerrufen, wenden Sie sich bitte an: <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a></p>
+
+  <p class="legal-date">Stand: April 2026</p>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="flogo">Steg eins Possenhofen</div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+  </div>
+  <div class="fcol">
+    <h4>Navigation</h4>
+    <a href="sup.html">SUP Verleih</a>
+    <a href="index.html#speisekarte">Speisekarte</a>
+    <a href="index.html#gutscheine">Gutscheine</a>
+  </div>
+  <div class="fcol">
+    <h4>Kontakt</h4>
+    <a href="#">Possenhofen, Starnberger See</a>
+    <a href="tel:+49000000000">+49 (0) … …</a>
+    <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+<div class="fbot">
+  <span>&copy; 2026 Steg 1 Possenhofen</span>
+  <span>Mit ♥ am See</span>
+</div>
+
+<script>
+// Scroll effect for nav
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Mobile menu toggle
+var burger = document.querySelector('.nav-burger');
+var mobileMenu = document.querySelector('.mobile-menu');
+if (burger && mobileMenu) {
+  burger.addEventListener('click', function() {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+}
+</script>
+</body>
+</html>
