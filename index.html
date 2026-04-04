@@ -360,8 +360,22 @@ footer{
 }
 
 /* ── REVEAL ── */
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:none}
+
+/* Stagger for grid children */
+.sc,.mcat,.vc,.info-card{
+  opacity:0;transform:translateY(16px);
+  transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1),
+             box-shadow .3s ease,border-color .3s ease;
+}
+.reveal.visible .sc,
+.reveal.visible .mcat,
+.reveal.visible .vc,
+.reveal.visible .info-card{opacity:1;transform:none}
+.reveal.visible .sc:nth-child(1),.reveal.visible .mcat:nth-child(1),.reveal.visible .vc:nth-child(1),.reveal.visible .info-card:nth-child(1){transition-delay:0s}
+.reveal.visible .sc:nth-child(2),.reveal.visible .mcat:nth-child(2),.reveal.visible .vc:nth-child(2),.reveal.visible .info-card:nth-child(2){transition-delay:.1s}
+.reveal.visible .sc:nth-child(3),.reveal.visible .mcat:nth-child(3),.reveal.visible .vc:nth-child(3){transition-delay:.2s}
 
 /* ── HERO ENTRANCE ── */
 .hero-left>*{
