@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speisekarte — Steg 1 Possenhofen am Starnberger See</title>
+<meta name="description" content="Unsere Speisekarte: Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See bei Steg 1 Possenhofen.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2A7B6F;--g2:#1F6358;--accent:#D4883A;--accent2:#C07A2E;
+  --sand:#F2EBD9;--sand2:#E4D9C4;
+  --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
+  --w:#FDFBF7;--dark:#1B2B28;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,250,244,.72);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border-bottom:.5px solid rgba(42,123,111,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(42,123,111,.06);
+  border-bottom-color:rgba(42,123,111,.1);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.45rem;font-weight:600;
+  color:var(--g);letter-spacing:.03em;
+  text-decoration:none;
+}
+.logo-num{font-family:'DM Sans',sans-serif;font-style:normal;font-weight:700;font-size:1.5em;opacity:.9;vertical-align:middle;line-height:1}
+.logo{transition:opacity .3s ease}
+.logo:hover{opacity:.75}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--g)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--g)}
+.nav-links a.active::after{width:100%}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'DM Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(42,123,111,.22);
+}
+
+/* Hamburger menu button */
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* ── HERO (simple text hero) ── */
+.menu-hero{
+  padding-top:120px;
+  padding-bottom:3.5rem;
+  background:var(--sand);
+  text-align:center;
+}
+.menu-hero .eyebrow{
+  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;justify-content:center;gap:.7rem;
+  margin-bottom:1rem;
+}
+.menu-hero .eyebrow::before,
+.menu-hero .eyebrow::after{
+  content:'';width:28px;height:1.5px;background:var(--g);opacity:.35;
+}
+.menu-hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.6rem,5vw,4rem);
+  line-height:1.05;font-weight:600;color:var(--text);
+  margin-bottom:1rem;letter-spacing:-.02em;
+}
+.menu-hero p{
+  font-size:1.05rem;color:var(--text2);
+  line-height:1.7;max-width:440px;margin:0 auto;font-weight:300;
+}
+.menu-hero .back-link{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.82rem;color:var(--g);text-decoration:none;
+  margin-top:1.5rem;transition:opacity .2s;
+}
+.menu-hero .back-link:hover{opacity:.7}
+.menu-hero .back-link svg{width:16px;height:16px}
+
+/* ── SECTION DEFAULTS ── */
+.sec{padding:4.5rem 3rem}
+.stag{
+  font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;
+}
+.stag::before{content:'';width:16px;height:1px;background:var(--g)}
+h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;margin-bottom:.75rem}
+.ssub{font-size:.95rem;color:var(--text2);line-height:1.7;max-width:480px}
+
+/* ── MENU GRID ── */
+.menu-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2rem;margin-top:2.5rem;
+  max-width:1100px;
+}
+.menu-card{
+  background:var(--sand);border-radius:14px;
+  padding:2rem 1.8rem 1.5rem;
+  border:.5px solid transparent;
+  transition:border-color .2s ease;
+}
+.menu-card:hover{border-color:rgba(42,123,111,.12)}
+.menu-card h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.35rem;font-weight:600;color:var(--text);
+  margin-bottom:1.2rem;
+  padding-bottom:.6rem;
+  border-bottom:1.5px solid var(--sand2);
+}
+.menu-item{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:.6rem 0;
+  border-bottom:.5px solid rgba(228,217,196,.5);
+}
+.menu-item:last-child{border-bottom:none}
+.menu-item-left{flex:1;min-width:0;padding-right:1rem}
+.menu-item-name{
+  font-size:.88rem;font-weight:500;color:var(--text);
+}
+.menu-item-desc{
+  font-size:.78rem;color:var(--text3);line-height:1.5;margin-top:.15rem;
+}
+.menu-item-price{
+  font-size:.88rem;font-weight:600;color:var(--accent);
+  white-space:nowrap;flex-shrink:0;
+}
+.menu-item.sub-item .menu-item-name{
+  font-weight:400;color:var(--text2);font-size:.84rem;
+  padding-left:.75rem;
+}
+.menu-item.sub-item .menu-item-price{
+  font-weight:500;font-size:.84rem;
+}
+
+/* ── FOOTER NOTE ── */
+.menu-note{
+  text-align:center;padding:2rem 3rem 0;
+  font-size:.82rem;color:var(--text3);line-height:1.7;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);color:rgba(253,250,244,.6);
+  padding:3rem 3rem 1.5rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
+.fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
+.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
+.fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.fcol a:hover{color:#2A7B6F}
+.fbot{
+  background:var(--dark);padding:.75rem 3rem 1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:rgba(255,255,255,.25);
+  border-top:.5px solid rgba(255,255,255,.07);
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+
+/* ── HERO ENTRANCE ── */
+.menu-hero>*{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.menu-hero.loaded>*{opacity:1;transform:none}
+.menu-hero.loaded>*:nth-child(1){transition-delay:.1s}
+.menu-hero.loaded>*:nth-child(2){transition-delay:.22s}
+.menu-hero.loaded>*:nth-child(3){transition-delay:.35s}
+.menu-hero.loaded>*:nth-child(4){transition-delay:.48s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:.85rem 1.5rem}
+  nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+
+  /* Mobile menu overlay */
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'DM Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu a.active{color:var(--g);font-weight:500}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(42,123,111,.18);
+  }
+
+  .sec{padding:3rem 1.5rem}
+  .menu-grid{grid-template-columns:1fr;gap:1.5rem}
+  .menu-hero{padding-top:90px;padding-bottom:2.5rem}
+  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  .fbot{padding:.75rem 1.5rem 1rem}
+  .menu-note{padding:1.5rem 1.5rem 0}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Steg <span class="logo-num">1</span></a>
+  <ul class="nav-links">
+    <li><a href="sup.html">SUP Verleih</a></li>
+    <li><a href="speisekarte.html" class="active">Speisekarte</a></li>
+    <li><a href="index.html#gutscheine">Gutscheine</a></li>
+    <li><a href="index.html#kontakt">Kontakt</a></li>
+  </ul>
+  <a href="sup.html" class="nav-cta">Jetzt buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="sup.html">SUP Verleih</a>
+  <a href="speisekarte.html" class="active">Speisekarte</a>
+  <a href="index.html#gutscheine">Gutscheine</a>
+  <a href="index.html#kontakt">Kontakt</a>
+  <a href="sup.html" class="mm-cta">Jetzt buchen</a>
+</div>
+
+<!-- HERO -->
+<section class="menu-hero" id="top">
+  <p class="eyebrow">Unsere Karte</p>
+  <h1>Speisekarte</h1>
+  <p>Frische Küche, kühle Getränke — direkt am See.</p>
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Zurück zur Startseite
+  </a>
+</section>
+
+<!-- ═══════════════════════════════ -->
+<!-- SPEISEN                         -->
+<!-- ═══════════════════════════════ -->
+<section class="sec reveal" id="speisen">
+  <div class="stag">Küche</div>
+  <h2>Speisen</h2>
+  <p class="ssub">Bayerische Küche, frisch zubereitet — von Flammkuchen bis Steckerlfisch.</p>
+
+  <div class="menu-grid">
+
+    <!-- Flammkuchen -->
+    <div class="menu-card">
+      <h3>Flammkuchen</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Elsässer</div>
+          <div class="menu-item-desc">mit Speck</div>
+        </div>
+        <div class="menu-item-price">12,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Griechischer</div>
+          <div class="menu-item-desc">mit Schafskäse</div>
+        </div>
+        <div class="menu-item-price">12,30 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Vegan</div>
+          <div class="menu-item-desc">Gemüsemix</div>
+        </div>
+        <div class="menu-item-price">14,30 €</div>
+      </div>
+    </div>
+
+    <!-- Pizza -->
+    <div class="menu-card">
+      <h3>Pizza</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Margherita</div>
+        </div>
+        <div class="menu-item-price">9,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Salami</div>
+        </div>
+        <div class="menu-item-price">10,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Schinken</div>
+        </div>
+        <div class="menu-item-price">12,30 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Spezial</div>
+          <div class="menu-item-desc">Grillgemüse</div>
+        </div>
+        <div class="menu-item-price">12,30 €</div>
+      </div>
+    </div>
+
+    <!-- Warme Küche -->
+    <div class="menu-card">
+      <h3>Warme Küche</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Schnitzel</div>
+          <div class="menu-item-desc">mit Pommes oder Kartoffelsalat</div>
+        </div>
+        <div class="menu-item-price">12,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Currywurst mit Pommes</div>
+        </div>
+        <div class="menu-item-price">10,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Pflanzerl mit Kartoffelsalat</div>
+        </div>
+        <div class="menu-item-price">9,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">1 Paar Wiener mit Brez'n</div>
+        </div>
+        <div class="menu-item-price">6,40 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">5 Mozzarella-Sticks</div>
+          <div class="menu-item-desc">mit Thai-Dip</div>
+        </div>
+        <div class="menu-item-price">6,90 €</div>
+      </div>
+    </div>
+
+    <!-- Beilagen & Snacks -->
+    <div class="menu-card">
+      <h3>Beilagen & Snacks</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Pommes</div>
+        </div>
+        <div class="menu-item-price">4,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Süßkartoffel Pommes</div>
+        </div>
+        <div class="menu-item-price">7,30 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Obazda mit Breze</div>
+        </div>
+        <div class="menu-item-price">3,80 €</div>
+      </div>
+    </div>
+
+    <!-- Toasts & Semmeln -->
+    <div class="menu-card">
+      <h3>Toasts & Semmeln</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Toast Schinken-Käse</div>
+        </div>
+        <div class="menu-item-price">4,30 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Toast Tomate-Mozzarella</div>
+        </div>
+        <div class="menu-item-price">4,30 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Semmel Käse / Salami</div>
+        </div>
+        <div class="menu-item-price">3,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Semmel Pflanzerl / Bratwurst</div>
+        </div>
+        <div class="menu-item-price">4,90 €</div>
+      </div>
+    </div>
+
+    <!-- Fisch -->
+    <div class="menu-card">
+      <h3>Fisch (Steckerlfisch)</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Steckerlfisch</div>
+        </div>
+        <div class="menu-item-price">19,30 €</div>
+      </div>
+      <div class="menu-item sub-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">+ Kartoffelsalat</div>
+        </div>
+        <div class="menu-item-price">3,90 €</div>
+      </div>
+      <div class="menu-item sub-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">+ Breze</div>
+        </div>
+        <div class="menu-item-price">1,80 €</div>
+      </div>
+      <div class="menu-item sub-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">+ Semmel</div>
+        </div>
+        <div class="menu-item-price">1,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Dachssemmel</div>
+        </div>
+        <div class="menu-item-price">8,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Matjessemmel</div>
+        </div>
+        <div class="menu-item-price">8,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Forellensemmel</div>
+        </div>
+        <div class="menu-item-price">8,50 €</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ -->
+<!-- GETRÄNKE                        -->
+<!-- ═══════════════════════════════ -->
+<section class="sec reveal" id="getraenke" style="background:var(--sand)">
+  <div class="stag">Getränke</div>
+  <h2>Getränkekarte</h2>
+  <p class="ssub">Vom frisch gezapften Tegernseer bis zum Steg 1 Spritz — für jeden Geschmack.</p>
+
+  <div class="menu-grid">
+
+    <!-- Biere -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Biere</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Tegernseer Hell</div>
+          <div class="menu-item-desc">0,5 / 0,33</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Radler (Hacker & Gösser)</div>
+          <div class="menu-item-desc">0,5</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Hacker Alkoholfrei</div>
+          <div class="menu-item-desc">0,5</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Desperados</div>
+          <div class="menu-item-desc">0,33</div>
+        </div>
+        <div class="menu-item-price">4,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Hopf Weissbier</div>
+          <div class="menu-item-desc">0,5</div>
+        </div>
+        <div class="menu-item-price">4,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Hacker Kellerbier</div>
+          <div class="menu-item-desc">0,5</div>
+        </div>
+        <div class="menu-item-price">4,90 €</div>
+      </div>
+    </div>
+
+    <!-- Wein -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Wein</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Weinschorle</div>
+          <div class="menu-item-desc">weiß / rosé / rot · 0,2</div>
+        </div>
+        <div class="menu-item-price">ab 8,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Weißwein</div>
+          <div class="menu-item-desc">Lugana, Riesling · 0,75</div>
+        </div>
+        <div class="menu-item-price">ab 27,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Rosé</div>
+          <div class="menu-item-desc">0,2</div>
+        </div>
+        <div class="menu-item-price">ab 8,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Rotwein</div>
+          <div class="menu-item-desc">0,75</div>
+        </div>
+        <div class="menu-item-price">ab 26,90 €</div>
+      </div>
+    </div>
+
+    <!-- Spritz -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Spritz</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Aperol / Limoncello / Campari Spritz</div>
+        </div>
+        <div class="menu-item-price">8,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Steg 1 Spritz</div>
+        </div>
+        <div class="menu-item-price">8,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Ingwer / Pfirsich / Rhabarber Spritz</div>
+        </div>
+        <div class="menu-item-price">8,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Sarti Spritz</div>
+          <div class="menu-item-desc">mit Bitter Lemon oder Prosecco</div>
+        </div>
+        <div class="menu-item-price">8,90 €</div>
+      </div>
+    </div>
+
+    <!-- Longdrinks -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Longdrinks</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Gin Tonic</div>
+        </div>
+        <div class="menu-item-price">8,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Cuba Libre</div>
+        </div>
+        <div class="menu-item-price">9,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Jacky Cola</div>
+          <div class="menu-item-desc">0,3</div>
+        </div>
+        <div class="menu-item-price">9,50 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Vodka Lemon / Tonic / Red Bull</div>
+        </div>
+        <div class="menu-item-price">9,50 €</div>
+      </div>
+    </div>
+
+    <!-- Alkoholfrei -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Alkoholfrei</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Schorle</div>
+          <div class="menu-item-desc">Apfel, Mango, Maracuja u.a. · 0,4</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Eistee</div>
+          <div class="menu-item-desc">Peach, Lemon, Pomme-Granate · 0,33</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Limo (Proviant)</div>
+          <div class="menu-item-desc">0,33</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Wasser</div>
+          <div class="menu-item-desc">feinperlig / naturell · 0,25</div>
+        </div>
+        <div class="menu-item-price">2,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Cola / Spezi</div>
+          <div class="menu-item-desc">0,33</div>
+        </div>
+        <div class="menu-item-price">4,30 €</div>
+      </div>
+    </div>
+
+    <!-- Kaffee & Tee -->
+    <div class="menu-card" style="background:var(--w)">
+      <h3>Kaffee & Tee</h3>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Café Crema</div>
+          <div class="menu-item-desc">klein / groß</div>
+        </div>
+        <div class="menu-item-price">3,80 / 4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Cappuccino</div>
+          <div class="menu-item-desc">klein / groß</div>
+        </div>
+        <div class="menu-item-price">3,80 / 4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Espresso</div>
+          <div class="menu-item-desc">einfach / doppelt</div>
+        </div>
+        <div class="menu-item-price">2,50 / 3,90 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Latte Macchiato</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Heiße Schoki</div>
+        </div>
+        <div class="menu-item-price">4,60 €</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <div class="menu-item-name">Tee (Glas)</div>
+        </div>
+        <div class="menu-item-price">4,20 €</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Hinweis -->
+<div class="menu-note">Alle Preise inkl. MwSt. · Änderungen vorbehalten.</div>
+
+<!-- FOOTER -->
+<footer id="kontakt">
+  <div>
+    <div class="flogo">Steg 1 Possenhofen</div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+  </div>
+  <div class="fcol">
+    <h4>Navigation</h4>
+    <a href="sup.html">SUP Verleih</a>
+    <a href="speisekarte.html">Speisekarte</a>
+    <a href="index.html#gutscheine">Gutscheine</a>
+  </div>
+  <div class="fcol">
+    <h4>Kontakt</h4>
+    <a href="#">Possenhofen, Starnberger See</a>
+    <a href="tel:+49000000000">+49 (0) ... ...</a>
+    <a href="mailto:hallo@stegeins.de">hallo@stegeins.de</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+</footer>
+<div class="fbot">
+  <span>&copy; 2026 Steg 1 Possenhofen</span>
+  <span>Mit ♥ am See</span>
+</div>
+
+<script>
+// Scroll effect for nav
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Hero entrance animation
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    document.querySelector('.menu-hero').classList.add('loaded');
+  }, 100);
+});
+
+// Scroll reveal observer
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      obs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) {
+  obs.observe(el);
+});
+
+// Mobile menu toggle
+var burger = document.querySelector('.nav-burger');
+var mobileMenu = document.getElementById('mobile-menu');
+if (burger && mobileMenu) {
+  burger.addEventListener('click', function() {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  // Close menu on link click
+  mobileMenu.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+}
+</script>
+</body>
+</html>
