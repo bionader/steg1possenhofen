@@ -418,7 +418,7 @@ footer{
   <ul class="nav-links">
     <li><a href="sup.html">SUP Verleih</a></li>
     <li><a href="#speisekarte">Speisekarte</a></li>
-    <li><a href="#kontakt-form">Kontakt</a></li>
+    <li><a href="kontakt.html">Kontakt</a></li>
   </ul>
   <a href="sup.html" class="nav-cta">Jetzt SUP buchen</a>
 </nav>
@@ -564,44 +564,6 @@ footer{
   </div>
 </div>
 
-
-<!-- KONTAKT -->
-<section class="sec reveal" id="kontakt-form" style="background:var(--sand)">
-  <p class="stag">Schreib uns</p>
-  <h2>Wir freuen uns auf deine Nachricht.</h2>
-  <p class="ssub">Ob Events, SUP-Verleih, Veranstaltungen oder einfach eine Frage — wir melden uns so schnell wie möglich bei dir.</p>
-  <div style="max-width:520px;margin:2rem auto 0">
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px">Name *</label>
-      <input type="text" id="c-name" placeholder="Dein Name" style="width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem;background:var(--w)">
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px">E-Mail *</label>
-      <input type="email" id="c-email" placeholder="deine@email.de" style="width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem;background:var(--w)">
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px">Telefon</label>
-      <input type="tel" id="c-phone" placeholder="+49 ..." style="width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem;background:var(--w)">
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px">Betreff *</label>
-      <select id="c-subject" style="width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem;background:var(--w)">
-        <option value="">Bitte wählen...</option>
-        <option value="SUP-Verleih">SUP-Verleih</option>
-        <option value="Event / Veranstaltung">Event / Veranstaltung</option>
-        <option value="Reservierung Biergarten">Reservierung Biergarten</option>
-        <option value="Gruppenanfrage">Gruppenanfrage</option>
-        <option value="Sonstiges">Sonstiges</option>
-      </select>
-    </div>
-    <div style="margin-bottom:14px">
-      <label style="display:block;font-size:.82rem;color:var(--text2);font-weight:500;margin-bottom:5px">Nachricht *</label>
-      <textarea id="c-message" rows="5" placeholder="Deine Nachricht..." style="width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.9rem;resize:vertical;background:var(--w)"></textarea>
-    </div>
-    <button type="button" id="btn-contact" style="width:100%;padding:14px;background:var(--g);color:white;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s">Nachricht senden</button>
-    <div id="contact-msg" style="margin-top:14px;text-align:center;font-size:.88rem;display:none"></div>
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer id="kontakt">
@@ -820,49 +782,6 @@ window.addEventListener('scroll',function(){
 });
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){document.querySelector('.hero').classList.add('loaded')},100);
-});
-</script>
-<script>
-// Contact form
-document.getElementById('btn-contact').addEventListener('click',function(){
-  var btn=this;
-  var name=document.getElementById('c-name').value.trim();
-  var email=document.getElementById('c-email').value.trim();
-  var phone=document.getElementById('c-phone').value.trim();
-  var subject=document.getElementById('c-subject').value;
-  var message=document.getElementById('c-message').value.trim();
-  var msgEl=document.getElementById('contact-msg');
-
-  if(!name||!email||!subject||!message){
-    msgEl.style.display='block';msgEl.style.color='#D94F4F';
-    msgEl.textContent='Bitte fülle alle Pflichtfelder aus.';return;
-  }
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    msgEl.style.display='block';msgEl.style.color='#D94F4F';
-    msgEl.textContent='Bitte eine gültige E-Mail eingeben.';return;
-  }
-
-  btn.disabled=true;btn.textContent='Wird gesendet...';
-  fetch('https://tdnnfmfaymnzukjhoidq.supabase.co/functions/v1/send-contact-email',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg'},
-    body:JSON.stringify({name:name,email:email,phone:phone,subject:subject,message:message})
-  })
-  .then(function(r){
-    if(!r.ok)throw new Error('fail');
-    msgEl.style.display='block';msgEl.style.color='#2B5C3F';
-    msgEl.textContent='Danke für deine Nachricht! Wir melden uns bald bei dir.';
-    document.getElementById('c-name').value='';
-    document.getElementById('c-email').value='';
-    document.getElementById('c-phone').value='';
-    document.getElementById('c-subject').value='';
-    document.getElementById('c-message').value='';
-  })
-  .catch(function(){
-    msgEl.style.display='block';msgEl.style.color='#D94F4F';
-    msgEl.textContent='Fehler beim Senden. Bitte versuche es erneut.';
-  })
-  .finally(function(){btn.disabled=false;btn.textContent='Nachricht senden'});
 });
 </script>
 </body>
