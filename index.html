@@ -456,7 +456,7 @@ footer{
   <div class="wi"><div class="val">☀ 22 °C</div><div class="lbl">Wetter Starnberg</div></div>
   <div class="wi"><div class="val">18 °C</div><div class="lbl">Wassertemperatur</div></div>
   <div class="wi"><div class="val">SW 8 km/h</div><div class="lbl">Wind</div></div>
-  <div class="wi"><div class="val">Geöffnet</div><div class="lbl">11:00 – 22:00 Uhr</div></div>
+  <div class="wi"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></div>
 </div>
 
 <!-- INFO: Maps + Öffnungszeiten -->
@@ -602,6 +602,20 @@ footer{
     return h>=10&&h<20;
   }
 
+  // Sync weather bar status with hero status
+  function updateWbar(isOpen, openT, closeT){
+    var wbS=document.getElementById('wb-status');
+    var wbT=document.getElementById('wb-times');
+    if(!wbS||!wbT)return;
+    if(isOpen){
+      wbS.textContent='Ge\u00f6ffnet';
+      wbT.textContent=(openT||'10:00')+' \u2013 '+(closeT||'20:00')+' Uhr';
+    }else{
+      wbS.textContent='Geschlossen';
+      wbT.textContent='';
+    }
+  }
+
   function show(isOpen){
     var dot=document.getElementById('dot');
     var stxt=document.getElementById('stxt');
@@ -613,11 +627,13 @@ footer{
       var zeit='10:00 \u2013 20:00';
       stxt.textContent='Heute ge\u00f6ffnet: '+zeit+' Uhr';
       if(widget)widget.classList.remove('is-closed');
+      updateWbar(true,'10:00','20:00');
     }else{
       dot.classList.add('closed');
       var tm=(d+1)%7;
       stxt.textContent='Heute geschlossen \u2013 Morgen ab '+((tm===0||tm===6)?'10:00':'11:00')+' Uhr';
       if(widget)widget.classList.add('is-closed');
+      updateWbar(false);
     }
   }
 
@@ -728,23 +744,28 @@ footer{
       var next=findNextOpen();
       stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
+      updateWbar(false);
     }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
+      updateWbar(true,openT,closeT);
     }else if(!isOpen&&nowMins<oM&&(oM-nowMins<=60)){
       dot.classList.add('closed');
       stxt.textContent='Heute ge\u00f6ffnet: ab '+openT+' Uhr';
       if(widget)widget.classList.add('is-closed');
+      updateWbar(false);
     }else if(isOpen){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
+      updateWbar(true,openT,closeT);
     }else{
       dot.classList.add('closed');
       var next=findNextOpen();
       stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
+      updateWbar(false);
     }
   }
 })();
