@@ -264,17 +264,17 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .mi-p{font-size:.85rem;font-weight:500;color:var(--text2);white-space:nowrap;margin-left:.5rem}
 
 /* ── FOTO BAND ── */
-.photo-band{
-  display:grid;grid-template-columns:2fr 1fr;
-  height:400px;overflow:hidden;
-}
-.photo-band img{
-  width:100%;height:100%;object-fit:cover;object-position:center center;display:block;
-  transition:transform .7s cubic-bezier(.16,1,.3,1);
-}
-.photo-band img:hover{transform:scale(1.03)}
-.photo-band .pb-right{display:grid;grid-template-rows:1fr 1fr}
-.photo-band .pb-right img{height:100%}
+/* Slider */
+.slider-wrap{position:relative;overflow:hidden;height:480px}
+.slider-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);height:100%}
+.slider-track img{min-width:100%;height:100%;object-fit:cover;object-position:center center;display:block;flex-shrink:0}
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;width:44px;height:44px;border-radius:50%;font-size:1.2rem;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.slider-btn:hover{background:white;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.slider-prev{left:16px}
+.slider-next{right:16px}
+.slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2}
+.slider-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;transition:all .2s}
+.slider-dot.active{background:white;transform:scale(1.2)}
 
 /* ── GUTSCHEINE ── */
 .voucher-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:2.5rem}
@@ -403,8 +403,8 @@ footer{
   .atm-img{height:260px}
   .sup-inner{grid-template-columns:1fr;gap:2rem}
   .menu-grid,.voucher-grid{grid-template-columns:1fr}
-  .photo-band{grid-template-columns:1fr;height:240px}
-  .photo-band .pb-right{display:none}
+  .slider-wrap{height:280px}
+  .slider-btn{width:36px;height:36px;font-size:1rem}
   footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
   .fbot{padding:.75rem 1.5rem 1rem}
 }
@@ -555,13 +555,16 @@ footer{
   </div>
 </section>
 
-<!-- FOTO BAND -->
-<div class="photo-band">
-  <img src="images/steg-panorama.jpg" alt="Steg 1 Possenhofen Panorama">
-  <div class="pb-right">
-    <img src="images/cappuccino.jpg" alt="Cappuccino am See">
-    <img src="images/biergarten.jpg" alt="Biergarten">
+<!-- FOTO SLIDER -->
+<div class="slider-wrap">
+  <div class="slider-track" id="slider-track">
+    <img src="images/sup-slider-1.jpg" alt="SUP auf dem Starnberger See">
+    <img src="images/sup-slider-2.jpg" alt="Strand und SUP Boards">
+    <img src="images/sup-slider-3.jpg" alt="Steg mit Alpenpanorama">
   </div>
+  <button class="slider-btn slider-prev" onclick="slideMove(-1)">&#8249;</button>
+  <button class="slider-btn slider-next" onclick="slideMove(1)">&#8250;</button>
+  <div class="slider-dots" id="slider-dots"></div>
 </div>
 
 
@@ -783,6 +786,26 @@ window.addEventListener('scroll',function(){
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){document.querySelector('.hero').classList.add('loaded')},100);
 });
+// Image slider
+var slideIdx=0;
+var slideCount=document.querySelectorAll('#slider-track img').length;
+var dotsEl=document.getElementById('slider-dots');
+for(var i=0;i<slideCount;i++){
+  var dot=document.createElement('button');
+  dot.className='slider-dot'+(i===0?' active':'');
+  dot.dataset.i=i;
+  dot.addEventListener('click',function(){slideTo(parseInt(this.dataset.i))});
+  dotsEl.appendChild(dot);
+}
+function slideTo(n){
+  slideIdx=n;
+  if(slideIdx<0)slideIdx=slideCount-1;
+  if(slideIdx>=slideCount)slideIdx=0;
+  document.getElementById('slider-track').style.transform='translateX(-'+slideIdx*100+'%)';
+  document.querySelectorAll('.slider-dot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)});
+}
+function slideMove(dir){slideTo(slideIdx+dir)}
+setInterval(function(){slideTo(slideIdx+1)},5000);
 </script>
 </body>
 </html>
