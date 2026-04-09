@@ -107,21 +107,21 @@
     .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
     .sup-day-toggle{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem}
 
-    .menu-cat{margin-bottom:16px;background:#FDFBF7;border-radius:14px;border:1.5px solid #F0E8D6;overflow:hidden}
-    .menu-cat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F7F0E6;cursor:grab}
-    .menu-cat-header:active{cursor:grabbing}
-    .menu-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#1A2421;font-weight:600}
-    .menu-cat-actions{display:flex;gap:6px}
-    .menu-cat-actions button{background:none;border:1px solid #E4D9C4;border-radius:6px;padding:4px 8px;font-size:.7rem;cursor:pointer;font-family:inherit;color:#4A5652;transition:all .2s;width:auto}
+    .menu-cat{margin-bottom:16px;background:#FDFBF7;border-radius:14px;border:1.5px solid #F0E8D6;overflow:hidden;transition:transform .2s}
+    .menu-cat.moving{transform:scale(.98);box-shadow:0 4px 20px rgba(42,123,111,.12)}
+    .menu-cat-header{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#F7F0E6}
+    .menu-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#1A2421;font-weight:600;flex:1}
+    .menu-cat-actions{display:flex;gap:4px}
+    .menu-cat-actions button{background:none;border:1px solid #E4D9C4;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer;font-family:inherit;color:#4A5652;transition:all .2s;width:auto;line-height:1}
     .menu-cat-actions button:hover{border-color:#2A7B6F;color:#2A7B6F;background:none}
     .menu-cat-actions button.del:hover{border-color:#D94F4F;color:#D94F4F;background:none}
+    .menu-cat-actions button.move{font-size:.9rem;padding:2px 6px}
     .menu-cat-body{padding:0 16px 12px}
-    .menu-item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0E8D6;cursor:grab}
-    .menu-item-row:active{cursor:grabbing}
+    .menu-item-row{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #F0E8D6}
     .menu-item-row:last-child{border-bottom:none}
-    .menu-item-row.dragging{opacity:.4;background:#F7F0E6}
-    .menu-item-row.drag-over{border-top:2px solid #2A7B6F}
-    .menu-grip{color:#B8AE9C;font-size:.8rem;cursor:grab;padding:0 4px;user-select:none}
+    .menu-item-move{display:flex;flex-direction:column;gap:1px}
+    .menu-item-move button{background:none;border:none;color:#B8AE9C;cursor:pointer;font-size:.65rem;padding:0 3px;line-height:1;width:auto;transition:color .15s}
+    .menu-item-move button:hover{color:#2A7B6F;background:none}
     .menu-item-fields{flex:1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;min-width:0}
     .menu-item-input{padding:5px 8px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.82rem;transition:border-color .2s}
     .menu-item-input:focus{outline:none;border-color:#2A7B6F}
@@ -136,7 +136,6 @@
     .menu-add-cat:hover{border-color:#2A7B6F;background:rgba(42,123,111,.04)}
     .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
     .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
-    .menu-cat.drag-over-cat{border-color:#2A7B6F;box-shadow:0 0 0 2px rgba(42,123,111,.2)}
 
     @media(max-width:500px){
       .container{padding:24px 18px;border-radius:16px}
@@ -693,11 +692,12 @@
         var cats = Object.keys(sections[sec]);
         cats.forEach(function(cat) {
           var items = sections[sec][cat];
-          html += '<div class="menu-cat" data-category="' + esc(cat) + '" data-section="' + sec + '" draggable="true">';
+          html += '<div class="menu-cat" data-category="' + esc(cat) + '" data-section="' + sec + '">';
           html += '<div class="menu-cat-header">';
-          html += '<span class="menu-grip" style="font-size:1rem;margin-right:8px">⠿</span>';
-          html += '<div class="menu-cat-title" style="flex:1">' + esc(cat) + '</div>';
+          html += '<div class="menu-cat-title">' + esc(cat) + '</div>';
           html += '<div class="menu-cat-actions">';
+          html += '<button class="move" onclick="moveCat(this,-1)" title="Nach oben">▲</button>';
+          html += '<button class="move" onclick="moveCat(this,1)" title="Nach unten">▼</button>';
           html += '<button onclick="renameCat(this)" title="Umbenennen">✏️</button>';
           html += '<button class="del" onclick="deleteCat(this)" title="Kategorie löschen">🗑</button>';
           html += '</div></div>';
@@ -713,12 +713,15 @@
       });
 
       editor.innerHTML = html;
-      initDragDrop();
+      // Move buttons handle reordering
     }
 
     function renderItemRow(item) {
-      return '<div class="menu-item-row" draggable="true" data-id="' + item.id + '">' +
-        '<span class="menu-grip">⠿</span>' +
+      return '<div class="menu-item-row" data-id="' + item.id + '">' +
+        '<div class="menu-item-move">' +
+        '<button onclick="moveItem(this,-1)" title="Nach oben">▲</button>' +
+        '<button onclick="moveItem(this,1)" title="Nach unten">▼</button>' +
+        '</div>' +
         '<div class="menu-item-fields">' +
         '<input class="menu-item-input name" value="' + esc(item.name) + '" data-field="name" data-id="' + item.id + '" placeholder="Name">' +
         '<input class="menu-item-input desc" value="' + esc(item.description || '') + '" data-field="description" data-id="' + item.id + '" placeholder="Beschreibung">' +
@@ -828,91 +831,36 @@
     }
 
     // Drag and drop for items within a category
-    function initDragDrop() {
-      var rows = document.querySelectorAll('.menu-item-row[draggable]');
-      var dragItem = null;
+    // Move category up/down
+    function moveCat(btn, dir) {
+      var cat = btn.closest('.menu-cat');
+      var parent = cat.parentElement;
+      var allCats = Array.from(parent.querySelectorAll(':scope > .menu-cat'));
+      var idx = allCats.indexOf(cat);
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= allCats.length) return;
+      cat.classList.add('moving');
+      if (dir === -1) {
+        parent.insertBefore(cat, allCats[targetIdx]);
+      } else {
+        parent.insertBefore(cat, allCats[targetIdx].nextSibling);
+      }
+      setTimeout(function() { cat.classList.remove('moving'); }, 200);
+    }
 
-      rows.forEach(function(row) {
-        row.addEventListener('dragstart', function(e) {
-          dragItem = this;
-          this.classList.add('dragging');
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', this.dataset.id);
-        });
-        row.addEventListener('dragend', function() {
-          this.classList.remove('dragging');
-          document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
-          dragItem = null;
-        });
-        row.addEventListener('dragover', function(e) {
-          e.preventDefault();
-          if (dragItem && dragItem !== this && dragItem.parentElement === this.parentElement) {
-            this.classList.add('drag-over');
-          }
-        });
-        row.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
-        row.addEventListener('drop', function(e) {
-          e.preventDefault();
-          this.classList.remove('drag-over');
-          if (!dragItem || dragItem === this || dragItem.parentElement !== this.parentElement) return;
-          var parent = this.parentElement;
-          var allRows = Array.from(parent.querySelectorAll('.menu-item-row'));
-          var fromIdx = allRows.indexOf(dragItem);
-          var toIdx = allRows.indexOf(this);
-          if (fromIdx < toIdx) {
-            parent.insertBefore(dragItem, this.nextSibling);
-          } else {
-            parent.insertBefore(dragItem, this);
-          }
-          // Mark sort as changed
-          dragItem.dataset.moved = 'true';
-        });
-      });
-
-      // Category drag & drop — only via header handle
-      var dragCat = null;
-      document.querySelectorAll('.menu-cat[draggable]').forEach(function(cat) {
-        // Prevent cat from being dragged when clicking items inside
-        cat.addEventListener('dragstart', function(e) {
-          // Only start cat drag if the drag originated from the header
-          if (!e.target.closest('.menu-cat-header')) return;
-          e.stopPropagation();
-          dragCat = cat;
-          cat.classList.add('dragging');
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', 'cat-' + cat.dataset.category);
-        });
-        cat.addEventListener('dragend', function() {
-          this.classList.remove('dragging');
-          document.querySelectorAll('.drag-over-cat').forEach(function(el) { el.classList.remove('drag-over-cat'); });
-          dragCat = null;
-        });
-        // Use header as drop target for categories
-        var header = cat.querySelector('.menu-cat-header');
-        header.addEventListener('dragover', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (dragCat && dragCat !== cat && dragCat.parentElement === cat.parentElement) {
-            cat.classList.add('drag-over-cat');
-          }
-        });
-        header.addEventListener('dragleave', function() { cat.classList.remove('drag-over-cat'); });
-        header.addEventListener('drop', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          cat.classList.remove('drag-over-cat');
-          if (!dragCat || dragCat === cat || dragCat.parentElement !== cat.parentElement) return;
-          var parent = cat.parentElement;
-          var allCats = Array.from(parent.querySelectorAll(':scope > .menu-cat'));
-          var fromIdx = allCats.indexOf(dragCat);
-          var toIdx = allCats.indexOf(cat);
-          if (fromIdx < toIdx) {
-            parent.insertBefore(dragCat, cat.nextSibling);
-          } else {
-            parent.insertBefore(dragCat, cat);
-          }
-        });
-      });
+    // Move item up/down within category
+    function moveItem(btn, dir) {
+      var row = btn.closest('.menu-item-row');
+      var parent = row.parentElement;
+      var allRows = Array.from(parent.querySelectorAll('.menu-item-row'));
+      var idx = allRows.indexOf(row);
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= allRows.length) return;
+      if (dir === -1) {
+        parent.insertBefore(row, allRows[targetIdx]);
+      } else {
+        parent.insertBefore(row, allRows[targetIdx].nextSibling);
+      }
     }
 
     // Save all changes (prices, names, descriptions, sort order)
