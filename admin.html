@@ -199,6 +199,8 @@
     var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
     var token='';
     var failedAttempts=0;
+    // Sanitize user input to prevent XSS
+    function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
     var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
     // Tab switching
@@ -597,7 +599,7 @@
         dayBookings.sort(function(a, b) { return a.start_time.localeCompare(b.start_time); });
         dayBookings.forEach(function(b) {
           html += '<div class="sup-booking-item">';
-          html += '<div><strong>' + b.start_time.substring(0,5) + '–' + b.end_time.substring(0,5) + '</strong> · ' + b.board_count + ' Board' + (b.board_count > 1 ? 's' : '') + ' · ' + b.customer_name + ' · ' + b.customer_phone + '</div>';
+          html += '<div><strong>' + b.start_time.substring(0,5) + '–' + b.end_time.substring(0,5) + '</strong> · ' + b.board_count + ' Board' + (b.board_count > 1 ? 's' : '') + ' · ' + esc(b.customer_name) + ' · ' + esc(b.customer_phone) + '</div>';
           html += '<button class="sup-booking-cancel" onclick="supCancelBooking(\'' + b.id + '\',\'' + ds + '\')">Stornieren</button>';
           html += '</div>';
         });
@@ -660,10 +662,10 @@
           if (item.category !== currentCat) {
             if (currentCat) html += '</div>';
             currentCat = item.category;
-            html += '<div class="menu-cat"><div class="menu-cat-title">' + item.category + '</div>';
+            html += '<div class="menu-cat"><div class="menu-cat-title">' + esc(item.category) + '</div>';
           }
           html += '<div class="menu-item-row">';
-          html += '<div class="menu-item-name">' + item.name + (item.description ? '<div class="menu-item-desc">' + item.description + '</div>' : '') + '</div>';
+          html += '<div class="menu-item-name">' + esc(item.name) + (item.description ? '<div class="menu-item-desc">' + esc(item.description) + '</div>' : '') + '</div>';
           html += '<input class="menu-item-price" data-id="' + item.id + '" data-orig="' + item.price + '" value="' + item.price + '">';
           html += '</div>';
         });

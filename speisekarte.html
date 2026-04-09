@@ -397,6 +397,7 @@ if (burger && mobileMenu) {
 (function(){
   var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
   fetch(SB_URL+'/rest/v1/menu_items?order=sort_order&select=category,section,name,description,price',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
@@ -416,11 +417,11 @@ if (burger && mobileMenu) {
       if(item.category!==currentCat){
         if(currentCat)html+='</div>';
         currentCat=item.category;
-        html+='<div class="menu-card"><h3>'+item.category+'</h3>';
+        html+='<div class="menu-card"><h3>'+esc(item.category)+'</h3>';
       }
-      html+='<div class="menu-item"><div class="menu-item-left"><div class="menu-item-name">'+item.name+'</div>';
-      if(item.description)html+='<div class="menu-item-desc">'+item.description+'</div>';
-      html+='</div><div class="menu-item-price">'+item.price+'</div></div>';
+      html+='<div class="menu-item"><div class="menu-item-left"><div class="menu-item-name">'+esc(item.name)+'</div>';
+      if(item.description)html+='<div class="menu-item-desc">'+esc(item.description)+'</div>';
+      html+='</div><div class="menu-item-price">'+esc(item.price)+'</div></div>';
     });
     if(currentCat)html+='</div>';
     container.innerHTML=html;

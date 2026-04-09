@@ -407,7 +407,9 @@ footer{
 .confirm-box.active{display:block}
 .confirm-box h3{color:#155724;font-family:'Cormorant Garamond',serif;font-size:1.3rem;margin-bottom:8px}
 .confirm-box p{color:#155724;font-size:.88rem}
+.h-captcha{margin:12px 0 4px}
 </style>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body>
 
@@ -559,6 +561,7 @@ footer{
         <label for="b-phone">Telefon *</label>
         <input type="tel" id="b-phone" placeholder="+49 ..." required>
       </div>
+      <div class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000000"></div>
       <button class="book-btn" id="btn-book" type="button">Jetzt reservieren</button>
     </div>
   </div>
@@ -985,6 +988,8 @@ document.getElementById('btn-book').addEventListener('click', function() {
   // Validate required fields
   if (!name || !email || !phone) { alert('Bitte alle Felder ausfüllen.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Bitte eine gültige E-Mail eingeben.'); return; }
+  var captchaToken = hcaptcha.getResponse();
+  if (!captchaToken) { alert('Bitte das Captcha bestätigen.'); return; }
   if (!selectedDate || !selectedSlot) return;
 
   var startMin = timeToMinutes(selectedSlot);
@@ -1022,6 +1027,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
     document.getElementById('confirm-details').textContent =
       selectedDate.split('-').reverse().join('.') + ' · ' + selectedSlot + ' – ' + endTime + ' · ' + boards + (boards === 1 ? ' Board' : ' Boards') + ' · ' + price.toFixed(0) + ' € (Bezahlung vor Ort)';
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    hcaptcha.reset();
     loadMonthData();
 
     // Send confirmation email (fire and forget)
