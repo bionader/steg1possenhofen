@@ -405,6 +405,10 @@ footer{
 .hero.loaded .hero-left>*:nth-child(4){transition-delay:.55s}
 .hero.loaded .hero-left>*:nth-child(5){transition-delay:.68s}
 
+/* ── STEG BANNER ── */
+.steg-banner{overflow:hidden;height:360px;position:relative}
+.steg-banner img{width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block}
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   nav{padding:.85rem 1.5rem}
@@ -441,14 +445,23 @@ footer{
   .hero-left{padding:5rem 2rem 3rem}
   .hero-right{height:55vw}
   h1{font-size:clamp(2.6rem,8vw,3.6rem)}
+  .status{padding:.85rem 1.2rem;gap:.7rem}
+  .status-text strong{font-size:.82rem;white-space:nowrap}
+  .actions{justify-content:center}
   .wbar{grid-template-columns:repeat(2,1fr);padding:.85rem 1.5rem}
   .sec{padding:3rem 1.5rem}
-  .atm{grid-template-columns:1fr}
-  .atm-img{height:260px}
+  .atm{grid-template-columns:1fr;height:auto}
+  .atm-img{height:220px}
+  .atm-slider img{object-position:center center}
+  .atm-text{padding:2rem 1.5rem}
   .sup-inner{grid-template-columns:1fr;gap:2rem}
   .menu-grid,.voucher-grid{grid-template-columns:1fr}
   .slider-wrap{height:280px}
   .slider-btn{width:36px;height:36px;font-size:1rem}
+  .info-grid{grid-template-columns:1fr}
+  .info-card iframe{height:220px}
+  .steg-banner{height:180px}
+  .steg-banner img{object-position:center 50%}
   footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
   .fbot{padding:.75rem 1.5rem 1rem}
 }
@@ -637,8 +650,8 @@ footer{
 </section>
 
 <!-- STEG BANNER -->
-<div style="overflow:hidden;height:360px;position:relative">
-  <img src="images/steg-panorama-footer.jpg" alt="Steg 1 Possenhofen mit Alpenpanorama" style="width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block">
+<div class="steg-banner">
+  <img src="images/steg-panorama-footer.jpg" alt="Steg 1 Possenhofen mit Alpenpanorama">
 </div>
 
 <!-- FOOTER -->
