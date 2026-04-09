@@ -260,6 +260,35 @@ footer{
 </style>
 </head>
 <body>
+<!-- PASSWORD GATE -->
+<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:#FDFBF7;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'DM Sans',sans-serif">
+  <div style="text-align:center;max-width:340px;padding:2rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#1A2421;margin-bottom:.3rem">Steg <em style="font-style:italic;font-weight:400;opacity:.7">eins</em></div>
+    <p style="color:#7A8580;font-size:.88rem;margin-bottom:2rem">Diese Seite ist noch nicht öffentlich.</p>
+    <input id="pw-user" type="text" placeholder="Benutzer" style="width:100%;padding:11px 14px;border:1.5px solid #E4D9C4;border-radius:10px;font-family:inherit;font-size:.95rem;margin-bottom:10px;text-align:center">
+    <input id="pw-pass" type="password" placeholder="Passwort" style="width:100%;padding:11px 14px;border:1.5px solid #E4D9C4;border-radius:10px;font-family:inherit;font-size:.95rem;margin-bottom:14px;text-align:center">
+    <button onclick="checkPw()" style="width:100%;padding:11px;background:#2A7B6F;color:white;border:none;border-radius:100px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s">Zugang</button>
+    <p id="pw-err" style="color:#D94F4F;font-size:.82rem;margin-top:10px;display:none">Falscher Benutzer oder Passwort</p>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('steg1_auth')==='ok'){document.getElementById('pw-gate').style.display='none';}
+})();
+function checkPw(){
+  var u=document.getElementById('pw-user').value.trim().toLowerCase();
+  var p=document.getElementById('pw-pass').value.trim().toLowerCase();
+  if(u==='cathrin'&&p==='tammo'){
+    sessionStorage.setItem('steg1_auth','ok');
+    document.getElementById('pw-gate').style.display='none';
+  }else{
+    document.getElementById('pw-err').style.display='block';
+    document.getElementById('pw-pass').value='';
+  }
+}
+document.getElementById('pw-pass').addEventListener('keydown',function(e){if(e.key==='Enter')checkPw()});
+document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('pw-pass').focus()});
+</script>
 
 <!-- NAV -->
 <nav>
