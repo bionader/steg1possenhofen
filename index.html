@@ -357,6 +357,14 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .schedule-hint{font-size:.75rem;color:var(--text3);padding:.8rem 1.6rem 1.4rem;line-height:1.5}
 @media(max-width:768px){.info-grid{grid-template-columns:1fr}}
 
+/* ── PARTNER ── */
+.partner-bar{padding:3rem 3rem;text-align:center}
+.partner-bar .stag{justify-content:center}
+.partner-logos{display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;margin-top:1.5rem}
+.partner-logos img{height:36px;opacity:.45;filter:grayscale(100%);transition:all .3s ease;object-fit:contain}
+.partner-logos img:hover{opacity:.85;filter:grayscale(0%)}
+@media(max-width:768px){.partner-logos{gap:2rem}.partner-logos img{height:28px}}
+
 /* ── FOOTER ── */
 footer{
   background:var(--dark);color:rgba(253,250,244,.6);
@@ -648,6 +656,19 @@ footer{
   <a href="https://instagram.com/steg1possenhofen" target="_blank" style="display:inline-block;margin-bottom:2rem;font-size:.85rem;color:var(--g);text-decoration:none;font-weight:500">Auf Instagram folgen →</a>
   <behold-widget feed-id="i0eqzCNrgeaJuwVcq9qF"></behold-widget>
 </section>
+
+<!-- PARTNER -->
+<div class="partner-bar reveal">
+  <p class="stag">Unsere Partner</p>
+  <div class="partner-logos">
+    <img src="images/partner/hopf.png" alt="Hopf Weissbier">
+    <img src="images/partner/paulaner.svg" alt="Paulaner">
+    <img src="images/partner/fanatic.png" alt="Fanatic SUP">
+    <img src="images/partner/jaegermeister.png" alt="Jägermeister">
+    <img src="images/partner/proviant.png" alt="Proviant">
+    <img src="images/partner/goesser.svg" alt="Gösser">
+  </div>
+</div>
 
 <!-- STEG BANNER -->
 <div class="steg-banner">
