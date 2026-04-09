@@ -349,7 +349,9 @@ footer{
   .info-grid{grid-template-columns:1fr}
   .contact-section{padding:3rem 1.25rem 4rem}
 }
+.h-captcha{margin:12px 0 4px}
 </style>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body>
 
@@ -418,6 +420,9 @@ footer{
       <label for="c-message">Nachricht<span class="req">*</span></label>
       <textarea id="c-message" rows="5" placeholder="Deine Nachricht …"></textarea>
     </div>
+
+    <!-- Captcha -->
+    <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e"></div>
 
     <!-- Submit -->
     <button class="btn-submit" id="btn-contact" type="button">Nachricht senden</button>
@@ -527,24 +532,51 @@ document.getElementById('btn-contact').addEventListener('click', function() {
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Wird gesendet…';
+  var captchaToken = hcaptcha.getResponse();
+  if (!captchaToken) {
+    msgEl.style.display = 'block';
+    msgEl.style.color = '#D94F4F';
+    msgEl.style.borderColor = 'rgba(217,79,79,.2)';
+    msgEl.style.background = 'rgba(217,79,79,.06)';
+    msgEl.textContent = 'Bitte das Captcha bestätigen.';
+    return;
+  }
 
-  fetch('https://tdnnfmfaymnzukjhoidq.supabase.co/functions/v1/send-contact-email', {
+  var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+  btn.disabled = true;
+  btn.textContent = 'Wird überprüft…';
+
+  // Step 1: Verify captcha server-side
+  fetch(SB_URL + '/functions/v1/verify-captcha', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg'
-    },
-    body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message })
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ token: captchaToken })
   })
   .then(function(r) {
-    if (!r.ok) throw new Error('fail');
+    if (!r.ok) throw new Error('captcha');
+    return r.json();
+  })
+  .then(function(data) {
+    if (!data.success) throw new Error('captcha');
+    btn.textContent = 'Wird gesendet…';
+
+    // Step 2: Send contact email
+    return fetch(SB_URL + '/functions/v1/send-contact-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message })
+    });
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('send');
     msgEl.style.display = 'block';
     msgEl.style.color = '#2B5C3F';
     msgEl.style.borderColor = 'rgba(43,92,63,.2)';
     msgEl.style.background = 'rgba(43,92,63,.06)';
     msgEl.textContent = 'Danke für deine Nachricht! Wir melden uns bald bei dir.';
+    hcaptcha.reset();
     // Reset form
     document.getElementById('c-name').value = '';
     document.getElementById('c-email').value = '';
@@ -552,12 +584,14 @@ document.getElementById('btn-contact').addEventListener('click', function() {
     document.getElementById('c-subject').value = '';
     document.getElementById('c-message').value = '';
   })
-  .catch(function() {
+  .catch(function(e) {
+    hcaptcha.reset();
     msgEl.style.display = 'block';
     msgEl.style.color = '#D94F4F';
     msgEl.style.borderColor = 'rgba(217,79,79,.2)';
     msgEl.style.background = 'rgba(217,79,79,.06)';
-    msgEl.textContent = 'Fehler beim Senden. Bitte versuche es erneut.';
+    if (e.message === 'captcha') { msgEl.textContent = 'Captcha-Überprüfung fehlgeschlagen. Bitte erneut versuchen.'; }
+    else { msgEl.textContent = 'Fehler beim Senden. Bitte versuche es erneut.'; }
   })
   .finally(function() {
     btn.disabled = false;
