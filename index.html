@@ -462,56 +462,6 @@ footer{
   <div class="wi"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></div>
 </div>
 
-<!-- INFO: Maps + Öffnungszeiten -->
-<section class="sec reveal" id="info">
-  <div class="info-grid">
-    <div class="info-card">
-      <h3>Hier findet Ihr uns</h3>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-    <div class="info-card">
-      <h3>Öffnungszeiten</h3>
-      <div class="schedule-list" id="schedule-list"></div>
-      <script>
-        // Render default schedule immediately (before Supabase loads)
-        (function(){
-          var D=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-          var M=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
-          var h='';
-          for(var j=0;j<7;j++){
-            var d=new Date();d.setDate(d.getDate()+j);
-            var n=j===0?'Heute':D[d.getDay()];
-            h+='<div class="schedule-row'+(j===0?' today':'')+'"><span class="day">'+n+', '+d.getDate()+'. '+M[d.getMonth()]+'</span><span class="time">10:00 \u2013 20:00 Uhr</span></div>';
-          }
-          document.getElementById('schedule-list').innerHTML=h;
-        })();
-      </script>
-      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
-    </div>
-  </div>
-</section>
-
-<!-- ATMOSPHÄRE -->
-<div class="atm">
-  <div class="atm-img">
-    <div class="atm-slider" id="atm-slider">
-      <img src="images/atm-1.jpg" alt="Sonnenuntergang am Starnberger See">
-      <img src="images/atm-2.jpg" alt="Steg bei Sonnenuntergang">
-      <img src="images/atm-3.jpg" alt="Abendstimmung am See">
-      <img src="images/atm-4.jpg" alt="Steg Panorama">
-      <img src="images/atm-5.jpg" alt="Steg frontal bei Sonnenuntergang">
-      <img src="images/atm-6.jpg" alt="Steg seitlich">
-    </div>
-    <button class="atm-btn atm-prev" onclick="atmMove(-1)">&#8249;</button>
-    <button class="atm-btn atm-next" onclick="atmMove(1)">&#8250;</button>
-  </div>
-  <div class="atm-text">
-    <p class="stag">Am See</p>
-    <h2>Jeden Abend ein anderer Sonnenuntergang.</h2>
-    <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
-  </div>
-</div>
-
 <!-- SUP -->
 <section class="sec sup-bg reveal" id="sup">
   <p class="stag">Am Wasser</p>
@@ -544,6 +494,27 @@ footer{
   </div>
 </section>
 
+<!-- ATMOSPHÄRE -->
+<div class="atm">
+  <div class="atm-img">
+    <div class="atm-slider" id="atm-slider">
+      <img src="images/atm-1.jpg" alt="Sonnenuntergang am Starnberger See">
+      <img src="images/atm-2.jpg" alt="Steg bei Sonnenuntergang">
+      <img src="images/atm-3.jpg" alt="Abendstimmung am See">
+      <img src="images/atm-4.jpg" alt="Steg Panorama">
+      <img src="images/atm-5.jpg" alt="Steg frontal bei Sonnenuntergang">
+      <img src="images/atm-6.jpg" alt="Steg seitlich">
+    </div>
+    <button class="atm-btn atm-prev" onclick="atmMove(-1)">&#8249;</button>
+    <button class="atm-btn atm-next" onclick="atmMove(1)">&#8250;</button>
+  </div>
+  <div class="atm-text">
+    <p class="stag">Am See</p>
+    <h2>Jeden Abend ein anderer Sonnenuntergang.</h2>
+    <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
+  </div>
+</div>
+
 <!-- SPEISEKARTE -->
 <section class="sec reveal" id="speisekarte">
   <p class="stag">Unsere Bestseller</p>
@@ -575,6 +546,35 @@ footer{
 
 
 
+
+<!-- INFO: Maps + Öffnungszeiten -->
+<section class="sec reveal" id="info">
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Hier findet Ihr uns</h3>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="info-card">
+      <h3>Öffnungszeiten</h3>
+      <div class="schedule-list" id="schedule-list"></div>
+      <script>
+        // Render default schedule immediately (before Supabase loads)
+        (function(){
+          var D=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+          var M=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+          var h='';
+          for(var j=0;j<7;j++){
+            var d=new Date();d.setDate(d.getDate()+j);
+            var n=j===0?'Heute':D[d.getDay()];
+            h+='<div class="schedule-row'+(j===0?' today':'')+'"><span class="day">'+n+', '+d.getDate()+'. '+M[d.getMonth()]+'</span><span class="time">10:00 \u2013 20:00 Uhr</span></div>';
+          }
+          document.getElementById('schedule-list').innerHTML=h;
+        })();
+      </script>
+      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
+    </div>
+  </div>
+</section>
 
 <!-- INSTAGRAM -->
 <section class="sec reveal" style="background:var(--sand);text-align:center">
