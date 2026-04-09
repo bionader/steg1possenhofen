@@ -107,16 +107,36 @@
     .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
     .sup-day-toggle{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem}
 
-    .menu-cat{margin-bottom:20px}
-    .menu-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#1A2421;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid #E4D9C4}
-    .menu-item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0E8D6;flex-wrap:wrap}
+    .menu-cat{margin-bottom:16px;background:#FDFBF7;border-radius:14px;border:1.5px solid #F0E8D6;overflow:hidden}
+    .menu-cat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F7F0E6;cursor:grab}
+    .menu-cat-header:active{cursor:grabbing}
+    .menu-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#1A2421;font-weight:600}
+    .menu-cat-actions{display:flex;gap:6px}
+    .menu-cat-actions button{background:none;border:1px solid #E4D9C4;border-radius:6px;padding:4px 8px;font-size:.7rem;cursor:pointer;font-family:inherit;color:#4A5652;transition:all .2s;width:auto}
+    .menu-cat-actions button:hover{border-color:#2A7B6F;color:#2A7B6F;background:none}
+    .menu-cat-actions button.del:hover{border-color:#D94F4F;color:#D94F4F;background:none}
+    .menu-cat-body{padding:0 16px 12px}
+    .menu-item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0E8D6;cursor:grab}
+    .menu-item-row:active{cursor:grabbing}
     .menu-item-row:last-child{border-bottom:none}
-    .menu-item-name{flex:1;min-width:140px;font-size:.88rem;color:#1A2421}
-    .menu-item-desc{font-size:.75rem;color:#7A8580}
-    .menu-item-price{width:120px;padding:6px 10px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem;text-align:right;transition:border-color .2s}
-    .menu-item-price:focus{outline:none;border-color:#2A7B6F}
+    .menu-item-row.dragging{opacity:.4;background:#F7F0E6}
+    .menu-item-row.drag-over{border-top:2px solid #2A7B6F}
+    .menu-grip{color:#B8AE9C;font-size:.8rem;cursor:grab;padding:0 4px;user-select:none}
+    .menu-item-fields{flex:1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;min-width:0}
+    .menu-item-input{padding:5px 8px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.82rem;transition:border-color .2s}
+    .menu-item-input:focus{outline:none;border-color:#2A7B6F}
+    .menu-item-input.name{flex:2;min-width:100px}
+    .menu-item-input.desc{flex:2;min-width:80px;color:#7A8580}
+    .menu-item-input.price{width:90px;text-align:right}
+    .menu-item-del{background:none;border:none;color:#B8AE9C;cursor:pointer;font-size:1.1rem;padding:4px;transition:color .2s;width:auto}
+    .menu-item-del:hover{color:#D94F4F;background:none}
+    .menu-add-item{display:flex;align-items:center;gap:6px;padding:8px 0;cursor:pointer;color:#2A7B6F;font-size:.8rem;font-weight:500;border:none;background:none;font-family:inherit;width:auto}
+    .menu-add-item:hover{color:#1F6358;background:none}
+    .menu-add-cat{display:flex;align-items:center;gap:6px;padding:10px 16px;cursor:pointer;color:#2A7B6F;font-size:.85rem;font-weight:500;border:1.5px dashed #E4D9C4;border-radius:14px;background:none;font-family:inherit;margin-top:12px;width:100%;justify-content:center;transition:all .2s}
+    .menu-add-cat:hover{border-color:#2A7B6F;background:rgba(42,123,111,.04)}
     .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
     .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
+    .menu-cat.drag-over-cat{border-color:#2A7B6F;box-shadow:0 0 0 2px rgba(42,123,111,.2)}
 
     @media(max-width:500px){
       .container{padding:24px 18px;border-radius:16px}
@@ -184,11 +204,12 @@
       <div class="tab-content" id="content-menu">
         <div class="cal-header">
           <h2>Speisekarte bearbeiten</h2>
+          <span class="cal-hint">Artikel per Drag & Drop verschieben</span>
         </div>
         <div id="menu-message"></div>
         <div id="menu-editor"></div>
         <div class="save-row" style="margin-top:16px">
-          <button type="button" id="btn-save-menu">Änderungen speichern</button>
+          <button type="button" id="btn-save-menu">Alle Änderungen speichern</button>
         </div>
       </div>
     </div>
@@ -640,68 +661,298 @@
     }
 
     // --- Menu Editor ---
+    var menuData = [];
+
     function loadMenu() {
       fetch(SB_URL + '/rest/v1/menu_items?order=sort_order&select=id,category,section,name,description,price,sort_order', {
         headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
       }).then(function(r) { return r.json(); }).then(function(data) {
-        var editor = document.getElementById('menu-editor');
-        if (!data || !data.length) { editor.innerHTML = '<p style="color:#7A8580">Keine Einträge gefunden.</p>'; return; }
-
-        var html = '';
-        var currentSection = '';
-        var currentCat = '';
-        var sectionLabels = { 'speisen': 'Speisen', 'getraenke': 'Getränke' };
-
-        data.forEach(function(item) {
-          if (item.section !== currentSection) {
-            if (currentCat) html += '</div>';
-            currentSection = item.section;
-            currentCat = '';
-            html += '<div class="menu-section-title">' + (sectionLabels[item.section] || item.section) + '</div>';
-          }
-          if (item.category !== currentCat) {
-            if (currentCat) html += '</div>';
-            currentCat = item.category;
-            html += '<div class="menu-cat"><div class="menu-cat-title">' + esc(item.category) + '</div>';
-          }
-          html += '<div class="menu-item-row">';
-          html += '<div class="menu-item-name">' + esc(item.name) + (item.description ? '<div class="menu-item-desc">' + esc(item.description) + '</div>' : '') + '</div>';
-          html += '<input class="menu-item-price" data-id="' + item.id + '" data-orig="' + item.price + '" value="' + item.price + '">';
-          html += '</div>';
-        });
-        if (currentCat) html += '</div>';
-        editor.innerHTML = html;
-      }).catch(function() { msg('Fehler beim Laden der Speisekarte', 'error', 'menu-message'); });
+        menuData = data || [];
+        renderMenu();
+      }).catch(function() { msg('Fehler beim Laden', 'error', 'menu-message'); });
     }
 
-    document.getElementById('btn-save-menu').addEventListener('click', function() {
-      var inputs = document.querySelectorAll('.menu-item-price');
-      var changes = [];
-      inputs.forEach(function(inp) {
-        if (inp.value !== inp.dataset.orig) {
-          changes.push({ id: inp.dataset.id, price: inp.value });
-        }
-      });
-      if (!changes.length) { msg('Keine Änderungen', 'success', 'menu-message'); return; }
+    function renderMenu() {
+      var editor = document.getElementById('menu-editor');
+      if (!menuData.length) { editor.innerHTML = '<p style="color:#7A8580">Keine Einträge.</p>'; return; }
 
+      var sections = {};
+      menuData.forEach(function(item) {
+        if (!sections[item.section]) sections[item.section] = {};
+        if (!sections[item.section][item.category]) sections[item.section][item.category] = [];
+        sections[item.section][item.category].push(item);
+      });
+
+      var sectionLabels = { 'speisen': 'Speisen', 'getraenke': 'Getränke' };
+      var html = '';
+
+      ['speisen', 'getraenke'].forEach(function(sec) {
+        if (!sections[sec]) return;
+        html += '<div class="menu-section-title">' + (sectionLabels[sec] || sec) + '</div>';
+        html += '<div class="menu-section" data-section="' + sec + '">';
+        var cats = Object.keys(sections[sec]);
+        cats.forEach(function(cat) {
+          var items = sections[sec][cat];
+          html += '<div class="menu-cat" data-category="' + esc(cat) + '" data-section="' + sec + '" draggable="true">';
+          html += '<div class="menu-cat-header">';
+          html += '<div class="menu-cat-title">' + esc(cat) + '</div>';
+          html += '<div class="menu-cat-actions">';
+          html += '<button onclick="renameCat(this)" title="Umbenennen">✏️</button>';
+          html += '<button class="del" onclick="deleteCat(this)" title="Kategorie löschen">🗑</button>';
+          html += '</div></div>';
+          html += '<div class="menu-cat-body">';
+          items.forEach(function(item) {
+            html += renderItemRow(item);
+          });
+          html += '<button class="menu-add-item" onclick="addItem(this,\'' + sec + '\',\'' + esc(cat).replace(/'/g, "\\'") + '\')">+ Artikel hinzufügen</button>';
+          html += '</div></div>';
+        });
+        html += '<button class="menu-add-cat" onclick="addCategory(\'' + sec + '\')">+ Neue Kategorie hinzufügen</button>';
+        html += '</div>';
+      });
+
+      editor.innerHTML = html;
+      initDragDrop();
+    }
+
+    function renderItemRow(item) {
+      return '<div class="menu-item-row" draggable="true" data-id="' + item.id + '">' +
+        '<span class="menu-grip">⠿</span>' +
+        '<div class="menu-item-fields">' +
+        '<input class="menu-item-input name" value="' + esc(item.name) + '" data-field="name" data-id="' + item.id + '" placeholder="Name">' +
+        '<input class="menu-item-input desc" value="' + esc(item.description || '') + '" data-field="description" data-id="' + item.id + '" placeholder="Beschreibung">' +
+        '<input class="menu-item-input price" value="' + esc(item.price) + '" data-field="price" data-id="' + item.id + '" placeholder="Preis">' +
+        '</div>' +
+        '<button class="menu-item-del" onclick="deleteItem(this,' + item.id + ')" title="Löschen">✕</button>' +
+        '</div>';
+    }
+
+    // Add new item
+    function addItem(btn, section, category) {
+      var maxSort = 0;
+      menuData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
+      var newItem = { category: category, section: section, name: 'Neuer Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 };
+
+      fetch(SB_URL + '/rest/v1/menu_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
+        body: JSON.stringify(newItem)
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data && data.length) {
+          menuData.push(data[0]);
+          renderMenu();
+          msg('Artikel hinzugefügt', 'success', 'menu-message');
+        }
+      }).catch(function() { msg('Fehler', 'error', 'menu-message'); });
+    }
+
+    // Add new category
+    function addCategory(section) {
+      var name = prompt('Name der neuen Kategorie:');
+      if (!name || !name.trim()) return;
+      var maxSort = 0;
+      menuData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
+      var newItem = { category: name.trim(), section: section, name: 'Erster Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 };
+
+      fetch(SB_URL + '/rest/v1/menu_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
+        body: JSON.stringify(newItem)
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data && data.length) {
+          menuData.push(data[0]);
+          renderMenu();
+          msg('Kategorie "' + name.trim() + '" erstellt', 'success', 'menu-message');
+        }
+      }).catch(function() { msg('Fehler', 'error', 'menu-message'); });
+    }
+
+    // Rename category
+    function renameCat(btn) {
+      var cat = btn.closest('.menu-cat');
+      var oldName = cat.dataset.category;
+      var section = cat.dataset.section;
+      var newName = prompt('Kategorie umbenennen:', oldName);
+      if (!newName || !newName.trim() || newName.trim() === oldName) return;
+
+      var ids = [];
+      menuData.forEach(function(i) { if (i.category === oldName && i.section === section) ids.push(i.id); });
+
+      Promise.all(ids.map(function(id) {
+        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ category: newName.trim() })
+        });
+      })).then(function() {
+        menuData.forEach(function(i) { if (i.category === oldName && i.section === section) i.category = newName.trim(); });
+        renderMenu();
+        msg('Kategorie umbenannt', 'success', 'menu-message');
+      });
+    }
+
+    // Delete single item
+    function deleteItem(btn, id) {
+      if (!confirm('Artikel wirklich löschen?')) return;
+      fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + id, {
+        method: 'DELETE',
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+      }).then(function() {
+        menuData = menuData.filter(function(i) { return i.id !== id; });
+        renderMenu();
+        msg('Artikel gelöscht', 'success', 'menu-message');
+      });
+    }
+
+    // Delete entire category
+    function deleteCat(btn) {
+      var cat = btn.closest('.menu-cat');
+      var catName = cat.dataset.category;
+      var section = cat.dataset.section;
+      if (!confirm('Gesamte Kategorie "' + catName + '" mit allen Artikeln löschen?')) return;
+
+      var ids = [];
+      menuData.forEach(function(i) { if (i.category === catName && i.section === section) ids.push(i.id); });
+
+      Promise.all(ids.map(function(id) {
+        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + id, {
+          method: 'DELETE',
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        });
+      })).then(function() {
+        menuData = menuData.filter(function(i) { return !(i.category === catName && i.section === section); });
+        renderMenu();
+        msg('Kategorie gelöscht', 'success', 'menu-message');
+      });
+    }
+
+    // Drag and drop for items within a category
+    function initDragDrop() {
+      var rows = document.querySelectorAll('.menu-item-row[draggable]');
+      var dragItem = null;
+
+      rows.forEach(function(row) {
+        row.addEventListener('dragstart', function(e) {
+          dragItem = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', this.dataset.id);
+        });
+        row.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          document.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
+          dragItem = null;
+        });
+        row.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (dragItem && dragItem !== this && dragItem.parentElement === this.parentElement) {
+            this.classList.add('drag-over');
+          }
+        });
+        row.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+        row.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over');
+          if (!dragItem || dragItem === this || dragItem.parentElement !== this.parentElement) return;
+          var parent = this.parentElement;
+          var allRows = Array.from(parent.querySelectorAll('.menu-item-row'));
+          var fromIdx = allRows.indexOf(dragItem);
+          var toIdx = allRows.indexOf(this);
+          if (fromIdx < toIdx) {
+            parent.insertBefore(dragItem, this.nextSibling);
+          } else {
+            parent.insertBefore(dragItem, this);
+          }
+          // Mark sort as changed
+          dragItem.dataset.moved = 'true';
+        });
+      });
+
+      // Category drag & drop
+      var cats = document.querySelectorAll('.menu-cat[draggable]');
+      var dragCat = null;
+      cats.forEach(function(cat) {
+        cat.querySelector('.menu-cat-header').addEventListener('dragstart', function(e) {
+          dragCat = cat;
+          cat.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', 'cat');
+        });
+        cat.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          document.querySelectorAll('.drag-over-cat').forEach(function(el) { el.classList.remove('drag-over-cat'); });
+          dragCat = null;
+        });
+        cat.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (dragCat && dragCat !== this && dragCat.parentElement === this.parentElement) {
+            this.classList.add('drag-over-cat');
+          }
+        });
+        cat.addEventListener('dragleave', function() { this.classList.remove('drag-over-cat'); });
+        cat.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('drag-over-cat');
+          if (!dragCat || dragCat === this || dragCat.parentElement !== this.parentElement) return;
+          var parent = this.parentElement;
+          var allCats = Array.from(parent.querySelectorAll('.menu-cat'));
+          var fromIdx = allCats.indexOf(dragCat);
+          var toIdx = allCats.indexOf(this);
+          if (fromIdx < toIdx) {
+            parent.insertBefore(dragCat, this.nextSibling);
+          } else {
+            parent.insertBefore(dragCat, this);
+          }
+        });
+      });
+    }
+
+    // Save all changes (prices, names, descriptions, sort order)
+    document.getElementById('btn-save-menu').addEventListener('click', function() {
       var btn = this;
       btn.disabled = true; btn.textContent = 'Speichern...';
 
-      var promises = changes.map(function(c) {
-        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + c.id, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ price: c.price })
+      // Collect all current state from DOM
+      var updates = [];
+      var sortOrder = 1;
+      var sections = document.querySelectorAll('.menu-section');
+      sections.forEach(function(sec) {
+        var cats = sec.querySelectorAll('.menu-cat');
+        cats.forEach(function(cat) {
+          var rows = cat.querySelectorAll('.menu-item-row');
+          rows.forEach(function(row) {
+            var id = parseInt(row.dataset.id);
+            var nameInput = row.querySelector('.menu-item-input.name');
+            var descInput = row.querySelector('.menu-item-input.desc');
+            var priceInput = row.querySelector('.menu-item-input.price');
+            if (nameInput && priceInput) {
+              updates.push({
+                id: id,
+                name: nameInput.value,
+                description: descInput ? descInput.value : '',
+                price: priceInput.value,
+                sort_order: sortOrder++
+              });
+            }
+          });
         });
       });
 
-      Promise.all(promises).then(function() {
-        msg(changes.length + ' Preis(e) aktualisiert', 'success', 'menu-message');
-        inputs.forEach(function(inp) { inp.dataset.orig = inp.value; });
-        btn.disabled = false; btn.textContent = 'Änderungen speichern';
+      if (!updates.length) { btn.disabled = false; btn.textContent = 'Alle Änderungen speichern'; return; }
+
+      Promise.all(updates.map(function(u) {
+        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + u.id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ name: u.name, description: u.description, price: u.price, sort_order: u.sort_order })
+        });
+      })).then(function() {
+        msg(updates.length + ' Artikel gespeichert', 'success', 'menu-message');
+        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
+        loadMenu(); // Reload to sync
       }).catch(function() {
         msg('Fehler beim Speichern', 'error', 'menu-message');
-        btn.disabled = false; btn.textContent = 'Änderungen speichern';
+        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
       });
     });
   </script>
