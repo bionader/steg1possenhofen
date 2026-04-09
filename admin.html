@@ -695,7 +695,8 @@
           var items = sections[sec][cat];
           html += '<div class="menu-cat" data-category="' + esc(cat) + '" data-section="' + sec + '" draggable="true">';
           html += '<div class="menu-cat-header">';
-          html += '<div class="menu-cat-title">' + esc(cat) + '</div>';
+          html += '<span class="menu-grip" style="font-size:1rem;margin-right:8px">⠿</span>';
+          html += '<div class="menu-cat-title" style="flex:1">' + esc(cat) + '</div>';
           html += '<div class="menu-cat-actions">';
           html += '<button onclick="renameCat(this)" title="Umbenennen">✏️</button>';
           html += '<button class="del" onclick="deleteCat(this)" title="Kategorie löschen">🗑</button>';
@@ -868,40 +869,47 @@
         });
       });
 
-      // Category drag & drop
-      var cats = document.querySelectorAll('.menu-cat[draggable]');
+      // Category drag & drop — only via header handle
       var dragCat = null;
-      cats.forEach(function(cat) {
-        cat.querySelector('.menu-cat-header').addEventListener('dragstart', function(e) {
+      document.querySelectorAll('.menu-cat[draggable]').forEach(function(cat) {
+        // Prevent cat from being dragged when clicking items inside
+        cat.addEventListener('dragstart', function(e) {
+          // Only start cat drag if the drag originated from the header
+          if (!e.target.closest('.menu-cat-header')) return;
+          e.stopPropagation();
           dragCat = cat;
           cat.classList.add('dragging');
           e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', 'cat');
+          e.dataTransfer.setData('text/plain', 'cat-' + cat.dataset.category);
         });
         cat.addEventListener('dragend', function() {
           this.classList.remove('dragging');
           document.querySelectorAll('.drag-over-cat').forEach(function(el) { el.classList.remove('drag-over-cat'); });
           dragCat = null;
         });
-        cat.addEventListener('dragover', function(e) {
+        // Use header as drop target for categories
+        var header = cat.querySelector('.menu-cat-header');
+        header.addEventListener('dragover', function(e) {
           e.preventDefault();
-          if (dragCat && dragCat !== this && dragCat.parentElement === this.parentElement) {
-            this.classList.add('drag-over-cat');
+          e.stopPropagation();
+          if (dragCat && dragCat !== cat && dragCat.parentElement === cat.parentElement) {
+            cat.classList.add('drag-over-cat');
           }
         });
-        cat.addEventListener('dragleave', function() { this.classList.remove('drag-over-cat'); });
-        cat.addEventListener('drop', function(e) {
+        header.addEventListener('dragleave', function() { cat.classList.remove('drag-over-cat'); });
+        header.addEventListener('drop', function(e) {
           e.preventDefault();
-          this.classList.remove('drag-over-cat');
-          if (!dragCat || dragCat === this || dragCat.parentElement !== this.parentElement) return;
-          var parent = this.parentElement;
-          var allCats = Array.from(parent.querySelectorAll('.menu-cat'));
+          e.stopPropagation();
+          cat.classList.remove('drag-over-cat');
+          if (!dragCat || dragCat === cat || dragCat.parentElement !== cat.parentElement) return;
+          var parent = cat.parentElement;
+          var allCats = Array.from(parent.querySelectorAll(':scope > .menu-cat'));
           var fromIdx = allCats.indexOf(dragCat);
-          var toIdx = allCats.indexOf(this);
+          var toIdx = allCats.indexOf(cat);
           if (fromIdx < toIdx) {
-            parent.insertBefore(dragCat, this.nextSibling);
+            parent.insertBefore(dragCat, cat.nextSibling);
           } else {
-            parent.insertBefore(dragCat, this);
+            parent.insertBefore(dragCat, cat);
           }
         });
       });
