@@ -42,11 +42,9 @@ nav.scrolled{
 .logo{transition:opacity .3s ease}
 .logo:hover{opacity:.75}
 .nav-links{display:flex;gap:2.2rem;list-style:none}
-.nav-links li{flex-shrink:0}
 .nav-links a{
   position:relative;font-size:.84rem;color:var(--text2);
   text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
-  display:inline-block;
 }
 .nav-links a::after{
   content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
@@ -54,6 +52,8 @@ nav.scrolled{
 }
 .nav-links a:hover{color:var(--g)}
 .nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--g)}
+.nav-links a.active::after{width:100%}
 .nav-cta{
   background:var(--g);color:var(--w);border:none;
   padding:.55rem 1.5rem;border-radius:100px;
@@ -68,6 +68,20 @@ nav.scrolled{
   transform:translateY(-1px);
   box-shadow:0 4px 20px rgba(42,123,111,.22);
 }
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
 
 /* ── HERO ── */
 .hero{
@@ -395,6 +409,34 @@ footer{
 @media(max-width:900px){
   nav{padding:.85rem 1.5rem}
   nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'DM Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu a.active{color:var(--g);font-weight:500}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(42,123,111,.18);
+  }
   .hero{grid-template-columns:1fr}
   .hero-left{padding:5rem 2rem 3rem}
   .hero-right{height:55vw}
@@ -423,8 +465,19 @@ footer{
     <li><a href="speisekarte.html">Speisekarte</a></li>
     <li><a href="kontakt.html">Kontakt</a></li>
   </ul>
-  <a href="sup.html" class="nav-cta">Jetzt SUP buchen</a>
+  <a href="sup.html" class="nav-cta">Jetzt buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="sup.html">SUP Verleih</a>
+  <a href="speisekarte.html">Speisekarte</a>
+  <a href="kontakt.html">Kontakt</a>
+  <a href="sup.html" class="mm-cta">Jetzt buchen</a>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -494,27 +547,6 @@ footer{
   </div>
 </section>
 
-<!-- ATMOSPHÄRE -->
-<div class="atm">
-  <div class="atm-img">
-    <div class="atm-slider" id="atm-slider">
-      <img src="images/atm-1.jpg" alt="Sonnenuntergang am Starnberger See">
-      <img src="images/atm-2.jpg" alt="Steg bei Sonnenuntergang">
-      <img src="images/atm-3.jpg" alt="Abendstimmung am See">
-      <img src="images/atm-4.jpg" alt="Steg Panorama">
-      <img src="images/atm-5.jpg" alt="Steg frontal bei Sonnenuntergang">
-      <img src="images/atm-6.jpg" alt="Steg seitlich">
-    </div>
-    <button class="atm-btn atm-prev" onclick="atmMove(-1)">&#8249;</button>
-    <button class="atm-btn atm-next" onclick="atmMove(1)">&#8250;</button>
-  </div>
-  <div class="atm-text">
-    <p class="stag">Am See</p>
-    <h2>Jeden Abend ein anderer Sonnenuntergang.</h2>
-    <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
-  </div>
-</div>
-
 <!-- SPEISEKARTE -->
 <section class="sec reveal" id="speisekarte">
   <p class="stag">Unsere Bestseller</p>
@@ -543,6 +575,27 @@ footer{
     </div>
   </div>
 </section>
+
+<!-- ATMOSPHÄRE -->
+<div class="atm">
+  <div class="atm-img">
+    <div class="atm-slider" id="atm-slider">
+      <img src="images/atm-1.jpg" alt="Sonnenuntergang am Starnberger See">
+      <img src="images/atm-2.jpg" alt="Steg bei Sonnenuntergang">
+      <img src="images/atm-3.jpg" alt="Abendstimmung am See">
+      <img src="images/atm-4.jpg" alt="Steg Panorama">
+      <img src="images/atm-5.jpg" alt="Steg frontal bei Sonnenuntergang">
+      <img src="images/atm-6.jpg" alt="Steg seitlich">
+    </div>
+    <button class="atm-btn atm-prev" onclick="atmMove(-1)">&#8249;</button>
+    <button class="atm-btn atm-next" onclick="atmMove(1)">&#8250;</button>
+  </div>
+  <div class="atm-text">
+    <p class="stag">Am See</p>
+    <h2>Jeden Abend ein anderer Sonnenuntergang.</h2>
+    <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
+  </div>
+</div>
 
 
 
@@ -804,6 +857,23 @@ document.querySelectorAll('.reveal').forEach(function(r){obs.observe(r)});
 <script>
 window.addEventListener('scroll',function(){
   document.querySelector('nav').classList.toggle('scrolled',window.scrollY>50);
+});
+// Hamburger / mobile menu
+var burger=document.querySelector('.nav-burger');
+var mobileMenu=document.getElementById('mobile-menu');
+burger.addEventListener('click',function(){
+  var isOpen=mobileMenu.classList.toggle('open');
+  burger.classList.toggle('open',isOpen);
+  burger.setAttribute('aria-label',isOpen?'Menü schließen':'Menü öffnen');
+  document.body.style.overflow=isOpen?'hidden':'';
+});
+mobileMenu.querySelectorAll('a').forEach(function(link){
+  link.addEventListener('click',function(){
+    mobileMenu.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-label','Menü öffnen');
+    document.body.style.overflow='';
+  });
 });
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){document.querySelector('.hero').classList.add('loaded')},100);
