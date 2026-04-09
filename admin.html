@@ -107,6 +107,17 @@
     .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
     .sup-day-toggle{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem}
 
+    .menu-cat{margin-bottom:20px}
+    .menu-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#1A2421;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid #E4D9C4}
+    .menu-item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0E8D6;flex-wrap:wrap}
+    .menu-item-row:last-child{border-bottom:none}
+    .menu-item-name{flex:1;min-width:140px;font-size:.88rem;color:#1A2421}
+    .menu-item-desc{font-size:.75rem;color:#7A8580}
+    .menu-item-price{width:120px;padding:6px 10px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem;text-align:right;transition:border-color .2s}
+    .menu-item-price:focus{outline:none;border-color:#2A7B6F}
+    .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
+    .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
+
     @media(max-width:500px){
       .container{padding:24px 18px;border-radius:16px}
       h1{font-size:1.8rem}
@@ -143,6 +154,7 @@
       <div class="tab-nav" id="tab-nav">
         <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
+        <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
@@ -167,6 +179,18 @@
         <div id="sup-cal"></div>
         <div id="sup-day-detail"></div>
       </div>
+
+      <!-- Tab 3: Speisekarte -->
+      <div class="tab-content" id="content-menu">
+        <div class="cal-header">
+          <h2>Speisekarte bearbeiten</h2>
+        </div>
+        <div id="menu-message"></div>
+        <div id="menu-editor"></div>
+        <div class="save-row" style="margin-top:16px">
+          <button type="button" id="btn-save-menu">Änderungen speichern</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -185,6 +209,7 @@
         this.classList.add('active');
         document.getElementById('content-' + this.dataset.tab).classList.add('active');
         if (this.dataset.tab === 'sup') loadSupCalendar();
+        if (this.dataset.tab === 'menu') loadMenu();
       });
     });
 
@@ -424,6 +449,7 @@
         if (userRole === 'sup') {
           // SUP user sees only SUP tab
           document.getElementById('tab-schedule').style.display = 'none';
+          document.getElementById('tab-menu').style.display = 'none';
           document.getElementById('content-schedule').classList.remove('active');
           document.getElementById('tab-sup').classList.add('active');
           document.getElementById('content-sup').classList.add('active');
@@ -447,6 +473,7 @@
         document.getElementById('password').value='';
         // Reset tabs to default state on logout
         document.getElementById('tab-schedule').style.display='';
+        document.getElementById('tab-menu').style.display='';
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
         document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
         document.getElementById('tab-schedule').classList.add('active');
@@ -609,6 +636,72 @@
         setTimeout(function() { supSelectDay(ds); }, 500);
       });
     }
+
+    // --- Menu Editor ---
+    function loadMenu() {
+      fetch(SB_URL + '/rest/v1/menu_items?order=sort_order&select=id,category,section,name,description,price,sort_order', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        var editor = document.getElementById('menu-editor');
+        if (!data || !data.length) { editor.innerHTML = '<p style="color:#7A8580">Keine Einträge gefunden.</p>'; return; }
+
+        var html = '';
+        var currentSection = '';
+        var currentCat = '';
+        var sectionLabels = { 'speisen': 'Speisen', 'getraenke': 'Getränke' };
+
+        data.forEach(function(item) {
+          if (item.section !== currentSection) {
+            if (currentCat) html += '</div>';
+            currentSection = item.section;
+            currentCat = '';
+            html += '<div class="menu-section-title">' + (sectionLabels[item.section] || item.section) + '</div>';
+          }
+          if (item.category !== currentCat) {
+            if (currentCat) html += '</div>';
+            currentCat = item.category;
+            html += '<div class="menu-cat"><div class="menu-cat-title">' + item.category + '</div>';
+          }
+          html += '<div class="menu-item-row">';
+          html += '<div class="menu-item-name">' + item.name + (item.description ? '<div class="menu-item-desc">' + item.description + '</div>' : '') + '</div>';
+          html += '<input class="menu-item-price" data-id="' + item.id + '" data-orig="' + item.price + '" value="' + item.price + '">';
+          html += '</div>';
+        });
+        if (currentCat) html += '</div>';
+        editor.innerHTML = html;
+      }).catch(function() { msg('Fehler beim Laden der Speisekarte', 'error', 'menu-message'); });
+    }
+
+    document.getElementById('btn-save-menu').addEventListener('click', function() {
+      var inputs = document.querySelectorAll('.menu-item-price');
+      var changes = [];
+      inputs.forEach(function(inp) {
+        if (inp.value !== inp.dataset.orig) {
+          changes.push({ id: inp.dataset.id, price: inp.value });
+        }
+      });
+      if (!changes.length) { msg('Keine Änderungen', 'success', 'menu-message'); return; }
+
+      var btn = this;
+      btn.disabled = true; btn.textContent = 'Speichern...';
+
+      var promises = changes.map(function(c) {
+        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + c.id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ price: c.price })
+        });
+      });
+
+      Promise.all(promises).then(function() {
+        msg(changes.length + ' Preis(e) aktualisiert', 'success', 'menu-message');
+        inputs.forEach(function(inp) { inp.dataset.orig = inp.value; });
+        btn.disabled = false; btn.textContent = 'Änderungen speichern';
+      }).catch(function() {
+        msg('Fehler beim Speichern', 'error', 'menu-message');
+        btn.disabled = false; btn.textContent = 'Änderungen speichern';
+      });
+    });
   </script>
 </body>
 </html>
