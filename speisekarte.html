@@ -401,11 +401,21 @@ if (burger && mobileMenu) {
 
   fetch(SB_URL+'/rest/v1/menu_items?order=sort_order&select=category,section,name,description,price',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
-  }).then(function(r){return r.json()}).then(function(data){
-    if(!data||!data.length)return;
+  }).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(data){
+    if(!data||!data.length){
+      document.getElementById('menu-speisen').innerHTML='<p style="color:var(--text3)">Keine Einträge vorhanden.</p>';
+      return;
+    }
     renderSection(data,'speisen','menu-speisen');
     renderSection(data,'getraenke','menu-getraenke');
-  }).catch(function(e){console.error('Menu load error',e)});
+  }).catch(function(e){
+    console.error('Menu load error',e);
+    var el=document.getElementById('menu-speisen');
+    if(el)el.innerHTML='<p style="color:#D94F4F">Speisekarte konnte nicht geladen werden. Bitte Seite neu laden.</p>';
+  });
 
   function renderSection(data,section,containerId){
     var container=document.getElementById(containerId);
