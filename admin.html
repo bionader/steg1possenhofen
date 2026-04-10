@@ -966,18 +966,29 @@
 
       ['speisen', 'getraenke'].forEach(function(sec) {
         var bs = allMenuItems.filter(function(i) { return i.section === sec && i.is_bestseller; });
+        // Trim to max 8
+        if (bs.length > BS_MAX) {
+          bs.slice(BS_MAX).forEach(function(item) { item.is_bestseller = false; });
+          bs = bs.slice(0, BS_MAX);
+        }
         html += '<div class="menu-cat" style="margin-bottom:16px"><div class="menu-cat-header"><div class="menu-cat-title">' + labels[sec] + '<span class="bs-count">' + bs.length + ' / ' + BS_MAX + '</span></div></div>';
         html += '<div class="menu-cat-body">';
-        if (!bs.length) {
-          html += '<p style="color:#7A8580;font-size:.85rem;padding:8px 0">Keine Bestseller ausgewählt</p>';
+        for (var i = 0; i < BS_MAX; i++) {
+          if (i < bs.length) {
+            var item = bs[i];
+            html += '<div class="bs-slot" onclick="openPicker(' + item.id + ',\'' + sec + '\')">';
+            html += '<div class="bs-slot-name">' + esc(item.name) + (item.description ? ' <span class="bs-slot-desc">· ' + esc(item.description) + '</span>' : '') + '</div>';
+            html += '<span class="bs-slot-price">' + esc(item.price) + '</span>';
+            html += '<span class="bs-slot-swap">ändern ›</span>';
+            html += '</div>';
+          } else {
+            html += '<div class="bs-slot" style="opacity:.4" onclick="openPickerEmpty(\'' + sec + '\')">';
+            html += '<div class="bs-slot-name" style="font-weight:400;font-style:italic">— Platz frei —</div>';
+            html += '<span class="bs-slot-price"></span>';
+            html += '<span class="bs-slot-swap">wählen ›</span>';
+            html += '</div>';
+          }
         }
-        bs.forEach(function(item) {
-          html += '<div class="bs-slot" onclick="openPicker(' + item.id + ',\'' + sec + '\')">';
-          html += '<div class="bs-slot-name">' + esc(item.name) + (item.description ? ' <span class="bs-slot-desc">· ' + esc(item.description) + '</span>' : '') + '</div>';
-          html += '<span class="bs-slot-price">' + esc(item.price) + '</span>';
-          html += '<span class="bs-slot-swap">ändern ›</span>';
-          html += '</div>';
-        });
         html += '</div></div>';
       });
 
@@ -1014,6 +1025,43 @@
     function closePicker() {
       var overlay = document.querySelector('.bs-picker-overlay');
       if (overlay) overlay.remove();
+    }
+
+    function openPickerEmpty(section) {
+      var items = allMenuItems.filter(function(i) { return i.section === section && !i.is_bestseller; });
+      var cats = {};
+      items.forEach(function(i) {
+        if (!cats[i.category]) cats[i.category] = [];
+        cats[i.category].push(i);
+      });
+      var html = '<div class="bs-picker-overlay" onclick="if(event.target===this)closePicker()">';
+      html += '<div class="bs-picker">';
+      html += '<h3>Artikel hinzufügen</h3>';
+      Object.keys(cats).forEach(function(cat) {
+        html += '<div class="bs-picker-cat">' + esc(cat) + '</div>';
+        cats[cat].forEach(function(item) {
+          html += '<div class="bs-picker-item" onclick="addBestseller(' + item.id + ')">';
+          html += '<span class="pi-name">' + esc(item.name) + (item.description ? ' <span style="color:#7A8580;font-size:.78rem">' + esc(item.description) + '</span>' : '') + '</span>';
+          html += '<span class="pi-price">' + esc(item.price) + '</span>';
+          html += '</div>';
+        });
+      });
+      html += '<button class="bs-picker-close" onclick="closePicker()">Abbrechen</button>';
+      html += '</div></div>';
+      document.body.insertAdjacentHTML('beforeend', html);
+    }
+
+    function addBestseller(newId) {
+      closePicker();
+      fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + newId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ is_bestseller: true })
+      }).then(function() {
+        allMenuItems.forEach(function(i) { if (i.id === newId) i.is_bestseller = true; });
+        renderBestseller();
+        msg('Bestseller hinzugefügt', 'success', 'bs-message');
+      }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
     }
 
     function swapBestseller(oldId, newId) {
