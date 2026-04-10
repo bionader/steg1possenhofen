@@ -562,7 +562,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   <div class="wi"><div class="val" id="wb-temp">– °C</div><div class="lbl">Wetter Starnberg</div></div>
   <div class="wi"><div class="val" id="wb-water">– °C</div><div class="lbl">Wassertemperatur</div></div>
   <div class="wi"><div class="val" id="wb-wind">– km/h</div><div class="lbl">Wind</div></div>
-  <div class="wi"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></div>
+  <a href="#info" class="wi" style="text-decoration:none;color:inherit"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></a>
 </div>
 
 <!-- SUP -->
@@ -731,7 +731,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   }
 
   // Sync weather bar status with hero status
-  function updateWbar(isOpen, openT, closeT){
+  function updateWbar(isOpen, openT, closeT, nextInfo){
     var wbS=document.getElementById('wb-status');
     var wbT=document.getElementById('wb-times');
     if(!wbS||!wbT)return;
@@ -740,7 +740,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       wbT.textContent=(openT||'10:00')+' \u2013 '+(closeT||'20:00')+' Uhr';
     }else{
       wbS.textContent='Geschlossen';
-      wbT.textContent='';
+      wbT.textContent=nextInfo||'';
     }
   }
 
@@ -759,9 +759,10 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     }else{
       dot.classList.add('closed');
       var tm=(d+1)%7;
-      stxt.textContent='Heute geschlossen \u2013 Morgen ab '+((tm===0||tm===6)?'10:00':'11:00')+' Uhr';
+      var morgenZeit=(tm===0||tm===6)?'10:00':'11:00';
+      stxt.textContent='Heute geschlossen \u2013 Morgen ab '+morgenZeit+' Uhr';
       if(widget)widget.classList.add('is-closed');
-      updateWbar(false);
+      updateWbar(false,null,null,'Morgen ab '+morgenZeit+' Uhr');
     }
   }
 
@@ -867,12 +868,18 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       return null;
     }
 
+    // Build next-open info for wbar
+    function nextOpenText(){
+      var n=findNextOpen();
+      return n?'Wieder '+n:'';
+    }
+
     if(closedAllDay){
       dot.classList.add('closed');
       var next=findNextOpen();
       stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
-      updateWbar(false);
+      updateWbar(false,null,null,nextOpenText());
     }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
@@ -882,7 +889,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       dot.classList.add('closed');
       stxt.textContent='Heute ge\u00f6ffnet: ab '+openT+' Uhr';
       if(widget)widget.classList.add('is-closed');
-      updateWbar(false);
+      updateWbar(false,null,null,'Heute ab '+openT+' Uhr');
     }else if(isOpen){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
@@ -893,7 +900,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       var next=findNextOpen();
       stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
-      updateWbar(false);
+      updateWbar(false,null,null,nextOpenText());
     }
   }
 })();
