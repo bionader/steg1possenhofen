@@ -1000,14 +1000,14 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     });
     var html='';
     Object.keys(cats).forEach(function(cat){
-      html+='<div class="mcat"><div class="mcat-t">'+cat+'</div>';
+      html+='<div class="mcat"><div class="mcat-t">'+cat+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">';
       cats[cat].forEach(function(item){
         html+='<div class="mi"><div>';
         html+='<div class="mi-n">'+item.name+'</div>';
         if(item.description)html+='<div class="mi-d">'+item.description+'</div>';
         html+='</div><span class="mi-p">'+item.price+'</span></div>';
       });
-      html+='</div>';
+      html+='</div></div>';
     });
     grid.innerHTML=html;
   }).catch(function(e){console.error('Bestseller load error',e)});
