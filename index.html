@@ -985,7 +985,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
 (function(){
   var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
-  fetch(SB_URL+'/rest/v1/bestseller_items?order=sort_order&select=category,name,description,price',{
+  fetch(SB_URL+'/rest/v1/menu_items?is_bestseller=eq.true&order=sort_order&select=category,section,name,description,price',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -993,15 +993,16 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
   }).then(function(data){
     var grid=document.getElementById('bestseller-grid');
     if(!grid||!data||!data.length)return;
-    var cats={};
+    var sections={'speisen':[],'getraenke':[]};
     data.forEach(function(item){
-      if(!cats[item.category])cats[item.category]=[];
-      cats[item.category].push(item);
+      if(sections[item.section])sections[item.section].push(item);
     });
+    var labels={'speisen':'Essen','getraenke':'Getränke'};
     var html='';
-    Object.keys(cats).forEach(function(cat){
-      html+='<div class="mcat"><div class="mcat-t">'+cat+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">';
-      cats[cat].forEach(function(item){
+    ['speisen','getraenke'].forEach(function(sec){
+      if(!sections[sec].length)return;
+      html+='<div class="mcat"><div class="mcat-t">'+labels[sec]+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">';
+      sections[sec].forEach(function(item){
         html+='<div class="mi"><div>';
         html+='<div class="mi-n">'+item.name+'</div>';
         if(item.description)html+='<div class="mi-d">'+item.description+'</div>';

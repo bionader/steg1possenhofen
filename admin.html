@@ -136,6 +136,14 @@
     .menu-add-cat:hover{border-color:#2A7B6F;background:rgba(42,123,111,.04)}
     .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
     .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
+.bs-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0E8D6;cursor:pointer;transition:background .15s;font-size:.85rem}
+.bs-row:last-child{border-bottom:none}
+.bs-row:hover{background:rgba(42,123,111,.03)}
+.bs-row.bs-active{background:rgba(42,123,111,.05)}
+.bs-check{width:18px;height:18px;accent-color:#2A7B6F;cursor:pointer;flex-shrink:0}
+.bs-name{flex:1;color:#1A2421}
+.bs-desc{color:#7A8580;font-size:.78rem}
+.bs-price{color:#D4883A;font-weight:500;white-space:nowrap}
 
     @media(max-width:500px){
       .container{padding:24px 18px;border-radius:16px}
@@ -216,14 +224,11 @@
       <!-- Tab 4: Bestseller -->
       <div class="tab-content" id="content-bestseller">
         <div class="cal-header">
-          <h2>Bestseller bearbeiten</h2>
-          <span class="cal-hint">Wird auf der Startseite angezeigt</span>
+          <h2>Bestseller auswählen</h2>
+          <span class="cal-hint">Auf der Startseite angezeigte Artikel</span>
         </div>
         <div id="bs-message"></div>
         <div id="bs-editor"></div>
-        <div class="save-row" style="margin-top:16px">
-          <button type="button" id="btn-save-bs">Alle Änderungen speichern</button>
-        </div>
       </div>
     </div>
   </div>
@@ -929,189 +934,66 @@
       });
     });
     // --- Bestseller Editor ---
-    var bsData = [];
-
     function loadBestseller() {
-      fetch(SB_URL + '/rest/v1/bestseller_items?order=sort_order&select=id,category,name,description,price,sort_order', {
+      fetch(SB_URL + '/rest/v1/menu_items?order=sort_order&select=id,category,section,name,description,price,is_bestseller', {
         headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
       }).then(function(r) { return r.json(); }).then(function(data) {
-        bsData = data || [];
-        renderBestseller();
+        if (!data || !data.length) { document.getElementById('bs-editor').innerHTML = '<p style="color:#7A8580">Keine Artikel in der Speisekarte.</p>'; return; }
+        renderBestseller(data);
       }).catch(function() { msg('Fehler beim Laden', 'error', 'bs-message'); });
     }
 
-    function renderBestseller() {
+    function renderBestseller(data) {
       var editor = document.getElementById('bs-editor');
-      if (!bsData.length) { editor.innerHTML = '<p style="color:#7A8580">Keine Einträge.</p>'; return; }
-
-      var cats = {};
-      bsData.forEach(function(item) {
-        if (!cats[item.category]) cats[item.category] = [];
-        cats[item.category].push(item);
-      });
-
+      var sectionLabels = { 'speisen': 'Essen', 'getraenke': 'Getränke' };
       var html = '';
-      Object.keys(cats).forEach(function(cat) {
-        var items = cats[cat];
-        html += '<div class="menu-cat" data-category="' + esc(cat) + '">';
-        html += '<div class="menu-cat-header">';
-        html += '<div class="menu-cat-title">' + esc(cat) + '</div>';
-        html += '<div class="menu-cat-actions">';
-        html += '<button class="move" onclick="moveBsCat(this,-1)" title="Nach oben">▲</button>';
-        html += '<button class="move" onclick="moveBsCat(this,1)" title="Nach unten">▼</button>';
-        html += '<button onclick="renameBsCat(this)" title="Umbenennen">✏️</button>';
-        html += '<button class="del" onclick="deleteBsCat(this)" title="Kategorie löschen">🗑</button>';
-        html += '</div></div>';
-        html += '<div class="menu-cat-body">';
-        items.forEach(function(item) {
-          html += '<div class="menu-item-row" data-id="' + item.id + '">' +
-            '<div class="menu-item-move">' +
-            '<button onclick="moveBsItem(this,-1)" title="Nach oben">▲</button>' +
-            '<button onclick="moveBsItem(this,1)" title="Nach unten">▼</button>' +
-            '</div>' +
-            '<div class="menu-item-fields">' +
-            '<input class="menu-item-input name" value="' + esc(item.name) + '" placeholder="Name">' +
-            '<input class="menu-item-input desc" value="' + esc(item.description || '') + '" placeholder="Beschreibung">' +
-            '<input class="menu-item-input price" value="' + esc(item.price) + '" placeholder="Preis">' +
-            '</div>' +
-            '<button class="menu-item-del" onclick="deleteBsItem(this,' + item.id + ')" title="Löschen">✕</button>' +
-            '</div>';
+
+      ['speisen', 'getraenke'].forEach(function(sec) {
+        var items = data.filter(function(i) { return i.section === sec; });
+        if (!items.length) return;
+        html += '<div class="menu-section-title">' + sectionLabels[sec] + '</div>';
+        var cats = {};
+        items.forEach(function(i) {
+          if (!cats[i.category]) cats[i.category] = [];
+          cats[i.category].push(i);
         });
-        html += '<button class="menu-add-item" onclick="addBsItem(this,\'' + esc(cat).replace(/'/g, "\\'") + '\')">+ Artikel hinzufügen</button>';
-        html += '</div></div>';
+        Object.keys(cats).forEach(function(cat) {
+          html += '<div class="menu-cat"><div class="menu-cat-header"><div class="menu-cat-title">' + esc(cat) + '</div></div>';
+          html += '<div class="menu-cat-body">';
+          cats[cat].forEach(function(item) {
+            var checked = item.is_bestseller ? ' checked' : '';
+            html += '<label class="bs-row' + (item.is_bestseller ? ' bs-active' : '') + '">';
+            html += '<input type="checkbox" class="bs-check" data-id="' + item.id + '"' + checked + ' onchange="toggleBestseller(this)">';
+            html += '<span class="bs-name">' + esc(item.name) + (item.description ? ' <span class="bs-desc">' + esc(item.description) + '</span>' : '') + '</span>';
+            html += '<span class="bs-price">' + esc(item.price) + '</span>';
+            html += '</label>';
+          });
+          html += '</div></div>';
+        });
       });
-      html += '<button class="menu-add-cat" onclick="addBsCat()">+ Neue Kategorie hinzufügen</button>';
+
       editor.innerHTML = html;
     }
 
-    function moveBsCat(btn, dir) {
-      var cat = btn.closest('.menu-cat');
-      var parent = cat.parentElement;
-      var allCats = Array.from(parent.querySelectorAll(':scope > .menu-cat'));
-      var idx = allCats.indexOf(cat);
-      var targetIdx = idx + dir;
-      if (targetIdx < 0 || targetIdx >= allCats.length) return;
-      cat.classList.add('moving');
-      if (dir === -1) parent.insertBefore(cat, allCats[targetIdx]);
-      else parent.insertBefore(cat, allCats[targetIdx].nextSibling);
-      setTimeout(function() { cat.classList.remove('moving'); }, 200);
-    }
+    function toggleBestseller(cb) {
+      var id = cb.dataset.id;
+      var val = cb.checked;
+      var row = cb.closest('.bs-row');
+      if (val) row.classList.add('bs-active'); else row.classList.remove('bs-active');
 
-    function moveBsItem(btn, dir) {
-      var row = btn.closest('.menu-item-row');
-      var parent = row.parentElement;
-      var allRows = Array.from(parent.querySelectorAll('.menu-item-row'));
-      var idx = allRows.indexOf(row);
-      var targetIdx = idx + dir;
-      if (targetIdx < 0 || targetIdx >= allRows.length) return;
-      if (dir === -1) parent.insertBefore(row, allRows[targetIdx]);
-      else parent.insertBefore(row, allRows[targetIdx].nextSibling);
-    }
-
-    function addBsItem(btn, category) {
-      var maxSort = 0;
-      bsData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
-      fetch(SB_URL + '/rest/v1/bestseller_items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
-        body: JSON.stringify({ category: category, name: 'Neuer Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 })
-      }).then(function(r) { return r.json(); }).then(function(data) {
-        if (data && data.length) { bsData.push(data[0]); renderBestseller(); msg('Artikel hinzugefügt', 'success', 'bs-message'); }
-      }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
-    }
-
-    function addBsCat() {
-      var name = prompt('Name der neuen Kategorie:');
-      if (!name || !name.trim()) return;
-      var maxSort = 0;
-      bsData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
-      fetch(SB_URL + '/rest/v1/bestseller_items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
-        body: JSON.stringify({ category: name.trim(), name: 'Erster Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 })
-      }).then(function(r) { return r.json(); }).then(function(data) {
-        if (data && data.length) { bsData.push(data[0]); renderBestseller(); msg('Kategorie erstellt', 'success', 'bs-message'); }
-      }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
-    }
-
-    function renameBsCat(btn) {
-      var cat = btn.closest('.menu-cat');
-      var oldName = cat.dataset.category;
-      var newName = prompt('Kategorie umbenennen:', oldName);
-      if (!newName || !newName.trim() || newName.trim() === oldName) return;
-      var ids = [];
-      bsData.forEach(function(i) { if (i.category === oldName) ids.push(i.id); });
-      Promise.all(ids.map(function(id) {
-        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ category: newName.trim() })
-        });
-      })).then(function() {
-        bsData.forEach(function(i) { if (i.category === oldName) i.category = newName.trim(); });
-        renderBestseller(); msg('Umbenannt', 'success', 'bs-message');
-      });
-    }
-
-    function deleteBsItem(btn, id) {
-      if (!confirm('Artikel löschen?')) return;
-      fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
-        method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-      }).then(function() {
-        bsData = bsData.filter(function(i) { return i.id !== id; });
-        renderBestseller(); msg('Gelöscht', 'success', 'bs-message');
-      });
-    }
-
-    function deleteBsCat(btn) {
-      var cat = btn.closest('.menu-cat');
-      var catName = cat.dataset.category;
-      if (!confirm('Kategorie "' + catName + '" mit allen Artikeln löschen?')) return;
-      var ids = [];
-      bsData.forEach(function(i) { if (i.category === catName) ids.push(i.id); });
-      Promise.all(ids.map(function(id) {
-        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
-          method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-        });
-      })).then(function() {
-        bsData = bsData.filter(function(i) { return i.category !== catName; });
-        renderBestseller(); msg('Kategorie gelöscht', 'success', 'bs-message');
-      });
-    }
-
-    document.getElementById('btn-save-bs').addEventListener('click', function() {
-      var btn = this;
-      btn.disabled = true; btn.textContent = 'Speichern...';
-      var updates = [];
-      var sortOrder = 1;
-      var editor = document.getElementById('bs-editor');
-      var cats = editor.querySelectorAll('.menu-cat');
-      cats.forEach(function(cat) {
-        var rows = cat.querySelectorAll('.menu-item-row');
-        rows.forEach(function(row) {
-          var id = parseInt(row.dataset.id);
-          var n = row.querySelector('.menu-item-input.name');
-          var d = row.querySelector('.menu-item-input.desc');
-          var p = row.querySelector('.menu-item-input.price');
-          if (n && p) updates.push({ id: id, name: n.value, description: d ? d.value : '', price: p.value, sort_order: sortOrder++ });
-        });
-      });
-      if (!updates.length) { btn.disabled = false; btn.textContent = 'Alle Änderungen speichern'; return; }
-      Promise.all(updates.map(function(u) {
-        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + u.id, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ name: u.name, description: u.description, price: u.price, sort_order: u.sort_order })
-        });
-      })).then(function() {
-        msg(updates.length + ' Artikel gespeichert', 'success', 'bs-message');
-        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
-        loadBestseller();
+      fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ is_bestseller: val })
+      }).then(function(r) {
+        if (!r.ok) throw new Error();
+        msg(val ? 'Bestseller hinzugefügt' : 'Bestseller entfernt', 'success', 'bs-message');
       }).catch(function() {
         msg('Fehler beim Speichern', 'error', 'bs-message');
-        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
+        cb.checked = !val;
+        if (!val) row.classList.add('bs-active'); else row.classList.remove('bs-active');
       });
-    });
+    }
 
   </script>
 </body>
