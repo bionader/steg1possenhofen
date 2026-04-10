@@ -174,6 +174,7 @@
         <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
+        <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
@@ -211,6 +212,19 @@
           <button type="button" id="btn-save-menu">Alle Änderungen speichern</button>
         </div>
       </div>
+
+      <!-- Tab 4: Bestseller -->
+      <div class="tab-content" id="content-bestseller">
+        <div class="cal-header">
+          <h2>Bestseller bearbeiten</h2>
+          <span class="cal-hint">Wird auf der Startseite angezeigt</span>
+        </div>
+        <div id="bs-message"></div>
+        <div id="bs-editor"></div>
+        <div class="save-row" style="margin-top:16px">
+          <button type="button" id="btn-save-bs">Alle Änderungen speichern</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -232,6 +246,7 @@
         document.getElementById('content-' + this.dataset.tab).classList.add('active');
         if (this.dataset.tab === 'sup') loadSupCalendar();
         if (this.dataset.tab === 'menu') loadMenu();
+        if (this.dataset.tab === 'bestseller') loadBestseller();
       });
     });
 
@@ -472,6 +487,7 @@
           // SUP user sees only SUP tab
           document.getElementById('tab-schedule').style.display = 'none';
           document.getElementById('tab-menu').style.display = 'none';
+          document.getElementById('tab-bestseller').style.display = 'none';
           document.getElementById('content-schedule').classList.remove('active');
           document.getElementById('tab-sup').classList.add('active');
           document.getElementById('content-sup').classList.add('active');
@@ -496,6 +512,7 @@
         // Reset tabs to default state on logout
         document.getElementById('tab-schedule').style.display='';
         document.getElementById('tab-menu').style.display='';
+        document.getElementById('tab-bestseller').style.display='';
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
         document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
         document.getElementById('tab-schedule').classList.add('active');
@@ -911,6 +928,191 @@
         btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
       });
     });
+    // --- Bestseller Editor ---
+    var bsData = [];
+
+    function loadBestseller() {
+      fetch(SB_URL + '/rest/v1/bestseller_items?order=sort_order&select=id,category,name,description,price,sort_order', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        bsData = data || [];
+        renderBestseller();
+      }).catch(function() { msg('Fehler beim Laden', 'error', 'bs-message'); });
+    }
+
+    function renderBestseller() {
+      var editor = document.getElementById('bs-editor');
+      if (!bsData.length) { editor.innerHTML = '<p style="color:#7A8580">Keine Einträge.</p>'; return; }
+
+      var cats = {};
+      bsData.forEach(function(item) {
+        if (!cats[item.category]) cats[item.category] = [];
+        cats[item.category].push(item);
+      });
+
+      var html = '';
+      Object.keys(cats).forEach(function(cat) {
+        var items = cats[cat];
+        html += '<div class="menu-cat" data-category="' + esc(cat) + '">';
+        html += '<div class="menu-cat-header">';
+        html += '<div class="menu-cat-title">' + esc(cat) + '</div>';
+        html += '<div class="menu-cat-actions">';
+        html += '<button class="move" onclick="moveBsCat(this,-1)" title="Nach oben">▲</button>';
+        html += '<button class="move" onclick="moveBsCat(this,1)" title="Nach unten">▼</button>';
+        html += '<button onclick="renameBsCat(this)" title="Umbenennen">✏️</button>';
+        html += '<button class="del" onclick="deleteBsCat(this)" title="Kategorie löschen">🗑</button>';
+        html += '</div></div>';
+        html += '<div class="menu-cat-body">';
+        items.forEach(function(item) {
+          html += '<div class="menu-item-row" data-id="' + item.id + '">' +
+            '<div class="menu-item-move">' +
+            '<button onclick="moveBsItem(this,-1)" title="Nach oben">▲</button>' +
+            '<button onclick="moveBsItem(this,1)" title="Nach unten">▼</button>' +
+            '</div>' +
+            '<div class="menu-item-fields">' +
+            '<input class="menu-item-input name" value="' + esc(item.name) + '" placeholder="Name">' +
+            '<input class="menu-item-input desc" value="' + esc(item.description || '') + '" placeholder="Beschreibung">' +
+            '<input class="menu-item-input price" value="' + esc(item.price) + '" placeholder="Preis">' +
+            '</div>' +
+            '<button class="menu-item-del" onclick="deleteBsItem(this,' + item.id + ')" title="Löschen">✕</button>' +
+            '</div>';
+        });
+        html += '<button class="menu-add-item" onclick="addBsItem(this,\'' + esc(cat).replace(/'/g, "\\'") + '\')">+ Artikel hinzufügen</button>';
+        html += '</div></div>';
+      });
+      html += '<button class="menu-add-cat" onclick="addBsCat()">+ Neue Kategorie hinzufügen</button>';
+      editor.innerHTML = html;
+    }
+
+    function moveBsCat(btn, dir) {
+      var cat = btn.closest('.menu-cat');
+      var parent = cat.parentElement;
+      var allCats = Array.from(parent.querySelectorAll(':scope > .menu-cat'));
+      var idx = allCats.indexOf(cat);
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= allCats.length) return;
+      cat.classList.add('moving');
+      if (dir === -1) parent.insertBefore(cat, allCats[targetIdx]);
+      else parent.insertBefore(cat, allCats[targetIdx].nextSibling);
+      setTimeout(function() { cat.classList.remove('moving'); }, 200);
+    }
+
+    function moveBsItem(btn, dir) {
+      var row = btn.closest('.menu-item-row');
+      var parent = row.parentElement;
+      var allRows = Array.from(parent.querySelectorAll('.menu-item-row'));
+      var idx = allRows.indexOf(row);
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= allRows.length) return;
+      if (dir === -1) parent.insertBefore(row, allRows[targetIdx]);
+      else parent.insertBefore(row, allRows[targetIdx].nextSibling);
+    }
+
+    function addBsItem(btn, category) {
+      var maxSort = 0;
+      bsData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
+      fetch(SB_URL + '/rest/v1/bestseller_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
+        body: JSON.stringify({ category: category, name: 'Neuer Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data && data.length) { bsData.push(data[0]); renderBestseller(); msg('Artikel hinzugefügt', 'success', 'bs-message'); }
+      }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
+    }
+
+    function addBsCat() {
+      var name = prompt('Name der neuen Kategorie:');
+      if (!name || !name.trim()) return;
+      var maxSort = 0;
+      bsData.forEach(function(i) { if (i.sort_order > maxSort) maxSort = i.sort_order; });
+      fetch(SB_URL + '/rest/v1/bestseller_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=representation' },
+        body: JSON.stringify({ category: name.trim(), name: 'Erster Artikel', description: '', price: '0,00 €', sort_order: maxSort + 1 })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data && data.length) { bsData.push(data[0]); renderBestseller(); msg('Kategorie erstellt', 'success', 'bs-message'); }
+      }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
+    }
+
+    function renameBsCat(btn) {
+      var cat = btn.closest('.menu-cat');
+      var oldName = cat.dataset.category;
+      var newName = prompt('Kategorie umbenennen:', oldName);
+      if (!newName || !newName.trim() || newName.trim() === oldName) return;
+      var ids = [];
+      bsData.forEach(function(i) { if (i.category === oldName) ids.push(i.id); });
+      Promise.all(ids.map(function(id) {
+        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ category: newName.trim() })
+        });
+      })).then(function() {
+        bsData.forEach(function(i) { if (i.category === oldName) i.category = newName.trim(); });
+        renderBestseller(); msg('Umbenannt', 'success', 'bs-message');
+      });
+    }
+
+    function deleteBsItem(btn, id) {
+      if (!confirm('Artikel löschen?')) return;
+      fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
+        method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+      }).then(function() {
+        bsData = bsData.filter(function(i) { return i.id !== id; });
+        renderBestseller(); msg('Gelöscht', 'success', 'bs-message');
+      });
+    }
+
+    function deleteBsCat(btn) {
+      var cat = btn.closest('.menu-cat');
+      var catName = cat.dataset.category;
+      if (!confirm('Kategorie "' + catName + '" mit allen Artikeln löschen?')) return;
+      var ids = [];
+      bsData.forEach(function(i) { if (i.category === catName) ids.push(i.id); });
+      Promise.all(ids.map(function(id) {
+        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + id, {
+          method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        });
+      })).then(function() {
+        bsData = bsData.filter(function(i) { return i.category !== catName; });
+        renderBestseller(); msg('Kategorie gelöscht', 'success', 'bs-message');
+      });
+    }
+
+    document.getElementById('btn-save-bs').addEventListener('click', function() {
+      var btn = this;
+      btn.disabled = true; btn.textContent = 'Speichern...';
+      var updates = [];
+      var sortOrder = 1;
+      var editor = document.getElementById('bs-editor');
+      var cats = editor.querySelectorAll('.menu-cat');
+      cats.forEach(function(cat) {
+        var rows = cat.querySelectorAll('.menu-item-row');
+        rows.forEach(function(row) {
+          var id = parseInt(row.dataset.id);
+          var n = row.querySelector('.menu-item-input.name');
+          var d = row.querySelector('.menu-item-input.desc');
+          var p = row.querySelector('.menu-item-input.price');
+          if (n && p) updates.push({ id: id, name: n.value, description: d ? d.value : '', price: p.value, sort_order: sortOrder++ });
+        });
+      });
+      if (!updates.length) { btn.disabled = false; btn.textContent = 'Alle Änderungen speichern'; return; }
+      Promise.all(updates.map(function(u) {
+        return fetch(SB_URL + '/rest/v1/bestseller_items?id=eq.' + u.id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ name: u.name, description: u.description, price: u.price, sort_order: u.sort_order })
+        });
+      })).then(function() {
+        msg(updates.length + ' Artikel gespeichert', 'success', 'bs-message');
+        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
+        loadBestseller();
+      }).catch(function() {
+        msg('Fehler beim Speichern', 'error', 'bs-message');
+        btn.disabled = false; btn.textContent = 'Alle Änderungen speichern';
+      });
+    });
+
   </script>
 </body>
 </html>
