@@ -136,12 +136,14 @@
     .menu-add-cat:hover{border-color:#2A7B6F;background:rgba(42,123,111,.04)}
     .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
     .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
-.bs-slot{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all .15s;font-size:.85rem;border:1.5px solid transparent;margin-bottom:4px}
-.bs-slot:hover{background:rgba(42,123,111,.06);border-color:rgba(42,123,111,.15)}
-.bs-slot-name{flex:1;color:#1A2421;font-weight:500}
+.bs-slot{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #F0E8D6;cursor:pointer;transition:background .15s;font-size:.85rem}
+.bs-slot:last-child{border-bottom:none}
+.bs-slot:hover{background:rgba(42,123,111,.04)}
+.bs-slot-name{flex:1;color:#1A2421;font-weight:500;min-width:0}
 .bs-slot-desc{color:#7A8580;font-size:.75rem;font-weight:400}
-.bs-slot-price{color:#D4883A;font-weight:500;white-space:nowrap;margin-left:12px}
-.bs-slot-swap{color:#B8AE9C;font-size:.7rem;margin-left:8px}
+.bs-slot-price{color:#D4883A;font-weight:500;white-space:nowrap;width:80px;text-align:right}
+.bs-slot-swap{color:#B8AE9C;font-size:.72rem;width:60px;text-align:right;flex-shrink:0}
+.bs-count{font-size:.72rem;color:#7A8580;margin-left:8px;font-weight:400}
 .bs-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center}
 .bs-picker{background:white;border-radius:16px;max-width:480px;width:90%;max-height:70vh;overflow-y:auto;padding:20px;box-shadow:0 12px 48px rgba(0,0,0,.2)}
 .bs-picker h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;margin-bottom:12px;color:#1A2421}
@@ -955,6 +957,8 @@
       }).catch(function() { msg('Fehler beim Laden', 'error', 'bs-message'); });
     }
 
+    var BS_MAX = 8;
+
     function renderBestseller() {
       var editor = document.getElementById('bs-editor');
       var labels = { 'speisen': 'Essen', 'getraenke': 'Getränke' };
@@ -962,16 +966,14 @@
 
       ['speisen', 'getraenke'].forEach(function(sec) {
         var bs = allMenuItems.filter(function(i) { return i.section === sec && i.is_bestseller; });
-        html += '<div class="menu-cat" style="margin-bottom:16px"><div class="menu-cat-header"><div class="menu-cat-title">' + labels[sec] + '</div></div>';
+        html += '<div class="menu-cat" style="margin-bottom:16px"><div class="menu-cat-header"><div class="menu-cat-title">' + labels[sec] + '<span class="bs-count">' + bs.length + ' / ' + BS_MAX + '</span></div></div>';
         html += '<div class="menu-cat-body">';
         if (!bs.length) {
           html += '<p style="color:#7A8580;font-size:.85rem;padding:8px 0">Keine Bestseller ausgewählt</p>';
         }
         bs.forEach(function(item) {
           html += '<div class="bs-slot" onclick="openPicker(' + item.id + ',\'' + sec + '\')">';
-          html += '<div><div class="bs-slot-name">' + esc(item.name) + '</div>';
-          if (item.description) html += '<div class="bs-slot-desc">' + esc(item.description) + '</div>';
-          html += '</div>';
+          html += '<div class="bs-slot-name">' + esc(item.name) + (item.description ? ' <span class="bs-slot-desc">· ' + esc(item.description) + '</span>' : '') + '</div>';
           html += '<span class="bs-slot-price">' + esc(item.price) + '</span>';
           html += '<span class="bs-slot-swap">ändern ›</span>';
           html += '</div>';
@@ -996,7 +998,7 @@
       Object.keys(cats).forEach(function(cat) {
         html += '<div class="bs-picker-cat">' + esc(cat) + '</div>';
         cats[cat].forEach(function(item) {
-          var cls = item.id === currentId ? ' current' : '';
+          var cls = item.id === currentId ? ' current' : (item.is_bestseller ? ' current' : '');
           html += '<div class="bs-picker-item' + cls + '" onclick="swapBestseller(' + currentId + ',' + item.id + ')">';
           html += '<span class="pi-name">' + esc(item.name) + (item.description ? ' <span style="color:#7A8580;font-size:.78rem">' + esc(item.description) + '</span>' : '') + '</span>';
           html += '<span class="pi-price">' + esc(item.price) + '</span>';
