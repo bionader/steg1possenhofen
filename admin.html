@@ -136,7 +136,7 @@
     .menu-add-cat:hover{border-color:#2A7B6F;background:rgba(42,123,111,.04)}
     .menu-section-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#2A7B6F;margin:24px 0 12px;padding-top:16px;border-top:2px solid #E4D9C4}
     .menu-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
-.bs-slot{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #F0E8D6;cursor:pointer;transition:background .15s;font-size:.85rem}
+.bs-slot{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #F0E8D6;transition:background .15s;font-size:.85rem}
 .bs-slot:last-child{border-bottom:none}
 .bs-slot:hover{background:rgba(42,123,111,.04)}
 .bs-slot-name{flex:1;color:#1A2421;font-weight:500;min-width:0}
@@ -976,10 +976,11 @@
         for (var i = 0; i < BS_MAX; i++) {
           if (i < bs.length) {
             var item = bs[i];
-            html += '<div class="bs-slot" onclick="openPicker(' + item.id + ',\'' + sec + '\')">';
-            html += '<div class="bs-slot-name">' + esc(item.name) + (item.description ? ' <span class="bs-slot-desc">· ' + esc(item.description) + '</span>' : '') + '</div>';
+            html += '<div class="bs-slot">';
+            html += '<div class="menu-item-move"><button onclick="moveBsSlot(this,-1)">▲</button><button onclick="moveBsSlot(this,1)">▼</button></div>';
+            html += '<div class="bs-slot-name" onclick="openPicker(' + item.id + ',\'' + sec + '\')" style="cursor:pointer">' + esc(item.name) + (item.description ? ' <span class="bs-slot-desc">· ' + esc(item.description) + '</span>' : '') + '</div>';
             html += '<span class="bs-slot-price">' + esc(item.price) + '</span>';
-            html += '<span class="bs-slot-swap">ändern ›</span>';
+            html += '<span class="bs-slot-swap" onclick="openPicker(' + item.id + ',\'' + sec + '\')" style="cursor:pointer">ändern ›</span>';
             html += '</div>';
           } else {
             html += '<div class="bs-slot" style="opacity:.4" onclick="openPickerEmpty(\'' + sec + '\')">';
@@ -1062,6 +1063,41 @@
         renderBestseller();
         msg('Bestseller hinzugefügt', 'success', 'bs-message');
       }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
+    }
+
+    function moveBsSlot(btn, dir) {
+      var slot = btn.closest('.bs-slot');
+      var body = slot.parentElement;
+      var slots = Array.from(body.querySelectorAll('.bs-slot:not([style*="opacity"])'));
+      var idx = slots.indexOf(slot);
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= slots.length) return;
+      if (dir === -1) body.insertBefore(slot, slots[targetIdx]);
+      else body.insertBefore(slot, slots[targetIdx].nextSibling);
+      // Save new order
+      saveBsOrder(body);
+    }
+
+    function saveBsOrder(body) {
+      var slots = body.querySelectorAll('.bs-slot:not([style*="opacity"])');
+      var updates = [];
+      slots.forEach(function(slot, i) {
+        var nameEl = slot.querySelector('.bs-slot-name');
+        if (!nameEl) return;
+        var onclick = nameEl.getAttribute('onclick');
+        if (!onclick) return;
+        var match = onclick.match(/openPicker\((\d+)/);
+        if (match) updates.push({ id: parseInt(match[1]), sort_order: i });
+      });
+      Promise.all(updates.map(function(u) {
+        return fetch(SB_URL + '/rest/v1/menu_items?id=eq.' + u.id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ sort_order: u.sort_order })
+        });
+      })).then(function() {
+        msg('Reihenfolge gespeichert', 'success', 'bs-message');
+      });
     }
 
     function swapBestseller(oldId, newId) {
