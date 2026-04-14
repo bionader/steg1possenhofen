@@ -195,6 +195,7 @@
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
         <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
+        <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
@@ -241,6 +242,28 @@
         </div>
         <div id="bs-message"></div>
         <div id="bs-editor"></div>
+      </div>
+
+      <!-- Tab 5: Veranstaltungen -->
+      <div class="tab-content" id="content-events">
+        <div class="cal-header">
+          <h2>Veranstaltungen</h2>
+          <span class="cal-hint">Events auf der Website anzeigen</span>
+        </div>
+        <div id="ev-message"></div>
+
+        <div style="background:#FDFBF7;border:1.5px solid #E4D9C4;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="font-size:.95rem;margin-bottom:14px;color:#18180F">Neues Event</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <input type="date" id="ev-date" style="padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem">
+            <input type="time" id="ev-time" style="padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem">
+          </div>
+          <input type="text" id="ev-title" placeholder="Titel (z.B. Beach Party)" style="width:100%;padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem;margin-bottom:10px">
+          <textarea id="ev-desc" placeholder="Beschreibung (optional)" rows="3" style="width:100%;padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:inherit;font-size:.88rem;resize:vertical;margin-bottom:12px"></textarea>
+          <button type="button" id="btn-add-event" style="padding:9px 24px;background:#2A7B6F;color:white;border:none;border-radius:100px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer">Event hinzufügen</button>
+        </div>
+
+        <div id="ev-list"></div>
       </div>
     </div>
   </div>
@@ -1165,6 +1188,83 @@
         msg('Bestseller getauscht', 'success', 'bs-message');
       }).catch(function() { msg('Fehler', 'error', 'bs-message'); });
     }
+
+    // ── EVENTS ──
+    var allEvents=[];
+
+    function loadEvents(){
+      fetch(SB_URL+'/rest/v1/events?order=date.asc,time.asc&select=*',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        allEvents=Array.isArray(data)?data:[];
+        renderEvents();
+      })
+      .catch(function(){msg('Fehler beim Laden der Events','error','ev-message')});
+    }
+
+    function renderEvents(){
+      var el=document.getElementById('ev-list');
+      if(!allEvents.length){el.innerHTML='<p style="color:#7A7668;font-size:.88rem">Noch keine Events angelegt.</p>';return;}
+      var today=new Date().toISOString().split('T')[0];
+      var html='';
+      allEvents.forEach(function(ev){
+        var isPast=ev.date<today;
+        var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:16px;margin-bottom:12px;'+(isPast?'opacity:.5':'')+'">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">';
+        html+='<div style="flex:1">';
+        html+='<div style="font-size:.75rem;color:#7A7668;margin-bottom:4px">'+esc(dateStr)+(ev.time?' · '+esc(ev.time.slice(0,5))+' Uhr':'')+'</div>';
+        html+='<div style="font-weight:600;font-size:1rem;color:#18180F;margin-bottom:4px">'+esc(ev.title)+'</div>';
+        if(ev.description)html+='<div style="font-size:.85rem;color:#4A4840;line-height:1.5">'+esc(ev.description)+'</div>';
+        html+='</div>';
+        html+='<button onclick="deleteEvent(\''+ev.id+'\')" style="background:none;border:none;color:#D94F4F;cursor:pointer;font-size:1.1rem;padding:4px 8px" title="Löschen">&times;</button>';
+        html+='</div></div>';
+      });
+      el.innerHTML=html;
+    }
+
+    document.getElementById('btn-add-event').addEventListener('click',function(){
+      var date=document.getElementById('ev-date').value;
+      var time=document.getElementById('ev-time').value;
+      var title=document.getElementById('ev-title').value.trim();
+      var desc=document.getElementById('ev-desc').value.trim();
+      if(!date||!title){msg('Datum und Titel sind Pflichtfelder','error','ev-message');return;}
+
+      fetch(SB_URL+'/rest/v1/events',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({date:date,time:time||null,title:title,description:desc||null})
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        document.getElementById('ev-date').value='';
+        document.getElementById('ev-time').value='';
+        document.getElementById('ev-title').value='';
+        document.getElementById('ev-desc').value='';
+        msg('Event hinzugefügt!','success','ev-message');
+        loadEvents();
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','ev-message')});
+    });
+
+    function deleteEvent(id){
+      if(!confirm('Event wirklich löschen?'))return;
+      fetch(SB_URL+'/rest/v1/events?id=eq.'+id,{
+        method:'DELETE',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        msg('Event gelöscht','success','ev-message');
+        loadEvents();
+      })
+      .catch(function(){msg('Fehler beim Löschen','error','ev-message')});
+    }
+
+    // Load events when tab is clicked
+    document.getElementById('tab-events').addEventListener('click',function(){loadEvents()});
 
   </script>
 </body>

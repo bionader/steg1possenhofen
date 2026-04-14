@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veranstaltungen — Steg 1 Possenhofen am Starnberger See</title>
+<meta name="description" content="Events und Veranstaltungen am Steg 1 Possenhofen — Partys, Live-Musik und besondere Abende direkt am Starnberger See.">
+<link rel="canonical" href="https://steg1possenhofen.de/veranstaltungen.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Veranstaltungen — Steg 1 Possenhofen am Starnberger See">
+<meta property="og:description" content="Events und Veranstaltungen am Steg 1 Possenhofen — direkt am Starnberger See.">
+<meta property="og:url" content="https://steg1possenhofen.de/veranstaltungen.html">
+<meta property="og:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Steg 1 Possenhofen">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Veranstaltungen — Steg 1 Possenhofen am Starnberger See">
+<meta name="twitter:description" content="Events und Veranstaltungen am Steg 1 Possenhofen — direkt am Starnberger See.">
+<meta name="twitter:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2A7B6F;--g2:#1F6358;--accent:#D4883A;--accent2:#C07A2E;
+  --sand:#F2EBD9;--sand2:#E4D9C4;
+  --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
+  --w:#FDFBF7;--dark:#1B2B28;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,251,247,.72);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border-bottom:.5px solid rgba(42,123,111,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(42,123,111,.06);
+  border-bottom-color:rgba(42,123,111,.1);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;
+  color:var(--g);letter-spacing:.03em;text-decoration:none;
+  transition:opacity .3s ease;
+}
+.logo:hover{opacity:.75}
+.logo-num{font-family:'DM Sans',sans-serif;font-style:normal;font-weight:700;font-size:1.5em;opacity:.9;vertical-align:middle;line-height:1;position:relative;top:-2px}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--g)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--g)}
+.nav-links a.active::after{width:100%}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'DM Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(42,123,111,.22);
+}
+.nav-burger{
+  display:none;width:28px;height:20px;
+  flex-direction:column;justify-content:space-between;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all .3s ease;
+}
+.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* ── HERO ── */
+.ev-hero{
+  padding:140px 3.5rem 3.5rem;
+  text-align:center;
+  background:var(--sand);
+  position:relative;overflow:hidden;
+}
+.ev-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 85% 15%, rgba(42,123,111,.05) 0%, transparent 65%),
+             radial-gradient(ellipse at 10% 90%, rgba(212,136,58,.03) 0%, transparent 50%);
+}
+.ev-hero .eyebrow{
+  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;justify-content:center;gap:.7rem;
+  margin-bottom:1.6rem;position:relative;z-index:1;
+}
+.ev-hero .eyebrow::before{content:'';width:28px;height:1.5px;background:var(--g);opacity:.4}
+.ev-hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.2rem;font-weight:600;color:var(--text);
+  margin-bottom:.8rem;position:relative;z-index:1;
+}
+.ev-hero p{
+  font-size:1.05rem;color:var(--text2);max-width:500px;margin:0 auto;
+  line-height:1.6;position:relative;z-index:1;
+}
+
+/* ── EVENTS ── */
+.ev-section{
+  padding:3.5rem 3.5rem 1rem;
+  max-width:800px;margin:0 auto;
+}
+.ev-section h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:600;color:var(--text);
+  margin-bottom:2rem;
+}
+.ev-empty{
+  text-align:center;padding:3rem 1rem;
+  color:var(--text3);font-size:.95rem;
+}
+.ev-card{
+  background:var(--w);
+  border:1px solid var(--sand2);
+  border-radius:16px;
+  padding:1.8rem 2rem;
+  margin-bottom:1.2rem;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.ev-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 24px rgba(43,92,63,.11);
+}
+.ev-date{
+  font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--g);margin-bottom:.5rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.ev-date-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--g);
+  display:inline-block;
+}
+.ev-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:600;color:var(--text);
+  margin-bottom:.4rem;
+}
+.ev-desc{
+  font-size:.92rem;color:var(--text2);line-height:1.65;
+}
+
+/* ── PARTY GALERIE ── */
+.party-section{
+  padding:3.5rem 3.5rem 1rem;
+}
+.party-section h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:600;color:var(--text);
+  margin-bottom:2rem;
+  display:flex;align-items:center;gap:.8rem;
+}
+.section-divider{
+  width:60px;height:2px;background:var(--g);opacity:.3;
+  margin-bottom:2rem;
+}
+.masonry{
+  columns:3;
+  column-gap:16px;
+}
+.masonry-item{
+  break-inside:avoid;
+  margin-bottom:16px;
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+.masonry-item:hover{
+  transform:scale(1.02);
+  box-shadow:0 8px 32px rgba(43,92,63,.15);
+}
+.masonry-item img{
+  width:100%;display:block;border-radius:12px;
+  transition:transform .4s ease;
+}
+.masonry-item:hover img{transform:scale(1.05)}
+.party-empty{
+  text-align:center;padding:3rem 1rem;
+  color:var(--text3);font-size:.95rem;
+  background:var(--sand);border-radius:16px;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(26,36,33,.92);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+.lightbox.open{opacity:1;pointer-events:auto}
+.lightbox img{
+  max-width:90vw;max-height:85vh;
+  border-radius:8px;
+  box-shadow:0 8px 48px rgba(0,0,0,.4);
+}
+.lb-close{
+  position:absolute;top:1.5rem;right:1.5rem;
+  background:rgba(255,255,255,.15);border:none;
+  color:white;font-size:1.5rem;
+  width:44px;height:44px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;backdrop-filter:blur(8px);
+}
+.lb-close:hover{background:rgba(255,255,255,.3)}
+.lb-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.15);border:none;
+  color:white;font-size:1.8rem;
+  width:48px;height:48px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;backdrop-filter:blur(8px);
+}
+.lb-nav:hover{background:rgba(255,255,255,.3)}
+.lb-prev{left:1.5rem}
+.lb-next{right:1.5rem}
+.lb-counter{
+  position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.7);font-size:.85rem;
+}
+
+/* ── FOOTER ── */
+footer{
+  display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2.5rem;
+  padding:3.5rem 3.5rem 1.5rem;
+  background:var(--dark);color:rgba(255,255,255,.75);
+  font-size:.88rem;line-height:1.7;
+}
+.flogo{
+  font-family:'Cormorant Garamond',serif;font-size:1.4rem;
+  font-weight:600;color:white;margin-bottom:.6rem;
+}
+.fdesc{font-size:.85rem;color:rgba(255,255,255,.5);line-height:1.7;max-width:280px}
+.fcol h4{
+  font-family:'Cormorant Garamond',serif;font-size:1rem;
+  color:white;margin-bottom:.8rem;font-weight:600;
+}
+.fcol a{display:block;color:rgba(255,255,255,.55);text-decoration:none;font-size:.84rem;margin-bottom:.3rem;transition:color .2s}
+.fcol a:hover{color:var(--g)}
+.fbot{
+  grid-column:1/-1;border-top:1px solid rgba(255,255,255,.08);
+  padding-top:.8rem;display:flex;justify-content:space-between;
+  font-size:.78rem;color:rgba(255,255,255,.3);
+}
+
+/* ── MOBILE MENU ── */
+.mobile-menu{
+  position:fixed;inset:0;z-index:105;
+  background:rgba(253,250,244,.97);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:1.8rem;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{
+  font-family:'DM Sans',sans-serif;
+  font-size:1.1rem;color:var(--text);
+  text-decoration:none;font-weight:400;
+  transition:color .2s;
+}
+.mobile-menu a:hover{color:var(--g)}
+.mobile-menu a.active{color:var(--g);font-weight:500}
+.mobile-menu .mm-cta{
+  background:var(--g);color:var(--w);
+  padding:.7rem 2rem;border-radius:100px;
+  font-weight:500;margin-top:.5rem;
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:.9rem 1.5rem}
+  nav.scrolled{padding:.7rem 1.5rem}
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:flex}
+  .ev-hero{padding:110px 1.5rem 2.5rem}
+  .ev-hero h1{font-size:2.4rem}
+  .ev-section{padding:2.5rem 1.5rem .5rem}
+  .ev-card{padding:1.4rem 1.2rem}
+  .ev-title{font-size:1.3rem}
+  .party-section{padding:2.5rem 1.5rem .5rem}
+  .party-section h2{font-size:1.6rem}
+  .masonry{columns:2;column-gap:10px}
+  .masonry-item{margin-bottom:10px}
+  .lb-prev{left:.5rem}
+  .lb-next{right:.5rem}
+  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  .fbot{padding:.75rem 1.5rem 1rem}
+}
+@media(max-width:480px){
+  .masonry{columns:2;column-gap:8px}
+  .masonry-item{margin-bottom:8px;border-radius:8px}
+  .masonry-item img{border-radius:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:#FDFBF7;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'DM Sans',sans-serif">
+  <div style="text-align:center;max-width:340px;padding:2rem">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#1A2421;margin-bottom:.3rem">Steg <em style="font-style:italic;font-weight:400;opacity:.7">eins</em></div>
+    <p style="color:#7A8580;font-size:.88rem;margin-bottom:2rem">Diese Seite ist noch nicht öffentlich.</p>
+    <input id="pw-user" type="text" placeholder="Benutzer" style="width:100%;padding:11px 14px;border:1.5px solid #E4D9C4;border-radius:10px;font-family:inherit;font-size:.95rem;margin-bottom:10px;text-align:center">
+    <input id="pw-pass" type="password" placeholder="Passwort" style="width:100%;padding:11px 14px;border:1.5px solid #E4D9C4;border-radius:10px;font-family:inherit;font-size:.95rem;margin-bottom:14px;text-align:center">
+    <button onclick="checkPw()" style="width:100%;padding:11px;background:#2A7B6F;color:white;border:none;border-radius:100px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s">Zugang</button>
+    <p id="pw-err" style="color:#D94F4F;font-size:.82rem;margin-top:10px;display:none">Falscher Benutzer oder Passwort</p>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('steg1_auth')==='ok'){document.getElementById('pw-gate').style.display='none';}
+})();
+async function checkPw(){
+  var u=document.getElementById('pw-user').value.trim().toLowerCase();
+  var p=document.getElementById('pw-pass').value.trim().toLowerCase();
+  var data=new TextEncoder().encode(u+':'+p);
+  var hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data))).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  if(hash==='b9685b977b28bb5e13a32a45255244e410f5c8a39d4a983497731f666e81af1f'){
+    sessionStorage.setItem('steg1_auth','ok');
+    document.getElementById('pw-gate').style.display='none';
+  }else{
+    document.getElementById('pw-err').style.display='block';
+    document.getElementById('pw-pass').value='';
+  }
+}
+document.getElementById('pw-pass').addEventListener('keydown',function(e){if(e.key==='Enter')checkPw()});
+document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('pw-pass').focus()});
+</script>
+
+<nav>
+  <a href="index.html" class="logo">Steg <span class="logo-num">1</span></a>
+  <ul class="nav-links">
+    <li><a href="sup.html">SUP Verleih</a></li>
+    <li><a href="speisekarte.html">Speisekarte</a></li>
+    <li><a href="galerie.html">Unser Steg 1</a></li>
+    <li><a href="veranstaltungen.html" class="active">Veranstaltungen</a></li>
+    <li><a href="kontakt.html">Kontakt</a></li>
+  </ul>
+  <a href="sup.html" class="nav-cta">Jetzt buchen</a>
+  <button class="nav-burger" aria-label="Menü öffnen">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="sup.html">SUP Verleih</a>
+  <a href="speisekarte.html">Speisekarte</a>
+  <a href="galerie.html">Unser Steg 1</a>
+  <a href="veranstaltungen.html" class="active">Veranstaltungen</a>
+  <a href="kontakt.html">Kontakt</a>
+  <a href="sup.html" class="mm-cta">Jetzt buchen</a>
+</div>
+
+<!-- HERO -->
+<section class="ev-hero">
+  <p class="eyebrow">Events am See</p>
+  <h1>Veranstaltungen</h1>
+  <p>Partys, Live-Musik und besondere Abende direkt am Starnberger See.</p>
+</section>
+
+<!-- EVENTS -->
+<section class="ev-section" id="events">
+  <h2>Kommende Events</h2>
+  <div id="ev-list">
+    <div class="ev-empty">Aktuell sind keine Veranstaltungen geplant. Schau bald wieder vorbei!</div>
+  </div>
+</section>
+
+<!-- PARTY GALERIE -->
+<section class="party-section" id="party">
+  <h2>Party-Impressionen</h2>
+  <div class="section-divider"></div>
+  <div class="masonry" id="party-grid">
+    <div class="party-empty">Noch keine Fotos vorhanden. Bald findest du hier Impressionen von unseren Events!</div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" aria-label="Schließen">&times;</button>
+  <button class="lb-nav lb-prev" aria-label="Vorheriges Bild">&#8249;</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-nav lb-next" aria-label="Nächstes Bild">&#8250;</button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<footer>
+  <div>
+    <div class="flogo">Steg 1 Possenhofen</div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+  </div>
+  <div class="fcol">
+    <h4>Navigation</h4>
+    <a href="sup.html">SUP Verleih</a>
+    <a href="speisekarte.html">Speisekarte</a>
+    <a href="galerie.html">Unser Steg 1</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+  </div>
+  <div class="fcol">
+    <h4>Kontakt</h4>
+    <a href="#">Possenhofen, Starnberger See</a>
+    <a href="mailto:info@steg1possenhofen.de">info@steg1possenhofen.de</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+  <div class="fbot">
+    <span>&copy; 2026 Steg 1 Possenhofen</span>
+  </div>
+</footer>
+
+<script>
+var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+// Nav scroll
+window.addEventListener('scroll',function(){
+  document.querySelector('nav').classList.toggle('scrolled',window.scrollY>30);
+});
+
+// Mobile menu
+document.querySelector('.nav-burger').addEventListener('click',function(){
+  document.getElementById('mobile-menu').classList.toggle('open');
+  this.classList.toggle('open');
+});
+
+// Load events
+(function(){
+  var today=new Date().toISOString().split('T')[0];
+  fetch(SB_URL+'/rest/v1/events?date=gte.'+today+'&order=date.asc,time.asc&select=date,title,time,description',{
+    headers:{'apikey':SB_KEY}
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(!Array.isArray(data)||!data.length)return;
+    var html='';
+    data.forEach(function(ev){
+      var d=new Date(ev.date+'T12:00:00');
+      var dateStr=d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      html+='<div class="ev-card">';
+      html+='<div class="ev-date"><span class="ev-date-dot"></span>'+dateStr+(ev.time?' · '+ev.time.slice(0,5)+' Uhr':'')+'</div>';
+      html+='<div class="ev-title">'+ev.title+'</div>';
+      if(ev.description)html+='<div class="ev-desc">'+ev.description+'</div>';
+      html+='</div>';
+    });
+    document.getElementById('ev-list').innerHTML=html;
+  })
+  .catch(function(){});
+})();
+
+// Load party images
+(function(){
+  fetch(SB_URL+'/rest/v1/party_images?order=sort_order.asc&select=url,alt_text',{
+    headers:{'apikey':SB_KEY}
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(!Array.isArray(data)||!data.length)return;
+    var html='';
+    data.forEach(function(img){
+      html+='<div class="masonry-item"><img src="'+img.url+'" alt="'+(img.alt_text||'Party am Steg 1')+'" loading="lazy"></div>';
+    });
+    document.getElementById('party-grid').innerHTML=html;
+    initLightbox();
+  })
+  .catch(function(){});
+})();
+
+// Lightbox
+function initLightbox(){
+  var lb=document.getElementById('lightbox');
+  var lbImg=document.getElementById('lb-img');
+  var lbCounter=document.getElementById('lb-counter');
+  var images=Array.from(document.querySelectorAll('.masonry-item img'));
+  var current=0;
+  if(!images.length)return;
+
+  function open(i){
+    current=i;lbImg.src=images[i].src;lbImg.alt=images[i].alt;
+    lbCounter.textContent=(i+1)+' / '+images.length;
+    lb.classList.add('open');document.body.style.overflow='hidden';
+  }
+  function close(){lb.classList.remove('open');document.body.style.overflow='';}
+  function prev(){current=(current-1+images.length)%images.length;lbImg.src=images[current].src;lbImg.alt=images[current].alt;lbCounter.textContent=(current+1)+' / '+images.length;}
+  function next(){current=(current+1)%images.length;lbImg.src=images[current].src;lbImg.alt=images[current].alt;lbCounter.textContent=(current+1)+' / '+images.length;}
+
+  images.forEach(function(img,i){img.closest('.masonry-item').addEventListener('click',function(){open(i)})});
+  document.querySelector('.lb-close').addEventListener('click',close);
+  document.querySelector('.lb-prev').addEventListener('click',prev);
+  document.querySelector('.lb-next').addEventListener('click',next);
+  lb.addEventListener('click',function(e){if(e.target===lb)close()});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')close();if(e.key==='ArrowLeft')prev();if(e.key==='ArrowRight')next();
+  });
+  var touchStartX=0;
+  lb.addEventListener('touchstart',function(e){touchStartX=e.changedTouches[0].screenX},{passive:true});
+  lb.addEventListener('touchend',function(e){
+    var diff=e.changedTouches[0].screenX-touchStartX;
+    if(Math.abs(diff)>50){if(diff>0)prev();else next();}
+  },{passive:true});
+}
+</script>
+</body>
+</html>
