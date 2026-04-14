@@ -80,18 +80,33 @@ nav.scrolled{
 
 /* ── HERO ── */
 .gallery-hero{
-  padding:140px 3.5rem 3rem;
+  padding:140px 3.5rem 3.5rem;
   text-align:center;
   background:var(--sand);
+  position:relative;overflow:hidden;
 }
+.gallery-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 85% 15%, rgba(42,123,111,.05) 0%, transparent 65%),
+             radial-gradient(ellipse at 10% 90%, rgba(212,136,58,.03) 0%, transparent 50%);
+}
+.gallery-hero .eyebrow{
+  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;justify-content:center;gap:.7rem;
+  margin-bottom:1.6rem;position:relative;z-index:1;
+}
+.gallery-hero .eyebrow::before{content:'';width:28px;height:1.5px;background:var(--g);opacity:.4}
 .gallery-hero h1{
   font-family:'Cormorant Garamond',serif;
-  font-size:3rem;font-weight:600;color:var(--text);
-  margin-bottom:.5rem;
+  font-size:3.2rem;font-weight:600;color:var(--text);
+  margin-bottom:.8rem;position:relative;z-index:1;
+}
+.gallery-hero h1 .num{
+  font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;opacity:.7;
 }
 .gallery-hero p{
   font-size:1.05rem;color:var(--text2);max-width:500px;margin:0 auto;
-  line-height:1.6;
+  line-height:1.6;position:relative;z-index:1;
 }
 
 /* ── SECTIONS ── */
@@ -242,7 +257,7 @@ footer{
   .nav-links,.nav-cta{display:none}
   .nav-burger{display:block}
   .gallery-hero{padding:110px 1.5rem 2.5rem}
-  .gallery-hero h1{font-size:2.2rem}
+  .gallery-hero h1{font-size:2.4rem}
   .gallery-section{padding:2.5rem 1.5rem .5rem}
   .gallery-section h2{font-size:1.6rem}
   .masonry{columns:2;column-gap:10px}
@@ -317,7 +332,8 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 
 <!-- HERO -->
 <section class="gallery-hero">
-  <h1>Unser Steg <em style="font-style:italic;font-weight:400;opacity:.7">eins</em></h1>
+  <p class="eyebrow">Possenhofen · Starnberger See</p>
+  <h1>Unser Steg <span class="num">1</span></h1>
   <p>Impressionen vom Starnberger See — im Sommer wie im Winter ein besonderer Ort.</p>
 </section>
 
