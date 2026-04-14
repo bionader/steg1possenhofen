@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Speisekarte — Steg 1 Possenhofen am Starnberger See</title>
 <meta name="description" content="Unsere Speisekarte: Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See bei Steg 1 Possenhofen.">
+<link rel="canonical" href="https://steg1possenhofen.de/speisekarte.html">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Speisekarte — Steg 1 Possenhofen am Starnberger See">
+<meta property="og:description" content="Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See.">
+<meta property="og:url" content="https://steg1possenhofen.de/speisekarte.html">
+<meta property="og:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Steg 1 Possenhofen">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Speisekarte — Steg 1 Possenhofen am Starnberger See">
+<meta name="twitter:description" content="Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See.">
+<meta name="twitter:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<!-- Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -275,10 +292,12 @@ footer{
 (function(){
   if(sessionStorage.getItem('steg1_auth')==='ok'){document.getElementById('pw-gate').style.display='none';}
 })();
-function checkPw(){
+async function checkPw(){
   var u=document.getElementById('pw-user').value.trim().toLowerCase();
   var p=document.getElementById('pw-pass').value.trim().toLowerCase();
-  if(u==='cathrin'&&p==='tammo'){
+  var data=new TextEncoder().encode(u+':'+p);
+  var hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data))).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  if(hash==='b9685b977b28bb5e13a32a45255244e410f5c8a39d4a983497731f666e81af1f'){
     sessionStorage.setItem('steg1_auth','ok');
     document.getElementById('pw-gate').style.display='none';
   }else{
@@ -296,6 +315,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   <ul class="nav-links">
     <li><a href="sup.html">SUP Verleih</a></li>
     <li><a href="speisekarte.html" class="active">Speisekarte</a></li>
+    <li><a href="galerie.html">Unser Steg 1</a></li>
     <li><a href="kontakt.html">Kontakt</a></li>
   </ul>
   <a href="sup.html" class="nav-cta">Jetzt buchen</a>
@@ -308,6 +328,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <div class="mobile-menu" id="mobile-menu">
   <a href="sup.html">SUP Verleih</a>
   <a href="speisekarte.html" class="active">Speisekarte</a>
+  <a href="galerie.html">Unser Steg 1</a>
   <a href="kontakt.html">Kontakt</a>
   <a href="sup.html" class="mm-cta">Jetzt buchen</a>
 </div>
@@ -362,6 +383,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     <h4>Navigation</h4>
     <a href="sup.html">SUP Verleih</a>
     <a href="speisekarte.html">Speisekarte</a>
+    <a href="galerie.html">Unser Steg 1</a>
   </div>
   <div class="fcol">
     <h4>Kontakt</h4>

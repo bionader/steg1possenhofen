@@ -3,7 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Steg 1 Possenhofen — Biergarten am Starnberger See</title>
+<title>Steg 1 Possenhofen — Biergarten & SUP am Starnberger See</title>
+<meta name="description" content="Biergarten & SUP-Verleih direkt am Starnberger See in Possenhofen. Flammkuchen, kühle Getränke, Stand-Up Paddling und Alpenpanorama. Jetzt Öffnungszeiten checken!">
+<link rel="canonical" href="https://steg1possenhofen.de/">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Steg 1 Possenhofen — Biergarten & SUP am Starnberger See">
+<meta property="og:description" content="Biergarten & SUP-Verleih direkt am Starnberger See in Possenhofen. Flammkuchen, kühle Getränke, Stand-Up Paddling und Alpenpanorama.">
+<meta property="og:url" content="https://steg1possenhofen.de/">
+<meta property="og:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Steg 1 Possenhofen">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Steg 1 Possenhofen — Biergarten & SUP am Starnberger See">
+<meta name="twitter:description" content="Biergarten & SUP-Verleih direkt am Starnberger See in Possenhofen.">
+<meta name="twitter:image" content="https://steg1possenhofen.de/img/og-image.jpg">
+<!-- Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -475,6 +493,67 @@ footer{
 }
 </style>
 <script type="module" src="https://w.behold.so/widget.js"></script>
+<!-- Structured Data: LocalBusiness + FoodEstablishment -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FoodEstablishment",
+  "name": "Steg 1 Possenhofen",
+  "alternateName": "Steg eins",
+  "description": "Biergarten & SUP-Verleih direkt am Starnberger See in Possenhofen. Flammkuchen, kühle Getränke und Stand-Up Paddling mit Alpenpanorama.",
+  "url": "https://steg1possenhofen.de",
+  "email": "info@steg1possenhofen.de",
+  "image": "https://steg1possenhofen.de/img/og-image.jpg",
+  "servesCuisine": ["Bayerisch", "Biergarten"],
+  "priceRange": "€€",
+  "menu": "https://steg1possenhofen.de/speisekarte.html",
+  "acceptsReservations": false,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Kurt-Stieler-Straße 58",
+    "addressLocality": "Possenhofen",
+    "addressRegion": "Bayern",
+    "postalCode": "82343",
+    "addressCountry": "DE"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 47.9547,
+    "longitude": 11.3644
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "11:00",
+      "closes": "22:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Saturday","Sunday"],
+      "opens": "10:00",
+      "closes": "23:00"
+    }
+  ],
+  "sameAs": [
+    "https://instagram.com/steg1possenhofen"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "SUP-Verleih",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Product",
+          "name": "SUP Board Verleih",
+          "description": "Stand-Up Paddle Board mit Paddel, Schwimmweste und Einweisung"
+        }
+      }
+    ]
+  }
+}
+</script>
 </head>
 <body>
 <!-- PASSWORD GATE -->
@@ -492,10 +571,12 @@ footer{
 (function(){
   if(sessionStorage.getItem('steg1_auth')==='ok'){document.getElementById('pw-gate').style.display='none';}
 })();
-function checkPw(){
+async function checkPw(){
   var u=document.getElementById('pw-user').value.trim().toLowerCase();
   var p=document.getElementById('pw-pass').value.trim().toLowerCase();
-  if(u==='cathrin'&&p==='tammo'){
+  var data=new TextEncoder().encode(u+':'+p);
+  var hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data))).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+  if(hash==='b9685b977b28bb5e13a32a45255244e410f5c8a39d4a983497731f666e81af1f'){
     sessionStorage.setItem('steg1_auth','ok');
     document.getElementById('pw-gate').style.display='none';
   }else{
@@ -513,6 +594,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   <ul class="nav-links">
     <li><a href="sup.html">SUP Verleih</a></li>
     <li><a href="speisekarte.html">Speisekarte</a></li>
+    <li><a href="galerie.html">Unser Steg 1</a></li>
     <li><a href="kontakt.html">Kontakt</a></li>
   </ul>
   <a href="sup.html" class="nav-cta">Jetzt buchen</a>
@@ -525,6 +607,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <div class="mobile-menu" id="mobile-menu">
   <a href="sup.html">SUP Verleih</a>
   <a href="speisekarte.html">Speisekarte</a>
+  <a href="galerie.html">Unser Steg 1</a>
   <a href="kontakt.html">Kontakt</a>
   <a href="sup.html" class="mm-cta">Jetzt buchen</a>
 </div>
@@ -663,7 +746,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   <p class="stag" style="justify-content:center">Folge uns</p>
   <h2 style="font-family:'DM Sans',sans-serif">@steg1possenhofen</h2>
   <p class="ssub" style="margin:0 auto .5rem">Impressionen vom See, frische Küche und SUP-Momente.</p>
-  <a href="https://instagram.com/steg1possenhofen" target="_blank" style="display:inline-block;margin-bottom:2rem;font-size:.85rem;color:var(--g);text-decoration:none;font-weight:500">Auf Instagram folgen →</a>
+  <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:2rem;font-size:.85rem;color:var(--g);text-decoration:none;font-weight:500">Auf Instagram folgen →</a>
   <behold-widget feed-id="i0eqzCNrgeaJuwVcq9qF"></behold-widget>
 </section>
 
@@ -682,6 +765,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     <h4>Navigation</h4>
     <a href="sup.html">SUP Verleih</a>
     <a href="speisekarte.html">Speisekarte</a>
+    <a href="galerie.html">Unser Steg 1</a>
   </div>
   <div class="fcol">
     <h4>Kontakt</h4>

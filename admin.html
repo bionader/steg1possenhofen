@@ -283,6 +283,41 @@
       return{open:'10:00',close:'20:00'};
     }
 
+    // Auto-save a single day to Supabase
+    function saveDay(date){
+      var card=document.querySelector('.day-card[data-date="'+date+'"]');
+      if(!card)return;
+      var cb=card.querySelector('input[type="checkbox"]');
+      var closedAllDay=!cb.checked;
+      var openTime=null,closeTime=null;
+      var ot=card.querySelector('.open-time[data-date="'+date+'"]');
+      var ct=card.querySelector('.close-time[data-date="'+date+'"]');
+      if(ot)openTime=ot.value;
+      if(ct)closeTime=ct.value;
+      var noteEl=card.querySelector('.note-input[data-date="'+date+'"]');
+      var note=noteEl?noteEl.value:'';
+
+      var record={
+        date:date,
+        is_open:!closedAllDay,
+        closed_all_day:closedAllDay,
+        open_time:closedAllDay?null:(openTime||defaultTimes().open),
+        close_time:closedAllDay?null:(closeTime||defaultTimes().close),
+        note:note
+      };
+
+      fetch(SB_URL+'/rest/v1/daily_schedule',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify([record])
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        msg('Gespeichert!');
+      })
+      .catch(function(){msg('Fehler beim Speichern','error')});
+    }
+
     function getDays(){
       var days=[],now=new Date();
       for(var i=-1;i<=6;i++){
@@ -354,6 +389,7 @@
               +'<span class="time-sep">&ndash;</span>'
               +'<span class="time-label">Bis</span>'
               +'<input type="time" class="time-input close-time" value="'+closeTime+'" data-date="'+day.date+'">';
+            tg.querySelectorAll('.time-input').forEach(function(inp){inp.addEventListener('blur',function(){saveDay(this.dataset.date)})});
             details.appendChild(tg);
           }
 
@@ -364,6 +400,7 @@
           noteInput.placeholder='Notiz';
           noteInput.value=note;
           noteInput.dataset.date=day.date;
+          noteInput.addEventListener('blur',function(){saveDay(this.dataset.date)});
           details.appendChild(noteInput);
 
           card.appendChild(details);
@@ -398,9 +435,12 @@
                   +'<span class="time-sep">&ndash;</span>'
                   +'<span class="time-label">Bis</span>'
                   +'<input type="time" class="time-input close-time" value="'+def2.close+'" data-date="'+date+'">';
+                tg2.querySelectorAll('.time-input').forEach(function(inp){inp.addEventListener('blur',function(){saveDay(this.dataset.date)})});
                 det.insertBefore(tg2,det.firstChild);
               }
             }
+            // Auto-save toggle change
+            saveDay(date);
           });
         }else if(note){
           var noteDiv=document.createElement('div');
