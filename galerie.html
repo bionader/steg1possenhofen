@@ -51,10 +51,12 @@ nav.scrolled{
   box-shadow:0 2px 20px rgba(42,123,111,.06);
 }
 .logo{
-  font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;
+  font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;
   color:var(--text);text-decoration:none;letter-spacing:-.02em;
+  transition:opacity .3s ease;
 }
-.logo .logo-num{font-style:italic;font-weight:400;opacity:.7}
+.logo:hover{opacity:.75}
+.logo-num{font-family:'DM Sans',sans-serif;font-style:normal;font-weight:700;font-size:1.5em;opacity:.9;vertical-align:middle;line-height:1;position:relative;top:-2px}
 .nav-links{display:flex;gap:2.2rem;list-style:none}
 .nav-links a{
   font-size:.88rem;color:var(--text2);text-decoration:none;font-weight:400;
@@ -102,7 +104,7 @@ nav.scrolled{
   margin-bottom:.8rem;position:relative;z-index:1;
 }
 .gallery-hero h1 .num{
-  font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;opacity:.7;
+  font-family:'DM Sans',sans-serif;font-style:normal;font-weight:700;opacity:.85;
 }
 .gallery-hero p{
   font-size:1.05rem;color:var(--text2);max-width:500px;margin:0 auto;
