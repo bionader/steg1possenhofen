@@ -1074,7 +1074,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
     // Step 2: POST booking to Supabase
     return fetch(SB_URL + '/rest/v1/bookings', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' },
       body: JSON.stringify({
         date: selectedDate,
         start_time: selectedSlot,
@@ -1090,8 +1090,11 @@ document.getElementById('btn-book').addEventListener('click', function() {
   })
   .then(function(r) {
     if (!r.ok) throw new Error('booking');
+    return r.json();
   })
-  .then(function() {
+  .then(function(rows) {
+    var booking = rows[0];
+
     // Show confirmation
     document.getElementById('slot-section').classList.remove('active');
     var box = document.getElementById('confirm-box');
@@ -1113,7 +1116,9 @@ document.getElementById('btn-book').addEventListener('click', function() {
         startTime: selectedSlot,
         endTime: endTime,
         boards: boards,
-        price: price.toFixed(0)
+        price: price.toFixed(0),
+        manageToken: booking.manage_token,
+        bookingId: booking.booking_id
       })
     });
   })
