@@ -9,7 +9,7 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#2A7B6F 0%,#F2EBD9 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:600px;width:100%;padding:36px;position:relative;overflow:hidden}
+    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:600px;width:100%;padding:36px;position:relative;overflow:clip}
     .container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#D94F4F,#E8735A,#D94F4F)}
     .admin-badge{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:#D94F4F;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:block}
     h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#18180F;margin-bottom:4px}
@@ -71,12 +71,12 @@
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
 
-    /* Tab navigation */
-    .tab-nav-wrap{margin:0 -36px;padding:0 36px;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1.5px solid #F0E8D6;margin-bottom:20px}
-    .tab-nav{display:flex;gap:4px}
-    .tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:inherit;font-size:.88rem;color:#7A7668;cursor:pointer;transition:all .2s;font-weight:500;white-space:nowrap;flex-shrink:0}
-    .tab-btn:hover{color:#18180F}
-    .tab-btn.active{color:#2A7B6F;border-bottom-color:#2A7B6F;font-weight:600}
+    /* Tab navigation — segmented control */
+    .tab-nav{display:flex;gap:3px;background:#F0E8D6;border-radius:12px;padding:4px;margin-bottom:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .tab-nav::-webkit-scrollbar{display:none}
+    .tab-btn{flex:1;min-width:0;padding:8px 10px;background:transparent;border:none;border-radius:8px;font-family:inherit;font-size:.78rem;color:#7A7668;cursor:pointer;transition:all .18s;font-weight:500;white-space:nowrap;flex-shrink:0;text-align:center}
+    .tab-btn:hover{color:#18180F;background:rgba(255,255,255,.5)}
+    .tab-btn.active{background:#fff;color:#2B5C3F;font-weight:600;box-shadow:0 1px 6px rgba(43,92,63,.13)}
     .tab-content{display:none}
     .tab-content.active{display:block}
 
@@ -191,14 +191,12 @@
         <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
       </div>
 
-      <div class="tab-nav-wrap">
-        <div class="tab-nav" id="tab-nav">
-          <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
-          <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
-          <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
-          <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
-          <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
-        </div>
+      <div class="tab-nav" id="tab-nav">
+        <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
+        <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
+        <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
+        <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
+        <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
