@@ -106,6 +106,21 @@
     .sup-booking-cancel{background:#D94F4F;color:white;border:none;border-radius:100px;padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:inherit;width:auto}
     .sup-booking-cancel:hover{background:#C0392B}
     .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
+    /* Event edit modal */
+    .ev-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
+    .ev-modal-overlay.active{display:flex}
+    .ev-modal{background:#FDFBF7;border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+    .ev-modal h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#1A2421;margin-bottom:16px}
+    .ev-modal label{display:block;font-size:.72rem;color:#7A7668;font-weight:500;margin-bottom:4px}
+    .ev-modal input,.ev-modal textarea{width:100%;padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;background:#fff;color:#1A2421;margin-bottom:12px}
+    .ev-modal input:focus,.ev-modal textarea:focus{outline:none;border-color:#2A7B6F}
+    .ev-modal textarea{min-height:70px;resize:vertical}
+    .ev-modal .ev-modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ev-modal .ev-modal-actions{display:flex;gap:8px;margin-top:4px}
+    .ev-modal .btn-save{flex:1;background:#2A7B6F;color:#fff;border:none;border-radius:100px;padding:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:background .2s}
+    .ev-modal .btn-save:hover{background:#1F6358}
+    .ev-modal .btn-delete{flex:1;background:#fff;color:#D94F4F;border:1.5px solid #E8D0D0;border-radius:100px;padding:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .ev-modal .btn-delete:hover{background:#D94F4F;color:#fff;border-color:#D94F4F}
     .cancel-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
     .cancel-modal-overlay.active{display:flex}
     .cancel-modal{background:#FDFBF7;border-radius:16px;padding:28px;max-width:440px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
@@ -1292,11 +1307,13 @@
         var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
         var timeRange='';
         if(ev.time){timeRange=ev.time.slice(0,5);if(ev.time_to)timeRange+=' – '+ev.time_to.slice(0,5);timeRange+=' Uhr';}
-        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:14px 16px;margin-bottom:10px;position:relative;'+(isPast?'opacity:.5':'')+'">';
-        html+='<button onclick="deleteEvent(\''+ev.id+'\')" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#D94F4F;cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 4px" title="Löschen">&times;</button>';
-        html+='<div style="font-size:.72rem;color:#7A7668;margin-bottom:3px;padding-right:24px">'+esc(dateStr)+(timeRange?' · <strong style="color:#2A7B6F">'+esc(timeRange)+'</strong>':'')+'</div>';
-        html+='<div style="font-weight:600;font-size:.95rem;color:#18180F'+(ev.description?';margin-bottom:3px':'')+'">'+ esc(ev.title)+'</div>';
+        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;'+(isPast?'opacity:.5':'')+'">';
+        html+='<div style="flex:1;min-width:0">';
+        html+='<div style="font-size:.72rem;color:#7A7668;margin-bottom:3px">'+esc(dateStr)+(timeRange?' · <strong style="color:#2A7B6F">'+esc(timeRange)+'</strong>':'')+'</div>';
+        html+='<div style="font-weight:600;font-size:.95rem;color:#18180F'+(ev.description?';margin-bottom:2px':'')+'">'+ esc(ev.title)+'</div>';
         if(ev.description)html+='<div style="font-size:.82rem;color:#4A4840;line-height:1.5">'+esc(ev.description)+'</div>';
+        html+='</div>';
+        html+='<button onclick="openEventModal(\''+ev.id+'\')" style="flex-shrink:0;padding:6px 14px;background:#F0E8D6;color:#2A7B6F;border:1.5px solid #E4D9C4;border-radius:100px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background=\'#2A7B6F\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#F0E8D6\';this.style.color=\'#2A7B6F\'">Bearbeiten</button>';
         html+='</div>';
       });
       el.innerHTML=html;
@@ -1345,7 +1362,99 @@
     // Load events when tab is clicked
     document.getElementById('tab-events').addEventListener('click',function(){loadEvents()});
 
+    // Event edit modal
+    var editEventId=null;
+
+    function openEventModal(id){
+      var ev=allEvents.find(function(e){return e.id===id||e.id==id;});
+      if(!ev)return;
+      editEventId=id;
+      document.getElementById('ev-edit-date').value=ev.date||'';
+      document.getElementById('ev-edit-time').value=ev.time?ev.time.slice(0,5):'';
+      document.getElementById('ev-edit-time-to').value=ev.time_to?ev.time_to.slice(0,5):'';
+      document.getElementById('ev-edit-title').value=ev.title||'';
+      document.getElementById('ev-edit-desc').value=ev.description||'';
+      document.getElementById('ev-edit-message').innerHTML='';
+      document.getElementById('ev-edit-modal').classList.add('active');
+    }
+
+    function closeEventModal(){
+      document.getElementById('ev-edit-modal').classList.remove('active');
+      editEventId=null;
+    }
+
+    document.getElementById('ev-edit-modal').addEventListener('click',function(e){
+      if(e.target===this)closeEventModal();
+    });
+
+    document.getElementById('btn-ev-save').addEventListener('click',function(){
+      var btn=this;
+      var date=document.getElementById('ev-edit-date').value;
+      var time=document.getElementById('ev-edit-time').value;
+      var timeTo=document.getElementById('ev-edit-time-to').value;
+      var title=document.getElementById('ev-edit-title').value.trim();
+      var desc=document.getElementById('ev-edit-desc').value.trim();
+      if(!date||!title){document.getElementById('ev-edit-message').innerHTML='<div class="message error">Datum und Titel sind Pflichtfelder</div>';return;}
+      btn.disabled=true;btn.textContent='Speichern...';
+      fetch(SB_URL+'/rest/v1/events?id=eq.'+editEventId,{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({date:date,time:time||null,time_to:timeTo||null,title:title,description:desc||null})
+      })
+      .then(function(r){if(!r.ok)throw new Error('fail');})
+      .then(function(){
+        btn.disabled=false;btn.textContent='Speichern';
+        closeEventModal();
+        loadEvents();
+      })
+      .catch(function(){btn.disabled=false;btn.textContent='Speichern';document.getElementById('ev-edit-message').innerHTML='<div class="message error">Fehler beim Speichern</div>';});
+    });
+
+    document.getElementById('btn-ev-delete').addEventListener('click',function(){
+      if(!confirm('Event wirklich löschen?'))return;
+      var btn=this;btn.disabled=true;btn.textContent='Löschen...';
+      fetch(SB_URL+'/rest/v1/events?id=eq.'+editEventId,{
+        method:'DELETE',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){if(!r.ok)throw new Error('fail');})
+      .then(function(){
+        btn.disabled=false;btn.textContent='Löschen';
+        closeEventModal();
+        loadEvents();
+      })
+      .catch(function(){btn.disabled=false;btn.textContent='Löschen';document.getElementById('ev-edit-message').innerHTML='<div class="message error">Fehler beim Löschen</div>';});
+    });
+
   </script>
+
+<!-- Event Edit Modal -->
+<div class="ev-modal-overlay" id="ev-edit-modal">
+  <div class="ev-modal">
+    <h3>Event bearbeiten</h3>
+    <div id="ev-edit-message"></div>
+    <label>Datum</label>
+    <input type="date" id="ev-edit-date">
+    <div class="ev-modal-row">
+      <div>
+        <label>Von</label>
+        <input type="time" id="ev-edit-time">
+      </div>
+      <div>
+        <label>Bis (optional)</label>
+        <input type="time" id="ev-edit-time-to">
+      </div>
+    </div>
+    <label>Titel</label>
+    <input type="text" id="ev-edit-title" placeholder="Titel">
+    <label>Beschreibung (optional)</label>
+    <textarea id="ev-edit-desc" placeholder="Beschreibung"></textarea>
+    <div class="ev-modal-actions">
+      <button class="btn-save" id="btn-ev-save">Speichern</button>
+      <button class="btn-delete" id="btn-ev-delete">Löschen</button>
+    </div>
+  </div>
+</div>
 
 <!-- Cancel Modal -->
 <div class="cancel-modal-overlay" id="cancel-modal">
