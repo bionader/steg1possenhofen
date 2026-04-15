@@ -109,7 +109,7 @@
     /* Event edit modal */
     .ev-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
     .ev-modal-overlay.active{display:flex}
-    .ev-modal{background:#FDFBF7;border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+    .ev-modal{background:#FDFBF7;border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15);position:relative}
     .ev-modal h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#1A2421;margin-bottom:16px}
     .ev-modal label{display:block;font-size:.72rem;color:#7A7668;font-weight:500;margin-bottom:4px}
     .ev-modal input,.ev-modal textarea{width:100%;padding:9px 12px;border:1.5px solid #E4D9C4;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;background:#fff;color:#1A2421;margin-bottom:12px}
@@ -310,10 +310,8 @@
 <!-- Event Edit Modal -->
 <div class="ev-modal-overlay" id="ev-edit-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="ev-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h3 style="margin-bottom:0">Event bearbeiten</h3>
-      <button onclick="closeEventModal()" style="background:none;border:none;font-size:1.3rem;color:#7A7668;cursor:pointer;line-height:1;padding:2px 6px">&times;</button>
-    </div>
+    <button onclick="closeEventModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;color:#7A7668;cursor:pointer;line-height:1;padding:4px">&times;</button>
+    <h3 style="margin-bottom:16px;white-space:nowrap">Event bearbeiten</h3>
     <div id="ev-edit-message"></div>
     <label>Datum</label>
     <input type="date" id="ev-edit-date">
