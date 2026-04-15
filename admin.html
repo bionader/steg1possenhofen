@@ -1301,19 +1301,24 @@
       var el=document.getElementById('ev-list');
       if(!allEvents.length){el.innerHTML='<p style="color:#7A7668;font-size:.88rem">Noch keine Events angelegt.</p>';return;}
       var today=new Date().toISOString().split('T')[0];
-      var html='';
+      // Header
+      var html='<div style="display:grid;grid-template-columns:130px 130px 1fr 1fr auto;gap:0;border-bottom:1.5px solid #E4D9C4;padding:0 14px 8px;margin-bottom:4px">'
+        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Datum</span>'
+        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Uhrzeit</span>'
+        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Titel</span>'
+        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Beschreibung</span>'
+        +'<span></span>'
+        +'</div>';
       allEvents.forEach(function(ev){
         var isPast=ev.date<today;
-        var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-        var timeRange='';
-        if(ev.time){timeRange=ev.time.slice(0,5);if(ev.time_to)timeRange+=' – '+ev.time_to.slice(0,5);timeRange+=' Uhr';}
-        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;'+(isPast?'opacity:.5':'')+'">';
-        html+='<div style="flex:1;min-width:0">';
-        html+='<div style="font-size:.72rem;color:#7A7668;margin-bottom:3px">'+esc(dateStr)+(timeRange?' · <strong style="color:#2A7B6F">'+esc(timeRange)+'</strong>':'')+'</div>';
-        html+='<div style="font-weight:600;font-size:.95rem;color:#18180F'+(ev.description?';margin-bottom:2px':'')+'">'+ esc(ev.title)+'</div>';
-        if(ev.description)html+='<div style="font-size:.82rem;color:#4A4840;line-height:1.5">'+esc(ev.description)+'</div>';
-        html+='</div>';
-        html+='<button onclick="openEventModal(\''+ev.id+'\')" style="flex-shrink:0;padding:6px 14px;background:#F0E8D6;color:#2A7B6F;border:1.5px solid #E4D9C4;border-radius:100px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background=\'#2A7B6F\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#F0E8D6\';this.style.color=\'#2A7B6F\'">Bearbeiten</button>';
+        var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+        var timeRange=ev.time?ev.time.slice(0,5)+(ev.time_to?' – '+ev.time_to.slice(0,5):''):'—';
+        html+='<div style="display:grid;grid-template-columns:130px 130px 1fr 1fr auto;gap:0;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:2px;background:'+(isPast?'transparent':'#FDFBF7')+';border:1.5px solid '+(isPast?'transparent':'#EAE0CC')+';'+(isPast?'opacity:.45':'')+'">';
+        html+='<span style="font-size:.82rem;color:#4A4840">'+esc(dateStr)+'</span>';
+        html+='<span style="font-size:.82rem;color:#2A7B6F;font-weight:500">'+esc(timeRange)+'</span>';
+        html+='<span style="font-size:.88rem;font-weight:600;color:#18180F;padding-right:12px">'+esc(ev.title)+'</span>';
+        html+='<span style="font-size:.82rem;color:#7A7668;padding-right:12px">'+(ev.description?esc(ev.description):'—')+'</span>';
+        html+='<button onclick="openEventModal(\''+ev.id+'\')" style="white-space:nowrap;padding:5px 12px;background:#F0E8D6;color:#2A7B6F;border:1.5px solid #E4D9C4;border-radius:100px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer" onmouseover="this.style.background=\'#2A7B6F\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#F0E8D6\';this.style.color=\'#2A7B6F\'">Bearbeiten</button>';
         html+='</div>';
       });
       el.innerHTML=html;
