@@ -130,11 +130,14 @@ nav.scrolled{
   padding:3.5rem 3.5rem 1rem;
   max-width:800px;margin:0 auto;
 }
-.ev-section h2{
-  font-family:'Cormorant Garamond',serif;
-  font-size:2rem;font-weight:600;color:var(--text);
-  margin-bottom:2rem;
+.month-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem}
+.month-pill{
+  padding:8px 20px;background:var(--sand);border:1.5px solid var(--sand2);
+  border-radius:100px;font-family:inherit;font-size:.82rem;
+  color:var(--text2);cursor:pointer;transition:all .2s;font-weight:500;
 }
+.month-pill:hover{border-color:var(--g);color:var(--g)}
+.month-pill.active{background:var(--g);border-color:var(--g);color:#fff;font-weight:600}
 .ev-empty{
   text-align:center;padding:3rem 1rem;
   color:var(--text3);font-size:.95rem;
@@ -397,7 +400,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 
 <!-- EVENTS -->
 <section class="ev-section" id="events">
-  <h2>Kommende Events</h2>
+  <div class="month-nav" id="month-nav"></div>
   <div id="ev-list">
     <div class="ev-empty">Aktuell sind keine Veranstaltungen geplant. Schau bald wieder vorbei!</div>
   </div>
@@ -460,17 +463,41 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
   this.classList.toggle('open');
 });
 
-// Load events
+// Load events with month navigation
 (function(){
-  var today=new Date().toISOString().split('T')[0];
-  fetch(SB_URL+'/rest/v1/events?date=gte.'+today+'&order=date.asc,time.asc&select=date,title,time,time_to,description',{
-    headers:{'apikey':SB_KEY}
-  })
-  .then(function(r){return r.json()})
-  .then(function(data){
-    if(!Array.isArray(data)||!data.length)return;
+  var allEvents=[];
+  var activeMonth='';
+
+  function renderMonthNav(){
+    var months=[];
+    allEvents.forEach(function(ev){
+      var m=ev.date.slice(0,7);
+      if(months.indexOf(m)===-1)months.push(m);
+    });
     var html='';
-    data.forEach(function(ev){
+    months.forEach(function(m){
+      var label=new Date(m+'-15').toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+      label=label.charAt(0).toUpperCase()+label.slice(1);
+      html+='<button class="month-pill'+(m===activeMonth?' active':'')+'" data-month="'+m+'">'+label+'</button>';
+    });
+    document.getElementById('month-nav').innerHTML=html;
+    document.querySelectorAll('.month-pill').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        activeMonth=this.dataset.month;
+        renderMonthNav();
+        renderEvList();
+      });
+    });
+  }
+
+  function renderEvList(){
+    var filtered=allEvents.filter(function(ev){return ev.date.slice(0,7)===activeMonth;});
+    if(!filtered.length){
+      document.getElementById('ev-list').innerHTML='<div class="ev-empty">Keine Veranstaltungen in diesem Monat.</div>';
+      return;
+    }
+    var html='';
+    filtered.forEach(function(ev){
       var d=new Date(ev.date+'T12:00:00');
       var dateStr=d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       var timeRange='';
@@ -482,6 +509,19 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
       html+='</div>';
     });
     document.getElementById('ev-list').innerHTML=html;
+  }
+
+  var today=new Date().toISOString().split('T')[0];
+  fetch(SB_URL+'/rest/v1/events?date=gte.'+today+'&order=date.asc,time.asc&select=date,title,time,time_to,description',{
+    headers:{'apikey':SB_KEY}
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(!Array.isArray(data)||!data.length)return;
+    allEvents=data;
+    activeMonth=allEvents[0].date.slice(0,7);
+    renderMonthNav();
+    renderEvList();
   })
   .catch(function(){});
 })();
