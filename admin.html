@@ -72,8 +72,9 @@
     .save-row button{flex:1}
 
     /* Tab navigation */
-    .tab-nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid #F0E8D6;padding-bottom:0}
-    .tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:inherit;font-size:.88rem;color:#7A7668;cursor:pointer;transition:all .2s;font-weight:500}
+    .tab-nav-wrap{margin:0 -36px;padding:0 36px;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1.5px solid #F0E8D6;margin-bottom:20px}
+    .tab-nav{display:flex;gap:4px}
+    .tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;font-family:inherit;font-size:.88rem;color:#7A7668;cursor:pointer;transition:all .2s;font-weight:500;white-space:nowrap;flex-shrink:0}
     .tab-btn:hover{color:#18180F}
     .tab-btn.active{color:#2A7B6F;border-bottom-color:#2A7B6F;font-weight:600}
     .tab-content{display:none}
@@ -190,12 +191,14 @@
         <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
       </div>
 
-      <div class="tab-nav" id="tab-nav">
-        <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
-        <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
-        <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
-        <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
-        <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
+      <div class="tab-nav-wrap">
+        <div class="tab-nav" id="tab-nav">
+          <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
+          <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
+          <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
+          <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
+          <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
+        </div>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
