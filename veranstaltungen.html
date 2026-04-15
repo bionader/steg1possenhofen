@@ -463,7 +463,7 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
 // Load events
 (function(){
   var today=new Date().toISOString().split('T')[0];
-  fetch(SB_URL+'/rest/v1/events?date=gte.'+today+'&order=date.asc,time.asc&select=date,title,time,description',{
+  fetch(SB_URL+'/rest/v1/events?date=gte.'+today+'&order=date.asc,time.asc&select=date,title,time,time_to,description',{
     headers:{'apikey':SB_KEY}
   })
   .then(function(r){return r.json()})
@@ -473,8 +473,10 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
     data.forEach(function(ev){
       var d=new Date(ev.date+'T12:00:00');
       var dateStr=d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      var timeRange='';
+      if(ev.time){timeRange=ev.time.slice(0,5);if(ev.time_to)timeRange+=' – '+ev.time_to.slice(0,5);timeRange+=' Uhr';}
       html+='<div class="ev-card">';
-      html+='<div class="ev-date"><span class="ev-date-dot"></span>'+dateStr+(ev.time?' · '+ev.time.slice(0,5)+' Uhr':'')+'</div>';
+      html+='<div class="ev-date"><span class="ev-date-dot"></span>'+dateStr+(timeRange?' · '+timeRange:'')+'</div>';
       html+='<div class="ev-title">'+ev.title+'</div>';
       if(ev.description)html+='<div class="ev-desc">'+ev.description+'</div>';
       html+='</div>';
