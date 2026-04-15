@@ -29,7 +29,7 @@ serve(async (req) => {
       </div>
 
       <!-- SUP Foto -->
-      <img src="https://raw.githubusercontent.com/bionader/steg1possenhofen/main/images/sup-mail.jpg" alt="Steg 1 Possenhofen am Starnberger See" style="width:100%;display:block;max-height:260px;object-fit:cover" />
+      <img src="https://raw.githubusercontent.com/bionader/steg1possenhofen/main/images/sup-mail.jpg" alt="Steg 1 Possenhofen am Starnberger See" style="width:100%;display:block;max-height:260px;object-fit:cover;object-position:center 70%" />
 
       <!-- Body -->
       <div style="padding:28px">
