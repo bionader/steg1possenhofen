@@ -1071,27 +1071,39 @@ document.getElementById('btn-book').addEventListener('click', function() {
     if (!data.success) throw new Error('captcha');
     btn.textContent = 'Wird reserviert...';
 
-    // Step 2: POST booking to Supabase
-    return fetch(SB_URL + '/rest/v1/bookings', {
+    // Capture values before any async resets
+    var bookDate = selectedDate;
+    var bookSlot = selectedSlot;
+    var bookEnd = endTime;
+    var bookBoards = boards;
+    var bookPrice = price;
+    var bookName = name;
+    var bookEmail = email;
+
+    // Step 2: POST booking to Supabase (with select to get manage_token + booking_id)
+    return fetch(SB_URL + '/rest/v1/bookings?select=manage_token,booking_id', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' },
       body: JSON.stringify({
-        date: selectedDate,
-        start_time: selectedSlot,
-        end_time: endTime,
-        board_count: boards,
-        customer_name: name,
-        customer_email: email,
+        date: bookDate,
+        start_time: bookSlot,
+        end_time: bookEnd,
+        board_count: bookBoards,
+        customer_name: bookName,
+        customer_email: bookEmail,
         customer_phone: phone,
-        total_price: price,
+        total_price: bookPrice,
         booking_type: 'rental'
       })
     });
   })
   .then(function(r) {
     if (!r.ok) throw new Error('booking');
+    return r.json();
   })
-  .then(function() {
+  .then(function(rows) {
+    var bookData = (rows && rows[0]) || {};
+
     // Show confirmation
     document.getElementById('slot-section').classList.remove('active');
     var box = document.getElementById('confirm-box');
@@ -1102,33 +1114,21 @@ document.getElementById('btn-book').addEventListener('click', function() {
     hcaptcha.reset();
     loadMonthData();
 
-    // Fetch the created booking to get manage_token + booking_id
-    // Use customer_email + date + order by created_at desc to find the just-created booking
-    fetch(SB_URL + '/rest/v1/bookings?customer_email=eq.' + encodeURIComponent(email) + '&date=eq.' + selectedDate + '&status=eq.confirmed&select=manage_token,booking_id&order=created_at.desc&limit=1', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-    })
-    .then(function(r) {
-      if (!r.ok) return Promise.resolve([]);
-      return r.json();
-    })
-    .then(function(rows) {
-      var booking = rows[0] || {};
-      // Send confirmation email (fire and forget)
-      fetch(SB_URL + '/functions/v1/send-booking-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-        body: JSON.stringify({
-          email: email,
-          name: name,
-          date: selectedDate,
-          startTime: selectedSlot,
-          endTime: endTime,
-          boards: boards,
-          price: price.toFixed(0),
-          manageToken: booking.manage_token || '',
-          bookingId: booking.booking_id || ''
-        })
-      });
+    // Send confirmation email (fire and forget)
+    fetch(SB_URL + '/functions/v1/send-booking-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({
+        email: email,
+        name: name,
+        date: selectedDate,
+        startTime: selectedSlot,
+        endTime: endTime,
+        boards: boards,
+        price: price.toFixed(0),
+        manageToken: bookData.manage_token || '',
+        bookingId: bookData.booking_id || ''
+      })
     });
   })
   .catch(function(e) {
