@@ -28,6 +28,9 @@ serve(async (req) => {
         <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Biergarten &amp; SUP-Verleih am Starnberger See</p>
       </div>
 
+      <!-- SUP Foto -->
+      <img src="https://raw.githubusercontent.com/bionader/steg1possenhofen/main/images/sup-mail.jpg" alt="Steg 1 Possenhofen am Starnberger See" style="width:100%;display:block;max-height:260px;object-fit:cover" />
+
       <!-- Body -->
       <div style="padding:28px">
         <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Deine SUP-Reservierung</h2>
@@ -56,14 +59,20 @@ serve(async (req) => {
         </div>
 
         <!-- Maps Link -->
-        <a href="https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic" style="display:block;padding:14px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:12px;text-decoration:none;color:#18180F;margin-bottom:20px">
-          <strong style="font-size:14px">&#x1F4CD; Steg 1, Possenhofen am Starnberger See</strong>
-          <span style="display:block;font-size:12px;color:#163D36;margin-top:4px">In Google Maps &ouml;ffnen &rarr;</span>
+        <a href="https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:12px;text-decoration:none;color:#18180F;margin-bottom:20px">
+          <span style="flex-shrink:0;width:36px;height:36px;background:#163D36;border-radius:50%;display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FDFAF4"/></svg>
+          </span>
+          <span>
+            <strong style="font-size:14px;display:block">Steg 1, Possenhofen am Starnberger See</strong>
+            <span style="font-size:12px;color:#163D36">In Google Maps &ouml;ffnen &rarr;</span>
+          </span>
         </a>
 
         <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
         <p style="margin:0 0 20px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
 
+        <p style="color:#4A4840;font-size:15px;margin:0 0 8px">Wir freuen uns auf deinen Besuch am Steg 1.</p>
         <p style="color:#4A4840;font-size:15px;margin:0">Bis bald am See! &#x1F30A;</p>
       </div>
 
