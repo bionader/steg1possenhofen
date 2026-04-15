@@ -1103,10 +1103,14 @@ document.getElementById('btn-book').addEventListener('click', function() {
     loadMonthData();
 
     // Fetch the created booking to get manage_token + booking_id
-    fetch(SB_URL + '/rest/v1/bookings?customer_email=eq.' + encodeURIComponent(email) + '&date=eq.' + selectedDate + '&start_time=eq.' + selectedSlot + '&status=eq.confirmed&select=manage_token,booking_id&order=created_at.desc&limit=1', {
-      headers: { 'apikey': SB_KEY }
+    // Use customer_email + date + order by created_at desc to find the just-created booking
+    fetch(SB_URL + '/rest/v1/bookings?customer_email=eq.' + encodeURIComponent(email) + '&date=eq.' + selectedDate + '&status=eq.confirmed&select=manage_token,booking_id&order=created_at.desc&limit=1', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     })
-    .then(function(r) { return r.ok ? r.json() : Promise.resolve([]); })
+    .then(function(r) {
+      if (!r.ok) return Promise.resolve([]);
+      return r.json();
+    })
     .then(function(rows) {
       var booking = rows[0] || {};
       // Send confirmation email (fire and forget)
