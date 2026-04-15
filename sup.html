@@ -1074,7 +1074,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
     // Step 2: POST booking to Supabase
     return fetch(SB_URL + '/rest/v1/bookings', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' },
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
       body: JSON.stringify({
         date: selectedDate,
         start_time: selectedSlot,
@@ -1090,11 +1090,8 @@ document.getElementById('btn-book').addEventListener('click', function() {
   })
   .then(function(r) {
     if (!r.ok) throw new Error('booking');
-    return r.json();
   })
-  .then(function(rows) {
-    var booking = rows[0];
-
+  .then(function() {
     // Show confirmation
     document.getElementById('slot-section').classList.remove('active');
     var box = document.getElementById('confirm-box');
@@ -1105,21 +1102,29 @@ document.getElementById('btn-book').addEventListener('click', function() {
     hcaptcha.reset();
     loadMonthData();
 
-    // Send confirmation email (fire and forget)
-    fetch(SB_URL + '/functions/v1/send-booking-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-      body: JSON.stringify({
-        email: email,
-        name: name,
-        date: selectedDate,
-        startTime: selectedSlot,
-        endTime: endTime,
-        boards: boards,
-        price: price.toFixed(0),
-        manageToken: booking.manage_token,
-        bookingId: booking.booking_id
-      })
+    // Fetch the created booking to get manage_token + booking_id
+    fetch(SB_URL + '/rest/v1/bookings?customer_email=eq.' + encodeURIComponent(email) + '&date=eq.' + selectedDate + '&start_time=eq.' + selectedSlot + '&status=eq.confirmed&select=manage_token,booking_id&order=created_at.desc&limit=1', {
+      headers: { 'apikey': SB_KEY }
+    })
+    .then(function(r) { return r.ok ? r.json() : Promise.resolve([]); })
+    .then(function(rows) {
+      var booking = rows[0] || {};
+      // Send confirmation email (fire and forget)
+      fetch(SB_URL + '/functions/v1/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          date: selectedDate,
+          startTime: selectedSlot,
+          endTime: endTime,
+          boards: boards,
+          price: price.toFixed(0),
+          manageToken: booking.manage_token || '',
+          bookingId: booking.booking_id || ''
+        })
+      });
     });
   })
   .catch(function(e) {
