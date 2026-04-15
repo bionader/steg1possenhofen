@@ -459,7 +459,7 @@ function confirmCancel() {
   btn.disabled = true;
   btn.textContent = 'Wird storniert...';
 
-  fetch(SB_URL + '/rest/v1/bookings?id=eq.' + booking.id, {
+  fetch(SB_URL + '/rest/v1/bookings?manage_token=eq.' + token, {
     method: 'PATCH',
     headers: Object.assign({}, SB_HEADERS, { 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' }),
     body: JSON.stringify({ status: 'cancelled' })
@@ -767,7 +767,7 @@ function saveEdit() {
   btn.disabled = true;
   btn.textContent = 'Wird gespeichert...';
 
-  fetch(SB_URL + '/rest/v1/bookings?id=eq.' + booking.id, {
+  fetch(SB_URL + '/rest/v1/bookings?manage_token=eq.' + token, {
     method: 'PATCH',
     headers: Object.assign({}, SB_HEADERS, { 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' }),
     body: JSON.stringify({
