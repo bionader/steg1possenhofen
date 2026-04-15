@@ -9,7 +9,7 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#2A7B6F 0%,#F2EBD9 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:600px;width:100%;padding:36px;position:relative;overflow:clip}
+    .container{background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.12);max-width:780px;width:100%;padding:36px;position:relative;overflow:clip}
     .container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#D94F4F,#E8735A,#D94F4F)}
     .admin-badge{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:#D94F4F;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:block}
     h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#18180F;margin-bottom:4px}
@@ -106,6 +106,21 @@
     .sup-booking-cancel{background:#D94F4F;color:white;border:none;border-radius:100px;padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:inherit;width:auto}
     .sup-booking-cancel:hover{background:#C0392B}
     .sup-no-bookings{font-size:.82rem;color:#7A7668;font-style:italic}
+    .cancel-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
+    .cancel-modal-overlay.active{display:flex}
+    .cancel-modal{background:#FDFBF7;border-radius:16px;padding:28px;max-width:440px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+    .cancel-modal h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#1A2421;margin-bottom:4px}
+    .cancel-modal .cancel-info{font-size:.82rem;color:#7A7668;margin-bottom:16px}
+    .cancel-modal textarea{width:100%;min-height:80px;padding:10px 12px;border:1.5px solid #E4D9C4;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.85rem;resize:vertical;background:#fff;color:#1A2421}
+    .cancel-modal textarea:focus{outline:none;border-color:#2A7B6F}
+    .cancel-modal textarea::placeholder{color:#7A8580}
+    .cancel-modal label{display:block;font-size:.78rem;color:#7A7668;margin-bottom:6px}
+    .cancel-modal .cancel-actions{display:flex;gap:8px;margin-top:16px}
+    .cancel-modal .btn-confirm{flex:1;background:#D94F4F;color:#fff;border:none;border-radius:100px;padding:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:background .2s}
+    .cancel-modal .btn-confirm:hover{background:#C0392B}
+    .cancel-modal .btn-confirm:disabled{opacity:.6;cursor:default}
+    .cancel-modal .btn-abort{flex:1;background:#fff;color:#4A5652;border:1.5px solid #E4D9C4;border-radius:100px;padding:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:border-color .2s}
+    .cancel-modal .btn-abort:hover{border-color:#7A8580}
     .sup-day-toggle{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem}
 
     .menu-cat{margin-bottom:16px;background:#FDFBF7;border-radius:14px;border:1.5px solid #F0E8D6;overflow:hidden;transition:transform .2s}
@@ -621,7 +636,7 @@
         fetch(SB_URL + '/rest/v1/sup_closed_days?date=gte.' + firstDay + '&date=lte.' + lastDay, {
           headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
         }).then(function(r) { return r.json(); }),
-        fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,id,total_price', {
+        fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,customer_email,id,total_price,booking_id', {
           headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
         }).then(function(r) { return r.json(); })
       ]).then(function(results) {
@@ -745,15 +760,69 @@
       }
     }
 
+    var cancelTarget = null; // holds booking data for cancel modal
+
     function supCancelBooking(bookingId, ds) {
-      if (!confirm('Buchung wirklich stornieren?')) return;
-      fetch(SB_URL + '/rest/v1/bookings?id=eq.' + bookingId, {
+      // Find the booking in supBookings
+      var dayBookings = supBookings[ds] || [];
+      var b = null;
+      for (var i = 0; i < dayBookings.length; i++) {
+        if (dayBookings[i].id === bookingId) { b = dayBookings[i]; break; }
+      }
+      if (!b) return;
+      cancelTarget = { booking: b, ds: ds };
+      document.getElementById('cancel-modal-info').textContent =
+        b.customer_name + ' · ' + b.date.split('-').reverse().join('.') + ' · ' + b.start_time.substring(0,5) + '–' + b.end_time.substring(0,5) + ' · ' + b.board_count + ' Board' + (b.board_count > 1 ? 's' : '');
+      document.getElementById('cancel-reason').value = '';
+      document.getElementById('cancel-modal').classList.add('active');
+    }
+
+    function supCloseCancel() {
+      document.getElementById('cancel-modal').classList.remove('active');
+      cancelTarget = null;
+    }
+
+    function supConfirmCancel() {
+      if (!cancelTarget) return;
+      var b = cancelTarget.booking;
+      var ds = cancelTarget.ds;
+      var reason = document.getElementById('cancel-reason').value.trim();
+      var btn = document.getElementById('cancel-modal-confirm');
+      btn.disabled = true;
+      btn.textContent = 'Wird storniert...';
+
+      // PATCH status to cancelled
+      fetch(SB_URL + '/rest/v1/bookings?id=eq.' + b.id, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ status: 'cancelled' })
+      }).then(function(r) {
+        if (!r.ok) throw new Error('cancel');
+        // Send cancellation email
+        return fetch(SB_URL + '/functions/v1/send-cancel-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+          body: JSON.stringify({
+            email: b.customer_email,
+            name: b.customer_name,
+            date: b.date,
+            startTime: b.start_time.substring(0, 5),
+            endTime: b.end_time.substring(0, 5),
+            boards: b.board_count,
+            price: parseFloat(b.total_price).toFixed(0),
+            bookingId: b.booking_id || '',
+            reason: reason || 'Deine Buchung wurde leider storniert.'
+          })
+        });
       }).then(function() {
+        supCloseCancel();
         loadSupCalendar();
         setTimeout(function() { supSelectDay(ds); }, 500);
+      }).catch(function() {
+        alert('Fehler beim Stornieren.');
+      }).finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Stornieren & Mail senden';
       });
     }
 
@@ -1268,5 +1337,19 @@
     document.getElementById('tab-events').addEventListener('click',function(){loadEvents()});
 
   </script>
+
+<!-- Cancel Modal -->
+<div class="cancel-modal-overlay" id="cancel-modal">
+  <div class="cancel-modal">
+    <h3>Buchung stornieren</h3>
+    <p class="cancel-info" id="cancel-modal-info"></p>
+    <label for="cancel-reason">Grund der Stornierung (wird dem Gast per E-Mail mitgeteilt)</label>
+    <textarea id="cancel-reason" placeholder="z.B. Leider musste deine Buchung auf Grund von schlechtem Wetter abgesagt werden."></textarea>
+    <div class="cancel-actions">
+      <button class="btn-confirm" id="cancel-modal-confirm" onclick="supConfirmCancel()">Stornieren &amp; Mail senden</button>
+      <button class="btn-abort" onclick="supCloseCancel()">Abbrechen</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
