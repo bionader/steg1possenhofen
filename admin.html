@@ -310,8 +310,10 @@
 <!-- Event Edit Modal -->
 <div class="ev-modal-overlay" id="ev-edit-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="ev-modal">
-    <button onclick="closeEventModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;color:#7A7668;cursor:pointer;line-height:1;padding:4px">&times;</button>
-    <h3 style="margin-bottom:16px;white-space:nowrap">Event bearbeiten</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:1.1rem;white-space:nowrap">Event bearbeiten</h3>
+      <button onclick="closeEventModal()" style="background:none;border:none;font-size:1.4rem;color:#7A7668;cursor:pointer;line-height:1;padding:0 0 0 12px;flex-shrink:0">&times;</button>
+    </div>
     <div id="ev-edit-message"></div>
     <label>Datum</label>
     <input type="date" id="ev-edit-date">
@@ -341,6 +343,59 @@
     var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
     var token='';
     var failedAttempts=0;
+
+    // Role-UI nach Login oder Session-Restore anwenden
+    function applyRole(userRole) {
+      if (userRole === 'sup') {
+        document.getElementById('tab-schedule').style.display = 'none';
+        document.getElementById('tab-menu').style.display = 'none';
+        document.getElementById('tab-bestseller').style.display = 'none';
+        document.getElementById('content-schedule').classList.remove('active');
+        document.getElementById('tab-sup').classList.add('active');
+        document.getElementById('content-sup').classList.add('active');
+        loadSupCalendar();
+      } else {
+        loadSchedule();
+      }
+    }
+
+    // Gespeicherte Session beim Seitenstart wiederherstellen
+    (function restoreSession() {
+      var savedRefresh = localStorage.getItem('steg1_refresh');
+      var expires = parseInt(localStorage.getItem('steg1_expires') || '0', 10);
+      if (!savedRefresh || Date.now() > expires) {
+        // Keine Session oder abgelaufen – aufräumen
+        localStorage.removeItem('steg1_token');
+        localStorage.removeItem('steg1_refresh');
+        localStorage.removeItem('steg1_role');
+        localStorage.removeItem('steg1_expires');
+        return;
+      }
+      fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+        body: JSON.stringify({ refresh_token: savedRefresh })
+      })
+      .then(function(r) { if (!r.ok) throw new Error('refresh_failed'); return r.json(); })
+      .then(function(data) {
+        if (!data || !data.access_token) throw new Error('no_token');
+        token = data.access_token;
+        localStorage.setItem('steg1_token', token);
+        if (data.refresh_token) localStorage.setItem('steg1_refresh', data.refresh_token);
+        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role)
+                       || localStorage.getItem('steg1_role') || 'admin';
+        localStorage.setItem('steg1_role', userRole);
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        applyRole(userRole);
+      })
+      .catch(function() {
+        // Token abgelaufen oder ungültig – Felder leeren und Login zeigen
+        localStorage.removeItem('steg1_token');
+        localStorage.removeItem('steg1_refresh');
+        localStorage.removeItem('steg1_role');
+      });
+    })();
     // Sanitize user input to prevent XSS
     function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
     var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
@@ -625,26 +680,15 @@
       .then(function(data){
         if(!data||!data.access_token){btn.disabled=false;btn.textContent='Anmelden';return;}
         token=data.access_token;failedAttempts=0;
+        // Session in localStorage speichern für automatischen Re-Login (2 Wochen Gültigkeit)
+        localStorage.setItem('steg1_token', token);
+        if (data.refresh_token) localStorage.setItem('steg1_refresh', data.refresh_token);
+        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'admin';
+        localStorage.setItem('steg1_role', userRole);
+        localStorage.setItem('steg1_expires', Date.now() + 14 * 24 * 60 * 60 * 1000);
         document.getElementById('login').style.display='none';
         document.getElementById('dashboard').style.display='block';
-
-        // Role-based tab visibility
-        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'admin';
-
-        if (userRole === 'sup') {
-          // SUP user sees only SUP tab
-          document.getElementById('tab-schedule').style.display = 'none';
-          document.getElementById('tab-menu').style.display = 'none';
-          document.getElementById('tab-bestseller').style.display = 'none';
-          document.getElementById('content-schedule').classList.remove('active');
-          document.getElementById('tab-sup').classList.add('active');
-          document.getElementById('content-sup').classList.add('active');
-          loadSupCalendar();
-        } else {
-          // Admin sees all tabs, starts on schedule
-          loadSchedule();
-        }
-
+        applyRole(userRole);
         btn.disabled=false;btn.textContent='Anmelden';
       })
       .catch(function(){msg('Verbindungsfehler','error','login-message');btn.disabled=false;btn.textContent='Anmelden'});
@@ -654,7 +698,13 @@
     document.getElementById('btn-logout').addEventListener('click',function(){
       fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}})
       .finally(function(){
-        token='';document.getElementById('login').style.display='block';
+        token='';
+        // Gespeicherte Session entfernen
+        localStorage.removeItem('steg1_token');
+        localStorage.removeItem('steg1_refresh');
+        localStorage.removeItem('steg1_role');
+        localStorage.removeItem('steg1_expires');
+        document.getElementById('login').style.display='block';
         document.getElementById('dashboard').style.display='none';
         document.getElementById('password').value='';
         // Reset tabs to default state on logout
