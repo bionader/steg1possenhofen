@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,8 +19,32 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const { email, name, date, startTime, endTime, boards, price, manageToken, bookingId } = await req.json();
+  const { email, name, date, startTime, endTime, boards, price } = await req.json();
   const dateFormatted = date.split("-").reverse().join(".");
+
+  // Look up manage_token + booking_id via service role (bypasses RLS)
+  let manageToken = "";
+  let bookingId = "";
+  try {
+    const lookupRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/bookings?customer_email=eq.${encodeURIComponent(email)}&date=eq.${date}&select=manage_token,booking_id&order=created_at.desc&limit=1`,
+      {
+        headers: {
+          "apikey": SUPABASE_SERVICE_ROLE_KEY!,
+          "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+    if (lookupRes.ok) {
+      const rows = await lookupRes.json();
+      if (rows && rows.length > 0) {
+        manageToken = rows[0].manage_token || "";
+        bookingId = rows[0].booking_id || "";
+      }
+    }
+  } catch (_) {
+    // Silent fail — email still sends without manage links
+  }
 
   const html = `
     <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -39,10 +65,10 @@ serve(async (req) => {
         <!-- Details Card -->
         <div style="background:#F4EDD8;border-radius:12px;padding:20px;margin-bottom:20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#18180F">
-            <tr>
+            ${bookingId ? `<tr>
               <td style="padding:6px 0;color:#7A7668;width:100px">Buchung</td>
               <td style="padding:6px 0;font-weight:500">#${bookingId}</td>
-            </tr>
+            </tr>` : ""}
             <tr>
               <td style="padding:6px 0;color:#7A7668;width:100px">Datum</td>
               <td style="padding:6px 0;font-weight:500">${dateFormatted}</td>
@@ -73,11 +99,11 @@ serve(async (req) => {
           </span>
         </a>
 
-        <!-- Booking Actions -->
+        ${manageToken ? `<!-- Booking Actions -->
         <div style="display:flex;gap:10px;margin-bottom:20px">
           <a href="https://steg1possenhofen.de/buchung.html?token=${manageToken}" style="flex:1;display:block;text-align:center;padding:12px 16px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Buchung &auml;ndern</a>
           <a href="https://steg1possenhofen.de/buchung.html?token=${manageToken}&action=cancel" style="flex:1;display:block;text-align:center;padding:12px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:100px;text-decoration:none;color:#7A7668;font-size:13px;font-weight:500">Buchung stornieren</a>
-        </div>
+        </div>` : ""}
 
         <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
         <p style="margin:0 0 20px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
