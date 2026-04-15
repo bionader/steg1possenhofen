@@ -414,7 +414,7 @@ function loadBooking() {
 
 // ── Render booking details ──
 function renderBookingDetails() {
-  document.getElementById('d-booking-id').textContent = '#' + (booking.booking_id || '—');
+  document.getElementById('d-booking-id').textContent = booking.booking_id || '—';
   document.getElementById('d-date').textContent = formatWeekday(booking.date) + ', ' + formatDate(booking.date);
   document.getElementById('d-time').textContent = booking.start_time.substring(0, 5) + ' – ' + booking.end_time.substring(0, 5) + ' Uhr';
   document.getElementById('d-boards').textContent = booking.board_count + (booking.board_count === 1 ? ' Board' : ' Boards');
@@ -790,8 +790,22 @@ function saveEdit() {
     var successEl = document.getElementById('edit-success');
     successEl.classList.add('active');
     successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    // Hide success after 5 seconds
     setTimeout(function() { successEl.classList.remove('active'); }, 5000);
+
+    // Send updated confirmation email (fire and forget)
+    fetch(SB_URL + '/functions/v1/send-booking-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({
+        email: booking.customer_email,
+        name: booking.customer_name,
+        date: booking.date,
+        startTime: booking.start_time.slice(0, 5),
+        endTime: booking.end_time.slice(0, 5),
+        boards: booking.board_count,
+        price: parseFloat(booking.total_price).toFixed(0)
+      })
+    });
   })
   .catch(function() {
     alert('Fehler beim Speichern. Bitte versuche es erneut.');

@@ -67,7 +67,7 @@ serve(async (req) => {
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#18180F">
             ${bookingId ? `<tr>
               <td style="padding:6px 0;color:#7A7668;width:100px">Buchung</td>
-              <td style="padding:6px 0;font-weight:500">#${bookingId}</td>
+              <td style="padding:6px 0;font-weight:500">${bookingId}</td>
             </tr>` : ""}
             <tr>
               <td style="padding:6px 0;color:#7A7668;width:100px">Datum</td>
@@ -99,10 +99,9 @@ serve(async (req) => {
           </span>
         </a>
 
-        ${manageToken ? `<!-- Booking Actions -->
-        <div style="display:flex;gap:10px;margin-bottom:20px">
-          <a href="https://steg1possenhofen.de/buchung.html?token=${manageToken}" style="flex:1;display:block;text-align:center;padding:12px 16px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Buchung &auml;ndern</a>
-          <a href="https://steg1possenhofen.de/buchung.html?token=${manageToken}&action=cancel" style="flex:1;display:block;text-align:center;padding:12px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:100px;text-decoration:none;color:#7A7668;font-size:13px;font-weight:500">Buchung stornieren</a>
+        ${manageToken ? `<!-- Booking Action -->
+        <div style="margin-bottom:20px;text-align:center">
+          <a href="https://steg1possenhofen.de/buchung.html?token=${manageToken}" style="display:inline-block;padding:12px 28px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Buchung &auml;ndern oder stornieren</a>
         </div>` : ""}
 
         <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
