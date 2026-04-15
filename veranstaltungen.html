@@ -466,7 +466,7 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
 // Load events with month navigation
 (function(){
   var allEvents=[];
-  var activeMonth='';
+  var activeFilter='next'; // 'next' oder 'YYYY-MM'
 
   function renderMonthNav(){
     var months=[];
@@ -474,16 +474,16 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
       var m=ev.date.slice(0,7);
       if(months.indexOf(m)===-1)months.push(m);
     });
-    var html='';
+    var html='<button class="month-pill'+(activeFilter==='next'?' active':'')+'" data-filter="next">Nächste</button>';
     months.forEach(function(m){
       var label=new Date(m+'-15').toLocaleDateString('de-DE',{month:'long',year:'numeric'});
       label=label.charAt(0).toUpperCase()+label.slice(1);
-      html+='<button class="month-pill'+(m===activeMonth?' active':'')+'" data-month="'+m+'">'+label+'</button>';
+      html+='<button class="month-pill'+(activeFilter===m?' active':'')+'" data-filter="'+m+'">'+label+'</button>';
     });
     document.getElementById('month-nav').innerHTML=html;
     document.querySelectorAll('.month-pill').forEach(function(btn){
       btn.addEventListener('click',function(){
-        activeMonth=this.dataset.month;
+        activeFilter=this.dataset.filter;
         renderMonthNav();
         renderEvList();
       });
@@ -491,7 +491,12 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
   }
 
   function renderEvList(){
-    var filtered=allEvents.filter(function(ev){return ev.date.slice(0,7)===activeMonth;});
+    var filtered;
+    if(activeFilter==='next'){
+      filtered=allEvents.slice(0,4);
+    } else {
+      filtered=allEvents.filter(function(ev){return ev.date.slice(0,7)===activeFilter;});
+    }
     if(!filtered.length){
       document.getElementById('ev-list').innerHTML='<div class="ev-empty">Keine Veranstaltungen in diesem Monat.</div>';
       return;
@@ -519,7 +524,6 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
   .then(function(data){
     if(!Array.isArray(data)||!data.length)return;
     allEvents=data;
-    activeMonth=allEvents[0].date.slice(0,7);
     renderMonthNav();
     renderEvList();
   })
