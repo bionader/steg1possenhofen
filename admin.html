@@ -307,6 +307,34 @@
     </div>
   </div>
 
+<!-- Event Edit Modal -->
+<div class="ev-modal-overlay" id="ev-edit-modal">
+  <div class="ev-modal">
+    <h3>Event bearbeiten</h3>
+    <div id="ev-edit-message"></div>
+    <label>Datum</label>
+    <input type="date" id="ev-edit-date">
+    <div class="ev-modal-row">
+      <div>
+        <label>Von</label>
+        <input type="time" id="ev-edit-time">
+      </div>
+      <div>
+        <label>Bis (optional)</label>
+        <input type="time" id="ev-edit-time-to">
+      </div>
+    </div>
+    <label>Titel</label>
+    <input type="text" id="ev-edit-title" placeholder="Titel">
+    <label>Beschreibung (optional)</label>
+    <textarea id="ev-edit-desc" placeholder="Beschreibung"></textarea>
+    <div class="ev-modal-actions">
+      <button class="btn-save" id="btn-ev-save">Speichern</button>
+      <button class="btn-delete" id="btn-ev-delete">Löschen</button>
+    </div>
+  </div>
+</div>
+
   <script>
     var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
     var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
@@ -1432,34 +1460,6 @@
     });
 
   </script>
-
-<!-- Event Edit Modal -->
-<div class="ev-modal-overlay" id="ev-edit-modal">
-  <div class="ev-modal">
-    <h3>Event bearbeiten</h3>
-    <div id="ev-edit-message"></div>
-    <label>Datum</label>
-    <input type="date" id="ev-edit-date">
-    <div class="ev-modal-row">
-      <div>
-        <label>Von</label>
-        <input type="time" id="ev-edit-time">
-      </div>
-      <div>
-        <label>Bis (optional)</label>
-        <input type="time" id="ev-edit-time-to">
-      </div>
-    </div>
-    <label>Titel</label>
-    <input type="text" id="ev-edit-title" placeholder="Titel">
-    <label>Beschreibung (optional)</label>
-    <textarea id="ev-edit-desc" placeholder="Beschreibung"></textarea>
-    <div class="ev-modal-actions">
-      <button class="btn-save" id="btn-ev-save">Speichern</button>
-      <button class="btn-delete" id="btn-ev-delete">Löschen</button>
-    </div>
-  </div>
-</div>
 
 <!-- Cancel Modal -->
 <div class="cancel-modal-overlay" id="cancel-modal">
