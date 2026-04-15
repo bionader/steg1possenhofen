@@ -475,6 +475,23 @@ function confirmCancel() {
     var successEl = document.getElementById('cancel-success');
     successEl.classList.add('active');
     successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Send cancellation confirmation email (fire and forget)
+    fetch(SB_URL + '/functions/v1/send-cancel-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({
+        email: booking.customer_email,
+        name: booking.customer_name,
+        date: booking.date,
+        startTime: booking.start_time.slice(0, 5),
+        endTime: booking.end_time.slice(0, 5),
+        boards: booking.board_count,
+        price: parseFloat(booking.total_price).toFixed(0),
+        bookingId: booking.booking_id || '',
+        reason: 'Du hast deine Buchung selbst storniert.'
+      })
+    });
   })
   .catch(function() {
     alert('Fehler beim Stornieren. Bitte versuche es erneut.');
