@@ -1290,17 +1290,14 @@
       allEvents.forEach(function(ev){
         var isPast=ev.date<today;
         var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:16px;margin-bottom:12px;'+(isPast?'opacity:.5':'')+'">';
-        html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">';
-        html+='<div style="flex:1">';
         var timeRange='';
         if(ev.time){timeRange=ev.time.slice(0,5);if(ev.time_to)timeRange+=' – '+ev.time_to.slice(0,5);timeRange+=' Uhr';}
-        html+='<div style="font-size:.75rem;color:#7A7668;margin-bottom:4px">'+esc(dateStr)+(timeRange?' · '+esc(timeRange):'')+'</div>';
-        html+='<div style="font-weight:600;font-size:1rem;color:#18180F;margin-bottom:4px">'+esc(ev.title)+'</div>';
-        if(ev.description)html+='<div style="font-size:.85rem;color:#4A4840;line-height:1.5">'+esc(ev.description)+'</div>';
+        html+='<div style="background:#FDFBF7;border:1.5px solid '+(isPast?'#E4D9C4':'#2A7B6F')+';border-radius:12px;padding:14px 16px;margin-bottom:10px;position:relative;'+(isPast?'opacity:.5':'')+'">';
+        html+='<button onclick="deleteEvent(\''+ev.id+'\')" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#D94F4F;cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 4px" title="Löschen">&times;</button>';
+        html+='<div style="font-size:.72rem;color:#7A7668;margin-bottom:3px;padding-right:24px">'+esc(dateStr)+(timeRange?' · <strong style="color:#2A7B6F">'+esc(timeRange)+'</strong>':'')+'</div>';
+        html+='<div style="font-weight:600;font-size:.95rem;color:#18180F'+(ev.description?';margin-bottom:3px':'')+'">'+ esc(ev.title)+'</div>';
+        if(ev.description)html+='<div style="font-size:.82rem;color:#4A4840;line-height:1.5">'+esc(ev.description)+'</div>';
         html+='</div>';
-        html+='<button onclick="deleteEvent(\''+ev.id+'\')" style="background:none;border:none;color:#D94F4F;cursor:pointer;font-size:1.1rem;padding:4px 8px" title="Löschen">&times;</button>';
-        html+='</div></div>';
       });
       el.innerHTML=html;
     }
