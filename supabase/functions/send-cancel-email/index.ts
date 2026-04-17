@@ -70,7 +70,8 @@ serve(async (req) => {
         </div>
 
         <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
-        <p style="margin:0 0 20px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
+        <p style="margin:0 0 6px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
+        <p style="margin:0 0 20px;font-size:14px">Anruf/WhatsApp: <a href="tel:+4917881189224" style="color:#163D36;font-weight:500;text-decoration:none">+4917881189224</a></p>
 
         <p style="color:#4A4840;font-size:15px;margin:0">Dein Steg <span style="font-family:'DM Sans',Arial,sans-serif">1</span> Team</p>
       </div>
