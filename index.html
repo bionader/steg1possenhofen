@@ -110,11 +110,11 @@ nav.scrolled{
 /* ── HERO ── */
 .hero{
   display:grid;grid-template-columns:1fr 1fr;
-  min-height:calc(100vh - 80px);padding-top:0;
+  min-height:620px;padding-top:0;
 }
 .hero-left{
   display:flex;flex-direction:column;justify-content:center;
-  padding:6rem 4.5rem 4rem;background:var(--sand);
+  padding:4.5rem 4.5rem 3.5rem;background:var(--sand);
   position:relative;overflow:hidden;
 }
 .hero-left::before{
@@ -123,15 +123,16 @@ nav.scrolled{
              radial-gradient(ellipse at 10% 90%, rgba(212,136,58,.03) 0%, transparent 50%);
   pointer-events:none;
 }
-.eyebrow{
-  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--g);display:flex;align-items:center;gap:.7rem;
-  margin-bottom:1.6rem;position:relative;z-index:1;
+.coords-link{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.98rem;font-weight:500;color:var(--g);
+  text-decoration:none;letter-spacing:.02em;
+  margin-bottom:1.6rem;align-self:flex-start;
+  position:relative;z-index:1;
+  transition:color .25s ease, transform .25s ease;
 }
-.eyebrow::before{
-  content:'';width:28px;height:1.5px;
-  background:linear-gradient(to right, var(--g), rgba(42,123,111,.15));
-}
+.coords-link:hover{color:var(--g2);transform:translateY(-1px)}
+.coords-pin{width:18px;height:18px;flex-shrink:0}
 h1{
   font-family:'Cormorant Garamond',serif;
   font-size:clamp(3.2rem,5.2vw,5rem);
@@ -231,8 +232,8 @@ h1 em{font-style:italic;color:var(--g);display:block;margin-top:.08em}
 /* ── GENERIC SECTION ── */
 .sec{padding:4.5rem 3rem}
 .stag{
-  font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--g);display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;
+  font-size:.82rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--g);display:flex;align-items:center;gap:.45rem;margin-bottom:1rem;
 }
 .stag::before{content:'';width:16px;height:1px;background:var(--g)}
 h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;margin-bottom:.75rem}
@@ -277,7 +278,7 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .sc-l h3{font-size:.9rem;font-weight:500}
 .sc-l p{font-size:.78rem;color:var(--text3);margin-top:.12rem}
 .sc-price{font-size:.95rem;font-weight:600;color:var(--accent);text-align:right;white-space:nowrap}
-.sc-price span{display:block;font-size:.7rem;font-weight:400;color:var(--text3)}
+.sc-price span{display:inline;margin-left:.25em;font-size:.7rem;font-weight:400;color:var(--text3)}
 .book-btn{
   display:block;width:100%;text-align:center;
   background:var(--g);color:var(--w);
@@ -302,6 +303,11 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 .mi-n{font-size:.85rem}
 .mi-d{font-size:.72rem;color:var(--text3)}
 .mi-p{font-size:.85rem;font-weight:500;color:var(--text2);white-space:nowrap;margin-left:.5rem}
+.mcat-items{display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem}
+.skel-bar{display:inline-block;height:.85rem;background:linear-gradient(90deg,rgba(42,123,111,.06) 0%,rgba(42,123,111,.14) 50%,rgba(42,123,111,.06) 100%);background-size:200% 100%;animation:skel-pulse 1.4s ease-in-out infinite;border-radius:4px}
+.skel-title{display:block;width:35%;height:1.1rem;margin-bottom:.9rem;padding-bottom:.55rem}
+.skel-mi{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:none}
+@keyframes skel-pulse{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
 /* ── FOTO BAND ── */
 /* Slider */
@@ -397,9 +403,16 @@ footer{
 }
 .flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
 .fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
-.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem}
+.fcol summary,.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem;list-style:none}
+.fcol summary{cursor:default;display:flex;justify-content:space-between;align-items:center}
+.fcol summary::-webkit-details-marker{display:none}
+.fcol summary::after{content:'';display:none}
 .fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
 .fcol a:hover{color:#2A7B6F}
+.fsocials{display:flex;gap:.6rem;margin-top:1.1rem}
+.fsocials a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(253,250,244,.7);transition:all .25s ease;text-decoration:none}
+.fsocials a:hover{background:var(--g);color:#fff;transform:translateY(-2px)}
+.fsocials svg{width:16px;height:16px}
 .fbot{
   background:var(--dark);padding:.75rem 3rem 1.25rem;
   display:flex;justify-content:space-between;
@@ -473,28 +486,45 @@ footer{
     font-weight:500;margin-top:.5rem;
     box-shadow:0 2px 12px rgba(42,123,111,.18);
   }
-  .hero{grid-template-columns:1fr}
-  .hero-left{padding:5rem 2rem 3rem}
+  .hero{grid-template-columns:1fr;min-height:0}
+  .hero-left{padding:5.5rem 2rem 1.5rem}
+  .hero-left .hero-sub{margin-bottom:1.4rem}
+  .hero-left .status{margin-bottom:0}
   .hero-right{height:55vw}
   h1{font-size:clamp(2.6rem,8vw,3.6rem)}
   .status{padding:.85rem 1.2rem;gap:.7rem}
   .status-text strong{font-size:.82rem;white-space:nowrap}
   .actions{justify-content:center}
   .wbar{grid-template-columns:repeat(2,1fr);padding:.85rem 1.5rem}
-  .sec{padding:3rem 1.5rem}
+  .sec{padding:2.2rem 1.5rem 3rem}
+  .slider-wrap{height:220px!important}
+  .slider-track img{object-position:center bottom}
   .atm{grid-template-columns:1fr;height:auto}
   .atm-img{height:220px}
   .atm-slider img{object-position:center center}
-  .atm-text{padding:2rem 1.5rem}
+  .atm-text{padding:1.2rem 1.5rem 2rem}
   .sup-inner{grid-template-columns:1fr;gap:2rem}
-  .menu-grid,.voucher-grid{grid-template-columns:1fr}
+  .menu-grid,.voucher-grid{grid-template-columns:1fr!important}
+  .mcat-items{grid-template-columns:1fr}
+  .mcat-t{font-size:1.35rem;margin-bottom:.6rem;padding-bottom:.4rem}
+  .mi{border-bottom:none;padding:.3rem 0}
   .slider-wrap{height:280px}
   .slider-btn{width:36px;height:36px;font-size:1rem}
   .info-grid{grid-template-columns:1fr}
   .info-card iframe{height:220px}
   .steg-banner{height:180px}
   .steg-banner img{object-position:center 50%}
-  footer{grid-template-columns:1fr;gap:1.5rem;padding:2.5rem 1.5rem 1rem}
+  footer{grid-template-columns:1fr;gap:0;padding:2rem 1.5rem .5rem;text-align:center}
+  footer .flogo{font-size:1.2rem}
+  footer .fdesc{font-size:.78rem;line-height:1.55;max-width:none;margin:0 auto}
+  .fsocials{justify-content:center;margin:1.1rem auto 1.6rem}
+  .fcol{border-top:.5px solid rgba(255,255,255,.08);text-align:left}
+  .fcol:last-of-type{border-bottom:.5px solid rgba(255,255,255,.08);margin-bottom:1rem}
+  .fcol summary{cursor:pointer;padding:.9rem 0;margin:0;font-size:.76rem;color:rgba(253,250,244,.72);letter-spacing:.08em}
+  .fcol summary::after{content:'+';display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;color:rgba(253,250,244,.45);width:18px;height:18px;font-weight:300;transition:transform .2s}
+  .fcol[open] summary::after{content:'−'}
+  .fcol-body{padding:0 0 .9rem}
+  .fcol-body a,.fcol-body span{font-size:.82rem;margin-bottom:.35rem}
   .fbot{padding:.75rem 1.5rem 1rem}
 }
 </style>
@@ -623,7 +653,10 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <!-- HERO -->
 <div class="hero">
   <div class="hero-left">
-    <p class="eyebrow">47.9705° N · 11.3074° E</p>
+    <a class="coords-link" href="https://www.google.com/maps?ll=47.966177,11.322136&amp;z=17&amp;t=m&amp;hl=de&amp;gl=DE&amp;mapclient=embed&amp;cid=9579799475491365660" target="_blank" rel="noopener" aria-label="Steg 1 auf Google Maps ansehen">
+      <svg class="coords-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>47.9705° N · 11.3074° E</span>
+    </a>
     <h1>Wo der See<br><em>beginnt.</em></h1>
     <p class="hero-sub">Biergarten, SUP-Verleih und Touren — direkt am Ufer. Frische Küche und das beste Wasser Bayerns.</p>
 
@@ -658,7 +691,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   <p class="stag">Am Wasser</p>
   <h2>SUP Verleih</h2>
   <p class="ssub">Equipment und Sicherheit inklusive — direkt am Steg.</p>
-  <div class="sup-inner" style="margin-top:2.5rem">
+  <div class="sup-inner" style="margin-top:1.2rem">
     <div class="sup-img" style="height:auto">
       <div class="slider-wrap" style="height:380px;border-radius:16px">
         <div class="slider-track" id="slider-track">
@@ -673,12 +706,12 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     </div>
     <div class="sup-cards">
       <div class="sc">
-        <div class="sc-l"><h3>SUP-Verleih</h3><p>Board, Paddel, Schwimmweste · Einweisung inkl.</p></div>
+        <div class="sc-l"><h3>SUP-Verleih</h3><p>Board, Paddel · Einweisung inkl.</p></div>
         <div class="sc-price">15 €<span>/ Stunde</span></div>
       </div>
       <div class="sc">
-        <div class="sc-l"><h3>SUP Touren</h3><p>Geführte Touren auf dem Starnberger See · auf Anfrage</p></div>
-        <div class="sc-price" style="color:var(--text3);font-size:.82rem;font-weight:500">Auf<span>Anfrage</span></div>
+        <div class="sc-l"><h3>SUP Touren</h3><p>Geführte Touren auf dem Starnberger See</p></div>
+        <div class="sc-price" style="color:var(--text3);font-size:.82rem;font-weight:500">Auf Anfrage</div>
       </div>
       <a href="#" class="book-btn">Jetzt buchen →</a>
     </div>
@@ -749,7 +782,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <!-- INSTAGRAM -->
 <section class="sec reveal" style="background:var(--sand);text-align:center">
   <p class="stag" style="justify-content:center">Folge uns</p>
-  <h2 style="font-family:'DM Sans',sans-serif">@steg1possenhofen</h2>
+  <h2 style="font-family:'DM Sans',sans-serif;font-size:clamp(1.4rem,4.5vw,2.2rem)">@steg1possenhofen</h2>
   <p class="ssub" style="margin:0 auto .5rem">Impressionen vom See, frische Küche und SUP-Momente.</p>
   <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:2rem;font-size:.85rem;color:var(--g);text-decoration:none;font-weight:500">Auf Instagram folgen →</a>
   <behold-widget feed-id="i0eqzCNrgeaJuwVcq9qF"></behold-widget>
@@ -762,28 +795,40 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 
 <!-- FOOTER -->
 <footer id="kontakt">
-  <div>
+  <div class="fintro">
     <div class="flogo">Steg <span style="font-family:'DM Sans',sans-serif">1</span> Possenhofen</div>
     <p class="fdesc">Biergarten & SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
+    <div class="fsocials">
+      <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://www.facebook.com/Steg1Possenhofen/" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+      </a>
+    </div>
   </div>
-  <div class="fcol">
-    <h4>Navigation</h4>
-    <a href="sup.html">SUP Verleih</a>
-    <a href="speisekarte.html">Speisekarte</a>
-    <a href="galerie.html">Unser Steg 1</a>
-    <a href="veranstaltungen.html">Veranstaltungen</a>
-    <a href="kontakt.html">Kontakt</a>
-  </div>
-  <div class="fcol">
-    <h4>Kontakt</h4>
-    <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Steg 1 Possenhofen</span>
-    <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Cathrin Dierks</span>
-    <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Kurt-Stieler-Str. 58</span>
-    <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.4rem">82343 Possenhofen</span>
-    <a href="mailto:info@steg1possenhofen.de">info@steg1possenhofen.de</a>
-    <a href="impressum.html">Impressum</a>
-    <a href="datenschutz.html">Datenschutz</a>
-  </div>
+  <details class="fcol" open>
+    <summary>Navigation</summary>
+    <div class="fcol-body">
+      <a href="sup.html">SUP Verleih</a>
+      <a href="speisekarte.html">Speisekarte</a>
+      <a href="galerie.html">Unser Steg 1</a>
+      <a href="veranstaltungen.html">Veranstaltungen</a>
+      <a href="kontakt.html">Kontakt</a>
+    </div>
+  </details>
+  <details class="fcol" open>
+    <summary>Kontakt</summary>
+    <div class="fcol-body">
+      <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Steg 1 Possenhofen</span>
+      <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Cathrin Dierks</span>
+      <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Kurt-Stieler-Str. 58</span>
+      <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.4rem">82343 Possenhofen</span>
+      <a href="mailto:info@steg1possenhofen.de">info@steg1possenhofen.de</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </div>
+  </details>
 </footer>
 <div class="fbot">
   <span>© 2026 Steg 1 Possenhofen</span>
@@ -1071,19 +1116,32 @@ function atmMove(dir){
   document.getElementById('atm-slider').style.transform='translateX(-'+atmIdx*100+'%)';
 }
 setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElementById('atm-slider').style.transform='translateX(-'+atmIdx*100+'%)'},6000);
+
+// Footer-Accordion: Mobile startet collapsed, Desktop immer offen
+(function(){
+  var mq=window.matchMedia('(max-width:900px)');
+  var dets=document.querySelectorAll('footer details.fcol');
+  function apply(){
+    dets.forEach(function(d){
+      if(mq.matches) d.removeAttribute('open');
+      else d.setAttribute('open','');
+    });
+  }
+  apply();
+  if(mq.addEventListener) mq.addEventListener('change',apply);
+  else if(mq.addListener) mq.addListener(apply);
+})();
 </script>
 <script>
 (function(){
   var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
-  fetch(SB_URL+'/rest/v1/menu_items?is_bestseller=eq.true&order=sort_order&select=category,section,name,description,price',{
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
-  }).then(function(r){
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    return r.json();
-  }).then(function(data){
-    var grid=document.getElementById('bestseller-grid');
-    if(!grid||!data||!data.length)return;
+  var CACHE_KEY='bestseller_cache_v1';
+  var grid=document.getElementById('bestseller-grid');
+  if(!grid)return;
+
+  function renderData(data){
+    if(!data||!data.length)return;
     var sections={'speisen':[],'getraenke':[]};
     data.forEach(function(item){
       if(sections[item.section])sections[item.section].push(item);
@@ -1092,7 +1150,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     var html='';
     ['speisen','getraenke'].forEach(function(sec){
       if(!sections[sec].length)return;
-      html+='<div class="mcat"><div class="mcat-t">'+labels[sec]+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">';
+      html+='<div class="mcat"><div class="mcat-t">'+labels[sec]+'</div><div class="mcat-items">';
       sections[sec].forEach(function(item){
         html+='<div class="mi"><div>';
         html+='<div class="mi-n">'+item.name+'</div>';
@@ -1102,6 +1160,37 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
       html+='</div></div>';
     });
     grid.innerHTML=html;
+  }
+
+  function renderSkeleton(){
+    var row='<div class="mi skel-mi"><div class="skel-bar" style="width:55%"></div><div class="skel-bar" style="width:16%"></div></div>';
+    var cat='<div class="mcat"><div class="skel-bar skel-title"></div><div class="mcat-items">'+row+row+row+row+'</div></div>';
+    grid.innerHTML=cat+cat;
+  }
+
+  // Cache-first rendering: Bei wiederkehrenden Besuchern sofort aus localStorage
+  var cached=null;
+  try{
+    var raw=localStorage.getItem(CACHE_KEY);
+    if(raw)cached=JSON.parse(raw);
+  }catch(e){}
+
+  if(cached && cached.length){
+    renderData(cached);
+  } else {
+    renderSkeleton();
+  }
+
+  // Stale-while-revalidate: immer im Hintergrund aktualisieren
+  fetch(SB_URL+'/rest/v1/menu_items?is_bestseller=eq.true&order=sort_order&select=category,section,name,description,price',{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).then(function(data){
+    if(!data||!data.length)return;
+    renderData(data);
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify(data));}catch(e){}
   }).catch(function(e){console.error('Bestseller load error',e)});
 })();
 </script>
