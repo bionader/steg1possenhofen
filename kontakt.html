@@ -228,7 +228,7 @@ nav.scrolled{
   box-shadow:none;
 }
 
-/* Status message */
+/* Status message (inline errors) */
 #contact-msg{
   display:none;
   margin-top:1rem;
@@ -238,6 +238,58 @@ nav.scrolled{
   line-height:1.5;
   background:rgba(42,123,111,.06);
   border:1px solid transparent;
+}
+
+/* Success view — ersetzt das Formular nach erfolgreichem Absenden */
+#contact-success{
+  display:none;
+  background:var(--w);
+  border:1px solid rgba(42,123,111,.1);
+  border-radius:16px;
+  padding:3rem 2rem 2.5rem;
+  text-align:center;
+  box-shadow:0 6px 28px rgba(42,123,111,.08);
+  animation:successIn .5s cubic-bezier(.16,1,.3,1) both;
+}
+#contact-success.visible{display:block}
+#contact-success .success-icon{
+  width:64px;height:64px;margin:0 auto 1.25rem;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(42,123,111,.1);border-radius:50%;
+}
+#contact-success .success-icon svg{
+  width:30px;height:30px;color:var(--g);
+  stroke-dasharray:24;stroke-dashoffset:24;
+  animation:checkDraw .55s .2s cubic-bezier(.65,0,.35,1) forwards;
+}
+#contact-success h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.85rem;font-weight:600;color:var(--text);
+  letter-spacing:-.01em;margin-bottom:.65rem;
+}
+#contact-success p{
+  font-size:.95rem;color:var(--text2);
+  line-height:1.65;max-width:380px;margin:0 auto 1.5rem;
+}
+#contact-success .success-link{
+  display:inline-block;
+  font-size:.85rem;color:var(--g);
+  text-decoration:none;font-weight:500;
+  padding:.5rem 1rem;border-radius:100px;
+  border:1px solid rgba(42,123,111,.2);
+  transition:all .2s ease;
+  cursor:pointer;
+}
+#contact-success .success-link:hover{
+  background:var(--g);color:var(--w);
+  border-color:var(--g);
+}
+@keyframes successIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+@keyframes checkDraw{
+  to{stroke-dashoffset:0}
 }
 
 /* ── SECTION DEFAULTS ── */
@@ -434,48 +486,65 @@ footer{
 <!-- KONTAKTFORMULAR -->
 <section class="contact-section reveal">
   <div class="contact-wrap">
-    <div class="stag">Schreib uns</div>
-    <h2>Deine Nachricht</h2>
-    <p class="ssub" style="margin-bottom:2rem">Wir antworten in der Regel innerhalb von 24 Stunden.</p>
 
-    <!-- Name -->
-    <div class="form-group">
-      <label for="c-name">Name<span class="req">*</span></label>
-      <input type="text" id="c-name" placeholder="Dein Name" autocomplete="name">
+    <!-- Formular-Inhalt: wird nach erfolgreichem Absenden ausgeblendet -->
+    <div id="contact-form-wrap">
+      <div class="stag">Schreib uns</div>
+      <h2>Deine Nachricht</h2>
+      <p class="ssub" style="margin-bottom:2rem">Wir antworten in der Regel innerhalb von 24 Stunden.</p>
+
+      <!-- Name -->
+      <div class="form-group">
+        <label for="c-name">Name<span class="req">*</span></label>
+        <input type="text" id="c-name" placeholder="Dein Name" autocomplete="name">
+      </div>
+
+      <!-- E-Mail -->
+      <div class="form-group">
+        <label for="c-email">E-Mail<span class="req">*</span></label>
+        <input type="email" id="c-email" placeholder="deine@email.de" autocomplete="email">
+      </div>
+
+      <!-- Telefon (optional) -->
+      <div class="form-group">
+        <label for="c-phone">Telefon <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+        <input type="tel" id="c-phone" placeholder="+49 …" autocomplete="tel">
+      </div>
+
+      <!-- Betreff -->
+      <div class="form-group">
+        <label for="c-subject">Betreff<span class="req">*</span></label>
+        <input type="text" id="c-subject" placeholder="z.B. SUP-Verleih, Event, Reservierung …">
+      </div>
+
+      <!-- Nachricht -->
+      <div class="form-group">
+        <label for="c-message">Nachricht<span class="req">*</span></label>
+        <textarea id="c-message" rows="5" placeholder="Deine Nachricht …"></textarea>
+      </div>
+
+      <!-- Captcha -->
+      <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e"></div>
+
+      <!-- Submit -->
+      <button class="btn-submit" id="btn-contact" type="button">Nachricht senden</button>
+
+      <!-- Status (nur für Validierungs-/Server-Fehler) -->
+      <div id="contact-msg"></div>
     </div>
 
-    <!-- E-Mail -->
-    <div class="form-group">
-      <label for="c-email">E-Mail<span class="req">*</span></label>
-      <input type="email" id="c-email" placeholder="deine@email.de" autocomplete="email">
+    <!-- Bestätigungs-Ansicht nach erfolgreichem Absenden -->
+    <div id="contact-success" role="status" aria-live="polite">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12.5l5 5L20 7"/>
+        </svg>
+      </div>
+      <h3>Nachricht gesendet</h3>
+      <p>Danke für deine Nachricht! Wir melden uns so schnell wie möglich bei dir — in der Regel innerhalb von 24&nbsp;Stunden.</p>
+      <a class="success-link" id="contact-again" role="button" tabindex="0">Weitere Nachricht senden</a>
     </div>
 
-    <!-- Telefon (optional) -->
-    <div class="form-group">
-      <label for="c-phone">Telefon <span style="color:var(--text3);font-weight:400">(optional)</span></label>
-      <input type="tel" id="c-phone" placeholder="+49 …" autocomplete="tel">
-    </div>
-
-    <!-- Betreff -->
-    <div class="form-group">
-      <label for="c-subject">Betreff<span class="req">*</span></label>
-      <input type="text" id="c-subject" placeholder="z.B. SUP-Verleih, Event, Reservierung …">
-    </div>
-
-    <!-- Nachricht -->
-    <div class="form-group">
-      <label for="c-message">Nachricht<span class="req">*</span></label>
-      <textarea id="c-message" rows="5" placeholder="Deine Nachricht …"></textarea>
-    </div>
-
-    <!-- Captcha -->
-    <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e"></div>
-
-    <!-- Submit -->
-    <button class="btn-submit" id="btn-contact" type="button">Nachricht senden</button>
-
-    <!-- Status -->
-    <div id="contact-msg"></div>
   </div>
 </section>
 
@@ -637,18 +706,25 @@ document.getElementById('btn-contact').addEventListener('click', function() {
   })
   .then(function(r) {
     if (!r.ok) throw new Error('send');
-    msgEl.style.display = 'block';
-    msgEl.style.color = '#2B5C3F';
-    msgEl.style.borderColor = 'rgba(43,92,63,.2)';
-    msgEl.style.background = 'rgba(43,92,63,.06)';
-    msgEl.textContent = 'Danke für deine Nachricht! Wir melden uns bald bei dir.';
+    // Reset Captcha + Felder
     hcaptcha.reset();
-    // Reset form
     document.getElementById('c-name').value = '';
     document.getElementById('c-email').value = '';
     document.getElementById('c-phone').value = '';
     document.getElementById('c-subject').value = '';
     document.getElementById('c-message').value = '';
+    // Inline-Status verstecken (falls vorher ein Fehler angezeigt wurde)
+    msgEl.style.display = 'none';
+    msgEl.textContent = '';
+    // Formular ausblenden, Bestätigungs-Ansicht zeigen
+    var formWrap = document.getElementById('contact-form-wrap');
+    var successEl = document.getElementById('contact-success');
+    formWrap.style.display = 'none';
+    successEl.classList.add('visible');
+    // Sanft zur Bestätigung scrollen, damit Nutzer sie sicher sieht
+    var navH = document.querySelector('nav').offsetHeight || 0;
+    var y = successEl.getBoundingClientRect().top + window.pageYOffset - navH - 24;
+    window.scrollTo({ top: y, behavior: 'smooth' });
   })
   .catch(function(e) {
     hcaptcha.reset();
@@ -664,6 +740,27 @@ document.getElementById('btn-contact').addEventListener('click', function() {
     btn.textContent = 'Nachricht senden';
   });
 });
+
+// "Weitere Nachricht senden" — Formular wieder einblenden
+(function(){
+  var again = document.getElementById('contact-again');
+  if(!again) return;
+  function reopen(){
+    var formWrap = document.getElementById('contact-form-wrap');
+    var successEl = document.getElementById('contact-success');
+    successEl.classList.remove('visible');
+    formWrap.style.display = '';
+    // Zur Formular-Überschrift scrollen
+    var navH = document.querySelector('nav').offsetHeight || 0;
+    var y = formWrap.getBoundingClientRect().top + window.pageYOffset - navH - 24;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+    setTimeout(function(){ document.getElementById('c-name').focus(); }, 350);
+  }
+  again.addEventListener('click', reopen);
+  again.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); reopen(); }
+  });
+})();
 </script>
 <script>
 // Footer-Accordion: Mobile startet collapsed, Desktop immer offen
