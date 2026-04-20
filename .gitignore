@@ -10,3 +10,6 @@ email-zugangsdaten.enc
 
 # macOS
 .DS_Store
+
+# Supabase CLI temp files
+supabase/.temp/

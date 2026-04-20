@@ -79,6 +79,12 @@
     .tab-btn.active{background:#2A7B6F;color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(42,123,111,.25)}
     .tab-content{display:none}
     .tab-content.active{display:block}
+    .tab-select{display:none;width:100%;padding:11px 38px 11px 14px;background:#F0E8D6;border:1.5px solid #E4D9C4;border-radius:10px;font-family:inherit;font-size:.92rem;font-weight:600;color:#2A7B6F;margin-bottom:20px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232A7B6F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+    .tab-select:focus{outline:none;border-color:#2A7B6F}
+    @media(max-width:600px){
+      .tab-nav{display:none}
+      .tab-select{display:block}
+    }
 
     /* SUP Calendar */
     .sup-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -221,6 +227,13 @@
         <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
       </div>
 
+      <select class="tab-select" id="tab-select" aria-label="Bereich wählen">
+        <option value="schedule">Öffnungszeiten</option>
+        <option value="sup">SUP-Buchungen</option>
+        <option value="menu">Speisekarte</option>
+        <option value="bestseller">Bestseller</option>
+        <option value="events">Veranstaltungen</option>
+      </select>
       <div class="tab-nav" id="tab-nav">
         <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
@@ -346,15 +359,29 @@
 
     // Role-UI nach Login oder Session-Restore anwenden
     function applyRole(userRole) {
+      var sel = document.getElementById('tab-select');
       if (userRole === 'sup') {
         document.getElementById('tab-schedule').style.display = 'none';
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
+        // Im Mobile-Dropdown dieselben Optionen ausblenden
+        if (sel) {
+          sel.querySelector('option[value="schedule"]').hidden = true;
+          sel.querySelector('option[value="menu"]').hidden = true;
+          sel.querySelector('option[value="bestseller"]').hidden = true;
+          sel.value = 'sup';
+        }
         document.getElementById('content-schedule').classList.remove('active');
         document.getElementById('tab-sup').classList.add('active');
         document.getElementById('content-sup').classList.add('active');
         loadSupCalendar();
       } else {
+        if (sel) {
+          sel.querySelector('option[value="schedule"]').hidden = false;
+          sel.querySelector('option[value="menu"]').hidden = false;
+          sel.querySelector('option[value="bestseller"]').hidden = false;
+          sel.value = 'schedule';
+        }
         loadSchedule();
       }
     }
@@ -407,10 +434,19 @@
         document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
         this.classList.add('active');
         document.getElementById('content-' + this.dataset.tab).classList.add('active');
+        // Mobile-Select mit aktivem Tab synchron halten
+        var sel = document.getElementById('tab-select');
+        if (sel) sel.value = this.dataset.tab;
         if (this.dataset.tab === 'sup') loadSupCalendar();
         if (this.dataset.tab === 'menu') loadMenu();
         if (this.dataset.tab === 'bestseller') loadBestseller();
       });
+    });
+
+    // Mobile-Dropdown triggert den zugehoerigen Tab-Button
+    document.getElementById('tab-select').addEventListener('change', function() {
+      var btn = document.getElementById('tab-' + this.value);
+      if (btn) btn.click();
     });
 
     function msg(text,type,target){
@@ -715,6 +751,14 @@
         document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
         document.getElementById('tab-schedule').classList.add('active');
         document.getElementById('content-schedule').classList.add('active');
+        // Mobile-Dropdown auch auf Default zuruecksetzen
+        var selReset = document.getElementById('tab-select');
+        if (selReset) {
+          selReset.querySelector('option[value="schedule"]').hidden = false;
+          selReset.querySelector('option[value="menu"]').hidden = false;
+          selReset.querySelector('option[value="bestseller"]').hidden = false;
+          selReset.value = 'schedule';
+        }
       });
     });
 
