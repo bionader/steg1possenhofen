@@ -170,6 +170,23 @@
       .menu-item-input.desc{flex:1 1 0;min-width:0}
       .menu-item-input.price{flex:0 0 90px}
     }
+    /* Events-Liste */
+    .ev-head-row{display:grid;grid-template-columns:130px 130px 1fr auto;gap:0;border-bottom:1.5px solid #E4D9C4;padding:0 14px 8px;margin-bottom:4px}
+    .ev-head-row span{font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em}
+    .ev-row{display:grid;grid-template-columns:130px 130px 1fr auto;gap:0;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:2px}
+    .ev-cell-date{font-size:.82rem;color:#4A4840}
+    .ev-cell-time{font-size:.82rem;color:#2A7B6F;font-weight:500}
+    .ev-cell-title{font-size:.88rem;font-weight:600;color:#18180F}
+    .ev-edit-btn{white-space:nowrap;padding:5px 12px;background:#F0E8D6;color:#2A7B6F;border:1.5px solid #E4D9C4;border-radius:100px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;width:auto}
+    .ev-edit-btn:hover{background:#2A7B6F;color:#fff}
+    @media(max-width:600px){
+      .ev-head-row{display:none}
+      .ev-row{grid-template-columns:auto 1fr auto;grid-template-areas:"date time edit" "title title title";column-gap:10px;row-gap:6px;padding:12px 14px}
+      .ev-cell-date{grid-area:date;font-size:.74rem}
+      .ev-cell-time{grid-area:time;font-size:.74rem;justify-self:start}
+      .ev-cell-title{grid-area:title;font-size:.95rem;line-height:1.3}
+      .ev-edit-btn{grid-area:edit;justify-self:end;align-self:start}
+    }
     .menu-item-del{background:none;border:none;color:#B8AE9C;cursor:pointer;font-size:1.1rem;padding:4px;transition:color .2s;width:auto}
     .menu-item-del:hover{color:#D94F4F;background:none}
     .menu-add-item{display:flex;align-items:center;gap:6px;padding:8px 0;cursor:pointer;color:#2A7B6F;font-size:.8rem;font-weight:500;border:none;background:none;font-family:inherit;width:auto}
@@ -1429,22 +1446,17 @@
       var el=document.getElementById('ev-list');
       if(!allEvents.length){el.innerHTML='<p style="color:#7A7668;font-size:.88rem">Noch keine Events angelegt.</p>';return;}
       var today=new Date().toISOString().split('T')[0];
-      // Header
-      var html='<div style="display:grid;grid-template-columns:130px 130px 1fr auto;gap:0;border-bottom:1.5px solid #E4D9C4;padding:0 14px 8px;margin-bottom:4px">'
-        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Datum</span>'
-        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Uhrzeit</span>'
-        +'<span style="font-size:.7rem;font-weight:600;color:#7A7668;text-transform:uppercase;letter-spacing:.06em">Titel</span>'
-        +'<span></span>'
-        +'</div>';
+      var html='<div class="ev-head-row"><span>Datum</span><span>Uhrzeit</span><span>Titel</span><span></span></div>';
       allEvents.forEach(function(ev){
         var isPast=ev.date<today;
         var dateStr=new Date(ev.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
         var timeRange=ev.time?ev.time.slice(0,5)+(ev.time_to?' – '+ev.time_to.slice(0,5):''):'—';
-        html+='<div style="display:grid;grid-template-columns:130px 130px 1fr auto;gap:0;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:2px;background:'+(isPast?'transparent':'#FDFBF7')+';border:1.5px solid '+(isPast?'transparent':'#EAE0CC')+';'+(isPast?'opacity:.45':'')+'">';
-        html+='<span style="font-size:.82rem;color:#4A4840">'+esc(dateStr)+'</span>';
-        html+='<span style="font-size:.82rem;color:#2A7B6F;font-weight:500">'+esc(timeRange)+'</span>';
-        html+='<span style="font-size:.88rem;font-weight:600;color:#18180F">'+esc(ev.title)+'</span>';
-        html+='<button onclick="openEventModal(\''+ev.id+'\')" style="white-space:nowrap;padding:5px 12px;background:#F0E8D6;color:#2A7B6F;border:1.5px solid #E4D9C4;border-radius:100px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer" onmouseover="this.style.background=\'#2A7B6F\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#F0E8D6\';this.style.color=\'#2A7B6F\'">Bearbeiten</button>';
+        var rowStyle='background:'+(isPast?'transparent':'#FDFBF7')+';border:1.5px solid '+(isPast?'transparent':'#EAE0CC')+(isPast?';opacity:.45':'');
+        html+='<div class="ev-row" style="'+rowStyle+'">';
+        html+='<span class="ev-cell-date">'+esc(dateStr)+'</span>';
+        html+='<span class="ev-cell-time">'+esc(timeRange)+'</span>';
+        html+='<span class="ev-cell-title">'+esc(ev.title)+'</span>';
+        html+='<button class="ev-edit-btn" onclick="openEventModal(\''+ev.id+'\')">Bearbeiten</button>';
         html+='</div>';
       });
       el.innerHTML=html;
