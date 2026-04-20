@@ -42,7 +42,7 @@ serve(async (req) => {
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "Steg 1 Website <noreply@steg1possenhofen.de>",
+      from: "Steg 1 Website <info@steg1possenhofen.de>",
       to: ["info@steg1possenhofen.de"],
       reply_to: email,
       subject: `Kontaktanfrage: ${subject}`,

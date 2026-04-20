@@ -91,8 +91,9 @@ serve(async (req) => {
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "Steg 1 Possenhofen <noreply@steg1possenhofen.de>",
+      from: "Steg 1 Possenhofen <hallo@steg1possenhofen.de>",
       to: [email],
+      bcc: ["hallo@steg1possenhofen.de"],
       subject: `Deine SUP-Buchung am ${dateFormatted} wurde storniert`,
       html: html,
     }),
