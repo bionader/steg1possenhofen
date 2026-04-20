@@ -62,7 +62,7 @@ nav.scrolled{
   font-size:1.45rem;font-weight:600;
   color:var(--g);letter-spacing:.03em;text-decoration:none;
 }
-.logo-num{font-family:'DM Sans',sans-serif;font-style:normal;font-weight:700;font-size:1.5em;opacity:.9;vertical-align:middle;line-height:1;position:relative;top:-2px}
+.logo-num{font-family:'DM Sans',sans-serif;font-style:normal;font-weight:500;font-size:1.2em;vertical-align:baseline;line-height:1}
 .logo{transition:opacity .3s ease}
 .logo:hover{opacity:.75}
 .nav-links{display:flex;gap:2.2rem;list-style:none}
@@ -399,7 +399,10 @@ h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3vw,2.6rem);lin
 footer{
   background:var(--dark);color:rgba(253,250,244,.6);
   padding:3rem 3rem 1.5rem;
-  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.2rem;
+}
+@media(max-width:1200px){
+  footer{grid-template-columns:1fr 1fr;row-gap:2rem}
 }
 .flogo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--w);margin-bottom:.5rem}
 .fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
@@ -456,9 +459,14 @@ footer{
 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
-  nav{padding:.85rem 1.5rem}
-  nav.scrolled{padding:.7rem 1.5rem}
-  .nav-links,.nav-cta{display:none}
+  nav{padding:.85rem 1.2rem}
+  nav.scrolled{padding:.7rem 1.2rem}
+  .nav-links{display:none}
+  .nav-cta{
+    padding:.48rem 1.05rem;font-size:.78rem;
+    margin-left:auto;margin-right:1.5rem;
+    box-shadow:0 1px 8px rgba(42,123,111,.2);
+  }
   .nav-burger{display:flex}
   .mobile-menu{
     position:fixed;inset:0;z-index:105;
@@ -680,7 +688,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 
 <!-- WETTER -->
 <div class="wbar">
-  <div class="wi"><div class="val" id="wb-temp">– °C</div><div class="lbl">Wetter Starnberg</div></div>
+  <div class="wi"><div class="val" id="wb-temp">– °C</div><div class="lbl">Wetter Possenhofen</div></div>
   <div class="wi"><div class="val" id="wb-water">– °C</div><div class="lbl">Wassertemperatur</div></div>
   <div class="wi"><div class="val" id="wb-wind">– km/h</div><div class="lbl">Wind</div></div>
   <a href="#info" class="wi" style="text-decoration:none;color:inherit"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></a>
@@ -796,7 +804,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <!-- FOOTER -->
 <footer id="kontakt">
   <div class="fintro">
-    <div class="flogo">Steg <span style="font-family:'DM Sans',sans-serif">1</span> Possenhofen</div>
+    <div class="flogo">Steg <span style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:1.1em">1</span> Possenhofen</div>
     <p class="fdesc">Biergarten & SUP-Verleih direkt am Starnberger See. Frische Küche und das Wasser vor der Tür.</p>
     <div class="fsocials">
       <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" aria-label="Instagram">
@@ -825,6 +833,11 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.2rem">Kurt-Stieler-Str. 58</span>
       <span style="display:block;font-size:.82rem;color:rgba(253,250,244,.6);margin-bottom:.4rem">82343 Possenhofen</span>
       <a href="mailto:info@steg1possenhofen.de">info@steg1possenhofen.de</a>
+    </div>
+  </details>
+  <details class="fcol" open>
+    <summary>Rechtliches</summary>
+    <div class="fcol-body">
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
     </div>
@@ -1037,7 +1050,7 @@ document.querySelectorAll('.reveal').forEach(function(r){obs.observe(r)});
   var dirs=['N','NO','O','SO','S','SW','W','NW'];
 
   // Air temperature + wind from OpenWeatherMap
-  fetch('https://api.openweathermap.org/data/2.5/weather?lat=47.9547&lon=11.3644&appid='+OWM_KEY+'&units=metric&lang=de')
+  fetch('https://api.openweathermap.org/data/2.5/weather?lat=47.9705&lon=11.3074&appid='+OWM_KEY+'&units=metric&lang=de')
     .then(function(r){return r.json()})
     .then(function(d){
       if(d.cod&&d.cod!==200)return;
