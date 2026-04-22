@@ -71,6 +71,24 @@
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
 
+    /* Monats-Defaults Section */
+    .month-section{margin-top:32px;padding-top:24px;border-top:1.5px solid #F0E8D6}
+    .month-section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;gap:12px;flex-wrap:wrap}
+    .month-section-header h3{font-size:1rem;color:#18180F;margin:0}
+    .month-hint{font-size:.72rem;color:#7A7668;margin-bottom:14px;line-height:1.5}
+    .month-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .month-card{padding:12px 14px;border-radius:12px;background:#FDFBF7;border:1.5px solid #F0E8D6;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .month-card.current{border-color:#2A7B6F;background:linear-gradient(135deg,rgba(42,123,111,.04),rgba(42,123,111,.08))}
+    .month-name{font-weight:600;font-size:.82rem;color:#18180F;min-width:72px}
+    .month-card.current .month-name::after{content:'JETZT';font-size:.55rem;background:#2A7B6F;color:white;padding:2px 6px;border-radius:20px;margin-left:6px;font-weight:600;letter-spacing:.04em;vertical-align:middle}
+    .month-times{display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end}
+    .month-time-input{width:86px;padding:6px 8px;border:1.5px solid #E6D9B8;border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center;transition:border-color .2s}
+    .month-time-input:focus{outline:none;border-color:#2A7B6F}
+    @media(max-width:640px){
+      .month-grid{grid-template-columns:1fr}
+      .month-time-input{width:80px;font-size:.82rem}
+    }
+
     /* Tab navigation — segmented control */
     .tab-nav{display:flex;gap:3px;background:#F0E8D6;border-radius:12px;padding:4px;margin-bottom:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
     .tab-nav::-webkit-scrollbar{display:none}
@@ -274,6 +292,16 @@
         <div class="day-grid" id="day-grid"></div>
         <div class="save-row">
           <button type="button" id="btn-save">Speichern</button>
+        </div>
+
+        <!-- Monats-Defaults -->
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Monats-Defaults</h3>
+          </div>
+          <div class="month-hint">Standard-Öffnungszeiten pro Monat. Wird automatisch auf alle Tage dieses Monats angewendet, außer du hast sie im Wochenplaner oben manuell überschrieben.</div>
+          <div id="month-message"></div>
+          <div class="month-grid" id="month-grid"></div>
         </div>
       </div>
 
@@ -483,7 +511,14 @@
 
     function fmtDate(d){return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()}
 
-    function defaultTimes(){
+    // Monats-Defaults aus Supabase (in-memory cache, gefüllt von loadMonthDefaults)
+    var monthDefaults={};
+    var MONTHS_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+    function defaultTimes(dateObj){
+      var m=(dateObj instanceof Date?dateObj:new Date()).getMonth()+1;
+      var d=monthDefaults[m];
+      if(d)return{open:(d.open_time||'10:00').substring(0,5),close:(d.close_time||'20:00').substring(0,5)};
       return{open:'10:00',close:'20:00'};
     }
 
@@ -501,13 +536,15 @@
       var noteEl=card.querySelector('.note-input[data-date="'+date+'"]');
       var note=noteEl?noteEl.value:'';
 
+      var dObj=new Date(date+'T12:00:00');
       var record={
         date:date,
         is_open:!closedAllDay,
         closed_all_day:closedAllDay,
-        open_time:closedAllDay?null:(openTime||defaultTimes().open),
-        close_time:closedAllDay?null:(closeTime||defaultTimes().close),
-        note:note
+        open_time:closedAllDay?null:(openTime||defaultTimes(dObj).open),
+        close_time:closedAllDay?null:(closeTime||defaultTimes(dObj).close),
+        note:note,
+        auto_default:false
       };
 
       fetch(SB_URL+'/rest/v1/daily_schedule',{
@@ -658,13 +695,116 @@
     }
 
     function loadSchedule(){
-      var days=getDays();
-      fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+days[0].date+'&date=lte.'+days[days.length-1].date+'&order=date',{
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      // Monats-Defaults zuerst laden, damit buildCalendar die richtigen Fallback-Zeiten nutzt
+      loadMonthDefaults().then(function(){
+        var days=getDays();
+        return fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+days[0].date+'&date=lte.'+days[days.length-1].date+'&order=date',{
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        });
       })
       .then(function(r){return r.json()})
       .then(function(data){buildCalendar(Array.isArray(data)?data:[])})
       .catch(function(){buildCalendar([])});
+    }
+
+    // ── Monats-Defaults ──
+    function loadMonthDefaults(){
+      return fetch(SB_URL+'/rest/v1/monthly_defaults?order=month',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        monthDefaults={};
+        if(Array.isArray(data))data.forEach(function(row){monthDefaults[row.month]=row});
+        buildMonthGrid();
+      })
+      .catch(function(){buildMonthGrid()});
+    }
+
+    function buildMonthGrid(){
+      var grid=document.getElementById('month-grid');
+      if(!grid)return;
+      grid.innerHTML='';
+      var currentMonth=new Date().getMonth()+1;
+      for(var m=1;m<=12;m++){
+        var row=monthDefaults[m];
+        var openT=row?(row.open_time||'10:00').substring(0,5):'10:00';
+        var closeT=row?(row.close_time||'20:00').substring(0,5):'20:00';
+        var card=document.createElement('div');
+        card.className='month-card'+(m===currentMonth?' current':'');
+        card.dataset.month=m;
+        card.innerHTML='<div class="month-name">'+MONTHS_DE[m-1]+'</div>'
+          +'<div class="month-times">'
+          +'<input type="time" class="month-time-input open" value="'+openT+'" data-month="'+m+'">'
+          +'<span class="time-sep">&ndash;</span>'
+          +'<input type="time" class="month-time-input close" value="'+closeT+'" data-month="'+m+'">'
+          +'</div>';
+        grid.appendChild(card);
+      }
+      // Auto-save on blur
+      grid.querySelectorAll('.month-time-input').forEach(function(inp){
+        inp.addEventListener('blur',function(){saveMonthDefault(parseInt(this.dataset.month,10))});
+      });
+    }
+
+    function saveMonthDefault(month){
+      var card=document.querySelector('.month-card[data-month="'+month+'"]');
+      if(!card)return;
+      var openT=card.querySelector('.month-time-input.open').value;
+      var closeT=card.querySelector('.month-time-input.close').value;
+      if(!openT||!closeT)return;
+
+      // 1. monthly_defaults upsert
+      fetch(SB_URL+'/rest/v1/monthly_defaults',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify([{month:month,open_time:openT,close_time:closeT,updated_at:new Date().toISOString()}])
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        // lokalen Cache aktualisieren
+        monthDefaults[month]={month:month,open_time:openT,close_time:closeT};
+        // 2. Rollout auf daily_schedule: alle Tage dieses Monats ab heute mit auto_default=true
+        return rolloutMonthToSchedule(month,openT,closeT);
+      })
+      .then(function(affected){
+        msg(MONTHS_DE[month-1]+' gespeichert'+(affected>0?' — '+affected+' Tag(e) aktualisiert':''),'','month-message');
+        // Wochenplaner neu laden, falls gerade aktuelle Woche betroffen
+        loadSchedule();
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','month-message')});
+    }
+
+    function rolloutMonthToSchedule(month,openT,closeT){
+      // Update alle daily_schedule-Einträge des Monats ab heute mit auto_default=true
+      var today=new Date();
+      var year=today.getFullYear();
+      // Falls wir schon im Folgejahr-Monat sind (z.B. Januar nach Jahreswechsel), nimm aktuelles Jahr
+      var fromStr=dateStr(today);
+      // Monats-Range: Erster bis letzter Tag des Monats (für passendes Jahr)
+      // Wir decken aktuelles Jahr + nächstes Jahr ab, damit z.B. Dezember-Edit noch Vorjahres-Saison trifft
+      var ranges=[];
+      for(var y=year;y<=year+1;y++){
+        var first=y+'-'+String(month).padStart(2,'0')+'-01';
+        var lastDay=new Date(y,month,0).getDate();
+        var last=y+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+        // Nur Ranges, die in der Zukunft enden
+        if(last>=fromStr)ranges.push({first:first<fromStr?fromStr:first,last:last});
+      }
+      if(!ranges.length)return Promise.resolve(0);
+
+      // PATCH pro Range
+      var promises=ranges.map(function(r){
+        return fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+r.first+'&date=lte.'+r.last+'&auto_default=is.true',{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+          body:JSON.stringify({open_time:openT,close_time:closeT})
+        }).then(function(r){return r.ok?r.json():[]});
+      });
+      return Promise.all(promises).then(function(results){
+        var total=0;results.forEach(function(arr){if(Array.isArray(arr))total+=arr.length});
+        return total;
+      });
     }
 
     // Save
@@ -691,7 +831,8 @@
           closed_all_day:closedAllDay,
           open_time:closedAllDay?null:openTime,
           close_time:closedAllDay?null:closeTime,
-          note:note
+          note:note,
+          auto_default:false
         });
       });
 

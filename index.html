@@ -855,9 +855,21 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   var CACHE_KEY='steg1_status';
   var CACHE_TTL=5*60*1000;
 
+  // Monats-Defaults (in-memory, gefüllt durch Fetch parallel zum Schedule)
+  var monthDefaults={};
+  function monthDefault(dateObj){
+    var m=(dateObj instanceof Date?dateObj:new Date()).getMonth()+1;
+    var d=monthDefaults[m];
+    if(d)return{open:(d.open_time||'10:00').substring(0,5),close:(d.close_time||'20:00').substring(0,5)};
+    return{open:'10:00',close:'20:00'};
+  }
+
   function fallback(){
-    var h=new Date().getHours();
-    return h>=10&&h<20;
+    var def=monthDefault(new Date());
+    var now=new Date();var nowMins=now.getHours()*60+now.getMinutes();
+    var oM=parseInt(def.open.split(':')[0])*60+parseInt(def.open.split(':')[1]);
+    var cM=parseInt(def.close.split(':')[0])*60+parseInt(def.close.split(':')[1]);
+    return nowMins>=oM&&nowMins<cM;
   }
 
   // Sync weather bar status with hero status
@@ -879,17 +891,19 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     var stxt=document.getElementById('stxt');
     var widget=document.getElementById('status-widget');
     if(!dot||!stxt)return;
-    var d=new Date().getDay();
+    var today=new Date();
+    var tomorrow=new Date(today);tomorrow.setDate(today.getDate()+1);
+    var defToday=monthDefault(today);
+    var defTomorrow=monthDefault(tomorrow);
     if(isOpen){
       dot.classList.remove('closed');
-      var zeit='10:00 \u2013 20:00';
+      var zeit=defToday.open+' \u2013 '+defToday.close;
       stxt.textContent='Heute ge\u00f6ffnet: '+zeit+' Uhr';
       if(widget)widget.classList.remove('is-closed');
-      updateWbar(true,'10:00','20:00');
+      updateWbar(true,defToday.open,defToday.close);
     }else{
       dot.classList.add('closed');
-      var tm=(d+1)%7;
-      var morgenZeit=(tm===0||tm===6)?'10:00':'11:00';
+      var morgenZeit=defTomorrow.open;
       stxt.textContent='Heute geschlossen \u2013 Morgen ab '+morgenZeit+' Uhr';
       if(widget)widget.classList.add('is-closed');
       updateWbar(false,null,null,'Morgen ab '+morgenZeit+' Uhr');
@@ -910,25 +924,42 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   var maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+7);
   var maxStr=maxDate.getFullYear()+'-'+String(maxDate.getMonth()+1).padStart(2,'0')+'-'+String(maxDate.getDate()).padStart(2,'0');
 
-  fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+todayStr+'&date=lte.'+maxStr+'&order=date&select=date,is_open,closed_all_day,open_time,close_time',{
+  // Monats-Defaults parallel fetchen
+  var mdFetch=fetch(SB_URL+'/rest/v1/monthly_defaults?order=month',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
   }).then(function(r){return r.json()}).then(function(data){
+    if(Array.isArray(data))data.forEach(function(row){monthDefaults[row.month]=row});
+  }).catch(function(){});
+
+  var dsFetch=fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+todayStr+'&date=lte.'+maxStr+'&order=date&select=date,is_open,closed_all_day,open_time,close_time',{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(r){return r.json()});
+
+  Promise.all([mdFetch,dsFetch]).then(function(res){
+    var data=Array.isArray(res[1])?res[1]:[];
     var isOpen,openT='',closeT='';
     var closedAllDay=false;
-    if(data&&data.length>0){
+    if(data.length>0){
       var entry=data[0];
       if(entry.closed_all_day){
         isOpen=false;closedAllDay=true;
       }else{
-        openT=(entry.open_time||'10:00').substring(0,5);
-        closeT=(entry.close_time||'20:00').substring(0,5);
+        var md0=monthDefault(today);
+        openT=(entry.open_time||md0.open).substring(0,5);
+        closeT=(entry.close_time||md0.close).substring(0,5);
         var nowMins=today.getHours()*60+today.getMinutes();
         var openMins=parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]);
         var closeMins=parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]);
         isOpen=nowMins>=openMins&&nowMins<closeMins;
       }
     }else{
-      isOpen=fallback();
+      // Kein daily_schedule-Eintrag für heute → Monats-Default nutzen
+      var md=monthDefault(today);
+      openT=md.open;closeT=md.close;
+      var nowM=today.getHours()*60+today.getMinutes();
+      var oM=parseInt(openT.split(':')[0])*60+parseInt(openT.split(':')[1]);
+      var cM=parseInt(closeT.split(':')[0])*60+parseInt(closeT.split(':')[1]);
+      isOpen=nowM>=oM&&nowM<cM;
     }
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
     showWithTimes(isOpen,openT,closeT,closedAllDay,data);
@@ -954,14 +985,14 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       var isToday=j===0;
       var e=map[ds];
       var time='',closed=false;
+      var md=monthDefault(d);
       if(e){
         if(e.closed_all_day){time='Geschlossen';closed=true;}
-        else if(e.is_open){time=(e.open_time||'10:00').substring(0,5)+' \u2013 '+(e.close_time||'20:00').substring(0,5)+' Uhr';}
+        else if(e.is_open){time=(e.open_time||md.open).substring(0,5)+' \u2013 '+(e.close_time||md.close).substring(0,5)+' Uhr';}
         else{time='Geschlossen';closed=true;}
       }else{
-        // Fallback: Standard-Öffnungszeiten
-        var wd=d.getDay();
-        time='10:00 \u2013 20:00 Uhr';
+        // Fallback: Monats-Default
+        time=md.open+' \u2013 '+md.close+' Uhr';
       }
       var cls='schedule-row'+(isToday?' today':'')+(closed?' closed':'');
       html+='<div class="'+cls+'"><span class="day">'+(isToday?'Heute':dayName)+', '+dateStr+'</span><span class="time">'+time+'</span></div>';
