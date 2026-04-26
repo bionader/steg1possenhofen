@@ -14,3 +14,5 @@ supabase/.temp/
 # Lokale Backup-/Test-HTMLs (sollen nicht auf GitHub Pages)
 index-polish.html
 index-pre-polish.html
+admin-polish.html
+admin-pre-polish.html
