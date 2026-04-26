@@ -102,6 +102,24 @@
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
 
+    /* Reset-auf-Monats-Default — nur sichtbar wenn Tag ein Override ist */
+    .reset-default-btn{
+      background:none;border:1px solid var(--sand2);border-radius:8px;
+      width:32px;height:32px;cursor:pointer;color:var(--text3);
+      font-size:1.05rem;font-family:inherit;line-height:1;padding:0;
+      display:inline-flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:background var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+    }
+    .reset-default-btn:hover{
+      border-color:var(--g);color:var(--g);background:rgba(42,123,111,.05);
+    }
+    .day-top .reset-default-btn{margin-right:6px}
+    .manual-tag{
+      display:inline-block;font-size:.58rem;font-weight:600;letter-spacing:.06em;
+      text-transform:uppercase;color:var(--text3);background:var(--sand3);
+      padding:2px 6px;border-radius:20px;margin-left:8px;vertical-align:middle;
+    }
+
     /* Monats-Defaults Section */
     .month-section{margin-top:32px;padding-top:24px;border-top:1.5px solid var(--sand3)}
     .month-section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;gap:12px;flex-wrap:wrap}
@@ -553,7 +571,11 @@
       return{open:'10:00',close:'20:00'};
     }
 
-    // Auto-save a single day to Supabase
+    // Auto-save a single day to Supabase.
+    // Smart-Save: Wenn der Tag exakt dem Monats-Default entspricht (offen, Default-Zeiten,
+    // keine Notiz), wird kein Override angelegt — stattdessen ein eventuell vorhandener
+    // alter Eintrag geloescht. So folgt der Tag automatisch dem Monats-Default und ein
+    // versehentliches Fokussieren des Inputs erzeugt keinen "stillen Override" mehr.
     function saveDay(date){
       var card=document.querySelector('.day-card[data-date="'+date+'"]');
       if(!card)return;
@@ -565,15 +587,34 @@
       if(ot)openTime=ot.value;
       if(ct)closeTime=ct.value;
       var noteEl=card.querySelector('.note-input[data-date="'+date+'"]');
-      var note=noteEl?noteEl.value:'';
+      var note=noteEl?noteEl.value.trim():'';
 
       var dObj=new Date(date+'T12:00:00');
+      var def=defaultTimes(dObj);
+      var matchesDefault=!closedAllDay && !note && openTime===def.open && closeTime===def.close;
+
+      if(matchesDefault){
+        // Tag entspricht Monats-Default → eventuellen Override entfernen
+        fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+date,{
+          method:'DELETE',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        })
+        .then(function(r){
+          if(!r.ok)throw new Error('fail');
+          msg('Gespeichert (folgt Monats-Default)');
+          loadSchedule();
+        })
+        .catch(function(){msg('Fehler beim Speichern','error')});
+        return;
+      }
+
+      // Echter Override → UPSERT
       var record={
         date:date,
         is_open:!closedAllDay,
         closed_all_day:closedAllDay,
-        open_time:closedAllDay?null:(openTime||defaultTimes(dObj).open),
-        close_time:closedAllDay?null:(closeTime||defaultTimes(dObj).close),
+        open_time:closedAllDay?null:(openTime||def.open),
+        close_time:closedAllDay?null:(closeTime||def.close),
         note:note,
         auto_default:false
       };
@@ -586,8 +627,50 @@
       .then(function(r){
         if(!r.ok)throw new Error('fail');
         msg('Gespeichert!');
+        // Reset-Button injizieren falls Card noch keinen hat (ist jetzt ein Override)
+        if(!card.querySelector('.reset-default-btn')){
+          var top=card.querySelector('.day-top');
+          if(top){
+            var toggleEl=top.querySelector('.toggle');
+            top.insertBefore(createResetBtn(date),toggleEl);
+          }
+          // "manuell"-Tag im day-name ergaenzen (wenn nicht schon da)
+          var nameEl=card.querySelector('.day-name');
+          if(nameEl && !nameEl.querySelector('.manual-tag')){
+            var tag=document.createElement('span');
+            tag.className='manual-tag';
+            tag.textContent='manuell';
+            nameEl.appendChild(tag);
+          }
+        }
       })
       .catch(function(){msg('Fehler beim Speichern','error')});
+    }
+
+    // Erzeugt den Reset-Button, der den Tag auf Monats-Default zuruecksetzt
+    function createResetBtn(date){
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.className='reset-default-btn';
+      btn.innerHTML='&#8634;';
+      btn.title='Auf Monats-Default zurücksetzen';
+      btn.setAttribute('aria-label','Tag auf Monats-Default zurücksetzen');
+      btn.dataset.date=date;
+      btn.addEventListener('click',function(){
+        var d=this.dataset.date;
+        if(!confirm('Diesen Tag auf den Monats-Default zurücksetzen?'))return;
+        fetch(SB_URL+'/rest/v1/daily_schedule?date=eq.'+d,{
+          method:'DELETE',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        })
+        .then(function(r){
+          if(!r.ok)throw new Error('fail');
+          msg('Auf Monats-Default zurückgesetzt');
+          loadSchedule();
+        })
+        .catch(function(){msg('Fehler beim Zurücksetzen','error')});
+      });
+      return btn;
     }
 
     function getDays(){
@@ -624,8 +707,15 @@
 
         var info=document.createElement('div');
         info.className='day-info';
-        info.innerHTML='<div class="day-name">'+day.dayName+'</div><div class="day-date">'+day.formatted+'</div>';
+        // "manuell"-Tag wenn Tag ein Override ist (Eintrag in daily_schedule)
+        var manualTag = s ? '<span class="manual-tag">manuell</span>' : '';
+        info.innerHTML='<div class="day-name">'+day.dayName+manualTag+'</div><div class="day-date">'+day.formatted+'</div>';
         top.appendChild(info);
+
+        // Reset-Button — nur bei Override-Tagen, nicht in der Vergangenheit
+        if(!day.isPast && s){
+          top.appendChild(createResetBtn(day.date));
+        }
 
         // Toggle (open/closed all day)
         var toggle=document.createElement('label');
@@ -838,11 +928,13 @@
       });
     }
 
-    // Save
+    // Save (Bulk) — Smart-Save: Tage die exakt dem Monats-Default entsprechen werden
+    // nicht als Override gespeichert, sondern (falls vorhanden) gelöscht.
     document.getElementById('btn-save').addEventListener('click',function(){
       var btn=this;btn.disabled=true;btn.textContent='Speichern...';
 
       var records=[];
+      var datesToDelete=[];
       var cards=document.querySelectorAll('.day-card:not(.past)');
       cards.forEach(function(card){
         var date=card.dataset.date;
@@ -854,33 +946,48 @@
         if(ot)openTime=ot.value;
         if(ct)closeTime=ct.value;
         var noteEl=card.querySelector('.note-input[data-date="'+date+'"]');
-        var note=noteEl?noteEl.value:'';
+        var note=noteEl?noteEl.value.trim():'';
 
-        records.push({
-          date:date,
-          is_open:!closedAllDay,
-          closed_all_day:closedAllDay,
-          open_time:closedAllDay?null:openTime,
-          close_time:closedAllDay?null:closeTime,
-          note:note,
-          auto_default:false
-        });
+        var def=defaultTimes(new Date(date+'T12:00:00'));
+        var matchesDefault=!closedAllDay && !note && openTime===def.open && closeTime===def.close;
+
+        if(matchesDefault){
+          datesToDelete.push(date);
+        }else{
+          records.push({
+            date:date,
+            is_open:!closedAllDay,
+            closed_all_day:closedAllDay,
+            open_time:closedAllDay?null:openTime,
+            close_time:closedAllDay?null:closeTime,
+            note:note,
+            auto_default:false
+          });
+        }
       });
 
-      fetch(SB_URL+'/rest/v1/daily_schedule',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates'},
-        body:JSON.stringify(records)
-      })
-      .then(function(r){
-        if(!r.ok)throw new Error('fail');
+      var headers={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates'};
+      var ops=[];
+      if(records.length){
+        ops.push(fetch(SB_URL+'/rest/v1/daily_schedule',{method:'POST',headers:headers,body:JSON.stringify(records)}));
+      }
+      if(datesToDelete.length){
+        ops.push(fetch(SB_URL+'/rest/v1/daily_schedule?date=in.('+datesToDelete.join(',')+')',{
+          method:'DELETE',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        }));
+      }
+
+      Promise.all(ops)
+      .then(function(results){
+        if(results.some(function(r){return !r.ok}))throw new Error('fail');
         msg('Wochenplan gespeichert!');
         loadSchedule();
       })
       .catch(function(){msg('Fehler beim Speichern','error')})
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
 
-      // Cleanup old entries
+      // Cleanup old entries (vor 4 Tagen)
       var cutoff=new Date();cutoff.setDate(cutoff.getDate()-4);
       fetch(SB_URL+'/rest/v1/daily_schedule?date=lt.'+dateStr(cutoff),{
         method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
