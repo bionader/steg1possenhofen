@@ -992,13 +992,35 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
   var maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+7);
   var maxStr=maxDate.getFullYear()+'-'+String(maxDate.getMonth()+1).padStart(2,'0')+'-'+String(maxDate.getDate()).padStart(2,'0');
 
-  fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+todayStr+'&date=lte.'+maxStr+'&order=date&select=date,is_open,closed_all_day,open_time,close_time',{
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
-  }).then(function(r){return r.json()}).then(function(data){
+  // Daten laden: daily_schedule (Overrides) + monthly_defaults (Basis pro Monat)
+  // Override schlaegt Default; ohne Override gilt der Monatsdefault
+  var headers={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+  Promise.all([
+    fetch(SB_URL+'/rest/v1/daily_schedule?date=gte.'+todayStr+'&date=lte.'+maxStr+'&order=date&select=date,is_open,closed_all_day,open_time,close_time',{headers:headers}).then(function(r){return r.json()}),
+    fetch(SB_URL+'/rest/v1/monthly_defaults?select=month,open_time,close_time',{headers:headers}).then(function(r){return r.json()})
+  ]).then(function(results){
+    var overrides=results[0]||[];
+    var defaults=results[1]||[];
+    var defByMonth={};
+    defaults.forEach(function(d){defByMonth[d.month]=d;});
+
+    // Effektiver Eintrag fuer ein Datum: Override gewinnt, sonst Monatsdefault
+    function resolve(dateStr,dateObj){
+      for(var i=0;i<overrides.length;i++){
+        if(overrides[i].date===dateStr)return overrides[i];
+      }
+      var def=defByMonth[dateObj.getMonth()+1];
+      if(def){
+        return {date:dateStr,is_open:true,closed_all_day:false,open_time:def.open_time,close_time:def.close_time};
+      }
+      return null;
+    }
+
+    // Heutigen Status berechnen
+    var entry=resolve(todayStr,today);
     var isOpen,openT='',closeT='';
     var closedAllDay=false;
-    if(data&&data.length>0){
-      var entry=data[0];
+    if(entry){
       if(entry.closed_all_day){
         isOpen=false;closedAllDay=true;
       }else{
@@ -1012,9 +1034,19 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     }else{
       isOpen=fallback();
     }
+
+    // Effektive Liste fuer Schedule-Render und next-open-Suche (alle naechsten 7 Tage)
+    var resolved=[];
+    for(var j=0;j<7;j++){
+      var d=new Date();d.setDate(d.getDate()+j);
+      var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      var r=resolve(ds,d);
+      if(r)resolved.push(r);
+    }
+
     localStorage.setItem(CACHE_KEY,JSON.stringify({v:isOpen,t:Date.now(),ot:openT,ct:closeT,cad:closedAllDay}));
-    showWithTimes(isOpen,openT,closeT,closedAllDay,data);
-    renderSchedule(data);
+    showWithTimes(isOpen,openT,closeT,closedAllDay,resolved);
+    renderSchedule(resolved);
   }).catch(function(){show(fallback());renderSchedule([]);});
 
   var DAYS_DE=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
