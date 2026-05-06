@@ -140,6 +140,15 @@
     .month-times{display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end}
     .month-time-input{width:86px;padding:6px 8px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center;transition:border-color .2s}
     .month-time-input:focus{outline:none;border-color:var(--g)}
+    /* SUP-Default Erweiterungen */
+    .sup-month-time-input{width:86px;padding:6px 8px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem;text-align:center;transition:border-color .2s}
+    .sup-month-time-input:focus{outline:none;border-color:var(--g)}
+    .month-card.closed-month{background:rgba(0,0,0,.025);border-color:var(--sand2)}
+    .month-card.closed-month .month-name{color:var(--text3)}
+    .sup-month-closed-label{font-size:.78rem;color:var(--text3);font-style:italic;flex:1}
+    .sup-month-last{font-size:.65rem;color:var(--text3);min-width:120px}
+    .month-card{transition:border-color .25s ease, box-shadow .25s ease}
+    .month-card.flash-ok{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok-soft)}
     @media(max-width:640px){
       .month-grid{grid-template-columns:1fr}
       .month-time-input{width:80px;font-size:.82rem}
@@ -370,6 +379,16 @@
         <div id="sup-message"></div>
         <div id="sup-cal"></div>
         <div id="sup-day-detail"></div>
+
+        <!-- SUP Monats-Defaults -->
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>SUP Monats-Defaults</h3>
+          </div>
+          <div class="month-hint">Standard-Öffnungszeiten pro Monat für den SUP-Verleih. Wird automatisch auf alle Tage dieses Monats angewendet, außer du hast einen Tag im Kalender oben manuell geschlossen. Letzte Buchung = Schließzeit minus 1 h (Mindestbuchungsdauer).</div>
+          <div id="sup-month-message"></div>
+          <div class="month-grid" id="sup-month-grid"></div>
+        </div>
       </div>
 
       <!-- Tab 3: Speisekarte -->
@@ -935,6 +954,186 @@
       });
     }
 
+    // ── SUP Monats-Defaults (parallel zu Restaurant-Logik oben) ──
+    var supMonthDefaults={};
+
+    function loadSupMonthDefaults(){
+      return fetch(SB_URL+'/rest/v1/sup_monthly_defaults?order=month',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        supMonthDefaults={};
+        if(Array.isArray(data))data.forEach(function(row){supMonthDefaults[row.month]=row});
+        buildSupMonthGrid();
+      })
+      .catch(function(){buildSupMonthGrid()});
+    }
+
+    function buildSupMonthGrid(){
+      var grid=document.getElementById('sup-month-grid');
+      if(!grid)return;
+      grid.innerHTML='';
+      var currentMonth=new Date().getMonth()+1;
+      for(var m=1;m<=12;m++){
+        var row=supMonthDefaults[m];
+        var isOpen=!!row;
+        var openT=isOpen?(row.open_time||'').substring(0,5):'';
+        var closeT=isOpen?(row.close_time||'').substring(0,5):'';
+        var lastBooking=(isOpen&&closeT)?minusOneHour(closeT):'';
+        var card=document.createElement('div');
+        card.className='month-card'+(m===currentMonth?' current':'')+(isOpen?'':' closed-month');
+        card.dataset.month=m;
+        var inner='<div class="month-name">'+MONTHS_DE[m-1]+'</div>';
+        inner+='<label class="toggle" title="Monat öffnen/schließen"><input type="checkbox" class="sup-month-toggle" data-month="'+m+'" '+(isOpen?'checked':'')+'><span class="slider"></span></label>';
+        if(isOpen){
+          inner+='<div class="month-times">'
+            +'<input type="time" class="sup-month-time-input open" value="'+openT+'" data-month="'+m+'">'
+            +'<span class="time-sep">&ndash;</span>'
+            +'<input type="time" class="sup-month-time-input close" value="'+closeT+'" data-month="'+m+'">'
+            +'</div>'
+            +'<div class="sup-month-last" data-month="'+m+'">'
+            +(lastBooking?'Letzte Buchung: '+lastBooking:'')+'</div>';
+        }else{
+          inner+='<div class="sup-month-closed-label">Geschlossen</div>';
+        }
+        card.innerHTML=inner;
+        grid.appendChild(card);
+      }
+      // Toggle-Listener
+      grid.querySelectorAll('.sup-month-toggle').forEach(function(tog){
+        tog.addEventListener('change',function(){
+          var m=parseInt(this.dataset.month,10);
+          if(this.checked) supSetMonthOpen(m); else supSetMonthClosed(m);
+        });
+      });
+      // Time-Listener: live „Letzte Buchung" + Auto-save on blur
+      grid.querySelectorAll('.sup-month-time-input').forEach(function(inp){
+        inp.addEventListener('input',function(){
+          var m=parseInt(this.dataset.month,10);
+          var card=document.querySelector('.month-card[data-month="'+m+'"]');
+          if(!card)return;
+          var ct=card.querySelector('.sup-month-time-input.close').value;
+          var hint=card.querySelector('.sup-month-last');
+          if(hint)hint.textContent=ct?'Letzte Buchung: '+minusOneHour(ct):'';
+        });
+        inp.addEventListener('blur',function(){saveSupMonthDefault(parseInt(this.dataset.month,10))});
+      });
+    }
+
+    // Monat öffnen — Default 10:00–21:00 (September 20:00) speichern + ausrollen
+    function supSetMonthOpen(month){
+      var defaultOpen='10:00';
+      var defaultClose=(month===9)?'20:00':'21:00';
+      fetch(SB_URL+'/rest/v1/sup_monthly_defaults',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify([{month:month,open_time:defaultOpen,close_time:defaultClose,updated_at:new Date().toISOString()}])
+      }).then(function(r){
+        if(!r.ok)throw new Error('fail');
+        supMonthDefaults[month]={month:month,open_time:defaultOpen,close_time:defaultClose};
+        return rolloutSupMonthToSchedule(month,defaultOpen,defaultClose);
+      }).then(function(){
+        msg(MONTHS_DE[month-1]+' geöffnet ('+defaultOpen+'–'+defaultClose+')','','sup-month-message');
+        buildSupMonthGrid();
+        flashSupMonthCard(month);
+        if(typeof loadSupCalendar==='function')loadSupCalendar();
+      }).catch(function(){msg('Fehler beim Öffnen','error','sup-month-message')});
+    }
+
+    // Monat schließen — Default-Eintrag löschen
+    function supSetMonthClosed(month){
+      fetch(SB_URL+'/rest/v1/sup_monthly_defaults?month=eq.'+month,{
+        method:'DELETE',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      }).then(function(r){
+        if(!r.ok)throw new Error('fail');
+        delete supMonthDefaults[month];
+        msg(MONTHS_DE[month-1]+' geschlossen','','sup-month-message');
+        buildSupMonthGrid();
+        flashSupMonthCard(month);
+        if(typeof loadSupCalendar==='function')loadSupCalendar();
+      }).catch(function(){msg('Fehler beim Schließen','error','sup-month-message')});
+    }
+
+    // Visuelles Save-Feedback: 1.2 s grüner Rahmen pulsiert
+    function flashSupMonthCard(month){
+      var card=document.querySelector('.month-card[data-month="'+month+'"]');
+      if(!card)return;
+      card.classList.add('flash-ok');
+      setTimeout(function(){if(card)card.classList.remove('flash-ok')},1200);
+    }
+
+    function minusOneHour(hhmm){
+      // "21:00" → "20:00"; defensive bei leeren oder ungültigen Werten
+      if(!hhmm||hhmm.length<4)return '';
+      var p=hhmm.split(':'); if(p.length<2)return '';
+      var h=parseInt(p[0],10), mn=parseInt(p[1],10);
+      if(isNaN(h)||isNaN(mn))return '';
+      h-=1; if(h<0)h=0;
+      return String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0');
+    }
+
+    function saveSupMonthDefault(month){
+      var card=document.querySelector('.month-card[data-month="'+month+'"]');
+      if(!card)return;
+      var openInp=card.querySelector('.sup-month-time-input.open');
+      var closeInp=card.querySelector('.sup-month-time-input.close');
+      if(!openInp||!closeInp)return; // geschlossener Monat: keine Inputs vorhanden
+      var openT=openInp.value;
+      var closeT=closeInp.value;
+      // Unvollständig → still warten (User tippt noch). Schließen läuft über den Toggle.
+      if(!openT||!closeT)return;
+      // Validierung: open < close
+      if(openT>=closeT){msg('Öffnungszeit muss vor Schließzeit liegen','error','sup-month-message');return}
+
+      // 1. sup_monthly_defaults upsert
+      fetch(SB_URL+'/rest/v1/sup_monthly_defaults',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify([{month:month,open_time:openT,close_time:closeT,updated_at:new Date().toISOString()}])
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('fail');
+        supMonthDefaults[month]={month:month,open_time:openT,close_time:closeT};
+        // 2. Rollout auf sup_daily_schedule: alle Tage dieses Monats ab heute mit auto_default=true
+        return rolloutSupMonthToSchedule(month,openT,closeT);
+      })
+      .then(function(affected){
+        msg(MONTHS_DE[month-1]+' gespeichert'+(affected>0?' — '+affected+' Tag(e) aktualisiert':''),'','sup-month-message');
+        flashSupMonthCard(month);
+        if(typeof loadSupCalendar==='function')loadSupCalendar();
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','sup-month-message')});
+    }
+
+    function rolloutSupMonthToSchedule(month,openT,closeT){
+      // PATCH alle sup_daily_schedule-Einträge des Monats ab heute mit auto_default=true
+      var today=new Date();
+      var year=today.getFullYear();
+      var fromStr=dateStr(today);
+      var ranges=[];
+      for(var y=year;y<=year+1;y++){
+        var first=y+'-'+String(month).padStart(2,'0')+'-01';
+        var lastDay=new Date(y,month,0).getDate();
+        var last=y+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+        if(last>=fromStr)ranges.push({first:first<fromStr?fromStr:first,last:last});
+      }
+      if(!ranges.length)return Promise.resolve(0);
+
+      var promises=ranges.map(function(r){
+        return fetch(SB_URL+'/rest/v1/sup_daily_schedule?date=gte.'+r.first+'&date=lte.'+r.last+'&auto_default=is.true',{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+          body:JSON.stringify({open_time:openT,close_time:closeT,is_open:true})
+        }).then(function(r){return r.ok?r.json():[]});
+      });
+      return Promise.all(promises).then(function(results){
+        var total=0;results.forEach(function(arr){if(Array.isArray(arr))total+=arr.length});
+        return total;
+      });
+    }
+
     // Save (Bulk) — Smart-Save: Tage die exakt dem Monats-Default entsprechen werden
     // nicht als Override gespeichert, sondern (falls vorhanden) gelöscht.
     document.getElementById('btn-save').addEventListener('click',function(){
@@ -1086,14 +1285,18 @@
       var firstDay = supYear + '-' + String(supMonth+1).padStart(2,'0') + '-01';
       var lastDay = supYear + '-' + String(supMonth+1).padStart(2,'0') + '-' + new Date(supYear, supMonth+1, 0).getDate();
 
-      Promise.all([
-        fetch(SB_URL + '/rest/v1/sup_closed_days?date=gte.' + firstDay + '&date=lte.' + lastDay, {
-          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-        }).then(function(r) { return r.json(); }),
-        fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,customer_email,id,total_price,booking_id', {
-          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-        }).then(function(r) { return r.json(); })
-      ]).then(function(results) {
+      // Monats-Defaults vorab laden, damit die Tageskarten den richtigen Default kennen
+      loadSupMonthDefaults().then(function(){
+        return Promise.all([
+          // Closed-Tage aus sup_daily_schedule (is_open=false)
+          fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=gte.' + firstDay + '&date=lte.' + lastDay + '&is_open=is.false&select=date', {
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+          }).then(function(r) { return r.json(); }),
+          fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,customer_email,id,total_price,booking_id', {
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+          }).then(function(r) { return r.json(); })
+        ]);
+      }).then(function(results) {
         supClosedDays = (results[0] || []).map(function(r) { return r.date; });
         supBookings = {};
         (results[1] || []).forEach(function(b) {
@@ -1198,18 +1401,24 @@
     }
 
     function supToggleDay(ds, isOpen) {
+      var headers = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token };
       if (isOpen) {
-        // Remove from closed days
-        fetch(SB_URL + '/rest/v1/sup_closed_days?date=eq.' + ds, {
-          method: 'DELETE',
-          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-        }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
+        // Override entfernen → Tag folgt wieder dem Monats-Default (offen)
+        // Außerdem Spiegel-Eintrag in sup_closed_days löschen (Übergangskompatibilität)
+        Promise.all([
+          fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=eq.' + ds, {
+            method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+          }),
+          fetch(SB_URL + '/rest/v1/sup_closed_days?date=eq.' + ds, {
+            method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+          })
+        ]).then(function() { loadSupCalendar(); supSelectedDate = ds; });
       } else {
-        // Add to closed days
-        fetch(SB_URL + '/rest/v1/sup_closed_days', {
+        // Manueller Override: Tag schließen
+        fetch(SB_URL + '/rest/v1/sup_daily_schedule', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ date: ds })
+          headers: Object.assign({}, headers, { 'Prefer': 'resolution=merge-duplicates' }),
+          body: JSON.stringify({ date: ds, is_open: false, auto_default: false, updated_at: new Date().toISOString() })
         }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
       }
     }
