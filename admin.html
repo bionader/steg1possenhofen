@@ -1403,16 +1403,10 @@
     function supToggleDay(ds, isOpen) {
       var headers = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token };
       if (isOpen) {
-        // Override entfernen → Tag folgt wieder dem Monats-Default (offen)
-        // Außerdem Spiegel-Eintrag in sup_closed_days löschen (Übergangskompatibilität)
-        Promise.all([
-          fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=eq.' + ds, {
-            method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-          }),
-          fetch(SB_URL + '/rest/v1/sup_closed_days?date=eq.' + ds, {
-            method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-          })
-        ]).then(function() { loadSupCalendar(); supSelectedDate = ds; });
+        // Override entfernen → Tag folgt wieder dem Monats-Default
+        fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=eq.' + ds, {
+          method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
       } else {
         // Manueller Override: Tag schließen
         fetch(SB_URL + '/rest/v1/sup_daily_schedule', {
