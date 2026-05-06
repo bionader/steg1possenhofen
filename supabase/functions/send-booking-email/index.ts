@@ -9,6 +9,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Atomic-Increment via RPC — Counter darf Mail-Versand niemals blockieren
+// Mail an Gast + BCC an hallo@ = 2 Mails pro Buchung
+async function bumpQuota(times = 1) {
+  for (let i = 0; i < times; i++) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_email_quota`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_SERVICE_ROLE_KEY!,
+          "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      });
+    } catch (_) {
+      // Silent fail
+    }
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -136,6 +156,7 @@ serve(async (req) => {
   });
 
   const data = await res.json();
+  if (res.ok) await bumpQuota(2); // Gast + BCC hallo@
   return new Response(JSON.stringify(data), {
     status: res.ok ? 200 : 500,
     headers: { ...corsHeaders, "Content-Type": "application/json" },

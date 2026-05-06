@@ -1092,21 +1092,17 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       stxt.textContent=next?'N\u00e4chste \u00d6ffnung: '+next:'Heute geschlossen';
       if(widget)widget.classList.add('is-closed');
       updateWbar(false,null,null,nextOpenText());
-    }else if(isOpen&&(cM-nowMins<=60)&&(cM-nowMins>0)){
-      dot.classList.remove('closed');
-      stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
-      if(widget)widget.classList.remove('is-closed');
-      updateWbar(true,openT,closeT);
-    }else if(!isOpen&&nowMins<oM&&(oM-nowMins<=60)){
-      dot.classList.add('closed');
-      stxt.textContent='Heute ge\u00f6ffnet: ab '+openT+' Uhr';
-      if(widget)widget.classList.add('is-closed');
-      updateWbar(false,null,null,'Heute ab '+openT+' Uhr');
     }else if(isOpen){
       dot.classList.remove('closed');
       stxt.textContent='Heute ge\u00f6ffnet: '+openT+' \u2013 '+closeT+' Uhr';
       if(widget)widget.classList.remove('is-closed');
       updateWbar(true,openT,closeT);
+    }else if(nowMins<oM){
+      // Heute \u00f6ffnet noch - immer "Heute ge\u00f6ffnet ab" anzeigen, egal wie weit weg
+      dot.classList.add('closed');
+      stxt.textContent='Heute ge\u00f6ffnet ab: '+openT+' Uhr';
+      if(widget)widget.classList.add('is-closed');
+      updateWbar(false,null,null,'Heute ab '+openT+' Uhr');
     }else{
       dot.classList.add('closed');
       var next=findNextOpen();

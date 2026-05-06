@@ -1,6 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+// Atomic-Increment via RPC — schlaegt Quota-Limit fehl, wird Mail trotzdem versendet
+async function bumpQuota() {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_email_quota`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_SERVICE_ROLE_KEY!,
+        "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    });
+  } catch (_) {
+    // Silent fail — Counter darf Mail-Versand niemals blockieren
+  }
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,6 +128,7 @@ serve(async (req) => {
   });
 
   const data = await res.json();
+  if (res.ok) await bumpQuota();
   return new Response(JSON.stringify(data), {
     status: res.ok ? 200 : 500,
     headers: { ...corsHeaders, "Content-Type": "application/json" },

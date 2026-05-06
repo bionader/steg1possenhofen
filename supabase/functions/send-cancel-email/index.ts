@@ -1,11 +1,33 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Atomic-Increment via RPC — Counter darf Mail-Versand niemals blockieren
+// Mail an Gast + BCC an hallo@ = 2 Mails pro Storno
+async function bumpQuota(times = 1) {
+  for (let i = 0; i < times; i++) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_email_quota`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_SERVICE_ROLE_KEY!,
+          "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      });
+    } catch (_) {
+      // Silent fail
+    }
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -100,6 +122,7 @@ serve(async (req) => {
   });
 
   const data = await res.json();
+  if (res.ok) await bumpQuota(2); // Gast + BCC hallo@
   return new Response(JSON.stringify(data), {
     status: res.ok ? 200 : 500,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
