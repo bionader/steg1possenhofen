@@ -112,6 +112,7 @@ serve(async (req) => {
     </div>
   `;
 
+  // 1) Crew-Mail an info@
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -128,9 +129,76 @@ serve(async (req) => {
   });
 
   const data = await res.json();
-  if (res.ok) await bumpQuota();
+  if (!res.ok) {
+    return new Response(JSON.stringify(data), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  await bumpQuota();
+
+  // 2) Bestätigungsmail an Gast — Versand-Fehler darf User-Feedback nicht blockieren
+  const firstName = nameH.split(" ")[0] || nameH;
+  const guestHtml = `
+    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+      <!-- Header -->
+      <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
+        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
+        <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">Bestätigung deiner Nachricht</p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:28px">
+        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:24px;font-weight:600;margin:0 0 14px">Hallo ${firstName},</h2>
+        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 14px">vielen Dank für deine Nachricht.</p>
+        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 14px">Schön, dass du dich bei uns meldest — wir kümmern uns gleich darum.</p>
+        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 22px">Wir melden uns innerhalb der nächsten 24 Stunden bei Dir zurück.</p>
+
+        <!-- Echo: was wir bekommen haben -->
+        <div style="background:#F4EDD8;border-radius:12px;padding:18px 20px;margin-bottom:18px">
+          <p style="font-size:12px;color:#7A7668;letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px">Deine Nachricht</p>
+          <p style="color:#18180F;font-size:14px;font-weight:500;margin:0 0 8px">${subjectH}</p>
+          <p style="white-space:pre-wrap;color:#4A4840;font-size:14px;line-height:1.6;margin:0">${messageH}</p>
+        </div>
+
+        <!-- Sign-off -->
+        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0">Sonnige Grüße<br><span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;color:#163D36">vom Steg 1</span></p>
+      </div>
+
+      <!-- Footer -->
+      <div style="border-top:1px solid #E6D9B8;padding:16px 28px;text-align:center">
+        <p style="color:#7A7668;font-size:12px;margin:0"><a href="https://steg1possenhofen.de" style="color:#163D36;text-decoration:none;font-weight:500">steg1possenhofen.de</a> · Possenhofen am Starnberger See</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const guestRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Steg 1 Possenhofen <info@steg1possenhofen.de>",
+        to: [email],
+        reply_to: "info@steg1possenhofen.de",
+        subject: "Deine Nachricht an Steg 1 ist angekommen",
+        html: guestHtml,
+      }),
+    });
+    if (guestRes.ok) {
+      await bumpQuota();
+    } else {
+      const errBody = await guestRes.text();
+      console.error("[contact] guest confirmation failed", guestRes.status, errBody);
+    }
+  } catch (e) {
+    console.error("[contact] guest confirmation exception", e);
+  }
+
   return new Response(JSON.stringify(data), {
-    status: res.ok ? 200 : 500,
+    status: 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
