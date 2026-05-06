@@ -151,13 +151,22 @@ nav.scrolled{
 .menu-hero .back-link:hover{opacity:.7}
 .menu-hero .back-link svg{width:16px;height:16px}
 
-/* ── FOOD GALLERY ── */
+/* ── FOOD GALLERY (Bento) ── */
 .food-gallery{padding:3.5rem 3rem 1rem;background:var(--w)}
-.food-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;max-width:1100px;margin:0 auto}
-.food-item{margin:0;border-radius:14px;overflow:hidden;aspect-ratio:3/2;background:var(--sand)}
-.food-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-.food-item:hover img{transform:scale(1.04)}
-@media(max-width:768px){.food-gallery{padding:2.5rem 1.5rem .5rem}.food-grid{gap:.7rem}}
+.food-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:220px;gap:1rem;max-width:1100px;margin:0 auto}
+.food-item{margin:0;border-radius:14px;overflow:hidden;background:var(--sand);position:relative}
+.food-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.4,0,.2,1)}
+.food-item:hover img{transform:scale(1.06)}
+/* Bento spans: 1 = tall left, 2 = wide top, 3 + 4 = normal bottom */
+.food-item:nth-child(1){grid-row:span 2}
+.food-item:nth-child(2){grid-column:span 2}
+.food-item:nth-child(3),.food-item:nth-child(4){grid-column:span 1}
+@media(max-width:768px){
+  .food-gallery{padding:2.5rem 1.5rem .5rem}
+  .food-grid{grid-template-columns:1fr;grid-auto-rows:auto;gap:.7rem}
+  .food-item{aspect-ratio:3/2}
+  .food-item:nth-child(1),.food-item:nth-child(2),.food-item:nth-child(3),.food-item:nth-child(4){grid-column:auto;grid-row:auto}
+}
 
 /* ── SECTION DEFAULTS ── */
 .sec{padding:4.5rem 3rem}
@@ -395,10 +404,16 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <section class="food-gallery reveal">
   <div class="food-grid">
     <figure class="food-item">
-      <img src="images/food/food-01.jpg" alt="Frisches Essen am Steg 1" loading="lazy" decoding="async">
+      <img src="images/food/food-03.jpg" alt="Aperol Spritz mit Blick auf den Starnberger See" loading="lazy" decoding="async">
     </figure>
     <figure class="food-item">
       <img src="images/food/food-02.jpg" alt="Sommerliche Drinks und Cocktails am Steg 1" loading="lazy" decoding="async">
+    </figure>
+    <figure class="food-item">
+      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
+    </figure>
+    <figure class="food-item">
+      <img src="images/food/food-04.jpg" alt="Kaffee und Kuchen mit Blick auf den Steg" loading="lazy" decoding="async">
     </figure>
     <!-- weitere food-items kommen hier dazu -->
   </div>
@@ -472,6 +487,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     <div class="fcol-body">
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html#bildnachweis">Bildnachweis</a>
     </div>
   </details>
 </footer>

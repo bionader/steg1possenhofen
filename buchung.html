@@ -355,6 +355,7 @@ footer{background:var(--dark);color:var(--w);padding:3.5rem 3.5rem 1.5rem;displa
     <div class="fcol-body">
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html#bildnachweis">Bildnachweis</a>
     </div>
   </details>
 </footer>
@@ -373,7 +374,48 @@ var SB_HEADERS = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
 var booking = null;       // Current booking data
 var settings = {};        // SUP settings
 var closedDays = [];      // Closed day dates
+var monthDefaults = {};   // {1..12: {open_time, close_time}}
+var dayOverrides = {};    // {'YYYY-MM-DD': {is_open, open_time, close_time}}
 var editCalYear, editCalMonth, editSelectedDate = null, editSelectedSlot = null;
+
+// Effektive Öffnungszeit für einen konkreten Tag (Override > Monats-Default > Fallback)
+function getDayOpening(ds) {
+  var ov = dayOverrides[ds];
+  if (ov) {
+    return {
+      is_open: ov.is_open !== false,
+      open_time: ov.open_time ? ov.open_time.substring(0,5) : '',
+      close_time: ov.close_time ? ov.close_time.substring(0,5) : ''
+    };
+  }
+  var month = parseInt(ds.split('-')[1], 10);
+  var def = monthDefaults[month];
+  if (def) {
+    return {
+      is_open: true,
+      open_time: (def.open_time || '').substring(0,5),
+      close_time: (def.close_time || '').substring(0,5)
+    };
+  }
+  if (settings && settings.slot_start && settings.slot_end) {
+    return {
+      is_open: true,
+      open_time: settings.slot_start.substring(0,5),
+      close_time: settings.slot_end.substring(0,5)
+    };
+  }
+  return { is_open: false, open_time: '', close_time: '' };
+}
+
+function computeClosedDays() {
+  closedDays = [];
+  if (typeof editCalYear === 'undefined' || typeof editCalMonth === 'undefined') return;
+  var lastDay = new Date(editCalYear, editCalMonth + 1, 0).getDate();
+  for (var d = 1; d <= lastDay; d++) {
+    var ds = dateStr(new Date(editCalYear, editCalMonth, d));
+    if (!getDayOpening(ds).is_open) closedDays.push(ds);
+  }
+}
 
 // ── URL params ──
 var params = new URLSearchParams(window.location.search);
@@ -587,15 +629,24 @@ function loadEditData() {
     .then(function(data) { if (data && data.length > 0) settings = data[0]; })
     .catch(function() { settings = { total_boards: 10, price_per_hour: 15 }; });
 
-  var closedReq = fetch(SB_URL + '/rest/v1/sup_closed_days?select=date', { headers: SB_HEADERS })
+  var monthDefaultsReq = fetch(SB_URL + '/rest/v1/sup_monthly_defaults?order=month', { headers: SB_HEADERS })
     .then(function(r) { return r.ok ? r.json() : []; })
     .then(function(data) {
-      closedDays = [];
-      if (data) data.forEach(function(row) { closedDays.push(row.date); });
+      monthDefaults = {};
+      if (Array.isArray(data)) data.forEach(function(row) { monthDefaults[row.month] = row; });
     })
-    .catch(function() { closedDays = []; });
+    .catch(function() { monthDefaults = {}; });
 
-  Promise.all([settingsReq, closedReq]).then(function() {
+  var dayOverridesReq = fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=gte.' + firstDate + '&date=lte.' + lastDate, { headers: SB_HEADERS })
+    .then(function(r) { return r.ok ? r.json() : []; })
+    .then(function(data) {
+      dayOverrides = {};
+      if (Array.isArray(data)) data.forEach(function(row) { dayOverrides[row.date] = row; });
+    })
+    .catch(function() { dayOverrides = {}; });
+
+  Promise.all([settingsReq, monthDefaultsReq, dayOverridesReq]).then(function() {
+    computeClosedDays();
     renderEditCalendar();
   });
 }
@@ -701,8 +752,13 @@ function renderEditSlots(ds, dayBookings) {
   editSelectedSlot = null;
   document.getElementById('edit-form').classList.remove('active');
 
-  var start = timeToMinutes(settings.slot_start || '10:00');
-  var end = timeToMinutes(settings.slot_end || '19:00');
+  var opening = getDayOpening(ds);
+  if (!opening.is_open) {
+    grid.innerHTML = '<p style="color:var(--text3);font-size:.85rem;text-align:center;padding:12px">Dieser Tag ist geschlossen.</p>';
+    return;
+  }
+  var start = timeToMinutes(opening.open_time || settings.slot_start || '10:00');
+  var end = timeToMinutes(opening.close_time || settings.slot_end || '19:00');
   var total = settings.total_boards || 10;
   var today = new Date();
   var isToday = ds === dateStr(today);
@@ -761,7 +817,8 @@ function showEditForm(ds, startTime, maxAvail, dayBookings) {
   var durSelect = document.getElementById('e-duration');
   durSelect.innerHTML = '';
   var startMin = timeToMinutes(startTime);
-  var endMin = timeToMinutes(settings.slot_end || '19:00');
+  var dayOpening = getDayOpening(ds);
+  var endMin = timeToMinutes(dayOpening.close_time || settings.slot_end || '19:00');
   var minDur = settings.min_duration || 60;
   var step = settings.duration_step || 30;
 

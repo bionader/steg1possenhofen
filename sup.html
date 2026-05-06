@@ -760,6 +760,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     <div class="fcol-body">
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html#bildnachweis">Bildnachweis</a>
     </div>
   </details>
 </footer>
@@ -820,9 +821,54 @@ var calYear, calMonth, selectedDate = null;
 var closedDays = [];
 var bookingsCache = {};
 var settings = {};
+var monthDefaults = {};   // {1..12: {open_time, close_time}}
+var dayOverrides = {};    // {'YYYY-MM-DD': {is_open, open_time, close_time}}
 var now = new Date();
 calYear = now.getFullYear();
 calMonth = now.getMonth();
+
+// Liefert die effektive Öffnungszeit für einen konkreten Tag.
+// Priorität: 1. Tages-Override (sup_daily_schedule), 2. Monats-Default
+// (sup_monthly_defaults), 3. globaler Fallback aus sup_settings, 4. komplett zu.
+function getDayOpening(ds) {
+  var ov = dayOverrides[ds];
+  if (ov) {
+    return {
+      is_open: ov.is_open !== false,
+      open_time: ov.open_time ? ov.open_time.substring(0,5) : '',
+      close_time: ov.close_time ? ov.close_time.substring(0,5) : ''
+    };
+  }
+  var month = parseInt(ds.split('-')[1], 10);
+  var def = monthDefaults[month];
+  if (def) {
+    return {
+      is_open: true,
+      open_time: (def.open_time || '').substring(0,5),
+      close_time: (def.close_time || '').substring(0,5)
+    };
+  }
+  // Kein Monats-Default → falls sup_settings globale Slot-Range gesetzt hat,
+  // ist das nur Fallback bis Defaults gepflegt sind. Sonst: Tag bleibt zu.
+  if (settings && settings.slot_start && settings.slot_end) {
+    return {
+      is_open: true,
+      open_time: settings.slot_start.substring(0,5),
+      close_time: settings.slot_end.substring(0,5)
+    };
+  }
+  return { is_open: false, open_time: '', close_time: '' };
+}
+
+// Befüllt closedDays für den aktuellen Monat anhand getDayOpening
+function computeClosedDays() {
+  closedDays = [];
+  var lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+  for (var d = 1; d <= lastDay; d++) {
+    var ds = dateStr(new Date(calYear, calMonth, d));
+    if (!getDayOpening(ds).is_open) closedDays.push(ds);
+  }
+}
 
 // Helper: format date as YYYY-MM-DD
 function dateStr(d) {
@@ -998,8 +1044,14 @@ function renderSlots(ds, dayBookings) {
   selectedSlot = null;
   document.getElementById('book-form').classList.remove('active');
 
-  var start = timeToMinutes(settings.slot_start || '10:00');
-  var end = timeToMinutes(settings.slot_end || '19:00');
+  // Slot-Range: Tages-Override > Monats-Default > sup_settings (Fallback)
+  var opening = getDayOpening(ds);
+  if (!opening.is_open) {
+    grid.innerHTML = '<p style="color:var(--text3);font-size:.85rem;text-align:center;padding:12px">Dieser Tag ist geschlossen.</p>';
+    return;
+  }
+  var start = timeToMinutes(opening.open_time || settings.slot_start || '10:00');
+  var end = timeToMinutes(opening.close_time || settings.slot_end || '19:00');
   var interval = settings.slot_interval || 15;
   var total = settings.total_boards || 10;
   var today = new Date();
@@ -1049,7 +1101,8 @@ function showBookingForm(ds, startTime, maxAvail, dayBookings) {
   var durSelect = document.getElementById('b-duration');
   durSelect.innerHTML = '';
   var startMin = timeToMinutes(startTime);
-  var endMin = timeToMinutes(settings.slot_end || '19:00');
+  var dayOpening = getDayOpening(ds);
+  var endMin = timeToMinutes(dayOpening.close_time || settings.slot_end || '19:00');
   var minDur = settings.min_duration || 60;
   var step = settings.duration_step || 30;
 
@@ -1206,15 +1259,23 @@ function loadMonthData() {
       settings = { total_boards: 10, price_per_hour: 15 };
     });
 
-  var closedReq = fetch(SB_URL + '/rest/v1/sup_closed_days?date=gte.' + firstDate + '&date=lte.' + lastDate, { headers: headers })
-    .then(function(r) { return r.ok ? r.json() : Promise.reject('closed'); })
+  // Monats-Defaults (alle 12 Monate, klein) — gilt für jeden Monatswechsel
+  var monthDefaultsReq = fetch(SB_URL + '/rest/v1/sup_monthly_defaults?order=month', { headers: headers })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject('monthDefaults'); })
     .then(function(data) {
-      closedDays = [];
-      if (data && data.length > 0) {
-        data.forEach(function(row) { closedDays.push(row.date); });
-      }
+      monthDefaults = {};
+      if (Array.isArray(data)) data.forEach(function(row) { monthDefaults[row.month] = row; });
     })
-    .catch(function() { closedDays = []; });
+    .catch(function() { monthDefaults = {}; });
+
+  // Tages-Overrides (sup_daily_schedule) für aktuellen Monat
+  var dayOverridesReq = fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=gte.' + firstDate + '&date=lte.' + lastDate, { headers: headers })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject('dayOverrides'); })
+    .then(function(data) {
+      dayOverrides = {};
+      if (Array.isArray(data)) data.forEach(function(row) { dayOverrides[row.date] = row; });
+    })
+    .catch(function() { dayOverrides = {}; });
 
   var bookingsReq = fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDate + '&date=lte.' + lastDate + '&status=eq.confirmed&select=date,board_count', { headers: headers })
     .then(function(r) { return r.ok ? r.json() : Promise.reject('bookings'); })
@@ -1228,10 +1289,12 @@ function loadMonthData() {
     })
     .catch(function() { bookingsCache = {}; });
 
-  // Wait for all requests, then render
-  Promise.all([settingsReq, closedReq, bookingsReq]).then(function() {
+  // Wait for all requests, dann closedDays ableiten und rendern
+  Promise.all([settingsReq, monthDefaultsReq, dayOverridesReq, bookingsReq]).then(function() {
+    computeClosedDays();
     renderCalendar();
   }).catch(function() {
+    computeClosedDays();
     renderCalendar();
   });
 }
