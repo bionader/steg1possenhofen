@@ -1,0 +1,11 @@
+{
+  "name": "Steg 1 Possenhofen",
+  "short_name": "Steg 1",
+  "icons": [
+    { "src": "/img/favicon/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/favicon/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#2A7B6F",
+  "background_color": "#F4EDD8",
+  "display": "standalone"
+}
