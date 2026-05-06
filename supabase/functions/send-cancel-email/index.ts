@@ -50,6 +50,9 @@ serve(async (req) => {
         <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Biergarten &amp; SUP-Verleih am Starnberger See</p>
       </div>
 
+      <!-- SUP Foto -->
+      <img src="https://raw.githubusercontent.com/bionader/steg1possenhofen/main/images/sup-mail.jpg" alt="Steg 1 Possenhofen am Starnberger See" style="width:100%;display:block;max-height:260px;object-fit:cover;object-position:center 85%" />
+
       <!-- Body -->
       <div style="padding:28px">
         <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Buchung storniert</h2>
