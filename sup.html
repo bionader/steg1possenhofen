@@ -1020,8 +1020,8 @@ function showSlotPicker(ds) {
   var dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
   document.getElementById('slot-date').textContent = dayNames[d.getDay()] + ', ' + d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear();
 
-  // Load bookings for this day
-  fetch(SB_URL + '/rest/v1/bookings?date=eq.' + ds + '&status=eq.confirmed&select=start_time,end_time,board_count', {
+  // Load bookings for this day — Public-View ohne PII (anon hat keinen direkten SELECT auf bookings mehr)
+  fetch(SB_URL + '/rest/v1/bookings_public?date=eq.' + ds + '&select=start_time,end_time,board_count', {
     headers: { 'apikey': SB_KEY }
   })
   .then(function(r) { return r.json(); })
@@ -1277,7 +1277,8 @@ function loadMonthData() {
     })
     .catch(function() { dayOverrides = {}; });
 
-  var bookingsReq = fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDate + '&date=lte.' + lastDate + '&status=eq.confirmed&select=date,board_count', { headers: headers })
+  // Public-View ohne PII (anon hat keinen direkten SELECT auf bookings mehr)
+  var bookingsReq = fetch(SB_URL + '/rest/v1/bookings_public?date=gte.' + firstDate + '&date=lte.' + lastDate + '&select=date,board_count', { headers: headers })
     .then(function(r) { return r.ok ? r.json() : Promise.reject('bookings'); })
     .then(function(data) {
       bookingsCache = {};

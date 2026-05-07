@@ -473,20 +473,22 @@ function loadBooking() {
     return;
   }
 
-  fetch(SB_URL + '/rest/v1/bookings?manage_token=eq.' + token + '&select=*', {
-    headers: SB_HEADERS
+  // Buchung über manage-booking Edge Function laden (Service-Role + Token-Validierung)
+  fetch(SB_URL + '/functions/v1/manage-booking?token=' + encodeURIComponent(token), {
+    headers: { 'Authorization': 'Bearer ' + SB_KEY }
   })
   .then(function(r) {
+    if (r.status === 404 || r.status === 400) return null;
     if (!r.ok) throw new Error('fetch');
     return r.json();
   })
-  .then(function(rows) {
-    if (!rows || rows.length === 0) {
+  .then(function(row) {
+    if (!row || row.error) {
       showState('state-error');
       return;
     }
 
-    booking = rows[0];
+    booking = row;
 
     // Show error for cancelled bookings? No — show details with cancelled badge, but hide actions
     renderBookingDetails();
@@ -549,17 +551,19 @@ function confirmCancel() {
   btn.disabled = true;
   btn.textContent = 'Wird storniert...';
 
-  fetch(SB_URL + '/rest/v1/bookings?manage_token=eq.' + token, {
-    method: 'PATCH',
-    headers: Object.assign({}, SB_HEADERS, { 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' }),
-    body: JSON.stringify({ status: 'cancelled' })
+  // Cancel über manage-booking Edge Function (Service-Role hinter Token)
+  fetch(SB_URL + '/functions/v1/manage-booking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ token: token, action: 'cancel' })
   })
   .then(function(r) {
     if (!r.ok) throw new Error('cancel');
     return r.json();
   })
-  .then(function(rows) {
-    booking = rows[0];
+  .then(function(row) {
+    if (!row || row.error) throw new Error('cancel');
+    booking = row;
     renderBookingDetails();
     document.getElementById('cancel-dialog').classList.remove('active');
     var successEl = document.getElementById('cancel-success');
@@ -734,7 +738,8 @@ function showEditSlots(ds) {
   document.getElementById('edit-slot-date').textContent = dayNames[d.getDay()] + ', ' + d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear();
 
   // Load bookings for this day, excluding current booking
-  fetch(SB_URL + '/rest/v1/bookings?date=eq.' + ds + '&status=eq.confirmed&select=id,start_time,end_time,board_count', {
+  // Public-View ohne PII (anon hat keinen direkten SELECT auf bookings mehr)
+  fetch(SB_URL + '/rest/v1/bookings_public?date=eq.' + ds + '&select=id,start_time,end_time,board_count', {
     headers: SB_HEADERS
   })
   .then(function(r) { return r.json(); })
@@ -889,23 +894,29 @@ function saveEdit() {
   btn.disabled = true;
   btn.textContent = 'Wird gespeichert...';
 
-  fetch(SB_URL + '/rest/v1/bookings?manage_token=eq.' + token, {
-    method: 'PATCH',
-    headers: Object.assign({}, SB_HEADERS, { 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' }),
+  // Update über manage-booking Edge Function (Whitelist: date/start/end/boards/price)
+  fetch(SB_URL + '/functions/v1/manage-booking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
     body: JSON.stringify({
-      date: editSelectedDate,
-      start_time: editSelectedSlot,
-      end_time: endTime,
-      board_count: boards,
-      total_price: price
+      token: token,
+      action: 'update',
+      patch: {
+        date: editSelectedDate,
+        start_time: editSelectedSlot,
+        end_time: endTime,
+        board_count: boards,
+        total_price: price
+      }
     })
   })
   .then(function(r) {
     if (!r.ok) throw new Error('save');
     return r.json();
   })
-  .then(function(rows) {
-    booking = rows[0];
+  .then(function(row) {
+    if (!row || row.error) throw new Error('save');
+    booking = row;
     renderBookingDetails();
     document.getElementById('edit-section').classList.remove('active');
     document.getElementById('d-actions').style.display = '';
