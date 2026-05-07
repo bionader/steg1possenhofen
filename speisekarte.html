@@ -406,13 +406,13 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <section class="food-gallery reveal">
   <div class="food-grid">
     <figure class="food-item">
+      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
+    </figure>
+    <figure class="food-item">
       <img src="images/food/food-03.jpg" alt="Aperol Spritz mit Blick auf den Starnberger See" loading="lazy" decoding="async">
     </figure>
     <figure class="food-item">
       <img src="images/food/food-02.jpg" alt="Sommerliche Drinks und Cocktails am Steg 1" loading="lazy" decoding="async">
-    </figure>
-    <figure class="food-item">
-      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
     </figure>
     <figure class="food-item">
       <img src="images/food/food-04.jpg" alt="Kaffee und Kuchen mit Blick auf den Steg" loading="lazy" decoding="async">
@@ -572,6 +572,14 @@ if (burger && mobileMenu) {
     if(!container)return;
     var items=data.filter(function(i){return i.section===section});
 
+    // Schorlen werden unter "Alkoholfreie Getränke" einsortiert
+    items.forEach(function(item){
+      if(item.category==='Schorlen') item.category='Alkoholfreie Getränke';
+    });
+
+    // Diese Kategorien sollen ans Ende
+    var endCategories=['Kuchen & Eis','Saisonale Gerichte'];
+
     // Erst gruppieren nach Kategorie, dann rendern — verhindert doppelte
     // Boxen wenn sort_order zwischen Kategorien hin- und her-springt.
     // Reihenfolge der Kategorien = erste Erscheinung in sort_order.
@@ -582,8 +590,12 @@ if (burger && mobileMenu) {
       groups[item.category].push(item);
     });
 
+    // End-Kategorien hinten anhängen
+    var ordered=catOrder.filter(function(c){return endCategories.indexOf(c)===-1});
+    endCategories.forEach(function(c){if(catOrder.indexOf(c)!==-1) ordered.push(c)});
+
     var html='';
-    catOrder.forEach(function(cat){
+    ordered.forEach(function(cat){
       html+='<div class="menu-card"><h3>'+esc(cat)+'</h3>';
       groups[cat].forEach(function(item){
         html+='<div class="menu-item"><div class="menu-item-left"><div class="menu-item-name">'+esc(item.name)+'</div>';
