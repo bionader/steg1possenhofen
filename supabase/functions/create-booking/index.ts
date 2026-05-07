@@ -246,11 +246,38 @@ serve(async (req) => {
   const startMin = minutesFromTime(startTime);
   const endMin = startMin + durationMinutes;
 
-  // Late-Booking-Cutoff: letzter Start = slot_end - 60min, plus end_time darf
-  // slot_end nicht überschreiten. NOTE: derzeit gegen sup_settings.slot_end —
-  // tagesspezifische close_times aus sup_daily_schedule/sup_monthly_defaults
-  // werden noch nicht serverseitig aufgelöst (Frontend filtert bereits).
-  const slotEndMin = minutesFromTime(slot_end);
+  // Tagesspezifische close_time auflösen:
+  //   1. sup_daily_schedule für das Datum (Override) — wenn is_open=false → Buchung ablehnen
+  //   2. sup_monthly_defaults für den Monat
+  //   3. Fallback: sup_settings.slot_end
+  let effectiveCloseTime: string = slot_end;
+  const dailyRes = await pg(`sup_daily_schedule?date=eq.${date}&select=is_open,close_time`);
+  if (dailyRes.ok) {
+    const dailyRows = (await dailyRes.json()) as Array<{ is_open: boolean; close_time: string | null }>;
+    if (dailyRows.length > 0) {
+      const day = dailyRows[0];
+      if (day.is_open === false) {
+        return jsonResponse({ error: "day_closed" }, 400, corsHeaders);
+      }
+      if (day.close_time) {
+        effectiveCloseTime = day.close_time;
+      }
+    } else {
+      // Kein Tages-Override → Monats-Default heranziehen
+      const month = Number(date.slice(5, 7));
+      const monthRes = await pg(`sup_monthly_defaults?month=eq.${month}&select=close_time`);
+      if (monthRes.ok) {
+        const monthRows = (await monthRes.json()) as Array<{ close_time: string | null }>;
+        if (monthRows.length > 0 && monthRows[0].close_time) {
+          effectiveCloseTime = monthRows[0].close_time;
+        }
+      }
+    }
+  }
+
+  // Late-Booking-Cutoff: letzter Start = close_time - 60min, plus end_time darf
+  // close_time nicht überschreiten.
+  const slotEndMin = minutesFromTime(effectiveCloseTime);
   if (startMin > slotEndMin - 60) {
     return jsonResponse({ error: "late_booking_cutoff", latestStartMinutes: slotEndMin - 60 }, 400, corsHeaders);
   }
