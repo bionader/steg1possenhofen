@@ -1172,26 +1172,38 @@ document.getElementById('btn-book').addEventListener('click', function() {
   var price = hours * (settings.price_per_hour || 15) * boards;
 
   btn.disabled = true;
-  btn.textContent = 'Wird reserviert...';
+  btn.textContent = 'Wird überprüft...';
 
-  // Captcha-Token wird direkt an send-booking-email weitergegeben — die Function
-  // verifiziert ihn serverseitig (hCaptcha-Tokens sind one-time-use, daher kein
-  // separater verify-captcha-Step mehr).
-  // Step 1: POST booking to Supabase (Insert-Härtung kommt in eigener create-booking Function)
-  fetch(SB_URL + '/rest/v1/bookings', {
+  // Step 1: Verify captcha server-side
+  fetch(SB_URL + '/functions/v1/verify-captcha', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({
-      date: selectedDate,
-      start_time: selectedSlot,
-      end_time: endTime,
-      board_count: boards,
-      customer_name: name,
-      customer_email: email,
-      customer_phone: phone,
-      total_price: price,
-      booking_type: 'rental'
-    })
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ token: captchaToken })
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('captcha');
+    return r.json();
+  })
+  .then(function(data) {
+    if (!data.success) throw new Error('captcha');
+    btn.textContent = 'Wird reserviert...';
+
+    // Step 2: POST booking to Supabase
+    return fetch(SB_URL + '/rest/v1/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        date: selectedDate,
+        start_time: selectedSlot,
+        end_time: endTime,
+        board_count: boards,
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
+        total_price: price,
+        booking_type: 'rental'
+      })
+    });
   })
   .then(function(r) {
     if (!r.ok) throw new Error('booking');
@@ -1207,7 +1219,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
     hcaptcha.reset();
     loadMonthData();
 
-    // Send confirmation email — Function verifiziert captchaToken serverseitig
+    // Send confirmation email — edge function looks up token+id itself via service role
     fetch(SB_URL + '/functions/v1/send-booking-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
@@ -1218,8 +1230,7 @@ document.getElementById('btn-book').addEventListener('click', function() {
         startTime: selectedSlot,
         endTime: endTime,
         boards: boards,
-        price: price.toFixed(0),
-        captchaToken: captchaToken
+        price: price.toFixed(0)
       })
     });
   })
