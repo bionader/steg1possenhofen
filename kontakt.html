@@ -422,7 +422,7 @@ footer{
   }
   .mobile-menu a:hover{color:var(--g)}
   .mobile-menu a.active{color:var(--g);font-weight:500}
-  .mobile-menu .mm-cta{
+  .mobile-menu .mm-logo{display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;text-decoration:none}  .mobile-menu .mm-logo img{height:72px;width:auto;display:block}  .mobile-menu .mm-cta{
     background:var(--g);color:var(--w);
     padding:.7rem 2rem;border-radius:100px;
     font-weight:500;margin-top:.5rem;
@@ -433,7 +433,7 @@ footer{
   .info-section{padding:2.5rem 1.5rem 3rem}
   .info-grid{grid-template-columns:1fr 1fr;gap:1rem}
   footer{grid-template-columns:1fr;gap:0;padding:2rem 1.5rem .5rem;text-align:center}
-  footer .flogo{font-size:1.2rem}
+  footer .flogo{font-size:1.2rem;display:flex;justify-content:center}footer .flogo img{margin:0 auto}
   footer .fdesc{font-size:.78rem;line-height:1.55;max-width:none;margin:0 auto}
   .fsocials{justify-content:center;margin:1.1rem auto 1.6rem}
   .fcol{border-top:.5px solid rgba(255,255,255,.08);text-align:left}
@@ -476,6 +476,7 @@ footer{
 
 <!-- Mobile menu overlay -->
 <div class="mobile-menu" id="mobile-menu">
+  <a href="index.html" class="mm-logo" aria-label="Steg 1 Possenhofen — Startseite"><img src="img/logo/logo-teal.png" alt="Steg 1 Possenhofen"></a>
   <a href="sup.html">SUP Verleih</a>
   <a href="speisekarte.html">Speisekarte</a>
   <a href="galerie.html">Unser Steg 1</a>
