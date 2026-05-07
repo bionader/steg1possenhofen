@@ -575,11 +575,6 @@ if (burger && mobileMenu) {
     if(!container)return;
     var items=data.filter(function(i){return i.section===section});
 
-    // Schorlen werden unter "Alkoholfreie Getränke" einsortiert
-    items.forEach(function(item){
-      if(item.category==='Schorlen') item.category='Alkoholfrei';
-    });
-
     // Diese Kategorien sollen ans Ende
     var endCategories=['Kuchen & Eis','Saisonale Gerichte'];
 
