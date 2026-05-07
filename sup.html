@@ -1166,77 +1166,48 @@ document.getElementById('btn-book').addEventListener('click', function() {
   if (!captchaToken) { alert('Bitte das Captcha bestätigen.'); return; }
   if (!selectedDate || !selectedSlot) return;
 
-  var startMin = timeToMinutes(selectedSlot);
-  var endTime = minutesToTime(startMin + dur);
-  var hours = dur / 60;
-  var price = hours * (settings.price_per_hour || 15) * boards;
-
   btn.disabled = true;
-  btn.textContent = 'Wird überprüft...';
+  btn.textContent = 'Wird reserviert...';
 
-  // Step 1: Verify captcha server-side
-  fetch(SB_URL + '/functions/v1/verify-captcha', {
+  // 1-Step-Flow: create-booking macht Captcha + Validierung + Insert + Mail
+  // serverseitig. Preis wird auf dem Server aus sup_settings berechnet.
+  fetch(SB_URL + '/functions/v1/create-booking', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-    body: JSON.stringify({ token: captchaToken })
+    body: JSON.stringify({
+      captchaToken: captchaToken,
+      name: name,
+      email: email,
+      phone: phone,
+      date: selectedDate,
+      startTime: selectedSlot,
+      durationMinutes: dur,
+      boards: boards
+    })
   })
   .then(function(r) {
-    if (!r.ok) throw new Error('captcha');
+    if (r.status === 403) throw new Error('captcha');
+    if (r.status === 409) throw new Error('slot_full');
+    if (!r.ok) throw new Error('booking');
     return r.json();
   })
   .then(function(data) {
-    if (!data.success) throw new Error('captcha');
-    btn.textContent = 'Wird reserviert...';
-
-    // Step 2: POST booking to Supabase
-    return fetch(SB_URL + '/rest/v1/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        date: selectedDate,
-        start_time: selectedSlot,
-        end_time: endTime,
-        board_count: boards,
-        customer_name: name,
-        customer_email: email,
-        customer_phone: phone,
-        total_price: price,
-        booking_type: 'rental'
-      })
-    });
-  })
-  .then(function(r) {
-    if (!r.ok) throw new Error('booking');
-  })
-  .then(function() {
     // Show confirmation
     document.getElementById('slot-section').classList.remove('active');
     var box = document.getElementById('confirm-box');
     box.classList.add('active');
     document.getElementById('confirm-details').textContent =
-      selectedDate.split('-').reverse().join('.') + ' · ' + selectedSlot + ' – ' + endTime + ' · ' + boards + (boards === 1 ? ' Board' : ' Boards') + ' · ' + price.toFixed(0) + ' € (Bezahlung vor Ort)';
+      data.dateFormatted + ' · ' + data.startTime + ' – ' + data.endTime + ' · ' +
+      data.boards + (data.boards === 1 ? ' Board' : ' Boards') + ' · ' +
+      Number(data.price).toFixed(0) + ' € (Bezahlung vor Ort)';
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     hcaptcha.reset();
     loadMonthData();
-
-    // Send confirmation email — edge function looks up token+id itself via service role
-    fetch(SB_URL + '/functions/v1/send-booking-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-      body: JSON.stringify({
-        email: email,
-        name: name,
-        date: selectedDate,
-        startTime: selectedSlot,
-        endTime: endTime,
-        boards: boards,
-        price: price.toFixed(0)
-      })
-    });
   })
   .catch(function(e) {
     hcaptcha.reset();
     if (e.message === 'captcha') { alert('Captcha-Überprüfung fehlgeschlagen. Bitte erneut versuchen.'); }
+    else if (e.message === 'slot_full') { alert('Dieser Slot ist leider schon ausgebucht. Bitte einen anderen wählen.'); loadMonthData(); }
     else { alert('Fehler bei der Buchung. Bitte versuche es erneut.'); }
   })
   .finally(function() { btn.disabled = false; btn.textContent = 'Jetzt reservieren'; });
