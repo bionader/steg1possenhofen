@@ -401,6 +401,13 @@
             <label for="sup-max-dur" style="font-size:.88rem;color:var(--text);font-weight:500;flex:1;min-width:180px">Maximale Buchungsdauer</label>
             <input type="number" id="sup-max-dur" min="1" max="10" step="1" style="width:64px;padding:8px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.92rem;text-align:center">
             <span style="font-size:.88rem;color:var(--text2)">Stunden</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+            <label for="sup-price-hour" style="font-size:.88rem;color:var(--text);font-weight:500;flex:1;min-width:180px">Stundenpreis pro Board</label>
+            <input type="number" id="sup-price-hour" min="0" max="200" step="0.50" style="width:80px;padding:8px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.92rem;text-align:center">
+            <span style="font-size:.88rem;color:var(--text2)">€ / Stunde</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:12px">
             <button type="button" id="btn-save-sup-settings" style="width:auto;padding:8px 18px;font-size:.85rem">Speichern</button>
           </div>
         </div>
@@ -1154,14 +1161,16 @@
     // im UI als Stunden angezeigt (Cathrin denkt nicht in Minuten).
     function loadSupSettingsPanel(){
       var input=document.getElementById('sup-max-dur');
+      var priceInput=document.getElementById('sup-price-hour');
       if(!input)return;
-      fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1&select=max_duration',{
+      fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1&select=max_duration,price_per_hour',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
       .then(function(data){
         if(data && data.length>0){
           input.value=Math.round((data[0].max_duration||180)/60);
+          if(priceInput)priceInput.value=(data[0].price_per_hour!=null?data[0].price_per_hour:15);
         }
       })
       .catch(function(){msg('Konnte Einstellungen nicht laden','error','sup-settings-message')});
@@ -1170,16 +1179,22 @@
     document.getElementById('btn-save-sup-settings').addEventListener('click',function(){
       var btn=this;
       var input=document.getElementById('sup-max-dur');
+      var priceInput=document.getElementById('sup-price-hour');
       var hours=parseInt(input.value,10);
+      var price=parseFloat(priceInput.value);
       if(!hours||hours<1||hours>10){
         msg('Bitte einen Wert zwischen 1 und 10 Stunden eingeben','error','sup-settings-message');
+        return;
+      }
+      if(isNaN(price)||price<0||price>200){
+        msg('Bitte einen Stundenpreis zwischen 0 und 200 € eingeben','error','sup-settings-message');
         return;
       }
       btn.disabled=true;btn.textContent='Speichern...';
       fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1',{
         method:'PATCH',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
-        body:JSON.stringify({max_duration:hours*60})
+        body:JSON.stringify({max_duration:hours*60,price_per_hour:price})
       })
       .then(function(r){
         if(!r.ok)throw new Error('save');

@@ -159,7 +159,7 @@ nav.scrolled{
 }
 .hero-left{
   display:flex;flex-direction:column;justify-content:center;
-  padding:4.5rem 4.5rem 3.5rem;background:var(--sand);
+  padding:7rem 4.5rem 3rem;background:var(--sand);
   position:relative;overflow:hidden;
 }
 .hero-left::before{
@@ -963,7 +963,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       wbT.textContent=(openT||'10:00')+' \u2013 '+(closeT||'20:00')+' Uhr';
     }else{
       wbS.textContent='Geschlossen';
-      wbT.textContent='';
+      wbT.textContent=nextInfo||'';
     }
   }
 
@@ -1126,7 +1126,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
     // Build next-open info for wbar
     function nextOpenText(){
       var n=findNextOpen();
-      return n?'Wieder '+n:'';
+      return n||'';
     }
 
     if(closedAllDay){
