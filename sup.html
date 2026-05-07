@@ -635,6 +635,9 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       <div class="form-row">
         <label for="b-duration">Dauer</label>
         <select id="b-duration"></select>
+        <p style="font-size:.78rem;color:var(--text3);margin:6px 0 0;line-height:1.45">
+          Maximale Buchung 3 h. Für längere Anfragen gerne über das <a href="kontakt.html" style="color:var(--g);text-decoration:underline">Kontaktformular</a>.
+        </p>
       </div>
       <div class="form-row">
         <label for="b-boards">Anzahl Boards</label>
@@ -1057,7 +1060,9 @@ function renderSlots(ds, dayBookings) {
   var today = new Date();
   var isToday = ds === dateStr(today);
 
-  for (var m = start; m < end; m += 30) {
+  // Late-Booking-Cutoff: letzte Startzeit ist (end - 60min), damit der Mindest-Slot
+  // von 1h noch in den geöffneten Zeitraum passt.
+  for (var m = start; m + 60 <= end; m += 30) {
     var slotStart = minutesToTime(m);
     var slotEnd = minutesToTime(m + (settings.min_duration || 60));
     var booked = getBookedBoardsAtSlot(dayBookings, slotStart, slotEnd);
@@ -1104,10 +1109,11 @@ function showBookingForm(ds, startTime, maxAvail, dayBookings) {
   var dayOpening = getDayOpening(ds);
   var endMin = timeToMinutes(dayOpening.close_time || settings.slot_end || '19:00');
   var minDur = settings.min_duration || 60;
+  var maxDur = settings.max_duration || 180;
   var step = settings.duration_step || 30;
 
-  // Populate duration options
-  for (var dur = minDur; startMin + dur <= endMin; dur += step) {
+  // Populate duration options — cap durch max_duration und durch Restzeit bis Schluss.
+  for (var dur = minDur; dur <= maxDur && startMin + dur <= endMin; dur += step) {
     var h = Math.floor(dur / 60);
     var m = dur % 60;
     var opt = document.createElement('option');

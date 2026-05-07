@@ -221,8 +221,8 @@ serve(async (req) => {
     return jsonResponse({ error: "date_in_past" }, 400, corsHeaders);
   }
 
-  // ── sup_settings laden (Preis, total_boards, duration_step, min_duration) ─
-  const settingsRes = await pg("sup_settings?select=total_boards,price_per_hour,duration_step,min_duration&limit=1");
+  // ── sup_settings laden (Preis, total_boards, duration_step, min_duration, max_duration, slot_end) ─
+  const settingsRes = await pg("sup_settings?select=total_boards,price_per_hour,duration_step,min_duration,max_duration,slot_end&limit=1");
   if (!settingsRes.ok) {
     return jsonResponse({ error: "settings_unavailable" }, 500, corsHeaders);
   }
@@ -230,10 +230,13 @@ serve(async (req) => {
   if (!Array.isArray(settingsRows) || settingsRows.length === 0) {
     return jsonResponse({ error: "settings_missing" }, 500, corsHeaders);
   }
-  const { total_boards, price_per_hour, duration_step, min_duration } = settingsRows[0];
+  const { total_boards, price_per_hour, duration_step, min_duration, max_duration, slot_end } = settingsRows[0];
 
   if (durationMinutes < min_duration || durationMinutes % duration_step !== 0) {
     return jsonResponse({ error: "invalid_duration_step" }, 400, corsHeaders);
+  }
+  if (durationMinutes > max_duration) {
+    return jsonResponse({ error: "duration_exceeds_max", maxMinutes: max_duration }, 400, corsHeaders);
   }
   if (boards > total_boards) {
     return jsonResponse({ error: "boards_exceed_total" }, 400, corsHeaders);
@@ -242,6 +245,18 @@ serve(async (req) => {
   // ── End-Time berechnen + Slot-Verfügbarkeit prüfen ───────────────────────
   const startMin = minutesFromTime(startTime);
   const endMin = startMin + durationMinutes;
+
+  // Late-Booking-Cutoff: letzter Start = slot_end - 60min, plus end_time darf
+  // slot_end nicht überschreiten. NOTE: derzeit gegen sup_settings.slot_end —
+  // tagesspezifische close_times aus sup_daily_schedule/sup_monthly_defaults
+  // werden noch nicht serverseitig aufgelöst (Frontend filtert bereits).
+  const slotEndMin = minutesFromTime(slot_end);
+  if (startMin > slotEndMin - 60) {
+    return jsonResponse({ error: "late_booking_cutoff", latestStartMinutes: slotEndMin - 60 }, 400, corsHeaders);
+  }
+  if (endMin > slotEndMin) {
+    return jsonResponse({ error: "end_after_close", slotEndMinutes: slotEndMin }, 400, corsHeaders);
+  }
   const endTimeSql = timeFromMinutes(endMin);
   const startTimeSql = timeFromMinutes(startMin);
 

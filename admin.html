@@ -389,6 +389,22 @@
           <div id="sup-month-message"></div>
           <div class="month-grid" id="sup-month-grid"></div>
         </div>
+
+        <!-- SUP-Einstellungen -->
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>SUP-Einstellungen</h3>
+          </div>
+          <div class="month-hint">Maximale Buchungsdauer pro Reservierung. Längere Anfragen laufen automatisch über das Kontaktformular der Website.</div>
+          <div id="sup-settings-message"></div>
+          <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:8px">
+            <div style="flex:1;min-width:160px">
+              <label for="sup-max-dur" style="display:block;font-size:.78rem;color:var(--text2);margin-bottom:6px">Maximale Buchungsdauer (Stunden)</label>
+              <input type="number" id="sup-max-dur" min="1" max="10" step="1" style="width:100%">
+            </div>
+            <button type="button" id="btn-save-sup-settings" style="width:auto;padding:11px 22px">Speichern</button>
+          </div>
+        </div>
       </div>
 
       <!-- Tab 3: Speisekarte -->
@@ -500,6 +516,7 @@
         document.getElementById('tab-sup').classList.add('active');
         document.getElementById('content-sup').classList.add('active');
         loadSupCalendar();
+        loadSupSettingsPanel();
       } else {
         if (sel) {
           sel.querySelector('option[value="schedule"]').hidden = false;
@@ -562,7 +579,7 @@
         // Mobile-Select mit aktivem Tab synchron halten
         var sel = document.getElementById('tab-select');
         if (sel) sel.value = this.dataset.tab;
-        if (this.dataset.tab === 'sup') loadSupCalendar();
+        if (this.dataset.tab === 'sup') { loadSupCalendar(); loadSupSettingsPanel(); }
         if (this.dataset.tab === 'menu') loadMenu();
         if (this.dataset.tab === 'bestseller') loadBestseller();
       });
@@ -1133,6 +1150,45 @@
         return total;
       });
     }
+
+    // SUP-Einstellungen — derzeit nur max_duration. Werte in DB als Minuten gespeichert,
+    // im UI als Stunden angezeigt (Cathrin denkt nicht in Minuten).
+    function loadSupSettingsPanel(){
+      var input=document.getElementById('sup-max-dur');
+      if(!input)return;
+      fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1&select=max_duration',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data && data.length>0){
+          input.value=Math.round((data[0].max_duration||180)/60);
+        }
+      })
+      .catch(function(){msg('Konnte Einstellungen nicht laden','error','sup-settings-message')});
+    }
+
+    document.getElementById('btn-save-sup-settings').addEventListener('click',function(){
+      var btn=this;
+      var input=document.getElementById('sup-max-dur');
+      var hours=parseInt(input.value,10);
+      if(!hours||hours<1||hours>10){
+        msg('Bitte einen Wert zwischen 1 und 10 Stunden eingeben','error','sup-settings-message');
+        return;
+      }
+      btn.disabled=true;btn.textContent='Speichern...';
+      fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1',{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
+        body:JSON.stringify({max_duration:hours*60})
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('save');
+        msg('Gespeichert','','sup-settings-message');
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','sup-settings-message')})
+      .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
+    });
 
     // Save (Bulk) — Smart-Save: Tage die exakt dem Monats-Default entsprechen werden
     // nicht als Override gespeichert, sondern (falls vorhanden) gelöscht.
