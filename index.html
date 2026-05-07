@@ -1161,24 +1161,21 @@ document.querySelectorAll('.reveal').forEach(function(r){obs.observe(r)});
 <script>
 // ── LIVE WETTER ──
 (function(){
-  var OWM_KEY='d7e1baa9ecb6013e7375039423ad01ed';
+  /* OWM_KEY entfernt — wird jetzt serverseitig in der Edge Function gehalten */
   var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
 
-  var icons={Clear:'\u2600',Clouds:'\u2601',Rain:'\uD83C\uDF27',Drizzle:'\uD83C\uDF27',Snow:'\u2744',Thunderstorm:'\u26A1'};
-  var dirs=['N','NO','O','SO','S','SW','W','NW'];
+  /* icons/dirs entfernt \u2014 Mapping passiert jetzt serverseitig in der weather Edge Function */
 
-  // Air temperature + wind from OpenWeatherMap
-  fetch('https://api.openweathermap.org/data/2.5/weather?lat=47.9705&lon=11.3074&appid='+OWM_KEY+'&units=metric&lang=de')
+  // Air temperature + wind via Supabase Edge Function (OWM-API-Key bleibt serverseitig)
+  fetch(SB_URL+'/functions/v1/weather',{
+    headers:{'Authorization':'Bearer '+SB_KEY}
+  })
     .then(function(r){return r.json()})
     .then(function(d){
-      if(d.cod&&d.cod!==200)return;
-      var icon=icons[d.weather[0].main]||'\u2600';
-      var temp=Math.round(d.main.temp);
-      var windSpeed=Math.round(d.wind.speed*3.6);
-      var windDir=dirs[Math.round(d.wind.deg/45)%8];
-      document.getElementById('wb-temp').textContent=icon+' '+temp+' °C';
-      document.getElementById('wb-wind').textContent=windDir+' '+windSpeed+' km/h';
+      if(d.error)return;
+      document.getElementById('wb-temp').textContent=d.icon+' '+d.temp+' °C';
+      document.getElementById('wb-wind').textContent=d.windDir+' '+d.windSpeed+' km/h';
     })
     .catch(function(){});
 
