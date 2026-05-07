@@ -303,7 +303,7 @@ footer{
 
   <!-- 5. Cookies -->
   <h2>5. Cookies</h2>
-  <p>Diese Website verwendet keine Cookies. Es werden keine Tracking-, Analyse- oder Marketing-Cookies eingesetzt. Es ist daher kein Cookie-Banner erforderlich.</p>
+  <p>Diese Website verwendet selbst keine Cookies und setzt keine Tracking-, Analyse- oder Marketing-Cookies ein. Eingebundene Drittdienste (siehe Abschnitt „Captcha-Schutz") können auf den Buchungs- und Kontaktseiten zur Bot-Abwehr technisch notwendige Cookies setzen. Es ist daher kein klassisches Cookie-Banner erforderlich.</p>
 
   <!-- 6. Plausible -->
   <h2>6. Reichweitenmessung mit Plausible Analytics</h2>
@@ -313,8 +313,16 @@ footer{
   <p>Die Verwendung von Plausible erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an einer datenschutzfreundlichen, statistischen Auswertung des Nutzerverhaltens, um das Angebot kontinuierlich zu verbessern.</p>
   <p>Weitere Informationen zum Umgang mit Nutzerdaten bei Plausible finden Sie unter: <a href="https://plausible.io/data-policy" target="_blank" rel="noopener">Plausible Data Policy</a>.</p>
 
-  <!-- 7. Server-Log-Files -->
-  <h2>7. Server-Log-Files</h2>
+  <!-- 7. Captcha-Schutz -->
+  <h2>7. Captcha-Schutz (hCaptcha)</h2>
+  <p>Zum Schutz unserer Buchungs- und Kontaktformulare vor automatisiertem Missbrauch (Bots, Spam) verwenden wir den Dienst hCaptcha. Anbieter ist die Intuition Machines, Inc., 350 Alabama Street, San Francisco, CA 94110, USA.</p>
+  <p>hCaptcha analysiert beim Absenden eines Formulars verschiedene Informationen (z.&nbsp;B. IP-Adresse, Browser-Eigenschaften, Aufenthaltsdauer auf der Website, Mausbewegungen), um zu unterscheiden, ob die Eingaben durch einen Menschen oder durch automatisierte Programme erfolgen. Diese Daten werden an hCaptcha in die USA übermittelt und dort verarbeitet. hCaptcha kann hierfür technisch notwendige Cookies setzen.</p>
+  <p>Die Verifizierung des Captcha-Tokens erfolgt anschließend serverseitig auf unseren Edge Functions bei Supabase, um eine Umgehung des Schutzes zu verhindern.</p>
+  <p>Die Datenverarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse besteht im Schutz unserer Website vor missbräuchlichen automatisierten Anfragen und Spam.</p>
+  <p>Die Übermittlung in die USA erfolgt auf Basis der Standardvertragsklauseln der EU-Kommission. Weitere Informationen: <a href="https://www.hcaptcha.com/privacy" target="_blank" rel="noopener">hCaptcha Privacy Policy</a>.</p>
+
+  <!-- 8. Server-Log-Files -->
+  <h2>8. Server-Log-Files</h2>
   <p>Der Hosting-Provider (GitHub Pages) erhebt und speichert automatisch Informationen in sogenannten Server-Log-Files, die Ihr Browser automatisch übermittelt. Dies sind:</p>
   <ul>
     <li>Browsertyp und Browserversion</li>
@@ -325,40 +333,57 @@ footer{
   </ul>
   <p>Diese Daten werden nicht mit anderen Datenquellen zusammengeführt. Die Erfassung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der technisch fehlerfreien Darstellung und der Optimierung seiner Website.</p>
 
-  <!-- 8. Booking form -->
-  <h2>8. Buchungsformular</h2>
+  <!-- 9. Booking form -->
+  <h2>9. Buchungsformular</h2>
   <p>Wenn Sie über unser Buchungsformular eine SUP-Buchung vornehmen, werden folgende personenbezogene Daten erhoben:</p>
   <ul>
     <li>Name</li>
     <li>E-Mail-Adresse</li>
     <li>Telefonnummer</li>
+    <li>Buchungsdaten: Datum, Start- und Endzeit, Anzahl Boards, Gesamtpreis</li>
   </ul>
   <p>Diese Daten werden in einer Datenbank bei Supabase gespeichert. Supabase betreibt seine Server innerhalb der Europäischen Union (EU). Weitere Informationen finden Sie unter: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase Privacy Policy</a>.</p>
+  <p>Vor dem Absenden des Formulars wird zur Spam-Abwehr ein Captcha geprüft (siehe Abschnitt 7).</p>
   <p><strong>Rechtsgrundlage:</strong> Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen). Die Erhebung Ihrer Daten ist zur Durchführung der Buchung erforderlich.</p>
   <p><strong>Speicherdauer:</strong> Ihre Buchungsdaten werden für die Dauer der Geschäftsbeziehung gespeichert und anschließend gemäß den gesetzlichen Aufbewahrungsfristen (in der Regel 6 bzw. 10 Jahre nach Handels- und Steuerrecht) aufbewahrt. Nach Ablauf dieser Fristen werden die Daten gelöscht.</p>
 
-  <!-- 9. E-Mail -->
-  <h2>9. E-Mail-Versand</h2>
-  <p>Für den Versand von Buchungsbestätigungen per E-Mail nutzen wir den Dienst Resend. Anbieter ist die Resend Inc.</p>
-  <p>Dabei wird Ihre E-Mail-Adresse an Resend übermittelt, um die Buchungsbestätigung zuzustellen. Die Nutzung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).</p>
+  <!-- 10. Kontaktformular -->
+  <h2>10. Kontaktformular</h2>
+  <p>Wenn Sie uns über unser Kontaktformular eine Nachricht zukommen lassen, werden folgende Daten an uns übermittelt:</p>
+  <ul>
+    <li>Name</li>
+    <li>E-Mail-Adresse</li>
+    <li>Telefonnummer (optional)</li>
+    <li>Betreff und Nachricht</li>
+  </ul>
+  <p>Diese Daten werden ausschließlich zur Bearbeitung Ihrer Anfrage genutzt und <strong>nicht in unserer Datenbank gespeichert</strong>. Die Nachricht wird per E-Mail über den Dienst Resend (siehe Abschnitt 11) an unsere Postfachadresse zugestellt; zusätzlich erhalten Sie eine automatische Eingangsbestätigung an Ihre angegebene E-Mail-Adresse.</p>
+  <p>Vor dem Absenden des Formulars wird zur Spam-Abwehr ein Captcha geprüft (siehe Abschnitt 7).</p>
+  <p><strong>Rechtsgrundlage:</strong> Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen) bzw. Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung von Anfragen).</p>
+  <p><strong>Speicherdauer:</strong> Die im Postfach eingegangenen Nachrichten werden gelöscht, sobald Ihre Anfrage abschließend bearbeitet wurde, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
+
+  <!-- 11. E-Mail -->
+  <h2>11. E-Mail-Versand</h2>
+  <p>Für den Versand transaktionaler E-Mails (Buchungsbestätigung, Stornobestätigung, Eingangsbestätigung von Kontaktanfragen, interne System-Mails) nutzen wir den Dienst Resend. Anbieter ist die Resend Inc., 2261 Market Street #5039, San Francisco, CA 94114, USA.</p>
+  <p>Dabei werden Ihre E-Mail-Adresse sowie die zur jeweiligen E-Mail gehörenden Inhalte an Resend übermittelt, um die Zustellung durchzuführen. Die Übermittlung in die USA erfolgt auf Basis der Standardvertragsklauseln der EU-Kommission.</p>
+  <p><strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) für Buchungs- und Stornobestätigungen; Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung von Anfragen) für Kontakteingangsbestätigungen.</p>
   <p>Weitere Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Resend: <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Resend Privacy Policy</a>.</p>
 
-  <!-- 10. Google Fonts -->
-  <h2>10. Google Fonts</h2>
+  <!-- 12. Google Fonts -->
+  <h2>12. Google Fonts</h2>
   <p>Diese Seite nutzt zur einheitlichen Darstellung von Schriftarten sogenannte Google Fonts, die von Google bereitgestellt werden. Beim Aufruf einer Seite lädt Ihr Browser die benötigten Schriftarten in Ihren Browsercache, um Texte und Schriftarten korrekt anzuzeigen.</p>
   <p>Zu diesem Zweck muss der von Ihnen verwendete Browser Verbindung zu den Servern von Google aufnehmen. Hierdurch erlangt Google Kenntnis darüber, dass über Ihre IP-Adresse diese Website aufgerufen wurde.</p>
   <p>Die Nutzung von Google Fonts erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der einheitlichen Darstellung des Schriftbildes auf seiner Website.</p>
   <p>Weitere Informationen zu Google Fonts finden Sie unter <a href="https://fonts.google.com/about" target="_blank" rel="noopener">Google Fonts</a> und in der Datenschutzerklärung von Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
 
-  <!-- 11. Google Maps -->
-  <h2>11. Google Maps</h2>
+  <!-- 13. Google Maps -->
+  <h2>13. Google Maps</h2>
   <p>Diese Seite nutzt den Kartendienst Google Maps. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
   <p>Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert. Der Anbieter dieser Seite hat keinen Einfluss auf diese Datenübertragung.</p>
   <p>Die Nutzung von Google Maps erfolgt im Interesse einer ansprechenden Darstellung unserer Online-Angebote und an einer leichten Auffindbarkeit der von uns auf der Website angegebenen Orte. Dies stellt ein berechtigtes Interesse im Sinne von Art. 6 Abs. 1 lit. f DSGVO dar.</p>
   <p>Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
 
-  <!-- 12. Rights -->
-  <h2>12. Ihre Rechte nach DSGVO</h2>
+  <!-- 14. Rights -->
+  <h2>14. Ihre Rechte nach DSGVO</h2>
   <p>Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:</p>
   <ul>
     <li><strong>Recht auf Auskunft (Art. 15 DSGVO):</strong> Sie haben das Recht, eine Bestätigung darüber zu verlangen, ob betreffende Daten verarbeitet werden, und auf Auskunft über diese Daten sowie auf weitere Informationen und Kopie der Daten.</li>
@@ -370,16 +395,16 @@ footer{
     <li><strong>Beschwerderecht bei einer Aufsichtsbehörde:</strong> Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Die für uns zuständige Aufsichtsbehörde ist das Bayerische Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach.</li>
   </ul>
 
-  <!-- 13. Retention -->
-  <h2>13. Speicherdauer</h2>
+  <!-- 15. Retention -->
+  <h2>15. Speicherdauer</h2>
   <p>Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschersuchen geltend machen oder eine Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, sofern wir keine anderen rechtlich zulässigen Gründe für die Speicherung Ihrer personenbezogenen Daten haben (z.&nbsp;B. steuer- oder handelsrechtliche Aufbewahrungsfristen). Im letztgenannten Fall erfolgt die Löschung nach Fortfall dieser Gründe.</p>
 
-  <!-- 14. Revocation -->
-  <h2>14. Widerruf Ihrer Einwilligung zur Datenverarbeitung</h2>
+  <!-- 16. Revocation -->
+  <h2>16. Widerruf Ihrer Einwilligung zur Datenverarbeitung</h2>
   <p>Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen Einwilligung möglich. Sie können eine bereits erteilte Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt.</p>
   <p>Um Ihre Rechte auszuüben oder eine Einwilligung zu widerrufen, wenden Sie sich bitte an: <a href="mailto:hallo@steg1possenhofen.de">hallo@steg1possenhofen.de</a></p>
 
-  <p class="legal-date">Stand: April 2026</p>
+  <p class="legal-date">Stand: Mai 2026</p>
 </main>
 
 <!-- FOOTER -->
