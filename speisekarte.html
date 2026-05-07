@@ -168,6 +168,8 @@ nav.scrolled{
   .food-grid::-webkit-scrollbar{display:none}
   .food-item{aspect-ratio:3/2;flex:0 0 85%;scroll-snap-align:start;min-width:0}
   .food-item:nth-child(1),.food-item:nth-child(2),.food-item:nth-child(3),.food-item:nth-child(4){grid-column:auto;grid-row:auto}
+  /* Auf Mobile zuerst Steckerlfisch (DOM-Index 3) */
+  .food-item:nth-child(3){order:-1}
 }
 
 /* ── SECTION DEFAULTS ── */
@@ -407,13 +409,13 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 <section class="food-gallery reveal">
   <div class="food-grid">
     <figure class="food-item">
-      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
-    </figure>
-    <figure class="food-item">
       <img src="images/food/food-03.jpg" alt="Aperol Spritz mit Blick auf den Starnberger See" loading="lazy" decoding="async">
     </figure>
     <figure class="food-item">
       <img src="images/food/food-02.jpg" alt="Sommerliche Drinks und Cocktails am Steg 1" loading="lazy" decoding="async">
+    </figure>
+    <figure class="food-item">
+      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
     </figure>
     <figure class="food-item">
       <img src="images/food/food-04.jpg" alt="Kaffee und Kuchen mit Blick auf den Steg" loading="lazy" decoding="async">
@@ -575,7 +577,7 @@ if (burger && mobileMenu) {
 
     // Schorlen werden unter "Alkoholfreie Getränke" einsortiert
     items.forEach(function(item){
-      if(item.category==='Schorlen') item.category='Alkoholfreie Getränke';
+      if(item.category==='Schorlen') item.category='Alkoholfrei';
     });
 
     // Diese Kategorien sollen ans Ende
