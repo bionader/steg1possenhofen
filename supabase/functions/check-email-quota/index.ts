@@ -99,13 +99,14 @@ function buildHtml(level: 80 | 95, count: number, percent: number, yearMonth: st
     : `Hinweis: Im Monat <strong>${yearMonth}</strong> wurden bereits <strong>${count} von ${MONTHLY_LIMIT}</strong> E-Mails verschickt (${percent}%). Bitte den Verbrauch im Auge behalten.`;
 
   return `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <div style="background:${headerColor};padding:28px 28px 22px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg <span style="font-family:'DM Sans',Arial,sans-serif">1</span> Possenhofen</h1>
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg <span style="font-family:'Albert Sans',Arial,sans-serif">1</span> Possenhofen</h1>
         <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">System-Warnung</p>
       </div>
       <div style="padding:28px">
-        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:${headerColor};font-size:22px;font-weight:600;margin:0 0 12px">${headline}</h2>
+        <h2 style="font-family:'Petrona',Georgia,serif;color:${headerColor};font-size:22px;font-weight:600;margin:0 0 12px">${headline}</h2>
         <p style="color:#18180F;font-size:14px;line-height:1.6;margin:0 0 20px">${intro}</p>
 
         <div style="background:#F4EDD8;border-radius:12px;padding:18px 20px;margin-bottom:20px">

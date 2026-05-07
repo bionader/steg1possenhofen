@@ -56,10 +56,11 @@ serve(async (req) => {
   const dateFormatted = date.split("-").reverse().join(".");
 
   const html = `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
         <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Biergarten &amp; SUP-Verleih am Starnberger See</p>
       </div>
 
@@ -68,7 +69,7 @@ serve(async (req) => {
 
       <!-- Body -->
       <div style="padding:28px">
-        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Buchung storniert</h2>
+        <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Buchung storniert</h2>
         <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${name}, deine Buchung wurde leider storniert.</p>
 
         <!-- Details Card -->
@@ -111,13 +112,13 @@ serve(async (req) => {
         <p style="margin:0 0 6px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
         <p style="margin:0 0 20px;font-size:14px">Anruf/WhatsApp: <a href="tel:+4917881189224" style="color:#163D36;font-weight:500;text-decoration:none">+4917881189224</a></p>
 
-        <p style="color:#4A4840;font-size:15px;margin:0">Dein Steg <span style="font-family:'DM Sans',Arial,sans-serif">1</span> Team</p>
+        <p style="color:#4A4840;font-size:15px;margin:0">Dein Steg <span style="font-family:'Albert Sans',Arial,sans-serif">1</span> Team</p>
       </div>
 
       <!-- Footer -->
       <div style="border-top:1px solid #E6D9B8;padding:20px 28px;text-align:center">
         <a href="https://instagram.com/steg1possenhofen" style="display:inline-block;padding:10px 24px;background:#163D36;color:#FDFAF4;border-radius:100px;text-decoration:none;font-size:13px;font-weight:500">&#x1F4F7; @steg1possenhofen</a>
-        <p style="color:#7A7668;font-size:12px;margin:12px 0 0">Steg <span style="font-family:'DM Sans',Arial,sans-serif">1</span> Possenhofen &middot; Am Starnberger See</p>
+        <p style="color:#7A7668;font-size:12px;margin:12px 0 0">Steg <span style="font-family:'Albert Sans',Arial,sans-serif">1</span> Possenhofen &middot; Am Starnberger See</p>
       </div>
     </div>
   `;

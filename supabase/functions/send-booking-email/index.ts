@@ -80,10 +80,11 @@ serve(async (req) => {
   }
 
   const html = `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
         <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Biergarten &amp; SUP-Verleih am Starnberger See</p>
       </div>
 
@@ -92,7 +93,7 @@ serve(async (req) => {
 
       <!-- Body -->
       <div style="padding:28px">
-        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Deine SUP-Reservierung</h2>
+        <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Deine SUP-Reservierung</h2>
         <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${name}, deine Reservierung ist best&auml;tigt!</p>
 
         <!-- Details Card -->

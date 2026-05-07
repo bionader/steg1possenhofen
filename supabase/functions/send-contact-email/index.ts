@@ -113,16 +113,17 @@ serve(async (req) => {
   const replyHref = `mailto:${email}?subject=${replySubject}&body=${replyBody}`;
 
   const html = `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
         <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">Neue Kontaktanfrage</p>
       </div>
 
       <!-- Body -->
       <div style="padding:28px">
-        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:22px;font-weight:600;margin:0 0 6px">Nachricht von ${nameH}</h2>
+        <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:22px;font-weight:600;margin:0 0 6px">Nachricht von ${nameH}</h2>
         <p style="color:#7A7668;font-size:13px;margin:0 0 20px">${subjectH}</p>
 
         <!-- Absender-Card -->
@@ -194,10 +195,11 @@ serve(async (req) => {
   // 2) Bestätigungsmail an Gast — Versand-Fehler darf User-Feedback nicht blockieren
   const firstName = nameH.split(" ")[0] || nameH;
   const guestHtml = `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
         <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">Bestätigung deiner Nachricht</p>
       </div>
 
@@ -206,7 +208,7 @@ serve(async (req) => {
 
       <!-- Body -->
       <div style="padding:28px">
-        <h2 style="font-family:'Cormorant Garamond',Georgia,serif;color:#163D36;font-size:24px;font-weight:600;margin:0 0 14px">Hallo ${firstName},</h2>
+        <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:24px;font-weight:600;margin:0 0 14px">Hallo ${firstName},</h2>
         <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 14px">vielen Dank für deine Nachricht.</p>
         <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 14px">Schön, dass du dich bei uns meldest — wir kümmern uns gleich darum.</p>
         <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0 0 22px">Wir melden uns innerhalb der nächsten 24 Stunden bei Dir zurück.</p>
@@ -219,7 +221,7 @@ serve(async (req) => {
         </div>
 
         <!-- Sign-off -->
-        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0">Sonnige Grüße<br><span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;color:#163D36">vom Steg 1</span></p>
+        <p style="color:#18180F;font-size:15px;line-height:1.65;margin:0">Sonnige Grüße<br><span style="font-family:'Petrona',Georgia,serif;font-size:18px;color:#163D36">vom Steg 1</span></p>
       </div>
 
       <!-- Footer -->
