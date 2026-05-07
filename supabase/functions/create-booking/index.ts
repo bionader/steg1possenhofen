@@ -1,7 +1,7 @@
 // Edge Function: create-booking
 // Atomarer SUP-Buchungs-Flow: Captcha → Validierung → Slot-Verfügbarkeit →
-// Insert → Bestätigungs-Mail. Ersetzt den bisherigen Client-Flow
-// (verify-captcha + direkter REST-Insert auf bookings + send-booking-email).
+// Insert → Bestätigungs-Mail. Ersetzt den bisherigen Client-Flow,
+// der Captcha-Verify und Booking-Insert separat im Browser hatte.
 //
 // Sicherheits-Vorteile:
 // - hCaptcha-Token wird genau 1× verifiziert (one-time-use).
