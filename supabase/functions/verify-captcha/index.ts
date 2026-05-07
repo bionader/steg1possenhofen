@@ -2,12 +2,25 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const HCAPTCHA_SECRET = Deno.env.get("HCAPTCHA_SECRET");
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// CORS-Whitelist: nur eigene Domain darf diese Function aus dem Browser rufen.
+const ALLOWED_ORIGINS = [
+  "https://steg1possenhofen.de",
+  "https://www.steg1possenhofen.de",
+];
+
+function corsHeadersFor(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req.headers.get("origin"));
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });

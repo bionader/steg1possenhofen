@@ -4,10 +4,21 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// CORS-Whitelist: nur eigene Domain darf diese Function aus dem Browser rufen.
+const ALLOWED_ORIGINS = [
+  "https://steg1possenhofen.de",
+  "https://www.steg1possenhofen.de",
+];
+
+function corsHeadersFor(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 // Atomic-Increment via RPC — Counter darf Mail-Versand niemals blockieren
 // Mail an Gast + BCC an hallo@ = 2 Mails pro Buchung
@@ -30,6 +41,8 @@ async function bumpQuota(times = 1) {
 }
 
 serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req.headers.get("origin"));
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });

@@ -14,10 +14,23 @@ const RECIPIENTS = [
   "matsdierks@outlook.com",
 ];
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// CORS-Whitelist: Function wird primär per Cron gerufen (Server-zu-Server, kein Origin-Header).
+// Browser-Calls werden auf eigene Domain begrenzt — Server-Calls trifft die Whitelist nicht,
+// weil CORS nur in Browser-Sandbox greift.
+const ALLOWED_ORIGINS = [
+  "https://steg1possenhofen.de",
+  "https://www.steg1possenhofen.de",
+];
+
+function corsHeadersFor(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 // Aktueller Monat in Europe/Berlin (z.B. "2026-04")
 function currentMonth(): string {
@@ -168,6 +181,8 @@ async function sendWarning(level: 80 | 95, count: number, yearMonth: string) {
 }
 
 serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
