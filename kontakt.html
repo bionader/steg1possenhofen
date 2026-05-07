@@ -690,30 +690,17 @@ document.getElementById('btn-contact').addEventListener('click', function() {
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
 
   btn.disabled = true;
-  btn.textContent = 'Wird überprüft…';
+  btn.textContent = 'Wird gesendet…';
 
-  // Step 1: Verify captcha server-side
-  fetch(SB_URL + '/functions/v1/verify-captcha', {
+  // Single-Step: Captcha-Token wird in send-contact-email einmalig serverseitig verifiziert.
+  // hCaptcha-Tokens sind one-time-use — daher kein separater verify-Call.
+  fetch(SB_URL + '/functions/v1/send-contact-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-    body: JSON.stringify({ token: captchaToken })
+    body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message, captchaToken: captchaToken })
   })
   .then(function(r) {
-    if (!r.ok) throw new Error('captcha');
-    return r.json();
-  })
-  .then(function(data) {
-    if (!data.success) throw new Error('captcha');
-    btn.textContent = 'Wird gesendet…';
-
-    // Step 2: Send contact email
-    return fetch(SB_URL + '/functions/v1/send-contact-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-      body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message })
-    });
-  })
-  .then(function(r) {
+    if (r.status === 400) throw new Error('captcha');
     if (!r.ok) throw new Error('send');
     // Reset Captcha + Felder
     hcaptcha.reset();

@@ -3,6 +3,30 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const HCAPTCHA_SECRET = Deno.env.get("HCAPTCHA_SECRET");
+
+// hCaptcha serverseitig prüfen — Token ist one-time-use, daher genau einmal hier konsumieren.
+async function verifyCaptcha(token: string): Promise<boolean> {
+  if (!HCAPTCHA_SECRET) {
+    console.error("[contact] HCAPTCHA_SECRET missing");
+    return false;
+  }
+  try {
+    const params = new URLSearchParams();
+    params.append("secret", HCAPTCHA_SECRET);
+    params.append("response", token);
+    const res = await fetch("https://api.hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+    const data = await res.json();
+    return !!data.success;
+  } catch (e) {
+    console.error("[contact] captcha verify exception", e);
+    return false;
+  }
+}
 
 // Atomic-Increment via RPC — schlaegt Quota-Limit fehl, wird Mail trotzdem versendet
 async function bumpQuota() {
@@ -50,7 +74,22 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const { name, email, phone, subject, message } = await req.json();
+  const { name, email, phone, subject, message, captchaToken } = await req.json();
+
+  // Captcha-Pflicht: ohne validen Token kein Mail-Versand (Anti-Spam).
+  if (!captchaToken || typeof captchaToken !== "string") {
+    return new Response(JSON.stringify({ error: "captcha_missing" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const captchaOk = await verifyCaptcha(captchaToken);
+  if (!captchaOk) {
+    return new Response(JSON.stringify({ error: "captcha_invalid" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   // Minimal escape for HTML interpolation (user input)
   const esc = (s: string) =>
