@@ -3,11 +3,40 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const HCAPTCHA_SECRET = Deno.env.get("HCAPTCHA_SECRET");
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// CORS-Whitelist: nur eigene Domain darf diese Function aus dem Browser rufen
+const ALLOWED_ORIGINS = [
+  "https://steg1possenhofen.de",
+  "https://www.steg1possenhofen.de",
+];
+
+function corsHeadersFor(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+// hCaptcha serverseitig prüfen — verhindert Spam/Quota-Drain durch direkte Aufrufe
+async function verifyCaptcha(token: string): Promise<boolean> {
+  if (!token || !HCAPTCHA_SECRET) return false;
+  try {
+    const res = await fetch("https://api.hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `response=${encodeURIComponent(token)}&secret=${encodeURIComponent(HCAPTCHA_SECRET)}`,
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 // Atomic-Increment via RPC — Counter darf Mail-Versand niemals blockieren
 // Mail an Gast + BCC an hallo@ = 2 Mails pro Buchung
@@ -30,6 +59,8 @@ async function bumpQuota(times = 1) {
 }
 
 serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req.headers.get("origin"));
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -39,7 +70,41 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const { email, name, date, startTime, endTime, boards, price } = await req.json();
+  const { email, name, date, startTime, endTime, boards, price, captchaToken, manageToken } = await req.json();
+
+  // Auth: entweder gültiges hCaptcha-Token (neue Buchung) ODER ein gültiger
+  // manage_token (Edit-Flow auf bestehender Buchung). Sonst Spam-Schutz schlägt zu.
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  let authorized = false;
+  if (captchaToken) {
+    authorized = await verifyCaptcha(captchaToken);
+  } else if (manageToken && UUID_RE.test(manageToken)) {
+    // Edit-Flow: Buchung muss existieren — Existenz-Check per Service-Role
+    try {
+      const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/bookings?manage_token=eq.${encodeURIComponent(manageToken)}&select=id&limit=1`,
+        {
+          headers: {
+            "apikey": SUPABASE_SERVICE_ROLE_KEY!,
+            "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+        }
+      );
+      if (checkRes.ok) {
+        const rows = await checkRes.json();
+        authorized = Array.isArray(rows) && rows.length > 0;
+      }
+    } catch {
+      authorized = false;
+    }
+  }
+  if (!authorized) {
+    return new Response(JSON.stringify({ error: "unauthorized" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const dateFormatted = date.split("-").reverse().join(".");
 
   // Look up manage_token + booking_id via service role (bypasses RLS)

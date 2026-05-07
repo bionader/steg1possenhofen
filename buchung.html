@@ -925,7 +925,7 @@ function saveEdit() {
     successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setTimeout(function() { successEl.classList.remove('active'); }, 5000);
 
-    // Send updated confirmation email (fire and forget)
+    // Send updated confirmation email — manageToken statt Captcha als Auth (Edit-Flow)
     fetch(SB_URL + '/functions/v1/send-booking-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
@@ -936,7 +936,8 @@ function saveEdit() {
         startTime: booking.start_time.slice(0, 5),
         endTime: booking.end_time.slice(0, 5),
         boards: booking.board_count,
-        price: parseFloat(booking.total_price).toFixed(0)
+        price: parseFloat(booking.total_price).toFixed(0),
+        manageToken: token
       })
     });
   })

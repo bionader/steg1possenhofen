@@ -3,6 +3,40 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const HCAPTCHA_SECRET = Deno.env.get("HCAPTCHA_SECRET");
+
+// CORS-Whitelist: nur eigene Domain darf diese Function aus dem Browser rufen
+const ALLOWED_ORIGINS = [
+  "https://steg1possenhofen.de",
+  "https://www.steg1possenhofen.de",
+];
+
+function corsHeadersFor(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+// hCaptcha serverseitig prüfen — verhindert Spam/Quota-Drain durch direkte Aufrufe
+async function verifyCaptcha(token: string): Promise<boolean> {
+  if (!token || !HCAPTCHA_SECRET) return false;
+  try {
+    const res = await fetch("https://api.hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `response=${encodeURIComponent(token)}&secret=${encodeURIComponent(HCAPTCHA_SECRET)}`,
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 // Atomic-Increment via RPC — schlaegt Quota-Limit fehl, wird Mail trotzdem versendet
 async function bumpQuota() {
@@ -21,12 +55,9 @@ async function bumpQuota() {
   }
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
 serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -35,7 +66,17 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const { name, email, phone, subject, message } = await req.json();
+  const { name, email, phone, subject, message, captchaToken } = await req.json();
+
+  // Captcha-Verifikation MUSS vor jeder Mail/Quota-Operation passieren —
+  // sonst kann ein Angreifer die Function direkt pingen und Resend leerziehen.
+  const captchaOk = await verifyCaptcha(captchaToken);
+  if (!captchaOk) {
+    return new Response(JSON.stringify({ error: "captcha_failed" }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   // Minimal escape for HTML interpolation (user input)
   const esc = (s: string) =>
