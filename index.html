@@ -569,7 +569,7 @@ footer{
     box-shadow:0 2px 12px rgba(42,123,111,.18);
   }
   .hero{grid-template-columns:1fr;min-height:0}
-  .hero-left{padding:7rem 2rem .5rem}
+  .hero-left{padding:6rem 2rem 2rem}
   .hero-left .hero-sub{margin-bottom:1.4rem}
   .hero-left .status{margin-bottom:0}
   .hero-right{height:55vw}
@@ -963,7 +963,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
       wbT.textContent=(openT||'10:00')+' \u2013 '+(closeT||'20:00')+' Uhr';
     }else{
       wbS.textContent='Geschlossen';
-      wbT.textContent=nextInfo||'';
+      wbT.textContent='';
     }
   }
 
