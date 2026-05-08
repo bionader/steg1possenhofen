@@ -607,7 +607,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
 
   <div class="preis-wrap">
     <div class="preis-card">
-      <div class="preis-amount">15 €</div>
+      <div class="preis-amount" id="preis-amount">15 €</div>
       <div class="preis-unit">pro Stunde</div>
       <ul class="preis-features">
         <li>SUP Board inklusive</li>
@@ -638,7 +638,7 @@ document.getElementById('pw-user').addEventListener('keydown',function(e){if(e.k
         <label for="b-duration">Dauer</label>
         <select id="b-duration"></select>
         <p style="font-size:.78rem;color:var(--text3);margin:6px 0 0;line-height:1.45">
-          Maximale Buchung 3 h. Für längere Anfragen gerne über das <a href="kontakt.html" style="color:var(--g);text-decoration:underline">Kontaktformular</a>.
+          Maximale Buchung online 3 h. Für längere Anfragen nutze gerne das <a href="kontakt.html" style="color:var(--g);text-decoration:underline">Kontaktformular</a>.
         </p>
       </div>
       <div class="form-row">
@@ -1271,12 +1271,23 @@ function loadMonthData() {
 
   // Wait for all requests, dann closedDays ableiten und rendern
   Promise.all([settingsReq, monthDefaultsReq, dayOverridesReq, bookingsReq]).then(function() {
+    updatePriceDisplay();
     computeClosedDays();
     renderCalendar();
   }).catch(function() {
+    updatePriceDisplay();
     computeClosedDays();
     renderCalendar();
   });
+}
+
+// Preis-Anzeige aus sup_settings.price_per_hour aktualisieren
+function updatePriceDisplay(){
+  var el=document.getElementById('preis-amount');
+  if(!el||!settings||settings.price_per_hour==null)return;
+  var p=Number(settings.price_per_hour);
+  if(!isFinite(p))return;
+  el.textContent=(p%1===0?p:p.toFixed(2).replace('.',','))+' €';
 }
 
 // Initial load

@@ -16,3 +16,6 @@ index-polish.html
 index-pre-polish.html
 admin-polish.html
 admin-pre-polish.html
+
+# Playwright-Test-Artefakte (nicht ins Repo)
+.playwright-cli/
