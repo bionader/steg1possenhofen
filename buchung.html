@@ -378,15 +378,15 @@ var monthDefaults = {};   // {1..12: {open_time, close_time}}
 var dayOverrides = {};    // {'YYYY-MM-DD': {is_open, open_time, close_time}}
 var editCalYear, editCalMonth, editSelectedDate = null, editSelectedSlot = null;
 
-// Effektive Öffnungszeit für einen konkreten Tag (Override > Monats-Default > Fallback)
+// Effektive Öffnungszeit für einen konkreten Tag.
+// Tages-Override hat nur Bedeutung für is_open=false (= Tag explizit zu).
+// Zeiten kommen immer aus dem Monats-Default — die Admin-UI bietet keine
+// tagesgenaue Zeit-Anpassung. Verwaiste open_time/close_time in
+// sup_daily_schedule werden ignoriert.
 function getDayOpening(ds) {
   var ov = dayOverrides[ds];
-  if (ov) {
-    return {
-      is_open: ov.is_open !== false,
-      open_time: ov.open_time ? ov.open_time.substring(0,5) : '',
-      close_time: ov.close_time ? ov.close_time.substring(0,5) : ''
-    };
+  if (ov && ov.is_open === false) {
+    return { is_open: false, open_time: '', close_time: '' };
   }
   var month = parseInt(ds.split('-')[1], 10);
   var def = monthDefaults[month];
@@ -397,8 +397,7 @@ function getDayOpening(ds) {
       close_time: (def.close_time || '').substring(0,5)
     };
   }
-  // Kein Monats-Default → Tag ist außerhalb der SUP-Saison und bleibt zu.
-  // (Ein expliziter Tages-Override mit is_open=true wird oben bereits behandelt.)
+  // Kein Monats-Default → außerhalb der SUP-Saison → zu.
   return { is_open: false, open_time: '', close_time: '' };
 }
 

@@ -806,13 +806,13 @@ calMonth = now.getMonth();
 // Priorität: 1. Tages-Override (sup_daily_schedule), 2. Monats-Default
 // (sup_monthly_defaults), 3. globaler Fallback aus sup_settings, 4. komplett zu.
 function getDayOpening(ds) {
+  // Tages-Override: relevant ist nur is_open=false (= explizit geschlossener Tag).
+  // Die Admin-UI bietet keine tagesgenaue Zeit-Anpassung — Zeiten kommen immer
+  // aus dem Monats-Default. Eventuell verwaiste open_time/close_time-Werte
+  // in sup_daily_schedule werden bewusst ignoriert.
   var ov = dayOverrides[ds];
-  if (ov) {
-    return {
-      is_open: ov.is_open !== false,
-      open_time: ov.open_time ? ov.open_time.substring(0,5) : '',
-      close_time: ov.close_time ? ov.close_time.substring(0,5) : ''
-    };
+  if (ov && ov.is_open === false) {
+    return { is_open: false, open_time: '', close_time: '' };
   }
   var month = parseInt(ds.split('-')[1], 10);
   var def = monthDefaults[month];
@@ -823,8 +823,7 @@ function getDayOpening(ds) {
       close_time: (def.close_time || '').substring(0,5)
     };
   }
-  // Kein Monats-Default → Tag ist außerhalb der SUP-Saison und bleibt zu.
-  // (Ein expliziter Tages-Override mit is_open=true wird oben bereits behandelt.)
+  // Kein Monats-Default → außerhalb der SUP-Saison → zu.
   return { is_open: false, open_time: '', close_time: '' };
 }
 

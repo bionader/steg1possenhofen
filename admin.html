@@ -1087,8 +1087,6 @@
       }).then(function(r){
         if(!r.ok)throw new Error('fail');
         supMonthDefaults[month]={month:month,open_time:defaultOpen,close_time:defaultClose};
-        return rolloutSupMonthToSchedule(month,defaultOpen,defaultClose);
-      }).then(function(){
         msg(MONTHS_DE[month-1]+' geöffnet ('+defaultOpen+'–'+defaultClose+')','','sup-month-message');
         buildSupMonthGrid();
         flashSupMonthCard(month);
@@ -1183,42 +1181,11 @@
       .then(function(r){
         if(!r.ok)throw new Error('fail');
         supMonthDefaults[month]={month:month,open_time:openT,close_time:closeT};
-        // 2. Rollout auf sup_daily_schedule: alle Tage dieses Monats ab heute mit auto_default=true
-        return rolloutSupMonthToSchedule(month,openT,closeT);
-      })
-      .then(function(affected){
-        msg(MONTHS_DE[month-1]+' gespeichert'+(affected>0?' — '+affected+' Tag(e) aktualisiert':''),'','sup-month-message');
+        msg(MONTHS_DE[month-1]+' gespeichert','','sup-month-message');
         flashSupMonthCard(month);
         if(typeof loadSupCalendar==='function')loadSupCalendar();
       })
       .catch(function(){msg('Fehler beim Speichern','error','sup-month-message')});
-    }
-
-    function rolloutSupMonthToSchedule(month,openT,closeT){
-      // PATCH alle sup_daily_schedule-Einträge des Monats ab heute mit auto_default=true
-      var today=new Date();
-      var year=today.getFullYear();
-      var fromStr=dateStr(today);
-      var ranges=[];
-      for(var y=year;y<=year+1;y++){
-        var first=y+'-'+String(month).padStart(2,'0')+'-01';
-        var lastDay=new Date(y,month,0).getDate();
-        var last=y+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
-        if(last>=fromStr)ranges.push({first:first<fromStr?fromStr:first,last:last});
-      }
-      if(!ranges.length)return Promise.resolve(0);
-
-      var promises=ranges.map(function(r){
-        return fetch(SB_URL+'/rest/v1/sup_daily_schedule?date=gte.'+r.first+'&date=lte.'+r.last+'&auto_default=is.true',{
-          method:'PATCH',
-          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
-          body:JSON.stringify({open_time:openT,close_time:closeT,is_open:true})
-        }).then(function(r){return r.ok?r.json():[]});
-      });
-      return Promise.all(promises).then(function(results){
-        var total=0;results.forEach(function(arr){if(Array.isArray(arr))total+=arr.length});
-        return total;
-      });
     }
 
     // SUP-Einstellungen — derzeit nur max_duration. Werte in DB als Minuten gespeichert,
