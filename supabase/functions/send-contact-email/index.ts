@@ -112,8 +112,12 @@ serve(async (req) => {
   );
   const replyHref = `mailto:${email}?subject=${replySubject}&body=${replyBody}`;
 
+  // Preheader für die Crew-Mail (info@) — versteckter Snippet-Text.
+  const crewPreheader = `Neue Anfrage von ${nameH}: ${subjectH}`;
+
   const html = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="display:none;max-height:0;overflow:hidden;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#FDFAF4;opacity:0">${crewPreheader}</div>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
@@ -167,6 +171,25 @@ serve(async (req) => {
     </div>
   `;
 
+  // Crew-Mail Plain-Text (für Spam-Bewertung + Snippet)
+  const crewText = [
+    `STEG 1 POSSENHOFEN — NEUE KONTAKTANFRAGE`,
+    ``,
+    `Nachricht von ${name}`,
+    `Betreff: ${subject}`,
+    ``,
+    `Name:    ${name}`,
+    `E-Mail:  ${email}`,
+    `Telefon: ${phone || "nicht angegeben"}`,
+    `Betreff: ${subject}`,
+    ``,
+    `--- NACHRICHT ---`,
+    `${message}`,
+    `--- ENDE ---`,
+    ``,
+    `Gesendet über das Kontaktformular auf steg1possenhofen.de`,
+  ].join("\n");
+
   // 1) Crew-Mail an info@
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -180,6 +203,7 @@ serve(async (req) => {
       reply_to: email,
       subject: `Kontaktanfrage: ${subject}`,
       html: html,
+      text: crewText,
     }),
   });
 
@@ -194,8 +218,12 @@ serve(async (req) => {
 
   // 2) Bestätigungsmail an Gast — Versand-Fehler darf User-Feedback nicht blockieren
   const firstName = nameH.split(" ")[0] || nameH;
+  // Preheader für Gast-Bestätigung — Inbox-Snippet (Gmail/Outlook)
+  const guestPreheader = `Vielen Dank f&uuml;r deine Nachricht. Wir melden uns innerhalb von 24 Stunden bei dir zur&uuml;ck.`;
+
   const guestHtml = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="display:none;max-height:0;overflow:hidden;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#FDFAF4;opacity:0">${guestPreheader}</div>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
@@ -231,6 +259,29 @@ serve(async (req) => {
     </div>
   `;
 
+  // Plain-Text für die Gast-Bestätigung
+  const guestText = [
+    `Steg 1 Possenhofen — Biergarten & SUP-Verleih am Starnberger See`,
+    ``,
+    `Hallo ${firstName},`,
+    ``,
+    `vielen Dank für deine Nachricht.`,
+    `Schön, dass du dich bei uns meldest — wir kümmern uns gleich darum.`,
+    `Wir melden uns innerhalb der nächsten 24 Stunden bei dir zurück.`,
+    ``,
+    `--- DEINE NACHRICHT ---`,
+    `Betreff: ${subject}`,
+    ``,
+    `${message}`,
+    `--- ENDE ---`,
+    ``,
+    `Sonnige Grüße`,
+    `vom Steg 1`,
+    ``,
+    `—`,
+    `steg1possenhofen.de · Possenhofen am Starnberger See`,
+  ].join("\n");
+
   try {
     const guestRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -244,6 +295,7 @@ serve(async (req) => {
         reply_to: "info@steg1possenhofen.de",
         subject: "Deine Nachricht an Steg 1 ist angekommen",
         html: guestHtml,
+        text: guestText,
       }),
     });
     if (guestRes.ok) {
