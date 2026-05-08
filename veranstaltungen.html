@@ -540,6 +540,9 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
   var allEvents=[];
   var activeFilter='next'; // 'next' oder 'YYYY-MM'
 
+  // HTML-Escape für DB-Werte (XSS-Schutz)
+  function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+
   var MONTH_NAMES=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
   function renderMonthNav(){
@@ -588,8 +591,8 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
       if(ev.time){timeRange=ev.time.slice(0,5);if(ev.time_to)timeRange+=' – '+ev.time_to.slice(0,5);timeRange+=' Uhr';}
       html+='<div class="ev-card">';
       html+='<div class="ev-date"><span class="ev-date-dot"></span>'+dateStr+(timeRange?' · '+timeRange:'')+'</div>';
-      html+='<div class="ev-title">'+ev.title+'</div>';
-      if(ev.description)html+='<div class="ev-desc">'+ev.description+'</div>';
+      html+='<div class="ev-title">'+esc(ev.title)+'</div>';
+      if(ev.description)html+='<div class="ev-desc">'+esc(ev.description)+'</div>';
       html+='</div>';
     });
     document.getElementById('ev-list').innerHTML=html;
@@ -611,6 +614,10 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
 
 // Load party images
 (function(){
+  // HTML-Escape + URL-Whitelist für DB-Werte (XSS-Schutz)
+  function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+  function safeUrl(u){if(typeof u!=='string')return '';return /^(https?:\/\/|\/)/i.test(u)?esc(u):'';}
+
   fetch(SB_URL+'/rest/v1/party_images?order=sort_order.asc&select=url,alt_text',{
     headers:{'apikey':SB_KEY}
   })
@@ -619,7 +626,9 @@ document.querySelector('.nav-burger').addEventListener('click',function(){
     if(!Array.isArray(data)||!data.length)return;
     var html='';
     data.forEach(function(img){
-      html+='<div class="masonry-item"><img src="'+img.url+'" alt="'+(img.alt_text||'Party am Steg 1')+'" loading="lazy"></div>';
+      var url=safeUrl(img.url);
+      if(!url)return;
+      html+='<div class="masonry-item"><img src="'+url+'" alt="'+esc(img.alt_text||'Party am Steg 1')+'" loading="lazy"></div>';
     });
     document.getElementById('party-grid').innerHTML=html;
     initLightbox();

@@ -507,6 +507,33 @@
     var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
     var token='';
     var failedAttempts=0;
+    var autoRefreshTimer=null;
+
+    // Token alle 50 Minuten erneuern (Supabase Access-Token läuft nach 60 min ab).
+    // Verhindert 401-Fehler nach längerer Inaktivität bei offener Admin-Seite.
+    function startAutoRefresh(){
+      stopAutoRefresh();
+      autoRefreshTimer=setInterval(function(){
+        var rt=localStorage.getItem('steg1_refresh');
+        if(!rt)return;
+        fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY},
+          body:JSON.stringify({refresh_token:rt})
+        })
+        .then(function(r){if(!r.ok)throw new Error('refresh_failed');return r.json();})
+        .then(function(data){
+          if(!data||!data.access_token)return;
+          token=data.access_token;
+          localStorage.setItem('steg1_token',token);
+          if(data.refresh_token)localStorage.setItem('steg1_refresh',data.refresh_token);
+        })
+        .catch(function(){/* nächster Aktion-Versuch zeigt 401, User loggt neu ein */});
+      },50*60*1000);
+    }
+    function stopAutoRefresh(){
+      if(autoRefreshTimer){clearInterval(autoRefreshTimer);autoRefreshTimer=null;}
+    }
 
     // Role-UI nach Login oder Session-Restore anwenden
     function applyRole(userRole) {
@@ -567,6 +594,7 @@
         document.getElementById('login').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         applyRole(userRole);
+        startAutoRefresh();
       })
       .catch(function() {
         // Token abgelaufen oder ungültig – Felder leeren und Login zeigen
@@ -1306,6 +1334,7 @@
         document.getElementById('login').style.display='none';
         document.getElementById('dashboard').style.display='block';
         applyRole(userRole);
+        startAutoRefresh();
         btn.disabled=false;btn.textContent='Anmelden';
       })
       .catch(function(){msg('Verbindungsfehler','error','login-message');btn.disabled=false;btn.textContent='Anmelden'});
@@ -1313,6 +1342,7 @@
 
     // Logout
     document.getElementById('btn-logout').addEventListener('click',function(){
+      stopAutoRefresh();
       fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}})
       .finally(function(){
         token='';
