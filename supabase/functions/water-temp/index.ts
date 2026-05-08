@@ -31,13 +31,13 @@ serve(async (req) => {
     });
     const html = await res.text();
 
-    // Parse temperature from HTML table — last value in the table
+    // Parse temperature from HTML table — first value is the most recent measurement
+    // (table is sorted descending by date; last row is the oldest entry).
     const matches = [...html.matchAll(/<td[^>]*class="[^"]*center[^"]*"[^>]*>([\d]+[.,]\d+)<\/td>/g)];
     let temp = null;
 
     if (matches.length > 0) {
-      // Take the last match (most recent measurement)
-      temp = parseFloat(matches[matches.length - 1][1].replace(",", "."));
+      temp = parseFloat(matches[0][1].replace(",", "."));
     }
 
     return new Response(JSON.stringify({ temperature: temp }), {
