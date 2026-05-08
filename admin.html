@@ -1426,6 +1426,8 @@
       var firstDow = new Date(supYear, supMonth, 1).getDay();
       firstDow = firstDow === 0 ? 6 : firstDow - 1;
       var daysInMonth = new Date(supYear, supMonth + 1, 0).getDate();
+      // Monat ohne Default-Eintrag = außerhalb der SUP-Saison → alle Tage zu
+      var monthOpen = !!(supMonthDefaults && supMonthDefaults[supMonth + 1]);
 
       for (var i = 0; i < firstDow; i++) html += '<div class="sup-cal-day empty"></div>';
 
@@ -1433,7 +1435,7 @@
         var date = new Date(supYear, supMonth, d);
         var ds = dateStr(date);
         var isPast = date < today;
-        var isClosed = supClosedDays.indexOf(ds) !== -1;
+        var isClosed = !monthOpen || supClosedDays.indexOf(ds) !== -1;
         var bookCount = supBookings[ds] ? supBookings[ds].length : 0;
         var sel = supSelectedDate === ds ? ' selected' : '';
         var todayClass = (date.getTime() === today.getTime()) ? ' today' : '';
@@ -1477,15 +1479,22 @@
     function showSupDayDetail(ds) {
       var detail = document.getElementById('sup-day-detail');
       var d = new Date(ds + 'T12:00:00');
-      var isClosed = supClosedDays.indexOf(ds) !== -1;
+      var monthOpen = !!(supMonthDefaults && supMonthDefaults[d.getMonth() + 1]);
+      var isClosed = !monthOpen || supClosedDays.indexOf(ds) !== -1;
       var dayBookings = supBookings[ds] || [];
 
       var html = '<div class="sup-detail">';
       html += '<h3>' + DAYS_DE[d.getDay()] + ', ' + d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear() + '</h3>';
       html += '<div class="sup-day-toggle">';
-      html += '<label class="toggle"><input type="checkbox" ' + (isClosed ? '' : 'checked') + ' onchange="supToggleDay(\'' + ds + '\', this.checked)"><span class="slider"></span></label>';
+      // Wenn der Monat keinen Default-Eintrag hat, kann ein einzelner Tag nicht
+      // sinnvoll geöffnet werden — dafür müsste erst der Monat aktiviert werden.
+      var disabledAttr = monthOpen ? '' : ' disabled';
+      html += '<label class="toggle"><input type="checkbox" ' + (isClosed ? '' : 'checked') + disabledAttr + ' onchange="supToggleDay(\'' + ds + '\', this.checked)"><span class="slider"></span></label>';
       html += '<span>' + (isClosed ? 'Geschlossen für SUP' : 'Geöffnet für SUP') + '</span>';
       html += '</div>';
+      if (!monthOpen) {
+        html += '<p style="margin-top:8px;font-size:.78rem;color:var(--text3)">Der Monat ist als geschlossen markiert. Um einzelne Tage zu öffnen, zuerst den Monat oben aktivieren.</p>';
+      }
 
       if (dayBookings.length > 0) {
         html += '<h4 style="margin-top:16px;font-size:.88rem;font-weight:600">' + dayBookings.length + ' Buchung' + (dayBookings.length > 1 ? 'en' : '') + '</h4>';
