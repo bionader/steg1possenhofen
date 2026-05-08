@@ -772,7 +772,7 @@ footer{
     <div class="sup-cards">
       <div class="sc">
         <div class="sc-l"><h3>SUP-Verleih</h3><p>Board, Paddel · Einweisung inkl.</p></div>
-        <div class="sc-price">15 €<span>/ Stunde</span></div>
+        <div class="sc-price" id="sup-price">15 €<span>/ Stunde</span></div>
       </div>
       <div class="sc">
         <div class="sc-l"><h3>SUP Touren</h3><p>Geführte Touren auf dem Starnberger See</p></div>
@@ -1243,6 +1243,25 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
   apply();
   if(mq.addEventListener) mq.addEventListener('change',apply);
   else if(mq.addListener) mq.addListener(apply);
+})();
+</script>
+<script>
+// SUP-Preis dynamisch aus sup_settings.price_per_hour laden — vermeidet Drift mit Admin
+(function(){
+  var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  var el=document.getElementById('sup-price');
+  if(!el)return;
+  fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1&select=price_per_hour',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}})
+    .then(function(r){return r.ok?r.json():null})
+    .then(function(data){
+      if(!data||!data.length||data[0].price_per_hour==null)return;
+      var p=Number(data[0].price_per_hour);
+      if(!isFinite(p))return;
+      var formatted=(p%1===0?p:p.toFixed(2).replace('.',','))+' €';
+      el.innerHTML=formatted+'<span>/ Stunde</span>';
+    })
+    .catch(function(){});
 })();
 </script>
 <script>
