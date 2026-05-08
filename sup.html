@@ -128,7 +128,7 @@ nav.scrolled{
 .sup-hero img{
   position:absolute;inset:0;
   width:100%;height:100%;object-fit:cover;
-  object-position:center 60%;
+  object-position:60% 60%;
 }
 .sup-hero-overlay{
   position:absolute;inset:0;
@@ -141,14 +141,15 @@ nav.scrolled{
   max-width:700px;
 }
 .sup-hero-content .eyebrow{
-  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(253,250,244,.65);display:flex;align-items:center;gap:.7rem;
-  margin-bottom:1.2rem;
+  display:inline-block;
+  background:rgba(253,250,244,.95);
+  color:var(--g);
+  font-size:.78rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  padding:.55rem 1.1rem;border-radius:100px;
+  margin-bottom:1.4rem;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
 }
-.sup-hero-content .eyebrow::before{
-  content:'';width:28px;height:1.5px;
-  background:rgba(253,250,244,.4);
-}
+.sup-hero-content .eyebrow::before{display:none}
 .sup-hero-content h1{
   font-family:'Petrona',serif;
   font-size:clamp(2.6rem,5vw,4.2rem);
@@ -407,7 +408,8 @@ footer{
   }
 
   .sup-hero{min-height:46vh}
-  .sup-hero img{object-position:center 55%}
+  .sup-hero img{object-position:60% 60%}
+  .sup-hero-content .eyebrow{font-size:.7rem;padding:.5rem 1rem;margin-bottom:1.2rem}
   .sup-hero-overlay{background:linear-gradient(to top, rgba(24,24,15,.88) 0%, rgba(24,24,15,.5) 55%, rgba(24,24,15,.15) 100%)}
   .sup-hero-content{padding:2rem 1.5rem 2.5rem}
   .sup-hero-content h1{text-shadow:0 2px 14px rgba(0,0,0,.35)}
