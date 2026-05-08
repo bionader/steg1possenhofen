@@ -1096,7 +1096,9 @@
       }).catch(function(){msg('Fehler beim Öffnen','error','sup-month-message')});
     }
 
-    // Monat schließen — Default-Eintrag löschen
+    // Monat schließen — Default-Eintrag löschen + ausgerollte Tages-Einträge auf is_open=false patchen.
+    // Sonst blieben Tages-Overrides mit is_open=true bestehen und das Frontend würde den Monat
+    // weiterhin als geöffnet anzeigen (Tages-Override hat Vorrang vor Monats-Default).
     function supSetMonthClosed(month){
       fetch(SB_URL+'/rest/v1/sup_monthly_defaults?month=eq.'+month,{
         method:'DELETE',
@@ -1104,11 +1106,41 @@
       }).then(function(r){
         if(!r.ok)throw new Error('fail');
         delete supMonthDefaults[month];
-        msg(MONTHS_DE[month-1]+' geschlossen','','sup-month-message');
+        return rolloutSupMonthClosure(month);
+      }).then(function(affected){
+        msg(MONTHS_DE[month-1]+' geschlossen'+(affected>0?' — '+affected+' Tag(e) geschlossen':''),'','sup-month-message');
         buildSupMonthGrid();
         flashSupMonthCard(month);
         if(typeof loadSupCalendar==='function')loadSupCalendar();
       }).catch(function(){msg('Fehler beim Schließen','error','sup-month-message')});
+    }
+
+    // Patcht alle auto_default=true Tages-Einträge des Monats ab heute auf is_open=false.
+    // Manuelle Overrides (auto_default=false) bleiben unangetastet — die hat Cathrin bewusst gesetzt.
+    function rolloutSupMonthClosure(month){
+      var today=new Date();
+      var year=today.getFullYear();
+      var fromStr=dateStr(today);
+      var ranges=[];
+      for(var y=year;y<=year+1;y++){
+        var first=y+'-'+String(month).padStart(2,'0')+'-01';
+        var lastDay=new Date(y,month,0).getDate();
+        var last=y+'-'+String(month).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+        if(last>=fromStr)ranges.push({first:first<fromStr?fromStr:first,last:last});
+      }
+      if(!ranges.length)return Promise.resolve(0);
+
+      var promises=ranges.map(function(r){
+        return fetch(SB_URL+'/rest/v1/sup_daily_schedule?date=gte.'+r.first+'&date=lte.'+r.last+'&auto_default=is.true',{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+          body:JSON.stringify({is_open:false,open_time:null,close_time:null})
+        }).then(function(r){return r.ok?r.json():[]});
+      });
+      return Promise.all(promises).then(function(results){
+        var total=0;results.forEach(function(arr){if(Array.isArray(arr))total+=arr.length});
+        return total;
+      });
     }
 
     // Visuelles Save-Feedback: 1.2 s grüner Rahmen pulsiert

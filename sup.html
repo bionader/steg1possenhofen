@@ -823,15 +823,8 @@ function getDayOpening(ds) {
       close_time: (def.close_time || '').substring(0,5)
     };
   }
-  // Kein Monats-Default → falls sup_settings globale Slot-Range gesetzt hat,
-  // ist das nur Fallback bis Defaults gepflegt sind. Sonst: Tag bleibt zu.
-  if (settings && settings.slot_start && settings.slot_end) {
-    return {
-      is_open: true,
-      open_time: settings.slot_start.substring(0,5),
-      close_time: settings.slot_end.substring(0,5)
-    };
-  }
+  // Kein Monats-Default → Tag ist außerhalb der SUP-Saison und bleibt zu.
+  // (Ein expliziter Tages-Override mit is_open=true wird oben bereits behandelt.)
   return { is_open: false, open_time: '', close_time: '' };
 }
 
