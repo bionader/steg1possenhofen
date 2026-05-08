@@ -79,8 +79,13 @@ serve(async (req) => {
     // Silent fail — email still sends without manage links
   }
 
+  // Preheader: versteckter Text, den Gmail/Outlook im Inbox-Snippet zeigen.
+  // Verhindert, dass Gmail selbst eine fehlerhafte Zusammenfassung baut (z.B. "hello@" statt "hallo@").
+  const preheader = `Deine SUP-Reservierung am ${dateFormatted} um ${startTime} Uhr ist best&auml;tigt &mdash; wir freuen uns auf dich am Steg 1.`;
+
   const html = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="display:none;max-height:0;overflow:hidden;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#FDFAF4;opacity:0">${preheader}</div>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
@@ -154,6 +159,36 @@ serve(async (req) => {
     </div>
   `;
 
+  // Plain-Text-Version — bessere Spam-Bewertung + saubere Snippets in Mail-Clients
+  const text = [
+    `Steg 1 Possenhofen — Biergarten & SUP-Verleih am Starnberger See`,
+    ``,
+    `DEINE SUP-RESERVIERUNG`,
+    ``,
+    `Hallo ${name}, deine Reservierung ist bestätigt!`,
+    ``,
+    bookingId ? `Buchung: ${bookingId}` : null,
+    `Datum:   ${dateFormatted}`,
+    `Zeit:    ${startTime} – ${endTime} Uhr`,
+    `Boards:  ${boards}`,
+    `Preis:   ${price} € · Bezahlung vor Ort`,
+    ``,
+    `Adresse: Steg 1, Possenhofen am Starnberger See`,
+    `Maps:    https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic`,
+    ``,
+    manageToken ? `Buchung ändern oder stornieren:\nhttps://steg1possenhofen.de/buchung.html?token=${manageToken}\n` : null,
+    `Bei Fragen erreichst du uns unter:`,
+    `  E-Mail: hallo@steg1possenhofen.de`,
+    `  Anruf/WhatsApp: +4917881189224`,
+    ``,
+    `Wir freuen uns auf deinen Besuch am Steg 1.`,
+    `Bis bald am See!`,
+    ``,
+    `—`,
+    `Steg 1 Possenhofen · Am Starnberger See`,
+    `Instagram: https://instagram.com/steg1possenhofen`,
+  ].filter(Boolean).join("\n");
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -166,6 +201,7 @@ serve(async (req) => {
       bcc: ["hallo@steg1possenhofen.de"],
       subject: `Deine SUP-Reservierung am ${dateFormatted}`,
       html: html,
+      text: text,
     }),
   });
 

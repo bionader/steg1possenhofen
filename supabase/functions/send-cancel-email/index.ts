@@ -55,8 +55,12 @@ serve(async (req) => {
   const { email, name, date, startTime, endTime, boards, price, bookingId, reason } = await req.json();
   const dateFormatted = date.split("-").reverse().join(".");
 
+  // Preheader: versteckter Text fürs Inbox-Snippet (Gmail/Outlook).
+  const preheader = `Deine Buchung am ${dateFormatted} wurde storniert. Bei Fragen erreichst du uns unter hallo@steg1possenhofen.de.`;
+
   const html = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="display:none;max-height:0;overflow:hidden;visibility:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#FDFAF4;opacity:0">${preheader}</div>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <!-- Header -->
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
@@ -123,6 +127,35 @@ serve(async (req) => {
     </div>
   `;
 
+  // Plain-Text-Version
+  const text = [
+    `Steg 1 Possenhofen — Biergarten & SUP-Verleih am Starnberger See`,
+    ``,
+    `BUCHUNG STORNIERT`,
+    ``,
+    `Hallo ${name}, deine Buchung wurde leider storniert.`,
+    ``,
+    bookingId ? `Buchung: ${bookingId}` : null,
+    `Datum:   ${dateFormatted}`,
+    `Zeit:    ${startTime} – ${endTime} Uhr`,
+    `Boards:  ${boards}`,
+    `Preis:   ${price} € · Bezahlung vor Ort`,
+    `Status:  Storniert`,
+    ``,
+    `Grund der Stornierung:`,
+    `${reason}`,
+    ``,
+    `Bei Fragen erreichst du uns unter:`,
+    `  E-Mail: hallo@steg1possenhofen.de`,
+    `  Anruf/WhatsApp: +4917881189224`,
+    ``,
+    `Dein Steg 1 Team`,
+    ``,
+    `—`,
+    `Steg 1 Possenhofen · Am Starnberger See`,
+    `Instagram: https://instagram.com/steg1possenhofen`,
+  ].filter(Boolean).join("\n");
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -135,6 +168,7 @@ serve(async (req) => {
       bcc: ["hallo@steg1possenhofen.de"],
       subject: `Deine SUP-Buchung am ${dateFormatted} wurde storniert`,
       html: html,
+      text: text,
     }),
   });
 
