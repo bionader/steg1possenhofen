@@ -538,29 +538,54 @@
     // Role-UI nach Login oder Session-Restore anwenden
     function applyRole(userRole) {
       var sel = document.getElementById('tab-select');
+      // Alle Tabs/Optionen erst sichtbar zurücksetzen (sauberer State bei Role-Wechsel)
+      ['schedule','sup','menu','bestseller','events'].forEach(function(t){
+        var btn = document.getElementById('tab-'+t);
+        if (btn) btn.style.display = '';
+        if (sel) {
+          var opt = sel.querySelector('option[value="'+t+'"]');
+          if (opt) opt.hidden = false;
+        }
+      });
+
       if (userRole === 'sup') {
+        // Claudi — nur SUP-Buchungen
         document.getElementById('tab-schedule').style.display = 'none';
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
-        // Im Mobile-Dropdown dieselben Optionen ausblenden
+        document.getElementById('tab-events').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="schedule"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
+          sel.querySelector('option[value="events"]').hidden = true;
           sel.value = 'sup';
         }
-        document.getElementById('content-schedule').classList.remove('active');
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
         document.getElementById('tab-sup').classList.add('active');
         document.getElementById('content-sup').classList.add('active');
         loadSupCalendar();
         loadSupSettingsPanel();
-      } else {
+      } else if (userRole === 'schedule_events') {
+        // Cassie — nur Öffnungszeiten + Veranstaltungen
+        document.getElementById('tab-sup').style.display = 'none';
+        document.getElementById('tab-menu').style.display = 'none';
+        document.getElementById('tab-bestseller').style.display = 'none';
         if (sel) {
-          sel.querySelector('option[value="schedule"]').hidden = false;
-          sel.querySelector('option[value="menu"]').hidden = false;
-          sel.querySelector('option[value="bestseller"]').hidden = false;
+          sel.querySelector('option[value="sup"]').hidden = true;
+          sel.querySelector('option[value="menu"]').hidden = true;
+          sel.querySelector('option[value="bestseller"]').hidden = true;
           sel.value = 'schedule';
         }
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+        document.getElementById('tab-schedule').classList.add('active');
+        document.getElementById('content-schedule').classList.add('active');
+        loadSchedule();
+      } else {
+        // Admin (Cathy/Edita) — alle Tabs
+        if (sel) sel.value = 'schedule';
         loadSchedule();
       }
     }
