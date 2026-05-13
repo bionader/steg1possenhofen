@@ -598,7 +598,6 @@
         // Keine Session oder abgelaufen – aufräumen
         localStorage.removeItem('steg1_token');
         localStorage.removeItem('steg1_refresh');
-        localStorage.removeItem('steg1_role');
         localStorage.removeItem('steg1_expires');
         return;
       }
@@ -613,9 +612,7 @@
         token = data.access_token;
         localStorage.setItem('steg1_token', token);
         if (data.refresh_token) localStorage.setItem('steg1_refresh', data.refresh_token);
-        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role)
-                       || localStorage.getItem('steg1_role') || 'admin';
-        localStorage.setItem('steg1_role', userRole);
+        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'sup';
         document.getElementById('login').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         applyRole(userRole);
@@ -625,7 +622,6 @@
         // Token abgelaufen oder ungültig – Felder leeren und Login zeigen
         localStorage.removeItem('steg1_token');
         localStorage.removeItem('steg1_refresh');
-        localStorage.removeItem('steg1_role');
       });
     })();
     // Sanitize user input to prevent XSS
@@ -1352,8 +1348,7 @@
         // Session in localStorage speichern für automatischen Re-Login (7 Tage Gültigkeit)
         localStorage.setItem('steg1_token', token);
         if (data.refresh_token) localStorage.setItem('steg1_refresh', data.refresh_token);
-        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'admin';
-        localStorage.setItem('steg1_role', userRole);
+        var userRole = (data.user && data.user.user_metadata && data.user.user_metadata.role) || 'sup';
         localStorage.setItem('steg1_expires', Date.now() + 7 * 24 * 60 * 60 * 1000);
         document.getElementById('login').style.display='none';
         document.getElementById('dashboard').style.display='block';
@@ -1373,7 +1368,6 @@
         // Gespeicherte Session entfernen
         localStorage.removeItem('steg1_token');
         localStorage.removeItem('steg1_refresh');
-        localStorage.removeItem('steg1_role');
         localStorage.removeItem('steg1_expires');
         document.getElementById('login').style.display='block';
         document.getElementById('dashboard').style.display='none';
