@@ -393,6 +393,9 @@
           <div class="month-hint">Standard-Öffnungszeiten pro Monat für den SUP-Verleih. Wird automatisch auf alle Tage dieses Monats angewendet, außer du hast einen Tag im Kalender oben manuell geschlossen. Letzte Buchung = Schließzeit minus 1 h (Mindestbuchungsdauer).</div>
           <div id="sup-month-message"></div>
           <div class="month-grid" id="sup-month-grid"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:12px">
+            <button type="button" id="btn-save-sup-months" style="width:auto;padding:8px 18px;font-size:.85rem">&Ouml;ffnungszeiten speichern</button>
+          </div>
         </div>
 
         <!-- SUP-Einstellungen -->
@@ -1088,23 +1091,20 @@
           if(this.checked) supSetMonthOpen(m); else supSetMonthClosed(m);
         });
       });
-      // Time-Listener: live „Letzte Buchung" + Auto-save on blur
+      // Time-Listener: nur live „Letzte Buchung"-Hint aktualisieren. KEIN Autosave —
+      // gespeichert wird ausschliesslich ueber den expliziten „Oeffnungszeiten speichern"-Button
+      // unterhalb des Grids. Autosave hat in dieser Section Race-Conditions mit dem Grid-Rebuild
+      // verursacht (stale Werte wurden zurueck in die DB geschrieben).
       grid.querySelectorAll('.sup-month-time-input').forEach(function(inp){
         inp.addEventListener('input',function(){
           var m=parseInt(this.dataset.month,10);
           var card=document.querySelector('.month-card[data-month="'+m+'"]');
           if(!card)return;
-          // Defensive: nach DOM-Rebuild (loadSupCalendar im Save-Flow) kann der Input mid-typing
-          // auf eine Karte ohne Close-Input zeigen — null-check verhindert JS-Crash, der sonst
-          // das change-Event und damit den Save killt.
           var closeInp=card.querySelector('.sup-month-time-input.close');
           if(!closeInp)return;
           var hint=card.querySelector('.sup-month-last');
           if(hint)hint.textContent=closeInp.value?'Letzte Buchung: '+minusOneHour(closeInp.value):'';
         });
-        inp.addEventListener('blur',function(){saveSupMonthDefault(parseInt(this.dataset.month,10))});
-        // change feuert beim type="time"-Picker auch ohne Fokus-Wechsel (iOS-Safari zuverlaessig)
-        inp.addEventListener('change',function(){saveSupMonthDefault(parseInt(this.dataset.month,10))});
       });
     }
 
@@ -1235,6 +1235,65 @@
         msg('Fehler beim Speichern ('+MONTHS_DE[month-1]+'): '+(err&&err.message?err.message:'unbekannt'),'error','sup-month-message');
       });
     }
+
+    // Dedizierter Speichern-Button fuer das gesamte Monats-Default-Grid.
+    // Sammelt alle aktuellen Input-Werte, sendet einen einzigen Batch-Upsert,
+    // verifiziert die DB-Antwort und rendert NICHT neu (sonst wuerde der Edit clobbern).
+    document.getElementById('btn-save-sup-months').addEventListener('click',function(){
+      var btn=this;
+      var grid=document.getElementById('sup-month-grid');
+      if(!grid)return;
+      // Sammeln: alle offenen Monate (mit Inputs) + Validierung
+      var payload=[];
+      var errors=[];
+      grid.querySelectorAll('.month-card[data-month]').forEach(function(card){
+        var m=parseInt(card.dataset.month,10);
+        var openInp=card.querySelector('.sup-month-time-input.open');
+        var closeInp=card.querySelector('.sup-month-time-input.close');
+        if(!openInp||!closeInp)return; // geschlossener Monat — nichts zu speichern
+        var openT=openInp.value, closeT=closeInp.value;
+        if(!openT||!closeT){errors.push(MONTHS_DE[m-1]+': Uhrzeit fehlt');return}
+        if(openT>=closeT){errors.push(MONTHS_DE[m-1]+': &Ouml;ffnung muss vor Schliessung liegen');return}
+        payload.push({month:m,open_time:openT,close_time:closeT,updated_at:new Date().toISOString()});
+      });
+      if(errors.length){msg(errors.join(' &middot; '),'error','sup-month-message');return}
+      if(!payload.length){msg('Keine offenen Monate zum Speichern','error','sup-month-message');return}
+
+      btn.disabled=true;var origText=btn.textContent;btn.textContent='Speichern...';
+      fetch(SB_URL+'/rest/v1/sup_monthly_defaults?on_conflict=month',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=representation'},
+        body:JSON.stringify(payload)
+      })
+      .then(function(r){
+        if(!r.ok){return r.text().then(function(t){throw new Error('HTTP '+r.status+': '+t)});}
+        return r.json();
+      })
+      .then(function(rows){
+        // Verifizieren: alle gesendeten Monate kommen mit unseren Werten zurueck
+        if(!Array.isArray(rows)||rows.length!==payload.length){
+          throw new Error('Antwort unvollstaendig: '+(Array.isArray(rows)?rows.length:'kein Array')+'/'+payload.length);
+        }
+        var byMonth={};rows.forEach(function(r){byMonth[r.month]=r});
+        var mismatch=null;
+        payload.forEach(function(p){
+          var r=byMonth[p.month];
+          if(!r||((r.open_time||'').substring(0,5)!==p.open_time)||((r.close_time||'').substring(0,5)!==p.close_time)){
+            mismatch=p.month+' (DB: '+(r?r.open_time+'-'+r.close_time:'fehlt')+')';
+          }
+        });
+        if(mismatch)throw new Error('DB-Wert weicht ab — Monat '+mismatch);
+        // Cache aktualisieren — KEIN Grid-Rebuild
+        rows.forEach(function(r){supMonthDefaults[r.month]={month:r.month,open_time:r.open_time,close_time:r.close_time}});
+        msg('&Ouml;ffnungszeiten gespeichert ('+payload.length+' Monat'+(payload.length===1?'':'e')+')','','sup-month-message');
+        payload.forEach(function(p){flashSupMonthCard(p.month)});
+      })
+      .catch(function(err){
+        console.error('btn-save-sup-months Fehler:',err);
+        msg('Fehler beim Speichern: '+(err&&err.message?err.message:'unbekannt'),'error','sup-month-message');
+      })
+      .finally(function(){btn.disabled=false;btn.textContent=origText});
+    });
 
     // SUP-Einstellungen — derzeit nur max_duration. Werte in DB als Minuten gespeichert,
     // im UI als Stunden angezeigt (Cathrin denkt nicht in Minuten).
