@@ -112,9 +112,7 @@ serve(async (req) => {
           <p style="color:#18180F;font-size:14px;margin:0">${reason}</p>
         </div>
 
-        <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
-        <p style="margin:0 0 6px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
-        <p style="margin:0 0 20px;font-size:14px">Anruf/WhatsApp: <a href="tel:+4917881189224" style="color:#163D36;font-weight:500;text-decoration:none">+4917881189224</a></p>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Bei Fragen kannst du direkt auf diese Mail antworten &mdash; wir melden uns schnellstm&ouml;glich.</p>
 
         <p style="color:#4A4840;font-size:15px;margin:0">Dein Steg <span style="font-family:'Albert Sans',Arial,sans-serif">1</span> Team</p>
       </div>
@@ -145,9 +143,7 @@ serve(async (req) => {
     `Grund der Stornierung:`,
     `${reason}`,
     ``,
-    `Bei Fragen erreichst du uns unter:`,
-    `  E-Mail: hallo@steg1possenhofen.de`,
-    `  Anruf/WhatsApp: +4917881189224`,
+    `Bei Fragen kannst du direkt auf diese Mail antworten — wir melden uns schnellstmöglich.`,
     ``,
     `Dein Steg 1 Team`,
     ``,

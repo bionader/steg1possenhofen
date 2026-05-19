@@ -143,9 +143,7 @@ serve(async (req) => {
           <a href="https://steg1possenhofen.de/buchung?token=${manageToken}" style="display:inline-block;padding:12px 28px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Buchung &auml;ndern oder stornieren</a>
         </div>` : ""}
 
-        <p style="color:#4A4840;font-size:14px;margin:0 0 4px">Bei Fragen erreichst du uns unter:</p>
-        <p style="margin:0 0 6px"><a href="mailto:hallo@steg1possenhofen.de" style="color:#163D36;font-weight:500;text-decoration:none">hallo@steg1possenhofen.de</a></p>
-        <p style="margin:0 0 20px;font-size:14px">Anruf/WhatsApp: <a href="tel:+4917881189224" style="color:#163D36;font-weight:500;text-decoration:none">+4917881189224</a></p>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Bei Fragen kannst du direkt auf diese Buchungsbest&auml;tigung antworten &mdash; wir melden uns schnellstm&ouml;glich.</p>
 
         <p style="color:#4A4840;font-size:15px;margin:0 0 8px">Wir freuen uns auf deinen Besuch am Steg 1.</p>
         <p style="color:#4A4840;font-size:15px;margin:0">Bis bald am See! &#x1F30A;</p>
@@ -177,9 +175,7 @@ serve(async (req) => {
     `Maps:    https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic`,
     ``,
     manageToken ? `Buchung ändern oder stornieren:\nhttps://steg1possenhofen.de/buchung?token=${manageToken}\n` : null,
-    `Bei Fragen erreichst du uns unter:`,
-    `  E-Mail: hallo@steg1possenhofen.de`,
-    `  Anruf/WhatsApp: +4917881189224`,
+    `Bei Fragen kannst du direkt auf diese Buchungsbestätigung antworten — wir melden uns schnellstmöglich.`,
     ``,
     `Wir freuen uns auf deinen Besuch am Steg 1.`,
     `Bis bald am See!`,
