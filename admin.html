@@ -1200,20 +1200,34 @@
       // Validierung: open < close
       if(openT>=closeT){msg('Öffnungszeit muss vor Schließzeit liegen','error','sup-month-message');return}
 
-      // 1. sup_monthly_defaults upsert
-      fetch(SB_URL+'/rest/v1/sup_monthly_defaults',{
+      // 1. sup_monthly_defaults upsert — explizites on_conflict=month + return=representation,
+      // damit wir wirklich verifizieren, dass die Zeile auch gespeichert wurde (nicht nur 2xx blind vertrauen).
+      fetch(SB_URL+'/rest/v1/sup_monthly_defaults?on_conflict=month',{
         method:'POST',
-        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=representation'},
         body:JSON.stringify([{month:month,open_time:openT,close_time:closeT,updated_at:new Date().toISOString()}])
       })
       .then(function(r){
-        if(!r.ok)throw new Error('fail');
+        if(!r.ok){
+          return r.text().then(function(t){throw new Error('HTTP '+r.status+': '+t)});
+        }
+        return r.json();
+      })
+      .then(function(rows){
+        // Verifizieren: kam wirklich die neue Zeit zurueck?
+        var saved=Array.isArray(rows)?rows[0]:null;
+        if(!saved||(saved.open_time||'').substring(0,5)!==openT||(saved.close_time||'').substring(0,5)!==closeT){
+          throw new Error('DB-Antwort weicht ab: '+JSON.stringify(saved));
+        }
         supMonthDefaults[month]={month:month,open_time:openT,close_time:closeT};
         msg(MONTHS_DE[month-1]+' gespeichert','','sup-month-message');
         flashSupMonthCard(month);
         if(typeof loadSupCalendar==='function')loadSupCalendar();
       })
-      .catch(function(){msg('Fehler beim Speichern','error','sup-month-message')});
+      .catch(function(err){
+        console.error('saveSupMonthDefault('+month+') Fehler:',err);
+        msg('Fehler beim Speichern ('+MONTHS_DE[month-1]+'): '+(err&&err.message?err.message:'unbekannt'),'error','sup-month-message');
+      });
     }
 
     // SUP-Einstellungen — derzeit nur max_duration. Werte in DB als Minuten gespeichert,
