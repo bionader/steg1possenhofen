@@ -1094,9 +1094,13 @@
           var m=parseInt(this.dataset.month,10);
           var card=document.querySelector('.month-card[data-month="'+m+'"]');
           if(!card)return;
-          var ct=card.querySelector('.sup-month-time-input.close').value;
+          // Defensive: nach DOM-Rebuild (loadSupCalendar im Save-Flow) kann der Input mid-typing
+          // auf eine Karte ohne Close-Input zeigen — null-check verhindert JS-Crash, der sonst
+          // das change-Event und damit den Save killt.
+          var closeInp=card.querySelector('.sup-month-time-input.close');
+          if(!closeInp)return;
           var hint=card.querySelector('.sup-month-last');
-          if(hint)hint.textContent=ct?'Letzte Buchung: '+minusOneHour(ct):'';
+          if(hint)hint.textContent=closeInp.value?'Letzte Buchung: '+minusOneHour(closeInp.value):'';
         });
         inp.addEventListener('blur',function(){saveSupMonthDefault(parseInt(this.dataset.month,10))});
         // change feuert beim type="time"-Picker auch ohne Fokus-Wechsel (iOS-Safari zuverlaessig)
