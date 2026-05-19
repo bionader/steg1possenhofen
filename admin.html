@@ -1226,7 +1226,9 @@
         supMonthDefaults[month]={month:month,open_time:openT,close_time:closeT};
         msg(MONTHS_DE[month-1]+' gespeichert','','sup-month-message');
         flashSupMonthCard(month);
-        if(typeof loadSupCalendar==='function')loadSupCalendar();
+        // Bewusst KEIN loadSupCalendar() hier: das ruefe loadSupMonthDefaults()->buildSupMonthGrid() auf,
+        // das die Inputs aus dem DB-Stand neu rendert. Bei Race-Conditions (zweiter Save, der direkt
+        // danach kommt) liest der dann stale Werte und ueberschreibt den User-Edit. Cache reicht.
       })
       .catch(function(err){
         console.error('saveSupMonthDefault('+month+') Fehler:',err);
@@ -1268,12 +1270,9 @@
         return;
       }
       btn.disabled=true;btn.textContent='Speichern...';
-      // Sicherheitsnetz: alle Monats-Default-Zeiten mitspeichern, falls der Autosave-on-change/blur
-      // im Single-Tap-Flow nicht gefeuert hat (iOS-Picker, schneller Klick auf Speichern, ...).
-      document.querySelectorAll('.month-card[data-month]').forEach(function(card){
-        var m=parseInt(card.dataset.month,10);
-        if(m && card.querySelector('.sup-month-time-input')) saveSupMonthDefault(m);
-      });
+      // Frueheres Sicherheitsnetz (Iteration ueber alle Monats-Cards) wieder entfernt:
+      // Es schrieb beim Klick stale Werte zurueck, wenn das Grid mid-flight neu gerendert wurde,
+      // und ueberschrieb den User-Edit dadurch wieder. Autosave on change/blur reicht.
       fetch(SB_URL+'/rest/v1/sup_settings?id=eq.1',{
         method:'PATCH',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
