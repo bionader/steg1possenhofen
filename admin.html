@@ -208,7 +208,7 @@
     .ev-modal label{display:block;font-size:.72rem;color:var(--text3);font-weight:500;margin-bottom:4px}
     .ev-modal input,.ev-modal textarea{width:100%;padding:9px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:'Albert Sans',sans-serif;font-size:.88rem;background:#fff;color:var(--text);margin-bottom:12px}
     .ev-modal input:focus,.ev-modal textarea:focus{outline:none;border-color:var(--g)}
-    .ev-modal textarea{min-height:70px;resize:vertical}
+    .ev-modal textarea{min-height:160px;line-height:1.55;resize:vertical}
     .ev-modal .ev-modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .ev-modal .ev-modal-actions{display:flex;gap:8px;margin-top:4px}
     .ev-modal .btn-save{flex:1;background:var(--g);color:#fff;border:none;border-radius:100px;padding:10px;font-family:'Albert Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:background .2s}
@@ -470,7 +470,7 @@
             </div>
           </div>
           <input type="text" id="ev-title" placeholder="Titel (z.B. Beach Party)" style="width:100%;padding:9px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.88rem;margin-bottom:10px">
-          <textarea id="ev-desc" placeholder="Beschreibung (optional)" rows="3" style="width:100%;padding:9px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.88rem;resize:vertical;margin-bottom:12px"></textarea>
+          <textarea id="ev-desc" placeholder="Beschreibung (optional)" rows="6" style="width:100%;min-height:160px;padding:9px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.88rem;line-height:1.55;resize:vertical;margin-bottom:12px"></textarea>
           <button type="button" id="btn-add-event" style="padding:9px 24px;background:var(--g);color:white;border:none;border-radius:100px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer">Event hinzufügen</button>
         </div>
 
