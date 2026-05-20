@@ -19,3 +19,6 @@ admin-pre-polish.html
 
 # Playwright-Test-Artefakte (nicht ins Repo)
 .playwright-cli/
+
+# Interne Doku (nicht auf GitHub Pages)
+SETUP.md
