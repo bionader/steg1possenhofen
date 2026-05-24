@@ -1327,19 +1327,34 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
 })();
 </script>
 
-<!-- Behold Instagram-Widget: Lazy-Loading per IntersectionObserver.
+<!-- Behold Instagram-Widget: Lazy-Loading per IntersectionObserver + localStorage-Drossel.
      widget.js lädt erst, wenn der Instagram-Bereich in Sichtweite kommt
-     (rootMargin 200px = lädt kurz vorher → kein Ruckeln). Spart Behold-Views. -->
+     (rootMargin 200px = lädt kurz vorher → kein Ruckeln) UND nur einmal je
+     24h-Fenster pro Besucher. Spart Behold-Views (Free-Limit 1.200/Monat). -->
 <script>
   (function () {
     const widget = document.querySelector('behold-widget');
     if (!widget) return;
+
+    // View-Drossel: pro Besucher max. 1 Load je 24h-Fenster. Bei erneutem
+    // Besuch innerhalb des Fensters wird widget.js NICHT geladen (spart einen
+    // View); das leere Widget-Element wird ausgeblendet, die statische
+    // "Auf Instagram folgen"-CTA darüber bleibt sichtbar.
+    const KEY = 'beholdLastLoad';
+    const TTL = 24 * 60 * 60 * 1000; // 24 Stunden in ms — hier anpassen
+    let last = 0;
+    try { last = parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) {}
+    if (Date.now() - last < TTL) {
+      widget.style.display = 'none'; // kein leerer Platzhalter
+      return;
+    }
 
     let loaded = false;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting && !loaded) {
           loaded = true;
+          try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
           const s = document.createElement('script');
           s.src = 'https://w.behold.so/widget.js';
           s.type = 'module';
