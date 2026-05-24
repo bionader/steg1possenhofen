@@ -623,7 +623,7 @@ footer{
 .txt-link{color:var(--g);font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px;transition:color var(--dur-1) var(--ease)}
 .txt-link:hover{color:var(--g2)}
 </style>
-<script type="module" src="https://w.behold.so/widget.js"></script>
+<!-- Behold-Widget wird per Lazy-Loader vor </body> nachgeladen (spart Behold-Views) -->
 <!-- Structured Data: LocalBusiness + FoodEstablishment -->
 <script type="application/ld+json">
 {
@@ -1325,6 +1325,32 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     try{localStorage.setItem(CACHE_KEY,JSON.stringify(data));}catch(e){}
   }).catch(function(e){console.error('Bestseller load error',e)});
 })();
+</script>
+
+<!-- Behold Instagram-Widget: Lazy-Loading per IntersectionObserver.
+     widget.js lädt erst, wenn der Instagram-Bereich in Sichtweite kommt
+     (rootMargin 200px = lädt kurz vorher → kein Ruckeln). Spart Behold-Views. -->
+<script>
+  (function () {
+    const widget = document.querySelector('behold-widget');
+    if (!widget) return;
+
+    let loaded = false;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !loaded) {
+          loaded = true;
+          const s = document.createElement('script');
+          s.src = 'https://w.behold.so/widget.js';
+          s.type = 'module';
+          document.body.appendChild(s);
+          observer.disconnect();
+        }
+      });
+    }, { rootMargin: '200px' }); // lädt 200px bevor sichtbar → kein Ruckeln
+
+    observer.observe(widget);
+  })();
 </script>
 </body>
 </html>
