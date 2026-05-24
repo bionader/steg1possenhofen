@@ -848,7 +848,10 @@ footer{
   <h2 class="ig-handle">@steg1possenhofen</h2>
   <p class="ssub ssub-center">Impressionen vom See, frische Küche und SUP-Momente.</p>
   <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" class="ig-follow">Auf Instagram folgen <span aria-hidden="true">→</span></a>
-  <behold-widget feed-id="i0eqzCNrgeaJuwVcq9qF"></behold-widget>
+  <!-- Behold-Widget vorübergehend deaktiviert (2026-05-24): Free-Limit (1.200 Views/Monat)
+       war erschöpft → Widget zeigte öffentlich eine "Upgrade Required"-Box. Dauerhafter
+       Ersatz (LightWidget oder statische Bilder) noch offen. Feed-ID: i0eqzCNrgeaJuwVcq9qF
+  <behold-widget feed-id="i0eqzCNrgeaJuwVcq9qF"></behold-widget> -->
 </section>
 
 <!-- STEG BANNER -->
@@ -1323,45 +1326,8 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
 })();
 </script>
 
-<!-- Behold Instagram-Widget: Lazy-Loading per IntersectionObserver + localStorage-Drossel.
-     widget.js lädt erst, wenn der Instagram-Bereich in Sichtweite kommt
-     (rootMargin 200px = lädt kurz vorher → kein Ruckeln) UND nur einmal je
-     24h-Fenster pro Besucher. Spart Behold-Views (Free-Limit 1.200/Monat). -->
-<script>
-  (function () {
-    const widget = document.querySelector('behold-widget');
-    if (!widget) return;
-
-    // View-Drossel: pro Besucher max. 1 Load je 24h-Fenster. Bei erneutem
-    // Besuch innerhalb des Fensters wird widget.js NICHT geladen (spart einen
-    // View); das leere Widget-Element wird ausgeblendet, die statische
-    // "Auf Instagram folgen"-CTA darüber bleibt sichtbar.
-    const KEY = 'beholdLastLoad';
-    const TTL = 24 * 60 * 60 * 1000; // 24 Stunden in ms — hier anpassen
-    let last = 0;
-    try { last = parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) {}
-    if (Date.now() - last < TTL) {
-      widget.style.display = 'none'; // kein leerer Platzhalter
-      return;
-    }
-
-    let loaded = false;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !loaded) {
-          loaded = true;
-          try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
-          const s = document.createElement('script');
-          s.src = 'https://w.behold.so/widget.js';
-          s.type = 'module';
-          document.body.appendChild(s);
-          observer.disconnect();
-        }
-      });
-    }, { rootMargin: '200px' }); // lädt 200px bevor sichtbar → kein Ruckeln
-
-    observer.observe(widget);
-  })();
-</script>
+<!-- Behold Instagram-Widget Lazy-Loader: 2026-05-24 entfernt (Behold-Free-Limit erschöpft,
+     Widget oben auskommentiert). Frühere Logik (IntersectionObserver + 24h-localStorage-
+     Drossel) siehe Git-Historie. Bei Ersatz-Lösung (LightWidget/statisch) hier neu aufsetzen. -->
 </body>
 </html>
