@@ -127,6 +127,12 @@ serve(async (req) => {
           </table>
         </div>
 
+        <!-- Wichtiger Hinweis: pünktliches Erscheinen + Freigabe reservierter Boards -->
+        <div style="background:#fff;border:1.5px solid #2A7B6F;border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:20px">
+          <p style="color:#163D36;font-size:14px;font-weight:600;margin:0 0 4px">&#x23F1;&#xFE0F; Bitte sei 10 Minuten vor Reservierungsbeginn vor Ort.</p>
+          <p style="color:#4A4840;font-size:13px;margin:0">Reservierte Boards werden sp&auml;testens 5 Minuten nach Reservierungsbeginn an andere G&auml;ste vermietet.</p>
+        </div>
+
         <!-- Maps Link -->
         <a href="https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:12px;text-decoration:none;color:#18180F;margin-bottom:20px">
           <span style="flex-shrink:0;width:36px;height:36px;background:#163D36;border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -170,6 +176,9 @@ serve(async (req) => {
     `Zeit:    ${startTime} – ${endTime} Uhr`,
     `Boards:  ${boards}`,
     `Preis:   ${price} € · Bezahlung vor Ort`,
+    ``,
+    `WICHTIG: Bitte sei 10 Minuten vor Reservierungsbeginn vor Ort.`,
+    `Reservierte Boards werden spätestens 5 Minuten nach Reservierungsbeginn an andere Gäste vermietet.`,
     ``,
     `Adresse: Steg 1, Possenhofen am Starnberger See`,
     `Maps:    https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic`,

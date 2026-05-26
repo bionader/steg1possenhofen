@@ -133,6 +133,11 @@ function buildMailHtml(opts: {
             <tr><td style="padding:6px 0;color:#7A7668">Preis</td><td style="padding:6px 0;font-weight:500">${price} &euro; &middot; Bezahlung vor Ort</td></tr>
           </table>
         </div>
+        <!-- Wichtiger Hinweis: pünktliches Erscheinen + Freigabe reservierter Boards -->
+        <div style="background:#fff;border:1.5px solid #2A7B6F;border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:20px">
+          <p style="color:#163D36;font-size:14px;font-weight:600;margin:0 0 4px">&#x23F1;&#xFE0F; Bitte sei 10 Minuten vor Reservierungsbeginn vor Ort.</p>
+          <p style="color:#4A4840;font-size:13px;margin:0">Reservierte Boards werden sp&auml;testens 5 Minuten nach Reservierungsbeginn an andere G&auml;ste vermietet.</p>
+        </div>
         <a href="https://maps.app.goo.gl/zWXKJMa6xTqqu4ot9?g_st=ic" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1.5px solid #E6D9B8;border-radius:12px;text-decoration:none;color:#18180F;margin-bottom:20px">
           <span style="flex-shrink:0;width:36px;height:36px;background:#163D36;border-radius:50%;display:flex;align-items:center;justify-content:center">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FDFAF4"/></svg>
