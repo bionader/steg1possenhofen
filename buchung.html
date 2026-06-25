@@ -387,11 +387,10 @@ function getDayOpening(ds) {
   var month = parseInt(ds.split('-')[1], 10);
   var def = monthDefaults[month];
   if (def) {
-    return {
-      is_open: true,
-      open_time: (def.open_time || '').substring(0,5),
-      close_time: (def.close_time || '').substring(0,5)
-    };
+    // Tages-Override hat Vorrang vor Monats-Default
+    var openTime  = (ov && ov.open_time)  ? ov.open_time.substring(0,5)  : (def.open_time  || '').substring(0,5);
+    var closeTime = (ov && ov.close_time) ? ov.close_time.substring(0,5) : (def.close_time || '').substring(0,5);
+    return { is_open: true, open_time: openTime, close_time: closeTime };
   }
   // Kein Monats-Default → außerhalb der SUP-Saison → zu.
   return { is_open: false, open_time: '', close_time: '' };

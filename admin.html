@@ -200,6 +200,19 @@
     .sup-booking-cancel{background:var(--err);color:white;border:none;border-radius:100px;padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:inherit;width:auto}
     .sup-booking-cancel:hover{background:var(--err-ink)}
     .sup-no-bookings{font-size:.82rem;color:var(--text3);font-style:italic}
+    .sup-time-override{margin-top:14px;padding-top:14px;border-top:1px solid var(--sand3)}
+    .sup-time-override-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .sup-override-badge{font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:600}
+    .sup-override-badge.active{background:rgba(42,123,111,.12);color:var(--g)}
+    .sup-override-badge.default{background:var(--sand2);color:var(--text3)}
+    .sup-time-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .sup-time-label{font-size:.78rem;color:var(--text3);min-width:24px}
+    .sup-day-time-input{width:100px;padding:7px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.9rem;text-align:center;transition:border-color .2s}
+    .sup-day-time-input:focus{outline:none;border-color:var(--g)}
+    .sup-save-times-btn{padding:7px 16px;background:var(--g);color:white;border:none;border-radius:100px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+    .sup-save-times-btn:hover{background:var(--g2,#3a7a6e)}
+    .sup-reset-times-btn{padding:7px 14px;background:none;color:var(--text3);border:1.5px solid var(--sand2);border-radius:100px;font-size:.78rem;cursor:pointer;font-family:inherit;transition:all .2s}
+    .sup-reset-times-btn:hover{border-color:var(--err);color:var(--err)}
     /* Event edit modal */
     .ev-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
     .ev-modal-overlay.active{display:flex}
@@ -1484,6 +1497,7 @@
     var supYear, supMonth, supSelectedDate = null;
     var supClosedDays = [];
     var supBookings = {};
+    var supDayOverrides = {};
 
     function initSupCal() {
       var n = new Date();
@@ -1499,8 +1513,8 @@
       // Monats-Defaults vorab laden, damit die Tageskarten den richtigen Default kennen
       loadSupMonthDefaults().then(function(){
         return Promise.all([
-          // Closed-Tage aus sup_daily_schedule (is_open=false)
-          fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=gte.' + firstDay + '&date=lte.' + lastDay + '&is_open=is.false&select=date', {
+          // Alle Tages-Overrides (is_open + Zeiten)
+          fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=gte.' + firstDay + '&date=lte.' + lastDay, {
             headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
           }).then(function(r) { return r.json(); }),
           fetch(SB_URL + '/rest/v1/bookings?date=gte.' + firstDay + '&date=lte.' + lastDay + '&status=eq.confirmed&select=date,start_time,end_time,board_count,customer_name,customer_phone,customer_email,id,total_price,booking_id', {
@@ -1508,7 +1522,12 @@
           }).then(function(r) { return r.json(); })
         ]);
       }).then(function(results) {
-        supClosedDays = (results[0] || []).map(function(r) { return r.date; });
+        supDayOverrides = {};
+        supClosedDays = [];
+        (results[0] || []).forEach(function(r) {
+          supDayOverrides[r.date] = r;
+          if (r.is_open === false) supClosedDays.push(r.date);
+        });
         supBookings = {};
         (results[1] || []).forEach(function(b) {
           if (!supBookings[b.date]) supBookings[b.date] = [];
@@ -1604,6 +1623,32 @@
         html += '<p style="margin-top:8px;font-size:.78rem;color:var(--text3)">Der Monat ist als geschlossen markiert. Um einzelne Tage zu öffnen, zuerst den Monat oben aktivieren.</p>';
       }
 
+      // Zeitfelder nur wenn Tag geöffnet ist
+      if (!isClosed && monthOpen) {
+        var ov = supDayOverrides[ds];
+        var monthDef = supMonthDefaults[d.getMonth() + 1] || {};
+        var defOpen  = (monthDef.open_time  || '10:00').substring(0, 5);
+        var defClose = (monthDef.close_time || '20:00').substring(0, 5);
+        var curOpen  = (ov && ov.open_time)  ? ov.open_time.substring(0, 5)  : defOpen;
+        var curClose = (ov && ov.close_time) ? ov.close_time.substring(0, 5) : defClose;
+        var hasOverride = ov && (ov.open_time || ov.close_time);
+        html += '<div class="sup-time-override">';
+        html += '<div class="sup-time-override-label">Öffnungszeiten';
+        html += hasOverride
+          ? ' <span class="sup-override-badge active">Tages-Override aktiv</span>'
+          : ' <span class="sup-override-badge default">Monats-Default</span>';
+        html += '</div>';
+        html += '<div class="sup-time-row">';
+        html += '<span class="sup-time-label">Von</span>';
+        html += '<input type="time" class="sup-day-time-input" id="sup-open-' + ds + '" value="' + curOpen + '">';
+        html += '<span class="sup-time-label">Bis</span>';
+        html += '<input type="time" class="sup-day-time-input" id="sup-close-' + ds + '" value="' + curClose + '">';
+        html += '<button class="sup-save-times-btn" onclick="supSaveDayTimes(\'' + ds + '\')">Speichern</button>';
+        if (hasOverride) html += '<button class="sup-reset-times-btn" onclick="supResetDayTimes(\'' + ds + '\')">Reset</button>';
+        html += '</div>';
+        html += '</div>';
+      }
+
       if (dayBookings.length > 0) {
         html += '<h4 style="margin-top:16px;font-size:.88rem;font-weight:600">' + dayBookings.length + ' Buchung' + (dayBookings.length > 1 ? 'en' : '') + '</h4>';
         dayBookings.sort(function(a, b) { return a.start_time.localeCompare(b.start_time); });
@@ -1634,6 +1679,59 @@
           headers: Object.assign({}, headers, { 'Prefer': 'resolution=merge-duplicates' }),
           body: JSON.stringify({ date: ds, is_open: false, auto_default: false, updated_at: new Date().toISOString() })
         }).then(function() { loadSupCalendar(); supSelectedDate = ds; });
+      }
+    }
+
+    function supSaveDayTimes(ds) {
+      var openEl  = document.getElementById('sup-open-'  + ds);
+      var closeEl = document.getElementById('sup-close-' + ds);
+      if (!openEl || !closeEl) return;
+      var openVal  = openEl.value;
+      var closeVal = closeEl.value;
+      if (!openVal || !closeVal) return;
+      var btn = openEl.closest('.sup-time-override').querySelector('.sup-save-times-btn');
+      btn.textContent = '…';
+      btn.disabled = true;
+      var headers = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token };
+      fetch(SB_URL + '/rest/v1/sup_daily_schedule', {
+        method: 'POST',
+        headers: Object.assign({}, headers, { 'Prefer': 'resolution=merge-duplicates' }),
+        body: JSON.stringify({ date: ds, is_open: true, open_time: openVal + ':00', close_time: closeVal + ':00', auto_default: false, updated_at: new Date().toISOString() })
+      }).then(function(r) {
+        if (!r.ok) throw new Error();
+        if (!supDayOverrides[ds]) supDayOverrides[ds] = { date: ds };
+        supDayOverrides[ds].open_time  = openVal + ':00';
+        supDayOverrides[ds].close_time = closeVal + ':00';
+        supDayOverrides[ds].is_open    = true;
+        showSupDayDetail(ds);
+      }).catch(function() {
+        btn.textContent = 'Speichern';
+        btn.disabled = false;
+        alert('Fehler beim Speichern der Zeiten.');
+      });
+    }
+
+    function supResetDayTimes(ds) {
+      var headers = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token };
+      var ov = supDayOverrides[ds];
+      if (ov && ov.is_open === false) {
+        // Tag bleibt manuell geschlossen, nur Zeiten entfernen
+        fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=eq.' + ds, {
+          method: 'PATCH', headers: headers,
+          body: JSON.stringify({ open_time: null, close_time: null })
+        }).then(function() {
+          supDayOverrides[ds].open_time  = null;
+          supDayOverrides[ds].close_time = null;
+          showSupDayDetail(ds);
+        });
+      } else {
+        // Override vollständig löschen → Tag folgt wieder Monats-Default
+        fetch(SB_URL + '/rest/v1/sup_daily_schedule?date=eq.' + ds, {
+          method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+        }).then(function() {
+          delete supDayOverrides[ds];
+          showSupDayDetail(ds);
+        });
       }
     }
 
