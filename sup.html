@@ -826,6 +826,14 @@ function getDayOpening(ds) {
   return { is_open: false, open_time: '', close_time: '' };
 }
 
+// Sa (6) und So (0) sind auf 5 Boards für Online-Buchungen begrenzt
+function getMaxBoards(ds) {
+  var d = new Date(ds + 'T12:00:00');
+  var day = d.getDay();
+  var base = (settings && settings.total_boards) ? settings.total_boards : 10;
+  return (day === 0 || day === 6) ? Math.min(base, 5) : base;
+}
+
 // Befüllt closedDays für den aktuellen Monat anhand getDayOpening
 function computeClosedDays() {
   closedDays = [];
@@ -909,7 +917,8 @@ function renderCalendar() {
     // Availability indicator (only for non-past, non-closed days)
     if (ds >= todayStr && closedDays.indexOf(ds) === -1) {
       var booked = bookingsCache[ds] || 0;
-      var freeRatio = (totalBoards - booked) / totalBoards;
+      var dayMax = getMaxBoards(ds);
+      var freeRatio = (dayMax - booked) / dayMax;
       if (freeRatio <= 0) {
         classes.push('avail-none');
       } else if (freeRatio < 0.7) {
@@ -1019,7 +1028,7 @@ function renderSlots(ds, dayBookings) {
   var start = timeToMinutes(opening.open_time || settings.slot_start || '10:00');
   var end = timeToMinutes(opening.close_time || settings.slot_end || '19:00');
   var interval = settings.slot_interval || 15;
-  var total = settings.total_boards || 10;
+  var total = getMaxBoards(ds);
   var today = new Date();
   var isToday = ds === dateStr(today);
 
@@ -1103,7 +1112,7 @@ function showBookingForm(ds, startTime, maxAvail, dayBookings) {
     var price = hours * (settings.price_per_hour || 15) * boards;
     var endTime = minutesToTime(startMin + dur);
     var booked = getBookedBoardsAtSlot(dayBookings, startTime, endTime);
-    var realAvail = (settings.total_boards || 10) - booked;
+    var realAvail = getMaxBoards(ds) - booked;
     if (boards > realAvail) {
       boardSelect.value = Math.max(1, realAvail);
       boards = Math.max(1, realAvail);
