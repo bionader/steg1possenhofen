@@ -548,7 +548,7 @@ footer{
       <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e"></div>
 
       <!-- Submit -->
-      <button class="btn-submit" id="btn-contact" type="button">Nachricht senden</button>
+      <button class="btn-submit" id="btn-contact" type="button">Bewerbung senden</button>
 
       <!-- Status (nur für Validierungs-/Server-Fehler) -->
       <div id="contact-msg"></div>
@@ -746,11 +746,11 @@ document.getElementById('btn-contact').addEventListener('click', function() {
   })
   .finally(function() {
     btn.disabled = false;
-    btn.textContent = 'Nachricht senden';
+    btn.textContent = 'Bewerbung senden';
   });
 });
 
-// "Weitere Nachricht senden" — Formular wieder einblenden
+// "Weitere Bewerbung senden" — Formular wieder einblenden
 (function(){
   var again = document.getElementById('contact-again');
   if(!again) return;
