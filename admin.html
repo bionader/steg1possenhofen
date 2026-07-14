@@ -110,6 +110,7 @@
     .toggle input:checked+.slider::before{transform:translateX(22px)}
     .toggle input:disabled+.slider{opacity:.4;cursor:not-allowed}
     .toggle input:focus-visible+.slider{box-shadow:var(--ring)}
+    .jobs-motif-card.selected{border-color:var(--g);background:rgba(42,123,111,.06)}
 
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
@@ -356,6 +357,7 @@
         <option value="menu">Speisekarte</option>
         <option value="bestseller">Bestseller</option>
         <option value="events">Veranstaltungen</option>
+        <option value="jobs">Jobs</option>
       </select>
       <div class="tab-nav" id="tab-nav">
         <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
@@ -363,6 +365,7 @@
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
         <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
         <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
+        <button class="tab-btn" data-tab="jobs" id="tab-jobs">Jobs</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
@@ -488,6 +491,42 @@
         </div>
 
         <div id="ev-list"></div>
+      </div>
+
+      <!-- Tab 6: Jobs -->
+      <div class="tab-content" id="content-jobs">
+        <div class="cal-header">
+          <h2>Job-Anzeige</h2>
+          <span class="cal-hint">Steuert Pop-up + Nav-Tab "Jobs" auf der Website</span>
+        </div>
+        <div id="jobs-message"></div>
+
+        <div class="month-section">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
+            <label class="toggle" title="Job-Anzeige ein/aus">
+              <input type="checkbox" id="jobs-active-toggle"><span class="slider"></span>
+            </label>
+            <span style="font-size:.92rem;color:var(--text);font-weight:500">Job-Anzeige aktiv (Pop-up + Nav-Tab)</span>
+          </div>
+        </div>
+
+        <div class="month-section">
+          <div class="month-section-header"><h3>Motiv</h3></div>
+          <div class="month-hint">Welche Ausschreibung wird im Pop-up und auf der Jobs-Seite angezeigt.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+            <div class="jobs-motif-card" id="jobs-motif-sup" data-motif="sup" style="cursor:pointer;border:1.5px solid var(--sand2);border-radius:12px;padding:16px;transition:border-color .2s,background .2s">
+              <strong style="display:block;font-size:.95rem;margin-bottom:6px">SUP-Stand</strong>
+              <span style="display:block;font-size:.8rem;color:var(--text3);line-height:1.5">SUP-Verleih · Gästebetreuung · Ausgabe & Rücknahme der Boards. Sommerjob/Ferienjob/Minijob.</span>
+            </div>
+            <div class="jobs-motif-card" id="jobs-motif-service" data-motif="service" style="cursor:pointer;border:1.5px solid var(--sand2);border-radius:12px;padding:16px;transition:border-color .2s,background .2s">
+              <strong style="display:block;font-size:.95rem;margin-bottom:6px">Bar / Küche / Runner</strong>
+              <span style="display:block;font-size:.8rem;color:var(--text3);line-height:1.5">Aushilfe für Bar, Küche, Runner. Minijob oder Teilzeit, mit/ohne Erfahrung, Bar ab 18 Jahren.</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:16px">
+            <button type="button" id="btn-save-jobs" style="width:auto;padding:8px 18px;font-size:.85rem">Speichern</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -662,6 +701,7 @@
         if (this.dataset.tab === 'sup') { loadSupCalendar(); loadSupSettingsPanel(); }
         if (this.dataset.tab === 'menu') loadMenu();
         if (this.dataset.tab === 'bestseller') loadBestseller();
+        if (this.dataset.tab === 'jobs') loadJobSettingsPanel();
       });
     });
 
@@ -1355,6 +1395,51 @@
         msg('Gespeichert','','sup-settings-message');
       })
       .catch(function(){msg('Fehler beim Speichern','error','sup-settings-message')})
+      .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
+    });
+
+    // Jobs-Tab: job_settings (Single-Row, id=1)
+    var jobsSelectedMotif = 'service';
+
+    function jobsHighlightMotif(motif){
+      jobsSelectedMotif = motif;
+      document.querySelectorAll('.jobs-motif-card').forEach(function(card){
+        card.classList.toggle('selected', card.dataset.motif === motif);
+      });
+    }
+
+    document.querySelectorAll('.jobs-motif-card').forEach(function(card){
+      card.addEventListener('click', function(){ jobsHighlightMotif(card.dataset.motif); });
+    });
+
+    function loadJobSettingsPanel(){
+      fetch(SB_URL+'/rest/v1/job_settings?id=eq.1&select=active,motif',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data && data.length>0){
+          document.getElementById('jobs-active-toggle').checked = !!data[0].active;
+          jobsHighlightMotif(data[0].motif || 'service');
+        }
+      })
+      .catch(function(){msg('Konnte Job-Einstellungen nicht laden','error','jobs-message')});
+    }
+
+    document.getElementById('btn-save-jobs').addEventListener('click',function(){
+      var btn=this;
+      var active=document.getElementById('jobs-active-toggle').checked;
+      btn.disabled=true;btn.textContent='Speichern...';
+      fetch(SB_URL+'/rest/v1/job_settings?id=eq.1',{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
+        body:JSON.stringify({active:active,motif:jobsSelectedMotif})
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('save');
+        msg('Gespeichert','','jobs-message');
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','jobs-message')})
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
     });
 
