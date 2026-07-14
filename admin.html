@@ -110,7 +110,6 @@
     .toggle input:checked+.slider::before{transform:translateX(22px)}
     .toggle input:disabled+.slider{opacity:.4;cursor:not-allowed}
     .toggle input:focus-visible+.slider{box-shadow:var(--ring)}
-    .jobs-motif-card.selected{border-color:var(--g);background:rgba(42,123,111,.06)}
 
     .save-row{display:flex;gap:10px}
     .save-row button{flex:1}
@@ -507,21 +506,6 @@
               <input type="checkbox" id="jobs-active-toggle"><span class="slider"></span>
             </label>
             <span style="font-size:.92rem;color:var(--text);font-weight:500">Job-Anzeige aktiv (Pop-up + Nav-Tab)</span>
-          </div>
-        </div>
-
-        <div class="month-section">
-          <div class="month-section-header"><h3>Motiv</h3></div>
-          <div class="month-hint">Welche Ausschreibung wird im Pop-up und auf der Jobs-Seite angezeigt.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
-            <div class="jobs-motif-card" id="jobs-motif-sup" data-motif="sup" style="cursor:pointer;border:1.5px solid var(--sand2);border-radius:12px;padding:16px;transition:border-color .2s,background .2s">
-              <strong style="display:block;font-size:.95rem;margin-bottom:6px">SUP-Stand</strong>
-              <span style="display:block;font-size:.8rem;color:var(--text3);line-height:1.5">SUP-Verleih · Gästebetreuung · Ausgabe & Rücknahme der Boards. Sommerjob/Ferienjob/Minijob.</span>
-            </div>
-            <div class="jobs-motif-card" id="jobs-motif-service" data-motif="service" style="cursor:pointer;border:1.5px solid var(--sand2);border-radius:12px;padding:16px;transition:border-color .2s,background .2s">
-              <strong style="display:block;font-size:.95rem;margin-bottom:6px">Bar / Küche / Runner</strong>
-              <span style="display:block;font-size:.8rem;color:var(--text3);line-height:1.5">Aushilfe für Bar, Küche, Runner. Minijob oder Teilzeit, mit/ohne Erfahrung, Bar ab 18 Jahren.</span>
-            </div>
           </div>
           <div style="display:flex;justify-content:flex-end;margin-top:16px">
             <button type="button" id="btn-save-jobs" style="width:auto;padding:8px 18px;font-size:.85rem">Speichern</button>
@@ -1402,29 +1386,15 @@
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
     });
 
-    // Jobs-Tab: job_settings (Single-Row, id=1)
-    var jobsSelectedMotif = 'service';
-
-    function jobsHighlightMotif(motif){
-      jobsSelectedMotif = motif;
-      document.querySelectorAll('.jobs-motif-card').forEach(function(card){
-        card.classList.toggle('selected', card.dataset.motif === motif);
-      });
-    }
-
-    document.querySelectorAll('.jobs-motif-card').forEach(function(card){
-      card.addEventListener('click', function(){ jobsHighlightMotif(card.dataset.motif); });
-    });
-
+    // Jobs-Tab: job_settings (Single-Row, id=1) — nur noch Ein/Aus
     function loadJobSettingsPanel(){
-      fetch(SB_URL+'/rest/v1/job_settings?id=eq.1&select=active,motif',{
+      fetch(SB_URL+'/rest/v1/job_settings?id=eq.1&select=active',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
       .then(function(data){
         if(data && data.length>0){
           document.getElementById('jobs-active-toggle').checked = !!data[0].active;
-          jobsHighlightMotif(data[0].motif || 'service');
         }
       })
       .catch(function(){msg('Konnte Job-Einstellungen nicht laden','error','jobs-message')});
@@ -1437,7 +1407,7 @@
       fetch(SB_URL+'/rest/v1/job_settings?id=eq.1',{
         method:'PATCH',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
-        body:JSON.stringify({active:active,motif:jobsSelectedMotif})
+        body:JSON.stringify({active:active})
       })
       .then(function(r){
         if(!r.ok)throw new Error('save');
