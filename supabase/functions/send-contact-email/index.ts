@@ -106,7 +106,7 @@ serve(async (req) => {
   const messageH = esc(message);
   const bereichH = bereich ? esc(bereich) : "";
   const isJobApplication = formType === "job";
-  const emailSubject = isJobApplication ? `Job – ${bereichH}` : `Kontaktanfrage: ${subjectH}`;
+  const emailSubject = isJobApplication ? `Job – ${bereich}` : `Kontaktanfrage: ${subject}`;
   const crewHeadline = isJobApplication ? "Neue Bewerbung" : "Neue Kontaktanfrage";
 
   // Prefilled reply-mailto so we can answer directly from inbox
