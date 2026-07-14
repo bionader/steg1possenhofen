@@ -146,7 +146,7 @@ nav.scrolled{
 
 /* ── CONTACT FORM SECTION ── */
 .contact-section{
-  padding:4rem 1.5rem 5rem;
+  padding:1.5rem 1.5rem 5rem;
   background:var(--sand);
 }
 .contact-wrap{
@@ -448,6 +448,29 @@ footer{
   .info-grid{grid-template-columns:1fr}
   .contact-section{padding:3rem 1.25rem 4rem}
 }
+.jobs-slider-wrap{position:relative;max-width:640px;margin:0 auto;padding:0 44px;box-sizing:border-box}
+.jobs-slider-viewport{overflow:hidden;width:100%}
+.jobs-slider-track{display:flex;width:100%;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.jobs-slide{min-width:100%;max-width:100%;flex-shrink:0;box-sizing:border-box;text-align:center;padding:0 .5rem}
+.jobs-slide h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;color:var(--text);margin-bottom:1.2rem}
+.jobs-slide img{max-width:100%;height:auto;margin:0 auto;display:block;border-radius:16px;box-shadow:0 4px 24px rgba(43,92,63,.11)}
+.jobs-slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:var(--w);border:1px solid var(--sand2);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(43,92,63,.14);transition:all .2s ease}
+.jobs-slider-btn:hover{background:var(--g);color:#fff;border-color:var(--g)}
+.jobs-slider-prev{left:0}
+.jobs-slider-next{right:0}
+.jobs-slider-dots{display:flex;gap:8px;justify-content:center;margin-top:1.2rem}
+.jobs-slider-dot{width:10px;height:10px;border-radius:50%;border:none;background:var(--sand2);cursor:pointer;padding:0;transition:background .2s ease,transform .2s ease}
+.jobs-slider-dot.active{background:var(--g);transform:scale(1.2)}
+@media(min-width:640px){.jobs-slide img{max-height:520px;width:auto}}
+@media(max-width:640px){
+  .jobs-slider-wrap{padding:0 38px}
+  .jobs-slider-btn{width:34px;height:34px;font-size:1.05rem}
+  .jobs-slide h3{font-size:1.25rem}
+}
+@media(max-width:480px){
+  .jobs-slider-wrap{padding:0 30px}
+  .jobs-slider-btn{width:30px;height:30px}
+}
 .h-captcha{margin:12px 0 4px}
 .logo img{height:64px;width:auto;display:block}.logo:hover{opacity:.75}.flogo img{height:80px;width:auto;display:block}@media(max-width:900px){.logo img{height:52px}.flogo img{height:64px}}
 </style>
@@ -489,7 +512,27 @@ footer{
   <div class="eyebrow">Wir suchen dich! (m/w/d)</div>
   <h1 id="jobs-hero-title">Aushilfe gesucht</h1>
   <p id="jobs-hero-sub">Lädt…</p>
-  <div id="jobs-hero-bullets" style="display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;margin-top:1.4rem"></div>
+</div>
+
+<!-- Bild-Slider: Aushilfe (Bar/Küche/Runner) & SUP Verleih -->
+<div id="jobs-gallery" style="background:var(--sand);padding:0 1.5rem .5rem">
+  <div class="jobs-slider-wrap">
+    <div class="jobs-slider-viewport">
+      <div class="jobs-slider-track" id="jobs-slider-track">
+        <div class="jobs-slide">
+          <h3>Aushilfe</h3>
+          <img src="images/jobs/bar-kueche-runner.jpg" alt="Aushilfe für Bar, Küche, Runner gesucht">
+        </div>
+        <div class="jobs-slide">
+          <h3>SUP Verleih</h3>
+          <img src="images/jobs/sup-verleih.jpg" alt="Aushilfe für unseren SUP-Stand gesucht">
+        </div>
+      </div>
+    </div>
+    <button class="jobs-slider-btn jobs-slider-prev" onclick="jobsSlideMove(-1)" aria-label="Vorheriges Bild">&#8249;</button>
+    <button class="jobs-slider-btn jobs-slider-next" onclick="jobsSlideMove(1)" aria-label="Nächstes Bild">&#8250;</button>
+    <div class="jobs-slider-dots" id="jobs-slider-dots"></div>
+  </div>
 </div>
 
 <!-- Hinweis wenn Job-Anzeige deaktiviert -->
@@ -784,6 +827,36 @@ document.getElementById('btn-contact').addEventListener('click', function() {
   else if(mq.addListener) mq.addListener(apply);
 })();
 
+// Bild-Slider (Aushilfe / SUP Verleih) — immer nur ein Bild sichtbar
+(function () {
+  var track = document.getElementById('jobs-slider-track');
+  var dotsEl = document.getElementById('jobs-slider-dots');
+  var slideCount = document.querySelectorAll('#jobs-slider-track .jobs-slide').length;
+  var idx = 0;
+
+  for (var i = 0; i < slideCount; i++) {
+    var dot = document.createElement('button');
+    dot.className = 'jobs-slider-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Bild ' + (i + 1) + ' von ' + slideCount);
+    dot.addEventListener('click', (function (targetIdx) {
+      return function () { goTo(targetIdx); };
+    })(i));
+    dotsEl.appendChild(dot);
+  }
+
+  function goTo(newIdx) {
+    idx = newIdx;
+    track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    document.querySelectorAll('.jobs-slider-dot').forEach(function (d, i) {
+      d.classList.toggle('active', i === idx);
+    });
+  }
+
+  window.jobsSlideMove = function (dir) {
+    goTo((idx + dir + slideCount) % slideCount);
+  };
+})();
+
 // Job-Motiv laden und Hero + Formular-Sichtbarkeit steuern
 (function () {
   var SB_URL_JOBS = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
@@ -792,13 +865,11 @@ document.getElementById('btn-contact').addEventListener('click', function() {
   var MOTIFS = {
     sup: {
       title: 'Aushilfe für unseren SUP-Stand',
-      sub: 'SUP-Verleih, Gästebetreuung, Ausgabe & Rücknahme der Boards — Sommerjob, Ferienjob oder Minijob.',
-      bullets: ['SUP-Verleih', 'Gästebetreuung', 'Ausgabe & Rücknahme']
+      sub: 'SUP-Verleih, Gästebetreuung, Ausgabe & Rücknahme der Boards — Sommerjob, Ferienjob oder Minijob.'
     },
     service: {
       title: 'Aushilfe für Bar, Küche, Runner & SUP Verleih',
-      sub: 'Minijob oder Teilzeit, mit oder ohne Erfahrung — willkommen. Bar ab 18 Jahren.',
-      bullets: ['Bar', 'Küche', 'Runner']
+      sub: 'Minijob oder Teilzeit, mit oder ohne Erfahrung.'
     }
   };
 
@@ -806,14 +877,6 @@ document.getElementById('btn-contact').addEventListener('click', function() {
     var m = MOTIFS[motif] || MOTIFS.service;
     document.getElementById('jobs-hero-title').textContent = m.title;
     document.getElementById('jobs-hero-sub').textContent = m.sub;
-    var bulletWrap = document.getElementById('jobs-hero-bullets');
-    bulletWrap.innerHTML = '';
-    m.bullets.forEach(function (b) {
-      var span = document.createElement('span');
-      span.textContent = b;
-      span.style.cssText = 'background:var(--w);border:1px solid var(--sand2);border-radius:100px;padding:.4rem 1rem;font-size:.82rem;color:var(--text2)';
-      bulletWrap.appendChild(span);
-    });
   }
 
   fetch(SB_URL_JOBS + '/rest/v1/job_settings?id=eq.1&select=active,motif', {
@@ -824,6 +887,7 @@ document.getElementById('btn-contact').addEventListener('click', function() {
       var settings = (data && data[0]) || { active: true, motif: 'service' };
       if (!settings.active) {
         document.getElementById('contact-hero-top').style.display = 'none';
+        document.getElementById('jobs-gallery').style.display = 'none';
         document.querySelector('.contact-section').style.display = 'none';
         document.getElementById('jobs-inactive-notice').style.display = 'block';
         return;

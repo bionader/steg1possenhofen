@@ -619,21 +619,24 @@ footer{
 .txt-link{color:var(--g);font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px;transition:color var(--dur-1) var(--ease)}
 .txt-link:hover{color:var(--g2)}
 
-/* ── JOB-POPUP ── */
-.job-popup-overlay{position:fixed;inset:0;z-index:200;background:rgba(24,24,15,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s ease}
+/* ── JOB-POPUP (Pop-Art-Energie, im Steg-1-Farbschema) ── */
+.job-popup-overlay{position:fixed;inset:0;z-index:200;background:rgba(24,24,15,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .job-popup-overlay.open{opacity:1;pointer-events:auto}
-.job-popup{background:var(--sand);border-radius:16px;max-width:420px;width:100%;padding:2.2rem 2rem 2rem;text-align:center;box-shadow:0 4px 24px rgba(43,92,63,.11);position:relative;transform:translateY(12px) scale(.98);transition:transform .3s cubic-bezier(.16,1,.3,1)}
-.job-popup-overlay.open .job-popup{transform:translateY(0) scale(1)}
-.job-popup-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border:none;background:rgba(0,0,0,.06);border-radius:50%;cursor:pointer;font-size:1.1rem;line-height:1;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .2s}
-.job-popup-close:hover{background:rgba(0,0,0,.12)}
-.job-popup .eyebrow{font-size:.7rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--g);margin-bottom:.8rem}
-.job-popup h3{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;color:var(--text);margin-bottom:.6rem}
-.job-popup p{font-size:.9rem;color:var(--text2);line-height:1.6;margin-bottom:1.2rem}
-.job-popup-bullets{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem}
-.job-popup-bullets span{background:var(--w);border:1px solid var(--sand2);border-radius:100px;padding:.35rem .9rem;font-size:.78rem;color:var(--text2)}
-.job-popup-cta{display:inline-block;background:var(--g);color:var(--w);padding:.8rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;transition:all .25s ease;box-shadow:0 2px 14px rgba(43,92,63,.2)}
-.job-popup-cta:hover{background:var(--g2);transform:translateY(-1px)}
-@media(max-width:480px){.job-popup{padding:1.8rem 1.5rem 1.6rem}.job-popup h3{font-size:1.35rem}}
+.job-popup{background-image:radial-gradient(rgba(255,255,255,.55) 1.5px,transparent 1.5px),linear-gradient(150deg,var(--sand) 0%,#EDE0BE 55%,#E0CE9C 100%);background-size:14px 14px,100% 100%;border:3px solid var(--text);border-radius:26px;max-width:440px;width:100%;padding:2.8rem 2.2rem 2.2rem;text-align:center;box-shadow:8px 8px 0 rgba(24,24,15,.85);position:relative;transform:translateY(20px) rotate(-1.5deg) scale(.92);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.job-popup-overlay.open .job-popup{transform:translateY(0) rotate(0deg) scale(1)}
+.job-popup-badge{position:absolute;top:-24px;left:-24px;background:var(--g);color:#fff;width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Albert Sans',sans-serif;font-weight:800;font-size:.6rem;line-height:1.1;text-align:center;transform:rotate(-12deg);border:3px solid var(--text);box-shadow:4px 4px 0 rgba(24,24,15,.3);z-index:1}
+.job-popup-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border:2px solid var(--text);background:var(--w);border-radius:50%;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--text);font-weight:700;display:flex;align-items:center;justify-content:center;z-index:1}
+.job-popup-close:hover{background:var(--sand2)}
+.job-popup .eyebrow{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);background:var(--w);border:2px solid var(--text);border-radius:100px;padding:.3rem 1rem;margin-bottom:1rem;position:relative;z-index:1}
+.job-popup h3{font-family:'Petrona',serif;font-size:2rem;font-weight:700;color:var(--text);margin-bottom:.7rem;line-height:1.1;position:relative;z-index:1}
+.job-popup p{font-size:.92rem;font-weight:500;color:var(--text2);line-height:1.5;margin-bottom:1.3rem;position:relative;z-index:1}
+.job-popup-bullets{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem;position:relative;z-index:1}
+.job-popup-bullets span{display:inline-flex;align-items:center;gap:.3rem;background:var(--w);border:2px solid var(--text);border-radius:100px;padding:.35rem .85rem;font-size:.78rem;font-weight:700;color:var(--text)}
+.job-popup-bullets svg{width:12px;height:12px;color:#E8763C;flex-shrink:0}
+.job-popup-cta{display:inline-flex;align-items:center;gap:.5rem;background:var(--g);color:#fff;padding:.85rem 2.1rem;border-radius:100px;font-size:.94rem;font-weight:800;text-decoration:none;border:2px solid var(--text);box-shadow:4px 4px 0 rgba(24,24,15,.35);transition:transform .15s ease,box-shadow .15s ease;position:relative;z-index:1}
+.job-popup-cta svg{width:16px;height:16px}
+.job-popup-cta:hover{background:var(--g2);transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(24,24,15,.35)}
+@media(max-width:480px){.job-popup{padding:2.4rem 1.6rem 1.8rem}.job-popup h3{font-size:1.6rem}}
 </style>
 <!-- Behold-Widget wird per Lazy-Loader vor </body> nachgeladen (spart Behold-Views) -->
 <!-- Structured Data: LocalBusiness + FoodEstablishment -->
@@ -703,12 +706,15 @@ footer{
 <!-- JOB-POPUP -->
 <div class="job-popup-overlay" id="job-popup-overlay">
   <div class="job-popup">
+    <div class="job-popup-badge">SOMMER<br>JOB 2026</div>
     <button class="job-popup-close" id="job-popup-close" aria-label="Schließen">&times;</button>
     <div class="eyebrow">Wir suchen dich! (m/w/d)</div>
     <h3 id="job-popup-title">Aushilfe gesucht</h3>
     <p id="job-popup-sub">Lädt…</p>
     <div class="job-popup-bullets" id="job-popup-bullets"></div>
-    <a href="jobs" class="job-popup-cta">Jetzt bewerben</a>
+    <a href="jobs" class="job-popup-cta">Jetzt bewerben
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
   </div>
 </div>
 
@@ -1389,8 +1395,8 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     },
     service: {
       title: 'Aushilfe für Bar, Küche, Runner & SUP Verleih',
-      sub: 'Minijob oder Teilzeit, mit oder ohne Erfahrung — willkommen.',
-      bullets: ['Bar', 'Küche', 'Runner']
+      sub: 'Minijob oder Teilzeit, mit oder ohne Erfahrung.',
+      bullets: ['Bar', 'Küche', 'Runner', 'SUP Verleih']
     }
   };
 
@@ -1405,7 +1411,8 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     bulletWrap.innerHTML = '';
     m.bullets.forEach(function (b) {
       var span = document.createElement('span');
-      span.textContent = b;
+      span.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2 8 8 2-8 2-2 8-2-8-8-2 8-2 2-8z"/></svg>';
+      span.appendChild(document.createTextNode(b));
       bulletWrap.appendChild(span);
     });
     overlay.classList.add('open');
