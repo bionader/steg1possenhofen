@@ -74,7 +74,7 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const { name, email, phone, subject, message, captchaToken } = await req.json();
+  const { name, email, phone, subject, message, captchaToken, formType, bereich } = await req.json();
 
   // Captcha-Pflicht: ohne validen Token kein Mail-Versand (Anti-Spam).
   if (!captchaToken || typeof captchaToken !== "string") {
@@ -104,6 +104,10 @@ serve(async (req) => {
   const phoneH = phone ? esc(phone) : "nicht angegeben";
   const subjectH = esc(subject);
   const messageH = esc(message);
+  const bereichH = bereich ? esc(bereich) : "";
+  const isJobApplication = formType === "job";
+  const emailSubject = isJobApplication ? `Job – ${bereichH}` : `Kontaktanfrage: ${subjectH}`;
+  const crewHeadline = isJobApplication ? "Neue Bewerbung" : "Neue Kontaktanfrage";
 
   // Prefilled reply-mailto so we can answer directly from inbox
   const replySubject = encodeURIComponent(`Re: ${subject}`);
@@ -113,7 +117,9 @@ serve(async (req) => {
   const replyHref = `mailto:${email}?subject=${replySubject}&body=${replyBody}`;
 
   // Preheader für die Crew-Mail (info@) — versteckter Snippet-Text.
-  const crewPreheader = `Neue Anfrage von ${nameH}: ${subjectH}`;
+  const crewPreheader = isJobApplication
+    ? `Neue Bewerbung von ${nameH}: ${bereichH}`
+    : `Neue Anfrage von ${nameH}: ${subjectH}`;
 
   const html = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap');</style>
@@ -122,7 +128,7 @@ serve(async (req) => {
       <!-- Header -->
       <div style="background:#163D36;padding:28px 28px 22px;text-align:center">
         <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0;letter-spacing:.02em">Steg 1 Possenhofen</h1>
-        <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">Neue Kontaktanfrage</p>
+        <p style="color:rgba(253,250,244,.7);font-size:12px;margin:6px 0 0;letter-spacing:.06em;text-transform:uppercase">${crewHeadline}</p>
       </div>
 
       <!-- Body -->
@@ -145,10 +151,15 @@ serve(async (req) => {
               <td style="padding:6px 0;color:#7A7668;vertical-align:top">Telefon</td>
               <td style="padding:6px 0;font-weight:500">${phoneH}</td>
             </tr>
+            ${isJobApplication ? `
+            <tr>
+              <td style="padding:6px 0;color:#7A7668;vertical-align:top">Bereich</td>
+              <td style="padding:6px 0;font-weight:500">${bereichH}</td>
+            </tr>` : `
             <tr>
               <td style="padding:6px 0;color:#7A7668;vertical-align:top">Betreff</td>
               <td style="padding:6px 0;font-weight:500">${subjectH}</td>
-            </tr>
+            </tr>`}
           </table>
         </div>
 
@@ -173,21 +184,25 @@ serve(async (req) => {
 
   // Crew-Mail Plain-Text (für Spam-Bewertung + Snippet)
   const crewText = [
-    `STEG 1 POSSENHOFEN — NEUE KONTAKTANFRAGE`,
+    isJobApplication
+      ? `STEG 1 POSSENHOFEN — NEUE BEWERBUNG`
+      : `STEG 1 POSSENHOFEN — NEUE KONTAKTANFRAGE`,
     ``,
     `Nachricht von ${name}`,
-    `Betreff: ${subject}`,
+    isJobApplication ? `Bereich: ${bereich}` : `Betreff: ${subject}`,
     ``,
     `Name:    ${name}`,
     `E-Mail:  ${email}`,
     `Telefon: ${phone || "nicht angegeben"}`,
-    `Betreff: ${subject}`,
+    isJobApplication ? `Bereich:  ${bereich}` : `Betreff:  ${subject}`,
     ``,
     `--- NACHRICHT ---`,
     `${message}`,
     `--- ENDE ---`,
     ``,
-    `Gesendet über das Kontaktformular auf steg1possenhofen.de`,
+    isJobApplication
+      ? `Gesendet über das Bewerbungsformular auf steg1possenhofen.de/jobs`
+      : `Gesendet über das Kontaktformular auf steg1possenhofen.de`,
   ].join("\n");
 
   // 1) Crew-Mail an info@
@@ -201,7 +216,7 @@ serve(async (req) => {
       from: "Steg 1 Website <info@steg1possenhofen.de>",
       to: ["info@steg1possenhofen.de"],
       reply_to: email,
-      subject: `Kontaktanfrage: ${subject}`,
+      subject: emailSubject,
       html: html,
       text: crewText,
     }),
