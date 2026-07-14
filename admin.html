@@ -599,7 +599,7 @@
     function applyRole(userRole) {
       var sel = document.getElementById('tab-select');
       // Alle Tabs/Optionen erst sichtbar zurücksetzen (sauberer State bei Role-Wechsel)
-      ['schedule','sup','menu','bestseller','events'].forEach(function(t){
+      ['schedule','sup','menu','bestseller','events','jobs'].forEach(function(t){
         var btn = document.getElementById('tab-'+t);
         if (btn) btn.style.display = '';
         if (sel) {
@@ -614,11 +614,13 @@
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
         document.getElementById('tab-events').style.display = 'none';
+        document.getElementById('tab-jobs').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="schedule"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
           sel.querySelector('option[value="events"]').hidden = true;
+          sel.querySelector('option[value="jobs"]').hidden = true;
           sel.value = 'sup';
         }
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
@@ -632,10 +634,12 @@
         document.getElementById('tab-sup').style.display = 'none';
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
+        document.getElementById('tab-jobs').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="sup"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
+          sel.querySelector('option[value="jobs"]').hidden = true;
           sel.value = 'schedule';
         }
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
