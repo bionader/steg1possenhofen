@@ -338,6 +338,7 @@ footer{
     <li><a href="speisekarte" class="active">Speisekarte</a></li>
     <li><a href="galerie">Unser Steg 1</a></li>
     <li><a href="veranstaltungen">Veranstaltungen</a></li>
+    <li id="nav-jobs-item"><a href="jobs">Jobs</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
   <a href="sup" class="nav-cta">SUP buchen</a>
@@ -353,6 +354,7 @@ footer{
   <a href="speisekarte" class="active">Speisekarte</a>
   <a href="galerie">Unser Steg 1</a>
   <a href="veranstaltungen">Veranstaltungen</a>
+  <a href="jobs" id="mm-jobs-item">Jobs</a>
   <a href="kontakt">Kontakt</a>
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
@@ -585,6 +587,26 @@ if (burger && mobileMenu) {
   apply();
   if(mq.addEventListener) mq.addEventListener('change',apply);
   else if(mq.addListener) mq.addListener(apply);
+})();
+
+// Nav-Tab "Jobs" ein-/ausblenden je nach Admin-Einstellung
+(function () {
+  var SB_URL_NAV = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY_NAV = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  fetch(SB_URL_NAV + '/rest/v1/job_settings?id=eq.1&select=active', {
+    headers: { apikey: SB_KEY_NAV, Authorization: 'Bearer ' + SB_KEY_NAV }
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var active = !data || !data[0] || data[0].active !== false;
+      if (!active) {
+        var navItem = document.getElementById('nav-jobs-item');
+        var mmItem = document.getElementById('mm-jobs-item');
+        if (navItem) navItem.style.display = 'none';
+        if (mmItem) mmItem.style.display = 'none';
+      }
+    })
+    .catch(function () {});
 })();
 </script>
 </body>
