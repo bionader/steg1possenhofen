@@ -618,6 +618,22 @@ footer{
 /* ── INLINE HELPERS ── */
 .txt-link{color:var(--g);font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px;transition:color var(--dur-1) var(--ease)}
 .txt-link:hover{color:var(--g2)}
+
+/* ── JOB-POPUP ── */
+.job-popup-overlay{position:fixed;inset:0;z-index:200;background:rgba(24,24,15,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.job-popup-overlay.open{opacity:1;pointer-events:auto}
+.job-popup{background:var(--sand);border-radius:16px;max-width:420px;width:100%;padding:2.2rem 2rem 2rem;text-align:center;box-shadow:0 4px 24px rgba(43,92,63,.11);position:relative;transform:translateY(12px) scale(.98);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.job-popup-overlay.open .job-popup{transform:translateY(0) scale(1)}
+.job-popup-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border:none;background:rgba(0,0,0,.06);border-radius:50%;cursor:pointer;font-size:1.1rem;line-height:1;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.job-popup-close:hover{background:rgba(0,0,0,.12)}
+.job-popup .eyebrow{font-size:.7rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--g);margin-bottom:.8rem}
+.job-popup h3{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;color:var(--text);margin-bottom:.6rem}
+.job-popup p{font-size:.9rem;color:var(--text2);line-height:1.6;margin-bottom:1.2rem}
+.job-popup-bullets{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem}
+.job-popup-bullets span{background:var(--w);border:1px solid var(--sand2);border-radius:100px;padding:.35rem .9rem;font-size:.78rem;color:var(--text2)}
+.job-popup-cta{display:inline-block;background:var(--g);color:var(--w);padding:.8rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;transition:all .25s ease;box-shadow:0 2px 14px rgba(43,92,63,.2)}
+.job-popup-cta:hover{background:var(--g2);transform:translateY(-1px)}
+@media(max-width:480px){.job-popup{padding:1.8rem 1.5rem 1.6rem}.job-popup h3{font-size:1.35rem}}
 </style>
 <!-- Behold-Widget wird per Lazy-Loader vor </body> nachgeladen (spart Behold-Views) -->
 <!-- Structured Data: LocalBusiness + FoodEstablishment -->
@@ -683,6 +699,18 @@ footer{
 </script>
 </head>
 <body>
+
+<!-- JOB-POPUP -->
+<div class="job-popup-overlay" id="job-popup-overlay">
+  <div class="job-popup">
+    <button class="job-popup-close" id="job-popup-close" aria-label="Schließen">&times;</button>
+    <div class="eyebrow">Wir suchen dich! (m/w/d)</div>
+    <h3 id="job-popup-title">Aushilfe gesucht</h3>
+    <p id="job-popup-sub">Lädt…</p>
+    <div class="job-popup-bullets" id="job-popup-bullets"></div>
+    <a href="jobs" class="job-popup-cta">Jetzt bewerben</a>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -1342,6 +1370,67 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
         var mmItem = document.getElementById('mm-jobs-item');
         if (navItem) navItem.style.display = 'none';
         if (mmItem) mmItem.style.display = 'none';
+      }
+    })
+    .catch(function () {});
+})();
+
+// Job-Popup: einmal pro Session, nur wenn Job-Anzeige aktiv ist
+(function () {
+  var SB_URL_POPUP = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY_POPUP = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  var SESSION_KEY = 'steg1_job_popup_shown';
+
+  var MOTIFS = {
+    sup: {
+      title: 'Aushilfe für unseren SUP-Stand',
+      sub: 'SUP-Verleih, Gästebetreuung, Ausgabe & Rücknahme der Boards — für die Sommerferien.',
+      bullets: ['SUP-Verleih', 'Gästebetreuung', 'Board-Ausgabe']
+    },
+    service: {
+      title: 'Aushilfe für Bar, Küche, Runner',
+      sub: 'Minijob oder Teilzeit, mit oder ohne Erfahrung — willkommen.',
+      bullets: ['Bar', 'Küche', 'Runner']
+    }
+  };
+
+  var overlay = document.getElementById('job-popup-overlay');
+  var closeBtn = document.getElementById('job-popup-close');
+
+  function openPopup(motif) {
+    var m = MOTIFS[motif] || MOTIFS.service;
+    document.getElementById('job-popup-title').textContent = m.title;
+    document.getElementById('job-popup-sub').textContent = m.sub;
+    var bulletWrap = document.getElementById('job-popup-bullets');
+    bulletWrap.innerHTML = '';
+    m.bullets.forEach(function (b) {
+      var span = document.createElement('span');
+      span.textContent = b;
+      bulletWrap.appendChild(span);
+    });
+    overlay.classList.add('open');
+    sessionStorage.setItem(SESSION_KEY, '1');
+  }
+
+  function closePopup() {
+    overlay.classList.remove('open');
+  }
+
+  closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closePopup();
+  });
+
+  if (sessionStorage.getItem(SESSION_KEY)) return;
+
+  fetch(SB_URL_POPUP + '/rest/v1/job_settings?id=eq.1&select=active,motif', {
+    headers: { apikey: SB_KEY_POPUP, Authorization: 'Bearer ' + SB_KEY_POPUP }
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var settings = (data && data[0]) || { active: false };
+      if (settings.active) {
+        setTimeout(function () { openPopup(settings.motif); }, 800);
       }
     })
     .catch(function () {});
