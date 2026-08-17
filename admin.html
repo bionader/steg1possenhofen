@@ -618,12 +618,10 @@
         document.getElementById('tab-sup').style.display = 'none';
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
-        document.getElementById('tab-jobs').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="sup"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
-          sel.querySelector('option[value="jobs"]').hidden = true;
           sel.value = 'schedule';
         }
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
