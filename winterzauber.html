@@ -37,20 +37,32 @@
 :root{
   --g:#2A7B6F;--g2:#1F6358;--accent:#D4883A;--accent2:#C07A2E;
   --sand:#F2EBD9;--sand2:#E4D9C4;
-  --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
+  --text:#1A2421;--text2:#4A5652;--text3:#6C7871;
   --w:#FDFBF7;--dark:#1B2B28;
   --ok:#2E9E4A;--ok-ink:#1F7A36;--err:#D94F4F;--err-ink:#B53E3E;
   --r-sm:10px;--r-md:14px;--r-lg:16px;--r-pill:100px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --dur-1:180ms;--dur-2:260ms;
+  --ring:0 0 0 3px rgba(42,123,111,.28), 0 0 0 1.5px var(--g);
 }
 html{scroll-behavior:smooth}
 body{font-family:'Albert Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+
+/* ── FOCUS (A11y) ── */
+*:focus{outline:none}
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible{
+  outline:none;box-shadow:var(--ring);border-radius:8px;
+}
+.btn:focus-visible,.nav-cta:focus-visible,.book-btn:focus-visible,.vbtn:focus-visible,.mm-cta:focus-visible{
+  border-radius:var(--r-pill);
+}
 
 /* ── NAV ── */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
   padding:1.1rem 3.5rem;
-  background:rgba(253,250,244,.72);
+  background:rgba(253,251,247,.72);
   backdrop-filter:blur(28px) saturate(200%);
   -webkit-backdrop-filter:blur(28px) saturate(200%);
   border-bottom:.5px solid rgba(42,123,111,.06);
@@ -75,10 +87,11 @@ nav.scrolled{
   content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
   background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
 }
-.nav-links a:hover{color:var(--g)}
-.nav-links a:hover::after{width:100%}
+.nav-links a:hover,.nav-links a:focus-visible{color:var(--g)}
+.nav-links a:hover::after,.nav-links a:focus-visible::after{width:100%}
 .nav-links a.active{color:var(--g)}
 .nav-links a.active::after{width:100%}
+.nav-links a:focus-visible{outline:none;box-shadow:none}
 .nav-cta{
   background:var(--g);color:var(--w);border:none;
   padding:.55rem 1.5rem;border-radius:100px;
@@ -94,19 +107,24 @@ nav.scrolled{
   box-shadow:0 4px 20px rgba(42,123,111,.22);
 }
 .nav-burger{
-  display:none;width:28px;height:20px;
-  flex-direction:column;justify-content:space-between;
+  display:none;width:44px;height:44px;
+  align-items:center;justify-content:center;
   cursor:pointer;border:none;background:none;padding:0;
-  z-index:110;
+  z-index:110;position:relative;border-radius:8px;
+}
+.nav-burger-inner{
+  width:24px;height:16px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  pointer-events:none;
 }
 .nav-burger span{
   display:block;width:100%;height:2px;
   background:var(--text);border-radius:2px;
-  transition:all .3s ease;
+  transition:transform var(--dur-2) var(--ease), opacity var(--dur-1) var(--ease);
 }
-.nav-burger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .nav-burger.open span:nth-child(2){opacity:0}
-.nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+.nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .mobile-menu{display:none}
 
 /* ── FOOTER ── */
@@ -268,7 +286,7 @@ footer{
   </ul>
   <a href="sup" class="nav-cta">SUP buchen</a>
   <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
-    <span></span><span></span><span></span>
+    <span class="nav-burger-inner"><span></span><span></span><span></span></span>
   </button>
 </nav>
 
@@ -466,6 +484,16 @@ var STATUS_LABELS = {
 
 function dateFormattedDe(iso) { return iso.split('-').reverse().join('.'); }
 
+// Escape DB-sourced strings before interpolating them into innerHTML,
+// damit z.B. eine Variante mit "&" oder "<" im Namen nicht als Markup interpretiert wird.
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function initWinterzauber() {
   fetch(SB_URL + '/rest/v1/winterzauber_settings?id=eq.1&select=active', { headers: { apikey: SB_KEY } })
     .then(function (r) { return r.json(); })
@@ -537,9 +565,9 @@ function renderVarianten() {
     var row = document.createElement('div');
     row.className = 'wz-qty-row';
     row.innerHTML =
-      '<div><span class="wz-qty-name">' + v.name + '</span>' +
+      '<div><span class="wz-qty-name">' + escapeHtml(v.name) + '</span>' +
       '<span class="wz-qty-price">' + Number(v.price_per_person).toFixed(2) + ' € / Person</span>' +
-      (v.description ? '<div class="wz-qty-desc">' + v.description + '</div>' : '') + '</div>' +
+      (v.description ? '<div class="wz-qty-desc">' + escapeHtml(v.description) + '</div>' : '') + '</div>' +
       '<input type="number" class="wz-qty-input" min="0" max="30" value="0" data-variante-id="' + v.id + '">';
     el.appendChild(row);
   });
@@ -552,7 +580,7 @@ function renderBeilagen() {
     var row = document.createElement('div');
     row.className = 'wz-qty-row';
     row.innerHTML =
-      '<div><span class="wz-qty-name">' + b.name + '</span>' +
+      '<div><span class="wz-qty-name">' + escapeHtml(b.name) + '</span>' +
       '<span class="wz-qty-price">' + Number(b.price).toFixed(2) + ' €</span></div>' +
       '<input type="number" class="wz-qty-input" min="0" max="30" value="0" data-beilage-id="' + b.id + '">';
     el.appendChild(row);
