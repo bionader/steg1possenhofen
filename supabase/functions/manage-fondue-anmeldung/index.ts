@@ -46,7 +46,7 @@ async function findAnmeldungByToken(token: string) {
 }
 
 async function patchAnmeldungByToken(token: string, patch: Record<string, unknown>) {
-  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}`;
+  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}&select=*,fondue_termine(date,status)`;
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
