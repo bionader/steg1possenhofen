@@ -238,6 +238,7 @@ footer{
 .wz-badge-schwelle_erreicht{background:rgba(212,136,58,.15);color:var(--accent2)}
 .wz-badge-bestaetigt{background:rgba(46,158,74,.15);color:var(--ok-ink)}
 .wz-badge-ausgebucht,.wz-badge-abgesagt{background:rgba(217,79,79,.12);color:var(--err-ink)}
+.wz-termin-progress{margin-top:6px;font-size:.78rem;color:var(--text3)}
 
 .wz-form{display:none}
 .wz-form.active{display:block}
@@ -353,7 +354,11 @@ footer{
       <div class="wz-row">
         <label for="wz-allergien">Allergien / Unverträglichkeiten</label>
         <textarea id="wz-allergien" placeholder="z. B. Laktoseintoleranz, Nussallergie…"></textarea>
-        <p class="wz-allergie-hint">Freiwillige Angabe. Mit dem Absenden willigen Sie in die Verarbeitung dieser Angabe zur Berücksichtigung bei der Essenszubereitung ein.</p>
+        <p class="wz-allergie-hint">Freiwillige Angabe.</p>
+        <div class="wz-checkbox-row">
+          <input type="checkbox" id="wz-allergien-consent">
+          <label for="wz-allergien-consent">Ich willige ausdrücklich in die Verarbeitung meiner Angaben zu Allergien/Unverträglichkeiten (Gesundheitsdaten) zur Berücksichtigung bei der Essenszubereitung ein.</label>
+        </div>
       </div>
 
       <div class="wz-row">
@@ -459,7 +464,22 @@ footer{
 // Scripts im Dokument geparst wurden — dann würde window.onHcaptchaLoad noch nicht existieren.
 var wzCaptchaWidgetId = null;
 var pfCaptchaWidgetId = null;
+// Rendering wird verzögert, bis #wz-active-content sichtbar ist (Finding 8): ein hCaptcha-Widget,
+// das in einen display:none-Container gerendert wird, kann eine falsche iframe-Größe bekommen und
+// erholt sich davon nicht automatisch, wenn der Container später eingeblendet wird.
+var hcaptchaScriptReady = false;
+var hcaptchaWidgetsRendered = false;
+var wzContentIsVisible = false;
 function onHcaptchaLoad() {
+  hcaptchaScriptReady = true;
+  renderHcaptchaWidgetsIfReady();
+}
+function renderHcaptchaWidgetsIfReady() {
+  // Guard: nur einmal rendern, und erst wenn beide Bedingungen erfüllt sind — das
+  // hCaptcha-Script (async/defer) und der Feature-Flag-Fetch können in beliebiger
+  // Reihenfolge fertig werden.
+  if (hcaptchaWidgetsRendered || !wzContentIsVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
+  hcaptchaWidgetsRendered = true;
   wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
   pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
 }
@@ -582,6 +602,8 @@ function initWinterzauber() {
         return;
       }
       document.getElementById('wz-active-content').style.display = 'block';
+      wzContentIsVisible = true;
+      renderHcaptchaWidgetsIfReady();
       loadTermineAndZutaten();
     })
     .catch(function () {
@@ -591,7 +613,7 @@ function initWinterzauber() {
 
 function loadTermineAndZutaten() {
   Promise.all([
-    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
     fetch(SB_URL + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=id,name,description,price_per_person', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
     fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=id,name,description,price', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
   ]).then(function (results) {
@@ -621,7 +643,8 @@ function renderTermine() {
       '<div class="wz-termin-row">' +
         '<span class="wz-termin-date">' + dateFormattedDe(t.date) + '</span>' +
         '<span class="wz-termin-badge wz-badge-' + t.status + '">' + STATUS_LABELS[t.status] + '</span>' +
-      '</div>';
+      '</div>' +
+      '<div class="wz-termin-progress">' + (t.personen_gesamt || 0) + ' / ' + t.capacity_min + ' Personen</div>';
     if (isSelectable) {
       div.addEventListener('click', function () { selectTermin(t.id); });
     }
@@ -672,6 +695,13 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
   msg.textContent = '';
 
   if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
+  var allergienValue = document.getElementById('wz-allergien').value.trim();
+  var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
+  if (allergienValue && !allergienConsentChecked) {
+    msg.textContent = 'Bitte bestätige die gesonderte Einwilligung zur Verarbeitung deiner Allergie-Angaben.';
+    msg.style.color = 'var(--err)';
+    return;
+  }
   var captchaToken = window.hcaptcha ? hcaptcha.getResponse(wzCaptchaWidgetId) : '';
   if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
 
@@ -695,7 +725,8 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     personen: parseInt(document.getElementById('wz-personen').value, 10),
     varianten: variantenSel,
     beilagen: beilagenSel,
-    allergien: document.getElementById('wz-allergien').value.trim(),
+    allergien: allergienValue,
+    allergienConsent: allergienConsentChecked,
     agb: document.getElementById('wz-agb').checked
   };
 
