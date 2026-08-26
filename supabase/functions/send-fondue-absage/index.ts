@@ -55,7 +55,13 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { "apikey": SUPABASE_SERVICE_ROLE_KEY, "Authorization": `Bearer ${token}` },
   });
-  return res.ok;
+  if (!res.ok) return false;
+  // Nicht nur Login prüfen, sondern auch dass die Rolle nicht auf "sup" oder
+  // "schedule_events" eingeschränkt ist — diese Accounts dürfen keine
+  // Winterzauber-Massenmails auslösen oder Gästedaten sehen.
+  const user = await res.json();
+  const role = user?.user_metadata?.role;
+  return role !== "sup" && role !== "schedule_events";
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
