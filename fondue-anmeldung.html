@@ -472,20 +472,8 @@ function confirmCancel() {
       document.getElementById('fa-cancel-dialog').classList.remove('active');
       document.getElementById('fa-cancel-success').classList.add('active');
 
-      var d = anmeldung.fondue_termine && anmeldung.fondue_termine.date
-        ? anmeldung.fondue_termine.date.split('-').reverse().join('.')
-        : '';
-      // Fire-and-forget storno mail
-      fetch(SB_URL + '/functions/v1/send-fondue-cancel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-        body: JSON.stringify({
-          email: anmeldung.customer_email,
-          name: anmeldung.customer_name,
-          dateFormatted: d,
-          anmeldungId: anmeldung.anmeldung_id
-        })
-      });
+      // Storno-Mail wird jetzt serverseitig innerhalb von manage-fondue-anmeldung
+      // (action: "cancel") verschickt — kein separater Fetch mehr nötig (Finding 1).
 
       var badge = document.getElementById('fa-status');
       badge.textContent = 'Storniert';

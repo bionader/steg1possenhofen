@@ -7,6 +7,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const ALLOWED_ORIGINS = [
   "https://steg1possenhofen.de",
@@ -24,6 +25,89 @@ function corsHeadersFor(origin: string | null) {
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function esc(s: unknown): string {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function dateFormattedDe(yyyymmdd: string): string {
+  return yyyymmdd.split("-").reverse().join(".");
+}
+
+async function bumpQuota(times = 1) {
+  for (let i = 0; i < times; i++) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_email_quota`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_SERVICE_ROLE_KEY,
+          "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      });
+    } catch (_) {
+      // Silent fail — Quota-Zähler ist nicht kritisch für den Stornierungs-Flow
+    }
+  }
+}
+
+// Storno-Mail: 1:1 übernommen aus dem ehemaligen send-fondue-cancel/index.ts
+// (Finding 1 — dieser Endpoint hier hat bereits Service-Role-Zugriff und einen
+// verifizierten UUID-Token, das ist die korrekte Vertrauensgrenze für den Mailversand).
+async function sendStornoMail(email: string, name: string, dateFormattedStr: string, anmeldungId: string) {
+  const html = `
+    <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
+    <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
+      <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
+        <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue im beheizten Zelt</p>
+      </div>
+      <div style="padding:28px">
+        <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Anmeldung storniert</h2>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, deine Anmeldung zum Winterzauber am ${esc(dateFormattedStr)} wurde storniert.</p>
+        <p style="color:#6C7871;font-size:12px;margin:0 0 20px">${anmeldungId ? "Anmeldung " + esc(anmeldungId) : ""}</p>
+        <p style="color:#4A4840;font-size:14px;margin:0">Schade, dass es diesmal nicht klappt &mdash; wir hoffen, dich bald am Steg 1 begr&uuml;&szlig;en zu d&uuml;rfen.</p>
+      </div>
+      <div style="border-top:1px solid #E4D9C4;padding:20px 28px;text-align:center">
+        <p style="color:#6C7871;font-size:12px;margin:0">Steg 1 Possenhofen &middot; Am Starnberger See</p>
+      </div>
+    </div>
+  `;
+
+  const text = [
+    `Steg 1 Possenhofen — Winterzauber`,
+    ``,
+    `ANMELDUNG STORNIERT`,
+    ``,
+    `Hallo ${name}, deine Anmeldung zum Winterzauber am ${dateFormattedStr} wurde storniert.`,
+    anmeldungId ? `Anmeldung: ${anmeldungId}` : null,
+    ``,
+    `Wir hoffen, dich bald am Steg 1 begrüßen zu dürfen.`,
+  ].filter(Boolean).join("\n");
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
+      body: JSON.stringify({
+        from: "Steg 1 Possenhofen <hallo@steg1possenhofen.de>",
+        to: [email],
+        bcc: ["hallo@steg1possenhofen.de"],
+        subject: `Deine Winterzauber-Anmeldung am ${dateFormattedStr} wurde storniert`,
+        html,
+        text,
+      }),
+    });
+    if (res.ok) {
+      await bumpQuota(2);
+    } else {
+      console.error("[manage-fondue-anmeldung] storno mail failed", res.status, await res.text());
+    }
+  } catch (e) {
+    console.error("[manage-fondue-anmeldung] storno mail exception", e);
+  }
+}
 
 function jsonResponse(body: unknown, status: number, cors: Record<string, string>) {
   return new Response(JSON.stringify(body), {
@@ -96,11 +180,19 @@ serve(async (req) => {
 
     if (action === "cancel") {
       if (existing.status === "storniert") {
-        return jsonResponse(existing, 200, cors); // idempotent
+        return jsonResponse(existing, 200, cors); // idempotent — keine erneute Mail
       }
       const result = await patchAnmeldungByToken(token, { status: "storniert" });
       if (!result.ok) return jsonResponse({ error: "patch_failed", detail: result.error }, 500, cors);
-      return jsonResponse(result.row, 200, cors);
+      // Storno-Mail nur bei echtem vorgemerkt/bestaetigt → storniert Übergang (dieser Zweig
+      // hier, nicht der idempotente Early-Return oben) — verhindert Endlos-Resend bei
+      // wiederholten Cancel-Aufrufen (Finding 1).
+      const row = result.row;
+      if (row) {
+        const dateFmt = row.fondue_termine?.date ? dateFormattedDe(row.fondue_termine.date) : "";
+        await sendStornoMail(row.customer_email, row.customer_name, dateFmt, row.anmeldung_id);
+      }
+      return jsonResponse(row, 200, cors);
     }
 
     return jsonResponse({ error: "unknown_action" }, 400, cors);
