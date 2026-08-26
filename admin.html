@@ -324,6 +324,20 @@
       .day-details{gap:6px}
       .time-input{width:105px;font-size:.9rem}
     }
+
+    .wz-termin-card{border:1.5px solid var(--sand2);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+    .wz-termin-card-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .wz-termin-date{font-weight:600;color:var(--text)}
+    .wz-termin-badge{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:100px}
+    .wz-badge-offen{background:rgba(108,120,113,.12);color:var(--text2)}
+    .wz-badge-schwelle_erreicht{background:rgba(212,136,58,.18);color:#a85e1c}
+    .wz-badge-bestaetigt{background:rgba(46,158,74,.15);color:#1F7A36}
+    .wz-badge-ausgebucht,.wz-badge-abgesagt{background:rgba(217,79,79,.12);color:#B53E3E}
+    .wz-termin-progress{font-size:.82rem;color:var(--text2);margin-top:6px}
+    .wz-termin-actions{display:flex;gap:8px;margin-top:10px}
+    .wz-termin-actions button{width:auto;padding:6px 14px;font-size:.8rem}
+    .wz-btn-confirm{background:#2E9E4A}
+    .wz-btn-cancel-termin{background:#D94F4F}
   </style>
 </head>
 <body>
@@ -357,6 +371,7 @@
         <option value="bestseller">Bestseller</option>
         <option value="events">Veranstaltungen</option>
         <option value="jobs">Jobs</option>
+        <option value="winterzauber">Winterzauber</option>
       </select>
       <div class="tab-nav" id="tab-nav">
         <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
@@ -365,6 +380,7 @@
         <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
         <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
         <button class="tab-btn" data-tab="jobs" id="tab-jobs">Jobs</button>
+        <button class="tab-btn" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
@@ -512,6 +528,39 @@
           </div>
         </div>
       </div>
+
+      <!-- Tab 7: Winterzauber -->
+      <div class="tab-content" id="content-winterzauber">
+        <div class="cal-header">
+          <h2>Winterzauber — Käsefondue</h2>
+          <span class="cal-hint">Feature-Flag, Termine, Anmeldungen, Zutaten</span>
+        </div>
+        <div id="wz-admin-message"></div>
+
+        <div class="month-section">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
+            <label class="toggle" title="Winterzauber-Seite ein/aus">
+              <input type="checkbox" id="wz-active-toggle"><span class="slider"></span>
+            </label>
+            <span style="font-size:.92rem;color:var(--text);font-weight:500">Seite live schalten (Nav-Punkt, Startseiten-Teaser, Anmeldung)</span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:16px">
+            <button type="button" id="btn-save-wz-active" style="width:auto;padding:8px 18px;font-size:.85rem">Speichern</button>
+          </div>
+        </div>
+
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Termine</h3>
+            <button type="button" id="btn-wz-new-termin" style="width:auto;padding:6px 14px;font-size:.82rem">+ Neuer Termin</button>
+          </div>
+          <div id="wz-termine-list"></div>
+        </div>
+
+        <!-- Anmeldungen + Zutaten sub-sections added in Task 11 -->
+        <div id="wz-anmeldungen-anchor"></div>
+        <div id="wz-zutaten-anchor"></div>
+      </div>
     </div>
   </div>
 
@@ -583,7 +632,7 @@
     function applyRole(userRole) {
       var sel = document.getElementById('tab-select');
       // Alle Tabs/Optionen erst sichtbar zurücksetzen (sauberer State bei Role-Wechsel)
-      ['schedule','sup','menu','bestseller','events','jobs'].forEach(function(t){
+      ['schedule','sup','menu','bestseller','events','jobs','winterzauber'].forEach(function(t){
         var btn = document.getElementById('tab-'+t);
         if (btn) btn.style.display = '';
         if (sel) {
@@ -599,12 +648,14 @@
         document.getElementById('tab-bestseller').style.display = 'none';
         document.getElementById('tab-events').style.display = 'none';
         document.getElementById('tab-jobs').style.display = 'none';
+        document.getElementById('tab-winterzauber').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="schedule"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
           sel.querySelector('option[value="events"]').hidden = true;
           sel.querySelector('option[value="jobs"]').hidden = true;
+          sel.querySelector('option[value="winterzauber"]').hidden = true;
           sel.value = 'sup';
         }
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
@@ -618,10 +669,12 @@
         document.getElementById('tab-sup').style.display = 'none';
         document.getElementById('tab-menu').style.display = 'none';
         document.getElementById('tab-bestseller').style.display = 'none';
+        document.getElementById('tab-winterzauber').style.display = 'none';
         if (sel) {
           sel.querySelector('option[value="sup"]').hidden = true;
           sel.querySelector('option[value="menu"]').hidden = true;
           sel.querySelector('option[value="bestseller"]').hidden = true;
+          sel.querySelector('option[value="winterzauber"]').hidden = true;
           sel.value = 'schedule';
         }
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
@@ -688,6 +741,7 @@
         if (this.dataset.tab === 'menu') loadMenu();
         if (this.dataset.tab === 'bestseller') loadBestseller();
         if (this.dataset.tab === 'jobs') loadJobSettingsPanel();
+        if (this.dataset.tab === 'winterzauber') loadWinterzauberPanel();
       });
     });
 
@@ -1414,6 +1468,141 @@
       .catch(function(){msg('Fehler beim Speichern','error','jobs-message')})
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
     });
+
+    // ── Winterzauber: Feature-Flag ──
+    function loadWinterzauberSettings(){
+      fetch(SB_URL+'/rest/v1/winterzauber_settings?id=eq.1&select=active',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data && data.length>0){
+          document.getElementById('wz-active-toggle').checked = !!data[0].active;
+        }
+      })
+      .catch(function(){msg('Konnte Winterzauber-Einstellungen nicht laden','error','wz-admin-message')});
+    }
+
+    document.getElementById('btn-save-wz-active').addEventListener('click',function(){
+      var btn=this;
+      var active=document.getElementById('wz-active-toggle').checked;
+      var confirmText = active
+        ? 'Die Seite wird jetzt für alle Besucher sichtbar. Fortfahren?'
+        : 'Die Seite wird für alle Besucher ausgeblendet. Fortfahren?';
+      if(!confirm(confirmText)) return;
+      btn.disabled=true;btn.textContent='Speichern...';
+      fetch(SB_URL+'/rest/v1/winterzauber_settings?id=eq.1',{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
+        body:JSON.stringify({active:active})
+      })
+      .then(function(r){
+        if(!r.ok)throw new Error('save');
+        msg('Gespeichert','','wz-admin-message');
+      })
+      .catch(function(){msg('Fehler beim Speichern','error','wz-admin-message')})
+      .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
+    });
+
+    // ── Winterzauber: Termine ──
+    var wzTermine = [];
+    var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
+
+    function loadWinterzauberTermine(){
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        wzTermine = data || [];
+        renderWinterzauberTermine();
+      })
+      .catch(function(){msg('Konnte Termine nicht laden','error','wz-admin-message')});
+    }
+
+    function renderWinterzauberTermine(){
+      var el = document.getElementById('wz-termine-list');
+      if(!wzTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Noch keine Termine angelegt.</p>'; return; }
+
+      Promise.all(wzTermine.map(function(t){
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&status=in.(vorgemerkt,bestaetigt)&select=personen_anzahl',{
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        }).then(function(r){return r.json()}).then(function(rows){
+          return (rows||[]).reduce(function(sum,r){return sum+r.personen_anzahl},0);
+        });
+      })).then(function(sums){
+        var html = '';
+        wzTermine.forEach(function(t, i){
+          var total = sums[i];
+          var dateFmt = t.date.split('-').reverse().join('.');
+          html += '<div class="wz-termin-card" data-id="'+t.id+'">';
+          html += '<div class="wz-termin-card-top">';
+          html += '<span class="wz-termin-date">'+dateFmt+'</span>';
+          html += '<span class="wz-termin-badge wz-badge-'+t.status+'">'+WZ_STATUS_LABELS[t.status]+'</span>';
+          html += '</div>';
+          html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
+          html += '<div class="wz-termin-actions">';
+          if(t.status==='schwelle_erreicht'){
+            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\')">Termin bestätigen</button>';
+          }
+          if(t.status!=='abgesagt' && t.status!=='bestaetigt'){
+            html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\')">Termin absagen</button>';
+          }
+          html += '</div></div>';
+        });
+        el.innerHTML = html;
+      });
+    }
+
+    function confirmWinterzauberTermin(terminId){
+      if(!confirm('Termin verbindlich bestätigen? Alle vorgemerkten Gäste erhalten sofort eine Bestätigungsmail.')) return;
+      fetch(SB_URL+'/functions/v1/send-fondue-confirmation',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({terminId:terminId})
+      })
+      .then(function(r){if(!r.ok)throw new Error('confirm_failed');return r.json();})
+      .then(function(result){
+        msg('Termin bestätigt, '+result.sent+' Mail(s) versendet','','wz-admin-message');
+        loadWinterzauberTermine();
+      })
+      .catch(function(){msg('Fehler beim Bestätigen','error','wz-admin-message')});
+    }
+
+    function cancelWinterzauberTermin(terminId){
+      if(!confirm('Termin absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
+      fetch(SB_URL+'/functions/v1/send-fondue-absage',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({terminId:terminId})
+      })
+      .then(function(r){if(!r.ok)throw new Error('cancel_failed');return r.json();})
+      .then(function(result){
+        msg('Termin abgesagt, '+result.sent+' Mail(s) versendet','','wz-admin-message');
+        loadWinterzauberTermine();
+      })
+      .catch(function(){msg('Fehler beim Absagen','error','wz-admin-message')});
+    }
+
+    document.getElementById('btn-wz-new-termin').addEventListener('click',function(){
+      var dateStr = prompt('Datum des neuen Termins (JJJJ-MM-TT):');
+      if(!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)){ if(dateStr!==null) alert('Ungültiges Datumsformat.'); return; }
+      fetch(SB_URL+'/rest/v1/fondue_termine',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({date:dateStr})
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data && data.length){ msg('Termin angelegt','','wz-admin-message'); loadWinterzauberTermine(); }
+      })
+      .catch(function(){msg('Fehler beim Anlegen','error','wz-admin-message')});
+    });
+
+    function loadWinterzauberPanel(){
+      loadWinterzauberSettings();
+      loadWinterzauberTermine();
+    }
 
     // Save (Bulk) — Smart-Save: Tage die exakt dem Monats-Default entsprechen werden
     // nicht als Override gespeichert, sondern (falls vorhanden) gelöscht.
