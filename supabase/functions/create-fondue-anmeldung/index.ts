@@ -153,16 +153,27 @@ serve(async (req) => {
   const varianten = (body?.varianten && typeof body.varianten === "object") ? body.varianten : {};
   const beilagen = (body?.beilagen && typeof body.beilagen === "object") ? body.beilagen : {};
   const allergien = String(body?.allergien ?? "").trim().slice(0, 500);
+  const allergienConsent = body?.allergienConsent === true;
   const agb = body?.agb === true;
 
   const captchaOk = await verifyCaptcha(captchaToken);
   if (!captchaOk) return jsonResponse({ error: "captcha_failed" }, 403, corsHeaders);
+
+  // Feature-Flag prüfen: eine deaktivierte Seite darf keine neuen Anmeldungen mehr annehmen
+  // (Cancel über manage-fondue-anmeldung bleibt bewusst davon unberührt — Finding 3).
+  const settingsRes = await pg("winterzauber_settings?id=eq.1&select=active");
+  const settingsRows = settingsRes.ok ? await settingsRes.json() : [];
+  const featureActive = !!(settingsRows[0]?.active);
+  if (!featureActive) return jsonResponse({ error: "feature_disabled" }, 409, corsHeaders);
 
   if (!UUID_RE.test(terminId)) return jsonResponse({ error: "invalid_termin" }, 400, corsHeaders);
   if (!name || name.length > 100) return jsonResponse({ error: "invalid_name" }, 400, corsHeaders);
   if (!EMAIL_RE.test(email) || email.length > 200) return jsonResponse({ error: "invalid_email" }, 400, corsHeaders);
   if (!Number.isInteger(personen) || personen < 1 || personen > 30) return jsonResponse({ error: "invalid_personen" }, 400, corsHeaders);
   if (!agb) return jsonResponse({ error: "agb_required" }, 400, corsHeaders);
+  // Art. 9 DSGVO: gesonderte, ausdrückliche Einwilligung nötig, sobald Gesundheitsdaten
+  // (Allergien/Unverträglichkeiten) angegeben werden — Finding 6.
+  if (allergien && !allergienConsent) return jsonResponse({ error: "allergien_consent_required" }, 400, corsHeaders);
 
   // Termin laden + Status prüfen
   const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,status,capacity_max`);
@@ -172,6 +183,17 @@ serve(async (req) => {
   const termin = terminRows[0];
   if (!["offen", "schwelle_erreicht"].includes(termin.status)) {
     return jsonResponse({ error: "termin_not_open", status: termin.status }, 409, corsHeaders);
+  }
+
+  // Kapazität serverseitig durchsetzen (Finding 4) — Trigger setzt den Termin-Status erst
+  // NACH dem Insert auf 'ausgebucht', daher hier vorab die Summe der aktiven Anmeldungen
+  // prüfen, mirrored von admin.html's Termine-Ladepattern (status in vorgemerkt/bestaetigt).
+  const sumRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=in.(vorgemerkt,bestaetigt)&select=personen_anzahl`);
+  if (!sumRes.ok) return jsonResponse({ error: "capacity_lookup_failed" }, 500, corsHeaders);
+  const sumRows = await sumRes.json();
+  const existingSum = Array.isArray(sumRows) ? sumRows.reduce((sum: number, r: any) => sum + Number(r.personen_anzahl || 0), 0) : 0;
+  if (existingSum + personen > Number(termin.capacity_max)) {
+    return jsonResponse({ error: "capacity_exceeded", available: Number(termin.capacity_max) - existingSum }, 409, corsHeaders);
   }
 
   // Varianten + Beilagen serverseitig validieren und Preis berechnen — Client-Preis wird ignoriert
