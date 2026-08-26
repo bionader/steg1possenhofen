@@ -338,6 +338,17 @@
     .wz-termin-actions button{width:auto;padding:6px 14px;font-size:.8rem}
     .wz-btn-confirm{background:#2E9E4A}
     .wz-btn-cancel-termin{background:#D94F4F}
+    .wz-zutat-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--sand2)}
+    .wz-zutat-row:last-child{border-bottom:none}
+    .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem}
+    .wz-zutat-input.name{flex:2}
+    .wz-zutat-input.price{flex:0 0 90px;text-align:right}
+    .wz-zutat-row .toggle{flex:0 0 auto}
+    .wz-zutat-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:4px 8px;width:auto}
+    .wz-zutat-del:hover{color:#D94F4F}
+    .wz-anmeld-table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
+    .wz-anmeld-table th{text-align:left;padding:8px 10px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2)}
+    .wz-anmeld-table td{padding:8px 10px;border-bottom:1px solid var(--sand2);vertical-align:top}
   </style>
 </head>
 <body>
@@ -558,8 +569,30 @@
         </div>
 
         <!-- Anmeldungen + Zutaten sub-sections added in Task 11 -->
-        <div id="wz-anmeldungen-anchor"></div>
-        <div id="wz-zutaten-anchor"></div>
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Anmeldungen</h3>
+          </div>
+          <div class="month-hint">Filter nach Termin, um alle Anmeldungen für einen bestimmten Abend zu sehen.</div>
+          <select id="wz-anmeldungen-termin-filter" style="margin:10px 0;padding:8px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit"></select>
+          <div id="wz-anmeldungen-list" style="overflow-x:auto"></div>
+        </div>
+
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Fondue-Varianten</h3>
+          </div>
+          <div id="wz-varianten-editor"></div>
+          <button type="button" id="btn-wz-add-variante" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Variante hinzufügen</button>
+        </div>
+
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Beilagen</h3>
+          </div>
+          <div id="wz-beilagen-editor"></div>
+          <button type="button" id="btn-wz-add-beilage" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Beilage hinzufügen</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1601,8 +1634,146 @@
 
     function loadWinterzauberPanel(){
       loadWinterzauberSettings();
-      loadWinterzauberTermine();
+      loadWinterzauberZutaten();
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      })
+      .then(function(r){return r.json()})
+      .then(function(data){
+        wzTermine = data || [];
+        renderWinterzauberTermine();
+        loadWinterzauberAnmeldungenFilter();
+        loadWinterzauberAnmeldungen('');
+      })
+      .catch(function(){msg('Konnte Termine nicht laden','error','wz-admin-message')});
     }
+
+    // ── Winterzauber: Anmeldungen ──
+    function loadWinterzauberAnmeldungenFilter(){
+      var sel = document.getElementById('wz-anmeldungen-termin-filter');
+      sel.innerHTML = '<option value="">Alle Termine</option>';
+      wzTermine.forEach(function(t){
+        var opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.date.split('-').reverse().join('.');
+        sel.appendChild(opt);
+      });
+      sel.onchange = function(){ loadWinterzauberAnmeldungen(sel.value); };
+    }
+
+    function loadWinterzauberAnmeldungen(terminId){
+      var url = SB_URL+'/rest/v1/fondue_anmeldungen?select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status&order=created_at.desc';
+      if(terminId) url += '&termin_id=eq.'+terminId;
+      fetch(url, { headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token} })
+      .then(function(r){return r.json()})
+      .then(function(data){ renderWinterzauberAnmeldungen(data || []); })
+      .catch(function(){msg('Konnte Anmeldungen nicht laden','error','wz-admin-message')});
+    }
+
+    function renderWinterzauberAnmeldungen(rows){
+      var el = document.getElementById('wz-anmeldungen-list');
+      if(!rows.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Anmeldungen.</p>'; return; }
+      var html = '<table class="wz-anmeld-table"><thead><tr>';
+      html += '<th>ID</th><th>Name</th><th>Kontakt</th><th>Personen</th><th>Varianten</th><th>Beilagen</th><th>Allergien</th><th>Status</th>';
+      html += '</tr></thead><tbody>';
+      rows.forEach(function(r){
+        var varCount = Object.keys(r.varianten_auswahl||{}).length;
+        var beiCount = Object.keys(r.beilagen_auswahl||{}).length;
+        html += '<tr>';
+        html += '<td>'+r.anmeldung_id+'</td>';
+        html += '<td>'+esc(r.customer_name)+'</td>';
+        html += '<td>'+esc(r.customer_email)+(r.customer_phone?'<br>'+esc(r.customer_phone):'')+'</td>';
+        html += '<td>'+r.personen_anzahl+'</td>';
+        html += '<td>'+varCount+' Position(en)</td>';
+        html += '<td>'+beiCount+' Position(en)</td>';
+        html += '<td>'+(r.allergien_hinweis?esc(r.allergien_hinweis):'–')+'</td>';
+        html += '<td>'+WZ_STATUS_LABELS_ANMELD[r.status]+'</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+    var WZ_STATUS_LABELS_ANMELD = {vorgemerkt:'Vorgemerkt',bestaetigt:'Bestätigt',storniert:'Storniert',abgesagt:'Abgesagt'};
+
+    // ── Winterzauber: Zutaten-Editor (Varianten + Beilagen, flache Listen) ──
+    var wzVarianten = [], wzBeilagen = [];
+
+    function loadWinterzauberZutaten(){
+      Promise.all([
+        fetch(SB_URL+'/rest/v1/fondue_varianten?order=sort_order.asc&select=id,name,description,price_per_person,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()}),
+        fetch(SB_URL+'/rest/v1/fondue_beilagen?order=sort_order.asc&select=id,name,description,price,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()})
+      ]).then(function(results){
+        wzVarianten = results[0] || [];
+        wzBeilagen = results[1] || [];
+        renderWzZutatEditor('wz-varianten-editor', wzVarianten, 'fondue_varianten', 'price_per_person');
+        renderWzZutatEditor('wz-beilagen-editor', wzBeilagen, 'fondue_beilagen', 'price');
+      });
+    }
+
+    function renderWzZutatEditor(containerId, items, table, priceField){
+      var el = document.getElementById(containerId);
+      if(!items.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Einträge.</p>'; return; }
+      var html = '';
+      items.forEach(function(item){
+        html += '<div class="wz-zutat-row" data-id="'+item.id+'" data-table="'+table+'" data-price-field="'+priceField+'">';
+        html += '<input class="wz-zutat-input name" data-field="name" value="'+esc(item.name)+'" placeholder="Name">';
+        html += '<input class="wz-zutat-input price" data-field="'+priceField+'" value="'+item[priceField]+'" placeholder="Preis">';
+        html += '<label class="toggle" title="Aktiv"><input type="checkbox" data-field="is_active" '+(item.is_active?'checked':'')+'><span class="slider"></span></label>';
+        html += '<button class="wz-zutat-del" data-id="'+item.id+'" data-table="'+table+'" title="Löschen">✕</button>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+
+      el.querySelectorAll('.wz-zutat-del').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('Eintrag wirklich löschen?')) return;
+          var id = this.dataset.id, tbl = this.dataset.table;
+          fetch(SB_URL+'/rest/v1/'+tbl+'?id=eq.'+id,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}})
+          .then(function(){ msg('Gelöscht','','wz-admin-message'); loadWinterzauberZutaten(); });
+        });
+      });
+    }
+
+    document.getElementById('btn-wz-add-variante').addEventListener('click',function(){
+      var maxSort = 0; wzVarianten.forEach(function(v){if(v.sort_order>maxSort)maxSort=v.sort_order});
+      fetch(SB_URL+'/rest/v1/fondue_varianten',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({name:'Neue Variante',price_per_person:0,is_active:true,sort_order:maxSort+1})
+      }).then(function(){ loadWinterzauberZutaten(); });
+    });
+
+    document.getElementById('btn-wz-add-beilage').addEventListener('click',function(){
+      var maxSort = 0; wzBeilagen.forEach(function(b){if(b.sort_order>maxSort)maxSort=b.sort_order});
+      fetch(SB_URL+'/rest/v1/fondue_beilagen',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({name:'Neue Beilage',price:0,is_active:true,sort_order:maxSort+1})
+      }).then(function(){ loadWinterzauberZutaten(); });
+    });
+
+    // Autosave on blur (kein separater Save-Button — verhindert DOM-Rebuild-Race,
+    // siehe memory/feedback_dom_rebuild_race.md: nie auf jeden Keystroke re-rendern)
+    ['wz-varianten-editor','wz-beilagen-editor'].forEach(function(containerId){
+      document.getElementById(containerId).addEventListener('blur', function(e){
+        if(!e.target.matches('.wz-zutat-input, [data-field="is_active"]')) return;
+        var row = e.target.closest('.wz-zutat-row');
+        var id = row.dataset.id, tbl = row.dataset.table, priceField = row.dataset.priceField;
+        var name = row.querySelector('[data-field="name"]').value.trim();
+        var price = parseFloat(row.querySelector('[data-field="'+priceField+'"]').value.replace(',','.')) || 0;
+        var active = row.querySelector('[data-field="is_active"]').checked;
+        var patch = {name:name, is_active:active};
+        patch[priceField] = price;
+        fetch(SB_URL+'/rest/v1/'+tbl+'?id=eq.'+id,{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
+          body:JSON.stringify(patch)
+        }).then(function(r){ if(r.ok) msg('Gespeichert','','wz-admin-message'); });
+      }, true);
+      document.getElementById(containerId).addEventListener('change', function(e){
+        if(e.target.matches('[data-field="is_active"]')) e.target.dispatchEvent(new Event('blur', {bubbles:true}));
+      });
+    });
 
     // Save (Bulk) — Smart-Save: Tage die exakt dem Monats-Default entsprechen werden
     // nicht als Override gespeichert, sondern (falls vorhanden) gelöscht.
