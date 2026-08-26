@@ -464,24 +464,32 @@ footer{
 // Scripts im Dokument geparst wurden — dann würde window.onHcaptchaLoad noch nicht existieren.
 var wzCaptchaWidgetId = null;
 var pfCaptchaWidgetId = null;
-// Rendering wird verzögert, bis #wz-active-content sichtbar ist (Finding 8): ein hCaptcha-Widget,
-// das in einen display:none-Container gerendert wird, kann eine falsche iframe-Größe bekommen und
-// erholt sich davon nicht automatisch, wenn der Container später eingeblendet wird.
+// Rendering wird verzögert, bis der jeweilige Container sichtbar ist (Finding 8): ein
+// hCaptcha-Widget, das in einen display:none-Container gerendert wird, kann eine falsche
+// iframe-Größe bekommen und erholt sich davon nicht automatisch, wenn der Container später
+// eingeblendet wird. #pf-captcha wird sichtbar sobald #wz-active-content einblendet; #wz-captcha
+// sitzt im #wz-form, das erst nach Terminauswahl sichtbar wird — beide Widgets brauchen daher
+// getrennte, eigene Sichtbarkeits-Trigger statt eines gemeinsamen.
 var hcaptchaScriptReady = false;
-var hcaptchaWidgetsRendered = false;
+var pfCaptchaRendered = false;
+var wzCaptchaRendered = false;
 var wzContentIsVisible = false;
 function onHcaptchaLoad() {
   hcaptchaScriptReady = true;
-  renderHcaptchaWidgetsIfReady();
+  renderPfCaptchaIfReady();
+  renderWzCaptchaIfReady();
 }
-function renderHcaptchaWidgetsIfReady() {
-  // Guard: nur einmal rendern, und erst wenn beide Bedingungen erfüllt sind — das
-  // hCaptcha-Script (async/defer) und der Feature-Flag-Fetch können in beliebiger
-  // Reihenfolge fertig werden.
-  if (hcaptchaWidgetsRendered || !wzContentIsVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
-  hcaptchaWidgetsRendered = true;
-  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+function renderPfCaptchaIfReady() {
+  if (pfCaptchaRendered || !wzContentIsVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
+  pfCaptchaRendered = true;
   pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+}
+function renderWzCaptchaIfReady() {
+  var form = document.getElementById('wz-form');
+  var formVisible = form && form.classList.contains('active');
+  if (wzCaptchaRendered || !formVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
+  wzCaptchaRendered = true;
+  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
 }
 </script>
 <script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoad&render=explicit" async defer></script>
@@ -603,7 +611,7 @@ function initWinterzauber() {
       }
       document.getElementById('wz-active-content').style.display = 'block';
       wzContentIsVisible = true;
-      renderHcaptchaWidgetsIfReady();
+      renderPfCaptchaIfReady();
       loadTermineAndZutaten();
     })
     .catch(function () {
@@ -656,6 +664,7 @@ function selectTermin(terminId) {
   selectedTerminId = terminId;
   renderTermine();
   document.getElementById('wz-form').classList.add('active');
+  renderWzCaptchaIfReady();
   document.getElementById('wz-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
