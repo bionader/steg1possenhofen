@@ -269,6 +269,11 @@ footer{
 .wz-disabled-notice{max-width:600px;margin:140px auto;padding:0 1.5rem;text-align:center}
 .wz-disabled-notice h2{font-family:'Petrona',serif;font-size:1.6rem;color:var(--dark);margin-bottom:.8rem}
 .wz-disabled-notice p{color:var(--text2)}
+
+.wz-pf-wrap{max-width:760px;margin:0 auto 80px;padding:0 1.5rem}
+.wz-pf-intro{color:var(--text2);font-size:.92rem;line-height:1.6;margin-bottom:1.5rem}
+.wz-pf-bullets{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem}
+.wz-pf-bullets span{background:var(--sand);border-radius:100px;padding:.4rem 1rem;font-size:.8rem;color:var(--text2)}
 </style>
 </head>
 <body>
@@ -381,8 +386,67 @@ footer{
     </div>
   </div>
 
-  <!-- Private Winterfeiern section is appended here in Task 8 -->
-  <div id="wz-private-feiern-anchor"></div>
+  <div class="wz-pf-wrap">
+    <h2 class="wz-section-title">Private Winterfeiern</h2>
+    <p class="wz-pf-intro">Weihnachtsfeier, Firmenfeier, Geburtstag oder Vereinsfeier — im beheizten Zelt sind private Feiern und geschlossene Veranstaltungen möglich, individuell abgestimmt.</p>
+    <div class="wz-pf-bullets">
+      <span>Weihnachtsfeiern</span><span>Firmenfeiern</span><span>Geburtstage</span>
+      <span>Familienfeiern</span><span>Vereinsfeiern</span><span>Glühweinbar</span>
+    </div>
+
+    <form id="wz-pf-form">
+      <div class="wz-row">
+        <label for="pf-datum">Gewünschtes Datum</label>
+        <input type="text" id="pf-datum" placeholder="z. B. 20. Dezember oder Zeitraum" required>
+      </div>
+      <div class="wz-row">
+        <label for="pf-anlass">Anlass der Feier</label>
+        <input type="text" id="pf-anlass" required>
+      </div>
+      <div class="wz-row">
+        <label for="pf-personen">Ungefähre Personenzahl</label>
+        <input type="number" id="pf-personen" min="1" required>
+      </div>
+      <div class="wz-row">
+        <label for="pf-speisen">Gewünschte Speisen</label>
+        <input type="text" id="pf-speisen" placeholder="Käsefondue, Grillangebot, individuelles Menü…">
+      </div>
+      <div class="wz-row">
+        <label for="pf-getraenke">Getränkewünsche</label>
+        <input type="text" id="pf-getraenke">
+      </div>
+      <div class="wz-row">
+        <label for="pf-bar">Bar / Glühweinbar gewünscht?</label>
+        <input type="text" id="pf-bar" placeholder="z. B. ja, Glühweinbar">
+      </div>
+      <div class="wz-row">
+        <label for="pf-deko">Besondere Wünsche zur Dekoration</label>
+        <textarea id="pf-deko"></textarea>
+      </div>
+      <div class="wz-row">
+        <label for="pf-name">Name</label>
+        <input type="text" id="pf-name" required>
+      </div>
+      <div class="wz-row">
+        <label for="pf-email">E-Mail</label>
+        <input type="email" id="pf-email" required>
+      </div>
+      <div class="wz-row">
+        <label for="pf-phone">Telefon (optional)</label>
+        <input type="tel" id="pf-phone">
+      </div>
+
+      <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e" style="margin:0 0 1.2rem"></div>
+
+      <div id="wz-pf-message" style="margin-bottom:1rem;font-size:.86rem"></div>
+      <button type="submit" class="wz-submit-btn" id="wz-pf-submit-btn">Anfrage senden</button>
+    </form>
+
+    <div id="wz-pf-success" class="wz-success">
+      <h3>Anfrage gesendet!</h3>
+      <p>Vielen Dank für deine Anfrage. Wir melden uns innerhalb von 24 Stunden mit einem persönlichen Angebot.</p>
+    </div>
+  </div>
 
 </div>
 
@@ -647,6 +711,56 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
       msg.textContent = 'Netzwerkfehler. Bitte versuche es erneut.';
       msg.style.color = 'var(--err)';
       btn.disabled = false; btn.textContent = 'Jetzt vormerken';
+    });
+});
+
+document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('wz-pf-submit-btn');
+  var msg = document.getElementById('wz-pf-message');
+  msg.textContent = '';
+
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse() : '';
+  if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
+
+  var messageBody = [
+    'Datum: ' + document.getElementById('pf-datum').value.trim(),
+    'Anlass: ' + document.getElementById('pf-anlass').value.trim(),
+    'Personenzahl: ' + document.getElementById('pf-personen').value.trim(),
+    'Speisewunsch: ' + (document.getElementById('pf-speisen').value.trim() || '–'),
+    'Getränkewunsch: ' + (document.getElementById('pf-getraenke').value.trim() || '–'),
+    'Bar/Glühweinbar: ' + (document.getElementById('pf-bar').value.trim() || '–'),
+    'Deko-Wunsch: ' + (document.getElementById('pf-deko').value.trim() || '–')
+  ].join('\n');
+
+  var payload = {
+    name: document.getElementById('pf-name').value.trim(),
+    email: document.getElementById('pf-email').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    subject: 'Private Winterfeier-Anfrage',
+    message: messageBody,
+    captchaToken: captchaToken,
+    formType: 'private-feier'
+  };
+
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+
+  fetch(SB_URL + '/functions/v1/send-contact-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify(payload)
+  })
+    .then(function (r) { if (!r.ok) throw new Error('send_failed'); })
+    .then(function () {
+      document.getElementById('wz-pf-form').style.display = 'none';
+      document.getElementById('wz-pf-success').classList.add('active');
+      if (window.hcaptcha) hcaptcha.reset();
+    })
+    .catch(function () {
+      msg.textContent = 'Fehler beim Senden. Bitte versuche es erneut.';
+      msg.style.color = 'var(--err)';
+      btn.disabled = false; btn.textContent = 'Anfrage senden';
+      if (window.hcaptcha) hcaptcha.reset();
     });
 });
 
