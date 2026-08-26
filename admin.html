@@ -1575,7 +1575,7 @@
           html += '</div>';
           html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
           html += '<div class="wz-termin-actions">';
-          if(t.status==='schwelle_erreicht'){
+          if(t.status==='schwelle_erreicht' || t.status==='ausgebucht'){
             html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\')">Termin bestätigen</button>';
           }
           if(t.status!=='abgesagt' && t.status!=='bestaetigt'){
