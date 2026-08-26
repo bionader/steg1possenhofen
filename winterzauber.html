@@ -369,7 +369,7 @@ footer{
         <input type="tel" id="wz-phone">
       </div>
 
-      <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e" style="margin:0 0 1.2rem"></div>
+      <div id="wz-captcha" class="h-captcha" style="margin:0 0 1.2rem"></div>
 
       <div class="wz-checkbox-row">
         <input type="checkbox" id="wz-agb" required>
@@ -436,7 +436,7 @@ footer{
         <input type="tel" id="pf-phone">
       </div>
 
-      <div class="h-captcha" data-sitekey="6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e" style="margin:0 0 1.2rem"></div>
+      <div id="pf-captcha" class="h-captcha" style="margin:0 0 1.2rem"></div>
 
       <div id="wz-pf-message" style="margin-bottom:1rem;font-size:.86rem"></div>
       <button type="submit" class="wz-submit-btn" id="wz-pf-submit-btn">Anfrage senden</button>
@@ -450,7 +450,7 @@ footer{
 
 </div>
 
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoad&render=explicit" async defer></script>
 
 <!-- FOOTER -->
 <footer id="kontakt">
@@ -532,6 +532,16 @@ mobileMenu.querySelectorAll('a').forEach(function(link) {
 <script>
 var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+// Zwei hCaptcha-Widgets auf dieser Seite (Käsefondue-Formular + Private-Feiern-Formular).
+// hCaptchas implizites Rendering würde ohne Widget-ID immer nur das erste Widget im DOM ansprechen —
+// deshalb explizites Rendering mit render=explicit und separater Widget-ID je Formular.
+var wzCaptchaWidgetId = null;
+var pfCaptchaWidgetId = null;
+function onHcaptchaLoad() {
+  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+  pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+}
 
 var termine = [];
 var varianten = [];
@@ -658,7 +668,7 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
   msg.textContent = '';
 
   if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
-  var captchaToken = window.hcaptcha ? hcaptcha.getResponse() : '';
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(wzCaptchaWidgetId) : '';
   if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
 
   var variantenSel = {};
@@ -698,7 +708,7 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
         msg.textContent = 'Fehler: ' + (result.data.error || 'unbekannt') + '. Bitte versuche es erneut.';
         msg.style.color = 'var(--err)';
         btn.disabled = false; btn.textContent = 'Jetzt vormerken';
-        if (window.hcaptcha) hcaptcha.reset();
+        if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
         return;
       }
       document.getElementById('wz-form').classList.remove('active');
@@ -720,7 +730,7 @@ document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
   var msg = document.getElementById('wz-pf-message');
   msg.textContent = '';
 
-  var captchaToken = window.hcaptcha ? hcaptcha.getResponse() : '';
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(pfCaptchaWidgetId) : '';
   if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
 
   var messageBody = [
@@ -754,13 +764,13 @@ document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
     .then(function () {
       document.getElementById('wz-pf-form').style.display = 'none';
       document.getElementById('wz-pf-success').classList.add('active');
-      if (window.hcaptcha) hcaptcha.reset();
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
     })
     .catch(function () {
       msg.textContent = 'Fehler beim Senden. Bitte versuche es erneut.';
       msg.style.color = 'var(--err)';
       btn.disabled = false; btn.textContent = 'Anfrage senden';
-      if (window.hcaptcha) hcaptcha.reset();
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
     });
 });
 
