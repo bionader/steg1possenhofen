@@ -450,6 +450,20 @@ footer{
 
 </div>
 
+<script>
+// Zwei hCaptcha-Widgets auf dieser Seite (Käsefondue-Formular + Private-Feiern-Formular).
+// hCaptchas implizites Rendering würde ohne Widget-ID immer nur das erste Widget im DOM ansprechen —
+// deshalb explizites Rendering mit render=explicit und separater Widget-ID je Formular.
+// Diese Funktion MUSS vor dem hCaptcha-Script-Tag definiert werden: das Script ist async und
+// kann (v.a. aus dem Cache) laden und seinen onload-Callback aufrufen, bevor spätere Inline-
+// Scripts im Dokument geparst wurden — dann würde window.onHcaptchaLoad noch nicht existieren.
+var wzCaptchaWidgetId = null;
+var pfCaptchaWidgetId = null;
+function onHcaptchaLoad() {
+  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+  pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+}
+</script>
 <script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoad&render=explicit" async defer></script>
 
 <!-- FOOTER -->
@@ -532,16 +546,6 @@ mobileMenu.querySelectorAll('a').forEach(function(link) {
 <script>
 var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
-
-// Zwei hCaptcha-Widgets auf dieser Seite (Käsefondue-Formular + Private-Feiern-Formular).
-// hCaptchas implizites Rendering würde ohne Widget-ID immer nur das erste Widget im DOM ansprechen —
-// deshalb explizites Rendering mit render=explicit und separater Widget-ID je Formular.
-var wzCaptchaWidgetId = null;
-var pfCaptchaWidgetId = null;
-function onHcaptchaLoad() {
-  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
-  pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
-}
 
 var termine = [];
 var varianten = [];
