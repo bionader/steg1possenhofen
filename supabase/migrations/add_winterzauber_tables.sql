@@ -28,8 +28,14 @@ CREATE TABLE IF NOT EXISTS fondue_termine (
   status TEXT NOT NULL DEFAULT 'offen'
     CHECK (status IN ('offen', 'schwelle_erreicht', 'bestaetigt', 'ausgebucht', 'abgesagt')),
   note TEXT,
+  -- Denormalisierter Anmeldungszähler für die öffentliche "X / Mindestteilnehmerzahl"-Anzeige
+  -- (fondue_termine hat eine anon-SELECT-Policy, fondue_anmeldungen nicht — daher hier
+  -- gepflegt statt live aus fondue_anmeldungen aggregiert, siehe Finding 7).
+  personen_gesamt INT NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+-- Falls die Tabelle bereits existiert (Migration wird erneut ausgeführt): Spalte nachrüsten.
+ALTER TABLE fondue_termine ADD COLUMN IF NOT EXISTS personen_gesamt INT NOT NULL DEFAULT 0;
 
 ALTER TABLE fondue_termine ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "fondue_termine_anon_select" ON fondue_termine;
@@ -157,6 +163,10 @@ BEGIN
   SELECT capacity_min, capacity_max, status INTO t_min, t_max, t_status
   FROM fondue_termine WHERE id = t_id;
 
+  -- Gästezähler für die öffentliche Anzeige immer aktuell halten — unabhängig vom
+  -- Status-Guard unten, damit auch bei bestätigten/abgesagten Terminen die Anzahl stimmt.
+  UPDATE fondue_termine SET personen_gesamt = total_personen WHERE id = t_id;
+
   -- bestaetigt/abgesagt sind manuelle Endzustände, nicht automatisch überschreiben
   IF t_status NOT IN ('bestaetigt', 'abgesagt') THEN
     IF total_personen >= t_max THEN
@@ -178,8 +188,18 @@ CREATE TRIGGER trg_recompute_fondue_termin_status
   FOR EACH ROW EXECUTE FUNCTION recompute_fondue_termin_status();
 
 -- RLS: anon hat KEINEN Zugriff — alles läuft über Edge Functions mit Service-Role,
--- exakt wie bei `bookings`.
+-- exakt wie bei `bookings`. Authenticated-Zugriff ist zusätzlich auf Accounts ohne
+-- eingeschränkte Rolle beschränkt: fondue_anmeldungen enthält Gesundheitsdaten
+-- (Allergien) — 'sup'- und 'schedule_events'-Accounts (siehe admin.html applyRole())
+-- dürfen diese Tabelle nicht direkt lesen/schreiben, nur die volladministrative Rolle.
+-- HINWEIS: Diese Migration wurde bislang nicht live angewendet — die JWT-Claim-Syntax
+-- unten (auth.jwt() -> 'user_metadata' ->> 'role') basiert auf Supabases dokumentierter
+-- JWT-Struktur, ist aber noch nicht gegen eine echte Supabase-JWT getestet. Vor Merge/Go-Live
+-- unbedingt mit einem echten 'sup'- oder 'schedule_events'-Test-Login gegen
+-- GET /rest/v1/fondue_anmeldungen verifizieren.
 ALTER TABLE fondue_anmeldungen ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "fondue_anmeldungen_auth_all" ON fondue_anmeldungen;
 CREATE POLICY "fondue_anmeldungen_auth_all"
-  ON fondue_anmeldungen FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  ON fondue_anmeldungen FOR ALL TO authenticated
+  USING (COALESCE(auth.jwt() -> 'user_metadata' ->> 'role', '') NOT IN ('sup', 'schedule_events'))
+  WITH CHECK (COALESCE(auth.jwt() -> 'user_metadata' ->> 'role', '') NOT IN ('sup', 'schedule_events'));
