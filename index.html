@@ -727,6 +727,7 @@ footer{
     <li><a href="galerie">Unser Steg 1</a></li>
     <li><a href="veranstaltungen">Veranstaltungen</a></li>
     <li id="nav-jobs-item"><a href="jobs">Jobs</a></li>
+    <li id="nav-winterzauber-item" style="display:none"><a href="winterzauber">Winterzauber</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
   <a href="sup" class="nav-cta">SUP buchen</a>
@@ -743,6 +744,7 @@ footer{
   <a href="galerie">Unser Steg 1</a>
   <a href="veranstaltungen">Veranstaltungen</a>
   <a href="jobs" id="mm-jobs-item">Jobs</a>
+  <a href="winterzauber" id="mm-winterzauber-item" style="display:none">Winterzauber</a>
   <a href="kontakt">Kontakt</a>
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
@@ -811,6 +813,24 @@ footer{
         <div class="sc-price" style="color:var(--text3);font-size:.82rem;font-weight:500">Auf Anfrage</div>
       </div>
       <a href="sup" class="book-btn">Jetzt buchen <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- WINTERZAUBER TEASER (nur sichtbar wenn winterzauber_settings.active = true) -->
+<section class="sec reveal" id="wz-teaser" style="display:none">
+  <p class="stag">Nur im Winter</p>
+  <h2>Winterzauber am Steg <span style="font-family:'Albert Sans',sans-serif">1</span></h2>
+  <p class="ssub">Käsefondue im beheizten Zelt — freitags und samstags, wenn es draußen kalt wird.</p>
+  <div class="sup-inner" style="margin-top:1.2rem">
+    <div class="sup-img" style="height:auto">
+      <img loading="lazy" decoding="async" src="images/winterzauber-zelt.jpg" alt="Beheiztes Winterzelt am Steg 1 Possenhofen" style="width:100%;height:380px;object-fit:cover;border-radius:16px">
+    </div>
+    <div class="sup-cards">
+      <div class="sc">
+        <div class="sc-l"><h3>Käsefondue im Zelt</h3><p>Warm, gemütlich, direkt am See</p></div>
+      </div>
+      <a href="winterzauber" class="book-btn">Jetzt vormerken <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -1376,6 +1396,28 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
         var mmItem = document.getElementById('mm-jobs-item');
         if (navItem) navItem.style.display = 'none';
         if (mmItem) mmItem.style.display = 'none';
+      }
+    })
+    .catch(function () {});
+})();
+
+// Nav-Tab "Winterzauber" ein-/ausblenden je nach Admin-Einstellung (startet standardmäßig aus)
+(function () {
+  var SB_URL_WZ = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY_WZ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  fetch(SB_URL_WZ + '/rest/v1/winterzauber_settings?id=eq.1&select=active', {
+    headers: { apikey: SB_KEY_WZ, Authorization: 'Bearer ' + SB_KEY_WZ }
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var active = !!(data && data[0] && data[0].active);
+      if (active) {
+        var navItem = document.getElementById('nav-winterzauber-item');
+        var mmItem = document.getElementById('mm-winterzauber-item');
+        if (navItem) navItem.style.display = '';
+        if (mmItem) mmItem.style.display = '';
+        var teaser = document.getElementById('wz-teaser');
+        if (teaser) teaser.style.display = '';
       }
     })
     .catch(function () {});
