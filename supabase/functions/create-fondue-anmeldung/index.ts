@@ -264,7 +264,8 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>",
         to: [email],
-        bcc: ["reservierung@steg1possenhofen.de"],
+        // Kein BCC an reservierung@: jede Vormerkung steht bereits im Admin-Panel,
+        // eine Kopie pro Anmeldung wäre nur Rauschen.
         reply_to: "reservierung@steg1possenhofen.de",
         subject: `Deine Vormerkung für den Winterzauber am ${dateFormatted}`,
         html: buildMailHtml({
@@ -280,7 +281,7 @@ serve(async (req) => {
       }),
     });
     if (mailRes.ok) {
-      await bumpQuota(2);
+      await bumpQuota(1); // nur noch eine Mail (Gast), kein BCC mehr
     } else {
       console.error("[create-fondue-anmeldung] mail failed", mailRes.status, await mailRes.text());
     }

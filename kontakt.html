@@ -521,10 +521,16 @@ footer{
         <input type="tel" id="c-phone" placeholder="+49 …" autocomplete="tel">
       </div>
 
-      <!-- Betreff -->
+      <!-- Betreff / Anliegen -->
       <div class="form-group">
-        <label for="c-subject">Betreff<span class="req">*</span></label>
-        <input type="text" id="c-subject" placeholder="z.B. SUP-Verleih, Event, Reservierung …">
+        <label for="c-subject">Anliegen<span class="req">*</span></label>
+        <select id="c-subject">
+          <option value="">Bitte wählen …</option>
+          <option value="SUP-Verleih">SUP-Verleih</option>
+          <option value="Reservierung">Reservierung</option>
+          <option value="Event">Event / Feier</option>
+          <option value="Sonstiges">Sonstiges</option>
+        </select>
       </div>
 
       <!-- Nachricht -->

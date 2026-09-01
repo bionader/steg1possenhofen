@@ -114,14 +114,18 @@ serve(async (req) => {
       ? `Private Winterfeier-Anfrage`
       : `Kontaktanfrage: ${subject}`;
   const crewHeadline = isJobApplication ? "Neue Bewerbung" : "Neue Kontaktanfrage";
-  const crewFrom = isPrivateFeier
+  // Kontaktformular-Kategorie "Reservierung"/"Event" sowie private Winterfeiern
+  // gehen an die separate Reservierungs-Mailbox; SUP-Verleih/Sonstiges an info@.
+  const routeToReservierung =
+    isPrivateFeier || subject === "Reservierung" || subject === "Event";
+  const crewFrom = routeToReservierung
     ? "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>"
     : "Steg 1 Website <info@steg1possenhofen.de>";
-  const crewTo = isPrivateFeier ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
-  const guestFrom = isPrivateFeier
+  const crewTo = routeToReservierung ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
+  const guestFrom = routeToReservierung
     ? "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>"
     : "Steg 1 Possenhofen <info@steg1possenhofen.de>";
-  const guestReplyTo = isPrivateFeier ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
+  const guestReplyTo = routeToReservierung ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
 
   // Prefilled reply-mailto so we can answer directly from inbox
   const replySubject = encodeURIComponent(`Re: ${subject}`);
