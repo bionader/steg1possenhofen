@@ -338,6 +338,7 @@
     .wz-termin-actions button{width:auto;padding:6px 14px;font-size:.8rem}
     .wz-btn-confirm{background:#2E9E4A}
     .wz-btn-cancel-termin{background:#D94F4F}
+    .wz-termin-warn{font-size:.8rem;font-weight:600;color:#B53E3E;background:rgba(217,79,79,.1);border-radius:8px;padding:6px 10px;margin-top:8px}
     .wz-zutat-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--sand2)}
     .wz-zutat-row:last-child{border-bottom:none}
     .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem}
@@ -1635,12 +1636,19 @@
           html += '<span class="wz-termin-badge wz-badge-'+t.status+'">'+WZ_STATUS_LABELS[t.status]+'</span>';
           html += '</div>';
           html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
+          // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
+          if(t.status==='bestaetigt' && total < t.capacity_min){
+            html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – Gäste anrufen oder Termin absagen</div>';
+          }
           html += '<div class="wz-termin-actions">';
           if(t.status==='schwelle_erreicht' || t.status==='ausgebucht'){
-            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\')">Termin bestätigen</button>';
+            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', false)">Termin bestätigen</button>';
+          } else if(t.status==='bestaetigt'){
+            // Nachträglich hinzugekommene Anmeldungen (Status "vorgemerkt") verbindlich machen
+            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', true)">Nachzügler bestätigen</button>';
           }
-          if(t.status!=='abgesagt' && t.status!=='bestaetigt'){
-            html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\')">Termin absagen</button>';
+          if(t.status!=='abgesagt'){
+            html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
           }
           html += '</div></div>';
         });
@@ -1648,8 +1656,11 @@
       });
     }
 
-    function confirmWinterzauberTermin(terminId){
-      if(!confirm('Termin verbindlich bestätigen? Alle vorgemerkten Gäste erhalten sofort eine Bestätigungsmail.')) return;
+    function confirmWinterzauberTermin(terminId, isNachzuegler){
+      var q = isNachzuegler
+        ? 'Nachträglich angemeldete Gäste (Status „vorgemerkt") jetzt verbindlich bestätigen? Sie erhalten sofort eine Bestätigungsmail. Bereits bestätigte Gäste werden nicht erneut angeschrieben.'
+        : 'Termin verbindlich bestätigen? Alle vorgemerkten Gäste erhalten sofort eine Bestätigungsmail.';
+      if(!confirm(q)) return;
       fetch(SB_URL+'/functions/v1/send-fondue-confirmation',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
@@ -1657,14 +1668,17 @@
       })
       .then(function(r){if(!r.ok)throw new Error('confirm_failed');return r.json();})
       .then(function(result){
-        msg('Termin bestätigt, '+result.sent+' Mail(s) versendet','','wz-admin-message');
+        msg((isNachzuegler ? 'Nachzügler bestätigt, ' : 'Termin bestätigt, ')+result.sent+' Mail(s) versendet','','wz-admin-message');
         loadWinterzauberTermine();
       })
       .catch(function(){msg('Fehler beim Bestätigen','error','wz-admin-message')});
     }
 
-    function cancelWinterzauberTermin(terminId){
-      if(!confirm('Termin absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
+    function cancelWinterzauberTermin(terminId, wasConfirmed){
+      var q = wasConfirmed
+        ? 'ACHTUNG: Dieser Termin ist bereits verbindlich bestätigt. Wirklich absagen? Alle bestätigten Gäste erhalten sofort eine Absage-Mail.'
+        : 'Termin absagen? Alle Gäste erhalten sofort eine Absage-Mail.';
+      if(!confirm(q)) return;
       fetch(SB_URL+'/functions/v1/send-fondue-absage',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
