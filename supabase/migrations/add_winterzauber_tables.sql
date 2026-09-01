@@ -203,3 +203,39 @@ CREATE POLICY "fondue_anmeldungen_auth_all"
   ON fondue_anmeldungen FOR ALL TO authenticated
   USING (COALESCE(auth.jwt() -> 'user_metadata' ->> 'role', '') NOT IN ('sup', 'schedule_events'))
   WITH CHECK (COALESCE(auth.jwt() -> 'user_metadata' ->> 'role', '') NOT IN ('sup', 'schedule_events'));
+
+-- 6. Termin-Status + personen_gesamt auch bei nachträglicher Änderung von
+-- capacity_min / capacity_max neu berechnen. Der Trigger auf fondue_anmeldungen
+-- feuert nur bei Anmeldungs-Änderungen; wird die Mindest-/Max-Zahl im Admin
+-- editiert, muss der Status ebenfalls nachziehen (z.B. Mindestzahl gesenkt →
+-- Termin springt auf 'schwelle_erreicht'). BEFORE-Trigger: ändert NEW direkt,
+-- kein zusätzliches UPDATE, keine Rekursion.
+CREATE OR REPLACE FUNCTION recompute_fondue_termin_status_on_capacity()
+RETURNS TRIGGER AS $$
+DECLARE
+  total_personen integer;
+BEGIN
+  SELECT COALESCE(SUM(personen_anzahl), 0) INTO total_personen
+  FROM fondue_anmeldungen
+  WHERE termin_id = NEW.id AND status IN ('vorgemerkt', 'bestaetigt');
+
+  NEW.personen_gesamt := total_personen;
+
+  IF NEW.status NOT IN ('bestaetigt', 'abgesagt') THEN
+    IF total_personen >= NEW.capacity_max THEN
+      NEW.status := 'ausgebucht';
+    ELSIF total_personen >= NEW.capacity_min THEN
+      NEW.status := 'schwelle_erreicht';
+    ELSE
+      NEW.status := 'offen';
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_recompute_fondue_termin_on_capacity ON fondue_termine;
+CREATE TRIGGER trg_recompute_fondue_termin_on_capacity
+  BEFORE UPDATE OF capacity_min, capacity_max ON fondue_termine
+  FOR EACH ROW EXECUTE FUNCTION recompute_fondue_termin_status_on_capacity();

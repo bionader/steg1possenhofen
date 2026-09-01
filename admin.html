@@ -339,6 +339,10 @@
     .wz-btn-confirm{background:#2E9E4A}
     .wz-btn-cancel-termin{background:#D94F4F}
     .wz-termin-warn{font-size:.8rem;font-weight:600;color:#B53E3E;background:rgba(217,79,79,.1);border-radius:8px;padding:6px 10px;margin-top:8px}
+    .wz-btn-edit,.wz-btn-plain{background:var(--sand2);color:var(--text)}
+    .wz-termin-edit{margin-top:10px;padding:12px;background:var(--w);border:1px solid var(--sand2);border-radius:10px}
+    .wz-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+    .wz-edit-grid label{margin-bottom:4px}
     .wz-zutat-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--sand2)}
     .wz-zutat-row:last-child{border-bottom:none}
     .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem}
@@ -1650,7 +1654,22 @@
           if(t.status!=='abgesagt'){
             html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
           }
-          html += '</div></div>';
+          html += '<button class="wz-btn-edit" onclick="toggleWzTerminEdit(\''+t.id+'\')">Bearbeiten</button>';
+          html += '</div>';
+          // Inline-Bearbeitung: Datum, Notiz, Mindest-/Max-Teilnehmerzahl nachträglich änderbar
+          html += '<div class="wz-termin-edit" id="wz-edit-'+t.id+'" style="display:none">'
+            + '<div class="wz-edit-grid">'
+            + '<div><label>Datum</label><input type="date" data-f="date" value="'+t.date+'"></div>'
+            + '<div><label>Notiz</label><input type="text" data-f="note" value="'+(t.note?String(t.note).replace(/"/g,'&quot;'):'')+'"></div>'
+            + '<div><label>Mindestteilnehmer</label><input type="number" min="1" step="1" data-f="capacity_min" value="'+t.capacity_min+'"></div>'
+            + '<div><label>Max. Kapazität</label><input type="number" min="1" step="1" data-f="capacity_max" value="'+t.capacity_max+'"></div>'
+            + '</div>'
+            + '<div class="wz-termin-actions">'
+            + '<button onclick="saveWzTerminEdit(\''+t.id+'\')">Speichern</button>'
+            + '<button class="wz-btn-plain" onclick="toggleWzTerminEdit(\''+t.id+'\')">Abbrechen</button>'
+            + '</div>'
+            + '</div>';
+          html += '</div>';
         });
         el.innerHTML = html;
       });
@@ -1672,6 +1691,35 @@
         loadWinterzauberTermine();
       })
       .catch(function(){msg('Fehler beim Bestätigen','error','wz-admin-message')});
+    }
+
+    function toggleWzTerminEdit(terminId){
+      var box = document.getElementById('wz-edit-'+terminId);
+      if(!box) return;
+      box.style.display = (!box.style.display || box.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function saveWzTerminEdit(terminId){
+      var box = document.getElementById('wz-edit-'+terminId);
+      if(!box) return;
+      var get = function(f){ return box.querySelector('[data-f="'+f+'"]').value; };
+      var date = get('date');
+      var note = get('note').trim();
+      var cmin = parseInt(get('capacity_min'), 10);
+      var cmax = parseInt(get('capacity_max'), 10);
+
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){ msg('Bitte ein gültiges Datum wählen','error','wz-admin-message'); return; }
+      if(!cmin || cmin < 1){ msg('Mindestteilnehmer muss mindestens 1 sein','error','wz-admin-message'); return; }
+      if(!cmax || cmax < cmin){ msg('Max. Kapazität muss ≥ Mindestteilnehmer sein','error','wz-admin-message'); return; }
+
+      fetch(SB_URL+'/rest/v1/fondue_termine?id=eq.'+terminId,{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({date:date, note: note || null, capacity_min:cmin, capacity_max:cmax})
+      })
+      .then(function(r){ if(!r.ok) throw new Error('patch'); return r.json(); })
+      .then(function(){ msg('Termin aktualisiert','','wz-admin-message'); loadWinterzauberTermine(); })
+      .catch(function(){ msg('Fehler beim Speichern','error','wz-admin-message'); });
     }
 
     function cancelWinterzauberTermin(terminId, wasConfirmed){

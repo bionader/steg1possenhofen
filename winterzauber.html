@@ -370,8 +370,8 @@ footer{
         <input type="email" id="wz-email" required>
       </div>
       <div class="wz-row">
-        <label for="wz-phone">Telefon (optional)</label>
-        <input type="tel" id="wz-phone">
+        <label for="wz-phone">Telefon</label>
+        <input type="tel" id="wz-phone" required>
       </div>
 
       <div id="wz-captcha" class="h-captcha" style="margin:0 0 1.2rem"></div>
@@ -734,6 +734,12 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
   msg.textContent = '';
 
   if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
+
+  var phoneValue = document.getElementById('wz-phone').value.trim();
+  if (phoneValue.replace(/[^0-9]/g, '').length < 6) {
+    msg.textContent = 'Bitte gib eine gültige Telefonnummer an.'; msg.style.color = 'var(--err)'; return;
+  }
+
   var allergienValue = document.getElementById('wz-allergien').value.trim();
   var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
   if (allergienValue && !allergienConsentChecked) {

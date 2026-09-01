@@ -149,6 +149,7 @@ serve(async (req) => {
   const name = String(body?.name ?? "").trim();
   const email = String(body?.email ?? "").trim().toLowerCase();
   const phone = String(body?.phone ?? "").trim();
+  const phoneDigits = phone.replace(/[^0-9]/g, "");
   const personen = Number(body?.personen);
   const varianten = (body?.varianten && typeof body.varianten === "object") ? body.varianten : {};
   const beilagen = (body?.beilagen && typeof body.beilagen === "object") ? body.beilagen : {};
@@ -169,6 +170,7 @@ serve(async (req) => {
   if (!UUID_RE.test(terminId)) return jsonResponse({ error: "invalid_termin" }, 400, corsHeaders);
   if (!name || name.length > 100) return jsonResponse({ error: "invalid_name" }, 400, corsHeaders);
   if (!EMAIL_RE.test(email) || email.length > 200) return jsonResponse({ error: "invalid_email" }, 400, corsHeaders);
+  if (phoneDigits.length < 6 || phone.length > 40) return jsonResponse({ error: "invalid_phone" }, 400, corsHeaders);
   if (!Number.isInteger(personen) || personen < 1 || personen > 30) return jsonResponse({ error: "invalid_personen" }, 400, corsHeaders);
   if (!agb) return jsonResponse({ error: "agb_required" }, 400, corsHeaders);
   // Art. 9 DSGVO: gesonderte, ausdrückliche Einwilligung nötig, sobald Gesundheitsdaten
@@ -233,7 +235,7 @@ serve(async (req) => {
       termin_id: terminId,
       customer_name: name,
       customer_email: email,
-      customer_phone: phone || null,
+      customer_phone: phone,
       personen_anzahl: personen,
       varianten_auswahl: varianten,
       beilagen_auswahl: beilagen,
