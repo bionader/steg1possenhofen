@@ -106,8 +106,22 @@ serve(async (req) => {
   const messageH = esc(message);
   const bereichH = bereich ? esc(bereich) : "";
   const isJobApplication = formType === "job";
-  const emailSubject = isJobApplication ? `Job – ${bereich}` : `Kontaktanfrage: ${subject}`;
+  // Anfragen für private Winterfeiern laufen über die separate Reservierungs-Mailbox
+  const isPrivateFeier = formType === "private-feier";
+  const emailSubject = isJobApplication
+    ? `Job – ${bereich}`
+    : isPrivateFeier
+      ? `Private Winterfeier-Anfrage`
+      : `Kontaktanfrage: ${subject}`;
   const crewHeadline = isJobApplication ? "Neue Bewerbung" : "Neue Kontaktanfrage";
+  const crewFrom = isPrivateFeier
+    ? "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>"
+    : "Steg 1 Website <info@steg1possenhofen.de>";
+  const crewTo = isPrivateFeier ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
+  const guestFrom = isPrivateFeier
+    ? "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>"
+    : "Steg 1 Possenhofen <info@steg1possenhofen.de>";
+  const guestReplyTo = isPrivateFeier ? "reservierung@steg1possenhofen.de" : "info@steg1possenhofen.de";
 
   // Prefilled reply-mailto so we can answer directly from inbox
   const replySubject = encodeURIComponent(`Re: ${subject}`);
@@ -213,8 +227,8 @@ serve(async (req) => {
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "Steg 1 Website <info@steg1possenhofen.de>",
-      to: ["info@steg1possenhofen.de"],
+      from: crewFrom,
+      to: [crewTo],
       reply_to: email,
       subject: emailSubject,
       html: html,
@@ -305,9 +319,9 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Steg 1 Possenhofen <info@steg1possenhofen.de>",
+        from: guestFrom,
         to: [email],
-        reply_to: "info@steg1possenhofen.de",
+        reply_to: guestReplyTo,
         subject: "Deine Nachricht an Steg 1 ist angekommen",
         html: guestHtml,
         text: guestText,

@@ -262,9 +262,10 @@ serve(async (req) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: "Steg 1 Possenhofen <hallo@steg1possenhofen.de>",
+        from: "Steg 1 Possenhofen <reservierung@steg1possenhofen.de>",
         to: [email],
-        bcc: ["hallo@steg1possenhofen.de"],
+        bcc: ["reservierung@steg1possenhofen.de"],
+        reply_to: "reservierung@steg1possenhofen.de",
         subject: `Deine Vormerkung für den Winterzauber am ${dateFormatted}`,
         html: buildMailHtml({
           name,
