@@ -58,7 +58,7 @@
     .subtitle{color:var(--text3);margin-bottom:24px;font-size:.88rem}
     .form-group{margin-bottom:14px}
     label{display:block;color:var(--text2);font-weight:500;margin-bottom:6px;font-size:.85rem}
-    input[type="password"],input[type="email"],input[type="text"]{width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.95rem;transition:border-color .2s}
+    input[type="password"],input[type="email"],input[type="text"],input[type="date"],input[type="number"]{width:100%;padding:11px 14px;border:1.5px solid var(--sand2);border-radius:10px;font-family:inherit;font-size:.95rem;transition:border-color .2s}
     input:focus{outline:none;border-color:var(--g)}
     button{width:100%;padding:11px;background:var(--g);color:white;border:none;border-radius:100px;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
     button:hover{background:var(--g2);transform:translateY(-1px)}
@@ -568,7 +568,37 @@
         <div class="month-section">
           <div class="month-section-header">
             <h3>Termine</h3>
-            <button type="button" id="btn-wz-new-termin" style="width:auto;padding:6px 14px;font-size:.82rem">+ Neuer Termin</button>
+            <div style="display:flex;gap:10px;align-items:center">
+              <select id="wz-termine-monthfilter" style="width:auto;padding:6px 12px;font-size:.82rem;border:1.5px solid var(--sand2);border-radius:100px;font-family:inherit;background:var(--w);color:var(--text);cursor:pointer">
+                <option value="">Alle Monate</option>
+              </select>
+              <button type="button" id="btn-wz-new-termin" style="width:auto;padding:6px 14px;font-size:.82rem">+ Neuer Termin</button>
+            </div>
+          </div>
+          <!-- Inline-Formular für neuen Termin (statt prompt()) -->
+          <div id="wz-new-termin-form" style="display:none;background:var(--w);border:1px solid var(--sand2);border-radius:12px;padding:16px;margin-bottom:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label for="wz-nt-date">Datum</label>
+                <input type="date" id="wz-nt-date">
+              </div>
+              <div>
+                <label for="wz-nt-note">Notiz (optional)</label>
+                <input type="text" id="wz-nt-note" placeholder="interne Notiz">
+              </div>
+              <div>
+                <label for="wz-nt-min">Mindestteilnehmer</label>
+                <input type="number" id="wz-nt-min" value="10" min="1" step="1">
+              </div>
+              <div>
+                <label for="wz-nt-max">Max. Kapazität</label>
+                <input type="number" id="wz-nt-max" value="28" min="1" step="1">
+              </div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button type="button" id="btn-wz-nt-save" style="width:auto;padding:8px 22px;font-size:.85rem">Anlegen</button>
+              <button type="button" id="btn-wz-nt-cancel" style="width:auto;padding:8px 22px;font-size:.85rem;background:var(--sand2);color:var(--text)">Abbrechen</button>
+            </div>
           </div>
           <div id="wz-termine-list"></div>
         </div>
@@ -1558,11 +1588,37 @@
       .catch(function(){msg('Konnte Termine nicht laden','error','wz-admin-message')});
     }
 
+    var WZ_MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+    // Monatsfilter-Optionen aus den vorhandenen Terminen aufbauen (Auswahl bleibt erhalten)
+    function populateWzMonthFilter(){
+      var sel = document.getElementById('wz-termine-monthfilter');
+      var prev = sel.value;
+      var months = {};
+      wzTermine.forEach(function(t){ months[t.date.slice(0,7)] = true; });
+      var keys = Object.keys(months).sort();
+      sel.innerHTML = '<option value="">Alle Monate</option>';
+      keys.forEach(function(k){
+        var parts = k.split('-');
+        var label = WZ_MONTH_NAMES[parseInt(parts[1],10)-1] + ' ' + parts[0];
+        sel.innerHTML += '<option value="'+k+'">'+label+'</option>';
+      });
+      sel.value = keys.indexOf(prev) !== -1 ? prev : '';
+    }
+
     function renderWinterzauberTermine(){
       var el = document.getElementById('wz-termine-list');
+      populateWzMonthFilter();
       if(!wzTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Noch keine Termine angelegt.</p>'; return; }
 
-      Promise.all(wzTermine.map(function(t){
+      var monthFilter = document.getElementById('wz-termine-monthfilter').value;
+      var visibleTermine = monthFilter
+        ? wzTermine.filter(function(t){ return t.date.slice(0,7) === monthFilter; })
+        : wzTermine;
+
+      if(!visibleTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Termine in diesem Monat.</p>'; return; }
+
+      Promise.all(visibleTermine.map(function(t){
         return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&status=in.(vorgemerkt,bestaetigt)&select=personen_anzahl',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){
@@ -1570,7 +1626,7 @@
         });
       })).then(function(sums){
         var html = '';
-        wzTermine.forEach(function(t, i){
+        visibleTermine.forEach(function(t, i){
           var total = sums[i];
           var dateFmt = t.date.split('-').reverse().join('.');
           html += '<div class="wz-termin-card" data-id="'+t.id+'">';
@@ -1622,19 +1678,58 @@
       .catch(function(){msg('Fehler beim Absagen','error','wz-admin-message')});
     }
 
+    // Neuer Termin: Inline-Formular mit Datepicker statt prompt()
+    var wzNewTerminForm = document.getElementById('wz-new-termin-form');
+
+    function resetWzNewTerminForm(){
+      document.getElementById('wz-nt-date').value = '';
+      document.getElementById('wz-nt-note').value = '';
+      document.getElementById('wz-nt-min').value = '10';
+      document.getElementById('wz-nt-max').value = '28';
+    }
+
     document.getElementById('btn-wz-new-termin').addEventListener('click',function(){
-      var dateStr = prompt('Datum des neuen Termins (JJJJ-MM-TT):');
-      if(!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)){ if(dateStr!==null) alert('Ungültiges Datumsformat.'); return; }
+      var open = wzNewTerminForm.style.display !== 'none';
+      if(open){ wzNewTerminForm.style.display = 'none'; return; }
+      resetWzNewTerminForm();
+      wzNewTerminForm.style.display = 'block';
+      document.getElementById('wz-nt-date').focus();
+    });
+
+    document.getElementById('btn-wz-nt-cancel').addEventListener('click',function(){
+      wzNewTerminForm.style.display = 'none';
+    });
+
+    // Monatsfilter: nur neu rendern, kein Reload nötig (Filterung ist rein clientseitig)
+    document.getElementById('wz-termine-monthfilter').addEventListener('change', renderWinterzauberTermine);
+
+    document.getElementById('btn-wz-nt-save').addEventListener('click',function(){
+      var btn = this;
+      var dateStr = document.getElementById('wz-nt-date').value;           // <input type=date> liefert immer YYYY-MM-DD
+      var min = parseInt(document.getElementById('wz-nt-min').value, 10);
+      var max = parseInt(document.getElementById('wz-nt-max').value, 10);
+      var note = document.getElementById('wz-nt-note').value.trim();
+
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)){ msg('Bitte ein Datum wählen','error','wz-admin-message'); return; }
+      if(!min || min < 1){ msg('Mindestteilnehmer muss mindestens 1 sein','error','wz-admin-message'); return; }
+      if(!max || max < min){ msg('Max. Kapazität muss ≥ Mindestteilnehmer sein','error','wz-admin-message'); return; }
+
+      btn.disabled = true; btn.textContent = 'Anlegen...';
       fetch(SB_URL+'/rest/v1/fondue_termine',{
         method:'POST',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
-        body:JSON.stringify({date:dateStr})
+        body:JSON.stringify({date:dateStr, capacity_min:min, capacity_max:max, note: note || null})
       })
-      .then(function(r){return r.json()})
+      .then(function(r){ if(!r.ok) throw new Error('insert'); return r.json(); })
       .then(function(data){
-        if(data && data.length){ msg('Termin angelegt','','wz-admin-message'); loadWinterzauberTermine(); }
+        if(data && data.length){
+          msg('Termin angelegt','','wz-admin-message');
+          wzNewTerminForm.style.display = 'none';
+          loadWinterzauberTermine();
+        }
       })
-      .catch(function(){msg('Fehler beim Anlegen','error','wz-admin-message')});
+      .catch(function(){ msg('Fehler beim Anlegen','error','wz-admin-message'); })
+      .finally(function(){ btn.disabled = false; btn.textContent = 'Anlegen'; });
     });
 
     function loadWinterzauberPanel(){
