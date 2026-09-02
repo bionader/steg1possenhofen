@@ -360,12 +360,15 @@
     .wz-teilnehmer>summary::-webkit-details-marker{display:none}
     .wz-teilnehmer>summary::before{content:'\25B8';font-size:.7rem;transition:transform .15s}
     .wz-teilnehmer[open]>summary::before{transform:rotate(90deg)}
+    .wz-teilnehmer>.wz-tn-scroll{overflow-x:auto;margin-top:8px}
     .wz-tn-empty{margin-top:10px;border-top:1px solid var(--sand2);padding-top:8px;font-size:.8rem;color:var(--text3)}
-    .wz-tn-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;border-bottom:1px solid var(--sand2)}
-    .wz-tn-row:last-child{border-bottom:none}
-    .wz-tn-name{color:var(--text);font-weight:500}
-    .wz-tn-meta{color:var(--text3)}
-    .wz-tn-badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:100px;white-space:nowrap}
+    .wz-tn-table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:680px}
+    .wz-tn-table th{text-align:left;padding:6px 8px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2);white-space:nowrap}
+    .wz-tn-table td{padding:6px 8px;border-bottom:1px solid var(--sand2);vertical-align:top}
+    .wz-tn-table tr:last-child td{border-bottom:none}
+    .wz-tn-table td.num{text-align:center}
+    .wz-tn-row-storniert td,.wz-tn-row-abgesagt td{color:var(--text3);text-decoration:line-through}
+    .wz-tn-badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:100px;white-space:nowrap;text-decoration:none;display:inline-block}
     .wz-tn-vorgemerkt{background:rgba(108,120,113,.14);color:var(--text2)}
     .wz-tn-bestaetigt{background:rgba(46,158,74,.15);color:#1F7A36}
     .wz-tn-nachzuegler{background:rgba(212,136,58,.18);color:#a85e1c}
@@ -1642,7 +1645,7 @@
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
         // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,personen_anzahl,status&order=created_at.asc',{
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,status&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
       })).then(function(rowsPerTermin){
@@ -1693,25 +1696,43 @@
       });
     }
 
-    // Aufklappbare Teilnehmerliste unter einer Termin-Karte.
+    // Aufklappbare Teilnehmer-Tabelle unter einer Termin-Karte.
     // "Nachzuegler" = noch "vorgemerkt", obwohl der Termin schon bestaetigt ist.
+    // Fondue-Spalten werden dynamisch aus den aktiven Varianten (wzVarianten) gebaut.
     function renderWzTeilnehmer(rows, terminStatus){
       if(!rows || !rows.length){
         return '<div class="wz-tn-empty">Noch keine Anmeldungen</div>';
       }
       var order = { bestaetigt:0, vorgemerkt:1, storniert:2, abgesagt:3 };
       var sorted = rows.slice().sort(function(a,b){ return (order[a.status] == null ? 9 : order[a.status]) - (order[b.status] == null ? 9 : order[b.status]); });
+      var aktiveVarianten = (wzVarianten || []).filter(function(v){ return v.is_active; });
+
       var out = '<details class="wz-teilnehmer"><summary>Teilnehmer ('+rows.length+')</summary>';
+      out += '<div class="wz-tn-scroll"><table class="wz-tn-table"><thead><tr>';
+      out += '<th>Name</th><th>E-Mail</th><th>Telefon</th><th>Personen</th>';
+      aktiveVarianten.forEach(function(v){
+        var vlabel = v.name.length > 18 ? v.name.slice(0, 17) + '…' : v.name;
+        out += '<th title="'+esc(v.name)+'">'+esc(vlabel)+'</th>';
+      });
+      out += '<th>Status</th><th>Nr.</th></tr></thead><tbody>';
+
       sorted.forEach(function(r){
         var isNach = terminStatus === 'bestaetigt' && r.status === 'vorgemerkt';
         var cls = isNach ? 'nachzuegler' : r.status;
         var lbl = isNach ? 'Nachzügler' : (WZ_STATUS_LABELS_ANMELD[r.status] || r.status);
-        out += '<div class="wz-tn-row">'
-          + '<span><span class="wz-tn-name">'+esc(r.customer_name)+'</span> <span class="wz-tn-meta">· '+r.personen_anzahl+' P · '+esc(r.anmeldung_id)+'</span></span>'
-          + '<span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span>'
-          + '</div>';
+        var va = r.varianten_auswahl || {};
+        out += '<tr class="wz-tn-row-'+r.status+'">';
+        out += '<td>'+esc(r.customer_name)+'</td>';
+        out += '<td>'+esc(r.customer_email || '–')+'</td>';
+        out += '<td>'+esc(r.customer_phone || '–')+'</td>';
+        out += '<td class="num">'+r.personen_anzahl+'</td>';
+        aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(va[v.id] || 0)+'</td>'; });
+        out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span></td>';
+        out += '<td>'+esc(r.anmeldung_id)+'</td>';
+        out += '</tr>';
       });
-      out += '</details>';
+
+      out += '</tbody></table></div></details>';
       return out;
     }
 
@@ -1836,11 +1857,13 @@
 
     function loadWinterzauberPanel(){
       loadWinterzauberSettings();
-      loadWinterzauberZutaten();
-      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+      // Zutaten zuerst laden — renderWzTeilnehmer braucht wzVarianten fuer die Fondue-Spalten
+      loadWinterzauberZutaten()
+      .then(function(){
+        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
+        }).then(function(r){return r.json()});
       })
-      .then(function(r){return r.json()})
       .then(function(data){
         wzTermine = data || [];
         renderWinterzauberTermine();
@@ -1901,7 +1924,7 @@
     var wzVarianten = [], wzBeilagen = [];
 
     function loadWinterzauberZutaten(){
-      Promise.all([
+      return Promise.all([
         fetch(SB_URL+'/rest/v1/fondue_varianten?order=sort_order.asc&select=id,name,description,price_per_person,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()}),
         fetch(SB_URL+'/rest/v1/fondue_beilagen?order=sort_order.asc&select=id,name,description,price,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()})
       ]).then(function(results){

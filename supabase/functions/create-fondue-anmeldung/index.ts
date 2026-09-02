@@ -184,7 +184,9 @@ serve(async (req) => {
   const terminRows = await terminRes.json();
   if (!Array.isArray(terminRows) || terminRows.length === 0) return jsonResponse({ error: "termin_not_found" }, 404, corsHeaders);
   const termin = terminRows[0];
-  if (!["offen", "schwelle_erreicht"].includes(termin.status)) {
+  // "bestaetigt" ist erlaubt: Nachzuegler koennen sich weiter vormerken (Admin bestaetigt sie
+  // spaeter per "Nachzuegler bestaetigen"). Nur "ausgebucht" und "abgesagt" blockieren.
+  if (!["offen", "schwelle_erreicht", "bestaetigt"].includes(termin.status)) {
     return jsonResponse({ error: "termin_not_open", status: termin.status }, 409, corsHeaders);
   }
 
