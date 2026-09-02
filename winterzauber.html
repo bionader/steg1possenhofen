@@ -704,14 +704,16 @@ footer{
       <div class="wz-pf2-card">
         <h3>Anfrage stellen</h3>
         <form id="wz-pf-form" class="wz-pf2-grid2">
-          <input type="text" id="pf-name" placeholder="Name" required>
-          <input type="email" id="pf-email" placeholder="E-Mail" required>
+          <input type="text" id="pf-name" placeholder="Name *" required>
+          <input type="email" id="pf-email" placeholder="E-Mail *" required>
           <div class="wz-pf2-row2">
-            <input type="text" id="pf-datum" placeholder="Wunschtermin" required>
-            <input type="text" id="pf-personen" placeholder="Personen" required>
+            <!-- Startet als Text (damit der Placeholder sichtbar ist), wird bei Focus zum Datepicker -->
+            <input type="text" id="pf-datum" placeholder="Wunschtermin *" required
+                   onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+            <input type="text" id="pf-personen" placeholder="Personen *" required>
           </div>
-          <input type="tel" id="pf-phone" placeholder="Telefon (optional)">
-          <textarea rows="3" id="pf-message" placeholder="Was habt ihr vor?"></textarea>
+          <input type="tel" id="pf-phone" placeholder="Telefon *" required>
+          <textarea rows="3" id="pf-message" placeholder="Was habt ihr vor? *" required></textarea>
           <div id="pf-captcha" class="h-captcha" style="margin:0"></div>
           <div id="wz-pf-message" style="font-size:.86rem"></div>
           <button type="submit" class="wz-pf2-submit" id="wz-pf-submit-btn">Anfrage senden</button>
@@ -1276,11 +1278,18 @@ document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
   var msg = document.getElementById('wz-pf-message');
   msg.textContent = '';
 
+  // Pflichtfelder erzwingen (preventDefault umgeht die native HTML5-Validierung)
+  if (!this.reportValidity()) return;
+
   var captchaToken = window.hcaptcha ? hcaptcha.getResponse(pfCaptchaWidgetId) : '';
   if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
 
+  // ISO-Datum (YYYY-MM-DD) fuer die Mail nach DD.MM.YYYY umformen
+  var pfDatumRaw = document.getElementById('pf-datum').value.trim();
+  var pfDatum = /^\d{4}-\d{2}-\d{2}$/.test(pfDatumRaw) ? pfDatumRaw.split('-').reverse().join('.') : pfDatumRaw;
+
   var messageBody = [
-    'Wunschtermin: ' + document.getElementById('pf-datum').value.trim(),
+    'Wunschtermin: ' + pfDatum,
     'Personen: ' + document.getElementById('pf-personen').value.trim(),
     '',
     document.getElementById('pf-message').value.trim() || '–'
