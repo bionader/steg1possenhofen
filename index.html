@@ -187,8 +187,9 @@ nav.scrolled{
 @keyframes wz-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.wz-promo-on .hero-left{padding-top:2.4rem}
 @media(max-width:900px){
-  /* Nav ist mobil eng: Orange-Button raus (Werbung laeuft ueber Banner + Mobile-Menue) */
-  #nav-winterzauber-cta{display:none!important}
+  /* Nav ist mobil eng: solange Winterzauber laeuft, zeigt der Header oben nur den
+     Winterzauber-Button (SUP buchen bleibt ueber Mobile-Menue erreichbar). */
+  body.wz-promo-on #nav-cta-sup{display:none}
   .wz-promo{margin-top:5.2rem;font-size:.8rem;padding:.7rem 0}
   .wz-promo-item{padding-right:2.75rem}
   .wz-promo-track{animation-duration:22s}
@@ -804,7 +805,7 @@ footer{
   </ul>
   <div class="nav-cta-group">
     <a href="winterzauber" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterzauber</a>
-    <a href="sup" class="nav-cta">SUP buchen</a>
+    <a href="sup" id="nav-cta-sup" class="nav-cta">SUP buchen</a>
   </div>
   <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
     <span class="nav-burger-inner"><span></span><span></span><span></span></span>
