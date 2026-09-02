@@ -45,7 +45,7 @@ Wenn später Härtung gewünscht: CRON_SECRET als Custom Header — siehe Abschn
 Falls die Function neu deployed werden muss (z.B. nach Code-Änderung):
 
 ```bash
-cd ~/Desktop/Claude/Projects/Steg\ 1/steg1possenhofen
+cd ~/ClaudeH/Projects/Steg\ 1/steg1possenhofen
 supabase functions deploy check-email-quota --no-verify-jwt
 ```
 
@@ -77,7 +77,7 @@ Dashboard → Database → Extensions:
 ### 3. Edge Functions deployen
 
 ```bash
-cd ~/Desktop/Claude/Projects/Steg\ 1/steg1possenhofen
+cd ~/ClaudeH/Projects/Steg\ 1/steg1possenhofen
 supabase functions deploy send-booking-email
 supabase functions deploy send-cancel-email
 supabase functions deploy send-contact-email
