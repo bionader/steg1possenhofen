@@ -55,7 +55,7 @@ async function bumpQuota(times = 1) {
 // Storno-Mail: 1:1 übernommen aus dem ehemaligen send-fondue-cancel/index.ts
 // (Finding 1 — dieser Endpoint hier hat bereits Service-Role-Zugriff und einen
 // verifizierten UUID-Token, das ist die korrekte Vertrauensgrenze für den Mailversand).
-async function sendStornoMail(email: string, name: string, dateFormattedStr: string, anmeldungId: string, personen: number | string) {
+async function sendStornoMail(email: string, name: string, dateFormattedStr: string, anmeldungId: string, personen: number | string, phone: string) {
   const html = `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -70,6 +70,8 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             ${anmeldungId ? `<tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">E-Mail</td><td style="padding:6px 0;font-weight:500">${esc(email)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Telefon</td><td style="padding:6px 0;font-weight:500">${esc(phone)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormattedStr)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
           </table>
@@ -90,6 +92,8 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
     `Hallo ${name}, deine Anmeldung zum Winterzauber am ${dateFormattedStr} wurde storniert.`,
     anmeldungId ? `Anmeldung: ${anmeldungId}` : null,
     `Name: ${name}`,
+    `E-Mail: ${email}`,
+    `Telefon: ${phone}`,
     `Personen: ${personen}`,
     ``,
     `Wir hoffen, dich bald am Steg 1 begrüßen zu dürfen.`,
@@ -200,7 +204,7 @@ serve(async (req) => {
       const row = result.row;
       if (row) {
         const dateFmt = row.fondue_termine?.date ? dateFormattedDe(row.fondue_termine.date) : "";
-        await sendStornoMail(row.customer_email, row.customer_name, dateFmt, row.anmeldung_id, row.personen_anzahl);
+        await sendStornoMail(row.customer_email, row.customer_name, dateFmt, row.anmeldung_id, row.personen_anzahl, row.customer_phone);
       }
       return jsonResponse(row, 200, cors);
     }

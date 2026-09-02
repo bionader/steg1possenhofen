@@ -74,7 +74,7 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: string, dateFormatted: string, personen: number | string): string {
+function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: string, dateFormatted: string, personen: number | string, email: string, phone: string): string {
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -89,6 +89,8 @@ function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: s
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             <tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">E-Mail</td><td style="padding:6px 0;font-weight:500">${esc(email)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Telefon</td><td style="padding:6px 0;font-weight:500">${esc(phone)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
           </table>
@@ -123,7 +125,7 @@ serve(async (req) => {
   if (!terminRows.length) return jsonResponse({ error: "termin_not_found" }, 404, cors);
   const dateFormatted = dateFormattedDe(terminRows[0].date);
 
-  const anmeldRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=eq.vorgemerkt&select=id,anmeldung_id,manage_token,customer_name,customer_email,personen_anzahl`);
+  const anmeldRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=eq.vorgemerkt&select=id,anmeldung_id,manage_token,customer_name,customer_email,customer_phone,personen_anzahl`);
   if (!anmeldRes.ok) return jsonResponse({ error: "anmeldungen_lookup_failed" }, 500, cors);
   const anmeldungen = await anmeldRes.json();
 
@@ -147,7 +149,7 @@ serve(async (req) => {
           bcc: ["reservierung@steg1possenhofen.de"],
           reply_to: "reservierung@steg1possenhofen.de",
           subject: `Dein Winterzauber-Termin am ${dateFormatted} ist bestätigt`,
-          html: buildConfirmationHtml(a.customer_name, a.anmeldung_id, a.manage_token, dateFormatted, a.personen_anzahl),
+          html: buildConfirmationHtml(a.customer_name, a.anmeldung_id, a.manage_token, dateFormatted, a.personen_anzahl, a.customer_email, a.customer_phone),
         }),
       });
       if (mailRes.ok) {
