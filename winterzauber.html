@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+<link rel="manifest" href="img/favicon/site.webmanifest">
+<meta name="theme-color" content="#2A7B6F">
+<!-- Umami Analytics (cookiefrei, DSGVO-konform) -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="9354bd56-dae4-44c5-94a7-efed5310b49f"></script>
+<title>Winterzauber — Käsefondue am Steg 1</title>
+<meta name="description" content="Winterliches Käsefondue im beheizten Zelt am Steg 1 Possenhofen. Jetzt vormerken.">
+<link rel="canonical" href="https://steg1possenhofen.de/winterzauber">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Winterzauber — Käsefondue am Steg 1">
+<meta property="og:description" content="Winterliches Käsefondue im beheizten Zelt am Steg 1 Possenhofen. Jetzt vormerken.">
+<meta property="og:url" content="https://steg1possenhofen.de/winterzauber">
+<meta property="og:image" content="https://steg1possenhofen.de/img/og-image-v2.jpg">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Steg 1 Possenhofen">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Winterzauber — Käsefondue am Steg 1">
+<meta name="twitter:description" content="Winterliches Käsefondue im beheizten Zelt am Steg 1 Possenhofen.">
+<meta name="twitter:image" content="https://steg1possenhofen.de/img/og-image-v2.jpg">
+<!-- Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2A7B6F;--g2:#1F6358;--accent:#D4883A;--accent2:#C07A2E;
+  --sand:#F2EBD9;--sand2:#E4D9C4;
+  --text:#1A2421;--text2:#4A5652;--text3:#6C7871;
+  --w:#FDFBF7;--dark:#1B2B28;
+  --ok:#2E9E4A;--ok-ink:#1F7A36;--err:#D94F4F;--err-ink:#B53E3E;
+  --r-sm:10px;--r-md:14px;--r-lg:16px;--r-pill:100px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --dur-1:180ms;--dur-2:260ms;
+  --ring:0 0 0 3px rgba(42,123,111,.28), 0 0 0 1.5px var(--g);
+}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{font-family:'Albert Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden}
+a{text-decoration:none}
+
+@keyframes wz-fall{0%{transform:translate3d(0,-12vh,0) rotate(0deg);opacity:0}10%{opacity:.9}100%{transform:translate3d(var(--dx,20px),112vh,0) rotate(360deg);opacity:0}}
+@keyframes wz-kb{0%{transform:scale(1.04) translate3d(0,0,0)}100%{transform:scale(1.16) translate3d(-1.5%,-1.5%,0)}}
+@keyframes wz-rise{0%{opacity:0;transform:translateY(22px)}100%{opacity:1;transform:none}}
+@keyframes wz-ripple{0%{transform:scale(1);opacity:.5}60%{opacity:.12}100%{transform:scale(2.8);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ── FOCUS (A11y) ── */
+*:focus{outline:none}
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible{
+  outline:none;box-shadow:var(--ring);border-radius:8px;
+}
+.btn:focus-visible,.nav-cta:focus-visible,.book-btn:focus-visible,.vbtn:focus-visible,.mm-cta:focus-visible{
+  border-radius:var(--r-pill);
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(253,251,247,.72);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border-bottom:.5px solid rgba(42,123,111,.06);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+nav.scrolled{
+  padding:.75rem 3.5rem;
+  background:rgba(253,250,244,.95);
+  box-shadow:0 1px 30px rgba(42,123,111,.06);
+  border-bottom-color:rgba(42,123,111,.1);
+}
+.logo{display:inline-flex;align-items:center;text-decoration:none;transition:opacity .3s ease}
+.logo img{height:64px;width:auto;display:block}
+.logo:hover{opacity:.75}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{
+  position:relative;font-size:.84rem;color:var(--text2);
+  text-decoration:none;transition:color .3s ease;letter-spacing:.01em;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;
+  background:var(--g);transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover,.nav-links a:focus-visible{color:var(--g)}
+.nav-links a:hover::after,.nav-links a:focus-visible::after{width:100%}
+.nav-links a.active{color:var(--g)}
+.nav-links a.active::after{width:100%}
+.nav-links a:focus-visible{outline:none;box-shadow:none}
+.nav-cta{
+  background:var(--g);color:var(--w);border:none;
+  padding:.55rem 1.5rem;border-radius:100px;
+  font-size:.84rem;font-family:'Albert Sans',sans-serif;
+  font-weight:500;letter-spacing:.02em;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px rgba(42,123,111,.18);
+}
+.nav-cta:hover{
+  background:var(--g2);
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(42,123,111,.22);
+}
+.nav-burger{
+  display:none;width:44px;height:44px;
+  align-items:center;justify-content:center;
+  cursor:pointer;border:none;background:none;padding:0;
+  z-index:110;position:relative;border-radius:8px;
+}
+.nav-burger-inner{
+  width:24px;height:16px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  pointer-events:none;
+}
+.nav-burger span{
+  display:block;width:100%;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:transform var(--dur-2) var(--ease), opacity var(--dur-1) var(--ease);
+}
+.nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-burger.open span:nth-child(2){opacity:0}
+.nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);color:rgba(253,250,244,.6);
+  padding:3rem 3rem 1.5rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.2rem;
+}
+@media(max-width:1200px){
+  footer{grid-template-columns:1fr 1fr;row-gap:2rem}
+}
+.flogo{margin-bottom:.5rem}
+.flogo img{height:80px;width:auto;display:block}
+.fdesc{font-size:.82rem;line-height:1.65;max-width:220px}
+.fcol summary,.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(253,250,244,.3);margin-bottom:.8rem;list-style:none}
+.fcol summary{cursor:default;display:flex;justify-content:space-between;align-items:center}
+.fcol summary::-webkit-details-marker{display:none}
+.fcol summary::after{content:'';display:none}
+.fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
+.fcol a:hover{color:#2A7B6F}
+.fsocials{display:flex;gap:.6rem;margin-top:1.1rem}
+.fsocials a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(253,250,244,.7);transition:all .25s ease;text-decoration:none}
+.fsocials a:hover{background:var(--g);color:#fff;transform:translateY(-2px)}
+.fsocials svg{width:16px;height:16px}
+.fbot{
+  background:var(--dark);padding:.75rem 3rem 1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.72rem;color:rgba(255,255,255,.25);
+  border-top:.5px solid rgba(255,255,255,.07);
+}
+.faddr{font-size:.82rem;color:rgba(253,250,244,.6);line-height:1.65;margin-bottom:.4rem;font-style:normal}
+.faddr span{display:block}
+.fcol a[href^="mailto"]{word-break:break-word}
+
+/* ── RESPONSIVE (NAV/FOOTER) ── */
+@media(max-width:900px){
+  nav{padding:.85rem 1.2rem}
+  nav.scrolled{padding:.7rem 1.2rem}
+  .logo img{height:52px}
+  .flogo img{height:64px}
+  .nav-links{display:none}
+  .nav-cta{
+    padding:.48rem 1.05rem;font-size:.78rem;
+    margin-left:auto;margin-right:1.5rem;
+    box-shadow:0 1px 8px rgba(42,123,111,.2);
+  }
+  .nav-burger{display:flex}
+  .mobile-menu{
+    position:fixed;inset:0;z-index:105;
+    background:rgba(253,250,244,.97);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:1.8rem;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{
+    font-family:'Albert Sans',sans-serif;
+    font-size:1.1rem;color:var(--text);
+    text-decoration:none;font-weight:400;
+    transition:color .2s;
+  }
+  .mobile-menu a:hover{color:var(--g)}
+  .mobile-menu a.active{color:var(--g);font-weight:500}
+  .mobile-menu .mm-logo{display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;text-decoration:none}
+  .mobile-menu .mm-logo img{height:72px;width:auto;display:block}
+  .mobile-menu .mm-cta{
+    background:var(--g);color:var(--w);
+    padding:.7rem 2rem;border-radius:100px;
+    font-weight:500;margin-top:.5rem;
+    box-shadow:0 2px 12px rgba(42,123,111,.18);
+  }
+  footer{grid-template-columns:1fr;gap:0;padding:2rem 1.5rem .5rem;text-align:center}
+  footer .flogo{font-size:1.2rem;display:flex;justify-content:center}footer .flogo img{margin:0 auto}
+  footer .fdesc{font-size:.78rem;line-height:1.55;max-width:none;margin:0 auto}
+  .fsocials{justify-content:center;margin:1.1rem auto 1.6rem}
+  .fcol{border-top:.5px solid rgba(255,255,255,.08);text-align:left}
+  .fcol:last-of-type{border-bottom:.5px solid rgba(255,255,255,.08);margin-bottom:1rem}
+  .fcol summary{cursor:pointer;padding:.9rem 0;margin:0;font-size:.76rem;color:rgba(253,250,244,.72);letter-spacing:.08em}
+  .fcol summary::after{content:'+';display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;color:rgba(253,250,244,.45);width:18px;height:18px;font-weight:300;transition:transform .2s}
+  .fcol[open] summary::after{content:'−'}
+  .fcol-body{padding:0 0 .9rem}
+  .fcol-body a,.fcol-body span{font-size:.82rem;margin-bottom:.35rem}
+  .fbot{padding:.75rem 1.5rem 1rem;flex-direction:column;gap:.4rem;align-items:center;text-align:center}
+}
+
+/* ── WINTERZAUBER: disabled/preview ── */
+.wz-disabled-notice{max-width:600px;margin:140px auto;padding:0 1.5rem;text-align:center}
+.wz-disabled-notice h2{font-family:'Petrona',serif;font-size:1.6rem;color:var(--dark);margin-bottom:.8rem}
+.wz-disabled-notice p{color:var(--text2)}
+.wz-preview-banner{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:var(--accent);color:#fff;font-size:.82rem;font-weight:500;text-align:center;padding:.6rem 1rem;letter-spacing:.02em}
+
+/* ── HERO ── */
+.wz-hero2{display:grid;grid-template-columns:1fr 1fr;min-height:660px;position:relative}
+.wz-hero2-left{display:flex;flex-direction:column;justify-content:center;padding:9rem 4.5rem 4rem;background:var(--dark);position:relative;overflow:hidden}
+.wz-hero2-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 85% 10%, rgba(212,136,58,.16) 0%, transparent 58%),radial-gradient(ellipse at 5% 95%, rgba(42,123,111,.28) 0%, transparent 55%)}
+.wz-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.wz-flake{position:absolute;top:0;border-radius:50%;background:rgba(253,251,247,.5);animation:wz-fall linear infinite}
+.wz-eyebrow{position:relative;z-index:1;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.6rem;margin-bottom:1.4rem}
+.wz-eyebrow span{width:18px;height:1px;background:var(--accent);opacity:.8;display:block}
+.wz-h1{position:relative;z-index:1;font-family:'Petrona',serif;font-size:clamp(3rem,5vw,4.8rem);line-height:1;font-weight:500;color:var(--w);letter-spacing:-.018em;margin-bottom:1.4rem}
+.wz-h1 em{font-style:italic;color:var(--accent);display:block;margin-top:.04em;font-weight:400;letter-spacing:-.01em}
+.wz-hero2-p{position:relative;z-index:1;font-size:1rem;color:rgba(253,250,244,.76);line-height:1.75;max-width:380px;font-weight:300;margin-bottom:2.2rem}
+.wz-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:1rem;background:rgba(253,250,244,.07);border:.5px solid rgba(253,250,244,.14);border-radius:18px;padding:1.05rem 1.5rem 1.05rem 1.25rem;align-self:flex-start;margin-bottom:2.2rem;backdrop-filter:blur(14px)}
+.wz-pill-dot{position:relative;width:12px;height:12px;flex-shrink:0}
+.wz-pill-dot i{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(212,136,58,.18);display:block}
+.wz-pill-dot i.ripple{position:absolute;inset:0;background:rgba(212,136,58,.35);box-shadow:none;animation:wz-ripple 2.6s cubic-bezier(.4,0,.2,1) infinite}
+.wz-pill strong{font-size:.92rem;font-weight:600;color:var(--w);display:block;letter-spacing:.01em}
+.wz-pill span.hint{font-size:.76rem;color:rgba(253,250,244,.6);display:block;margin-top:2px}
+.wz-hero2-ctas{position:relative;z-index:1;display:flex;gap:.75rem;flex-wrap:wrap}
+.wz-btn-accent{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:var(--accent);color:var(--dark);box-shadow:0 4px 18px rgba(212,136,58,.28);transition:transform .26s var(--ease),background .26s}
+.wz-btn-accent:hover{background:#E39B4F;transform:translateY(-2px);color:var(--dark)}
+.wz-btn-outline-dark{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:transparent;color:var(--w);border:1.5px solid rgba(253,250,244,.3);transition:background .26s,border-color .26s}
+.wz-btn-outline-dark:hover{background:rgba(253,250,244,.1);border-color:rgba(253,250,244,.55);color:var(--w)}
+.wz-hero2-right{overflow:hidden;position:relative;min-height:420px}
+.wz-hero2-right .ov{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to right, rgba(27,43,40,.55) 0%, transparent 28%),linear-gradient(to top, rgba(27,43,40,.35) 0%, transparent 45%)}
+.wz-hero2-right img{width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block;animation:wz-kb 26s ease-in-out infinite alternate}
+
+/* ── FAKTENBAR ── */
+.wz-facts{background:linear-gradient(135deg,#1F6358 0%,#12332D 100%);display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;padding:1rem 3rem;position:relative}
+.wz-fact{display:flex;flex-direction:column;align-items:center;padding:.75rem .5rem;border-radius:10px;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.09)}
+.wz-fact-val{font-size:1rem;font-weight:500;color:#fff;letter-spacing:.02em}
+.wz-fact-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.68);margin-top:.25rem}
+
+/* ── GENERIC SECTIONS ── */
+.wz-sec{padding:5rem 3rem}
+.wz-reveal{animation:wz-rise .9s both cubic-bezier(.22,1,.36,1)}
+@supports (animation-timeline:view()){.wz-reveal{animation-timeline:view();animation-range:entry 0% cover 22%}}
+.wz-sec-tag{font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--g);display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.wz-sec-tag span{width:18px;height:1px;background:var(--g);opacity:.7;display:block}
+.wz-sec-tag.on-dark{color:rgba(253,250,244,.72)}
+.wz-sec-tag.on-dark span{background:rgba(253,250,244,.5)}
+.wz-h2{font-family:'Petrona',serif;font-size:clamp(2rem,3.2vw,2.8rem);line-height:1.08;letter-spacing:-.015em;font-weight:500;margin-bottom:.75rem}
+.wz-h2 em{font-style:italic;color:var(--g)}
+.wz-sec-p{font-size:.96rem;color:var(--text2);line-height:1.7;max-width:560px}
+
+/* ── ABLAUF ── */
+.wz-ablauf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-top:2.5rem}
+.wz-ablauf-card{background:var(--sand);border-radius:16px;padding:1.6rem 1.4rem 1.5rem;position:relative}
+.wz-ablauf-card.dark{background:var(--dark);overflow:hidden}
+.wz-ablauf-card.dark::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%, rgba(212,136,58,.22) 0%, transparent 60%);pointer-events:none}
+.wz-ablauf-num{width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Petrona',serif;font-size:1.05rem;font-weight:600;margin-bottom:1rem;position:relative}
+.wz-ablauf-card.dark .wz-ablauf-num{background:var(--accent);color:var(--dark)}
+.wz-ablauf-card h3{font-size:1rem;font-weight:600;margin-bottom:.4rem;position:relative}
+.wz-ablauf-card.dark h3{color:var(--w)}
+.wz-ablauf-card p{font-size:.85rem;color:var(--text2);line-height:1.6;position:relative}
+.wz-ablauf-card.dark p{color:rgba(253,250,244,.72)}
+
+/* ── DAS ERLEBNIS ── */
+.wz-experience{background:var(--dark)}
+.wz-h2.on-dark{color:var(--w)}
+.wz-h2.on-dark em{color:var(--accent)}
+.wz-sec-p.on-dark{color:rgba(253,250,244,.72)}
+.wz-exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-top:2.5rem}
+.wz-exp-card{background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.09);border-radius:16px;padding:1.75rem 1.5rem}
+.wz-exp-icon{font-size:1.8rem;margin-bottom:1rem}
+.wz-exp-card h3{font-family:'Petrona',serif;font-size:1.1rem;font-weight:500;color:var(--accent);margin-bottom:.6rem}
+.wz-exp-card p{font-size:.85rem;color:rgba(253,250,244,.68);line-height:1.6}
+
+/* ── FONDUE ── */
+.wz-fondue-sec{background:var(--sand)}
+.wz-fondue-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:3rem;align-items:start}
+.wz-fondue-photo{border-radius:16px;overflow:hidden;height:460px}
+.wz-fondue-photo img{width:100%;height:100%;object-fit:cover;display:block;animation:wz-kb 30s ease-in-out infinite alternate}
+.wz-fondue-list{display:grid;gap:.7rem;margin-top:1.75rem}
+.wz-fondue-item{background:var(--w);border-radius:14px;padding:1rem 1.25rem;border:.5px solid rgba(42,123,111,.12);display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:transform .42s var(--ease),box-shadow .42s}
+.wz-fondue-item:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(42,123,111,.1)}
+.wz-fondue-item h3{font-size:.95rem;font-weight:500}
+.wz-fondue-item .desc{font-size:.8rem;color:var(--text2);margin-top:.18rem;line-height:1.4}
+.wz-fondue-price{font-size:1rem;font-weight:600;color:var(--accent2);white-space:nowrap}
+.wz-fondue-price span{font-size:.72rem;font-weight:400;color:var(--text3);margin-left:.25em}
+.wz-beilagen-tag{font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:1.25rem;display:block}
+.wz-beilagen-hint{font-size:.76rem;color:var(--text3);margin-top:.25rem}
+.wz-beilagen{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+.wz-beilagen span{font-size:.72rem;color:var(--text2);background:rgba(42,123,111,.08);border-radius:100px;padding:.28rem .65rem;display:inline-flex;align-items:center;gap:.3em}
+.wz-beilagen span em{font-style:normal;color:var(--accent2);font-weight:600}
+.wz-zelt-banner{border-radius:16px;overflow:hidden;background:var(--dark)}
+.wz-zelt-banner img{width:100%;height:auto;display:block}
+
+/* ── ATMOSPHÄRE SPLIT ── */
+
+/* ── TERMINE: FILTER + TOGGLE ── */
+.wz-termine-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:2rem}
+.wz-monate{display:flex;gap:.4rem;flex-wrap:wrap}
+.wz-monat-pill{position:relative;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.5rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:40px;transition:background .25s}
+.wz-monat-pill:hover{background:rgba(42,123,111,.08)}
+.wz-monat-ring{position:absolute;inset:-1px;border-radius:100px;border:2px solid var(--g);pointer-events:none;opacity:0;transition:opacity .25s}
+.wz-monat-pill.active .wz-monat-ring{opacity:1}
+.wz-view-toggle{display:flex;align-items:center;gap:.25rem;background:rgba(42,123,111,.08);border-radius:100px;padding:.25rem;min-height:40px}
+.wz-view-btn{position:relative;border:none;background:transparent;border-radius:100px;padding:.4rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:32px}
+.wz-view-tab-bg{position:absolute;inset:0;border-radius:100px;background:var(--w);box-shadow:0 1px 6px rgba(42,123,111,.14);pointer-events:none;opacity:0;transition:opacity .22s}
+.wz-view-btn.active .wz-view-tab-bg{opacity:1}
+.wz-view-btn span.lbl{position:relative}
+
+/* ── TERMINE: LISTE ── */
+.wz-liste-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.5rem}
+.wz-t-card{position:relative;text-align:left;background:var(--w);border:.5px solid rgba(42,123,111,.14);border-radius:16px;padding:1.35rem 1.4rem;cursor:pointer;font-family:'Albert Sans',sans-serif;transition:transform .3s var(--ease),box-shadow .3s;width:100%}
+.wz-t-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(42,123,111,.1)}
+.wz-t-ring{position:absolute;inset:-1px;border-radius:16px;pointer-events:none;border:2px solid var(--g);box-shadow:0 10px 30px rgba(42,123,111,.16);opacity:0;transition:opacity .25s}
+.wz-t-card.selected .wz-t-ring{opacity:1}
+.wz-t-top{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:.75rem}
+.wz-t-datum{font-family:'Petrona',serif;font-size:1.35rem;font-weight:600;color:var(--text)}
+.wz-t-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.wz-t-mid{position:relative;display:flex;align-items:center;gap:.5rem;margin-top:.35rem}
+.wz-t-zeit{font-size:.82rem;color:var(--text2)}
+.wz-t-badge{font-size:.72rem;font-weight:500;border-radius:100px;padding:.2rem .65rem}
+.wz-t-badge.laeuft{background:rgba(42,123,111,.14);color:#1F6358}
+.wz-t-badge.knapp{background:rgba(212,136,58,.18);color:#C07A2E}
+.wz-t-badge.nicht{background:rgba(26,36,33,.06);color:#6C7871}
+.wz-bar-track{position:relative;display:block;height:8px;border-radius:100px;background:rgba(42,123,111,.12);margin-top:1rem}
+.wz-bar-fill{display:block;height:100%;border-radius:100px;transition:width .6s var(--ease)}
+.wz-bar-fill.laeuft-nicht{width:100%;background:repeating-linear-gradient(115deg, rgba(42,123,111,.22) 0 10px, rgba(42,123,111,.08) 10px 20px)}
+.wz-bar-mark{position:absolute;left:40%;top:-4px;width:2px;height:16px;border-radius:2px;background:rgba(26,36,33,.3);opacity:0}
+.wz-bar-mark.on{opacity:.5}
+.wz-t-bottom{position:relative;display:flex;justify-content:space-between;margin-top:.5rem;font-size:.75rem;color:var(--text3)}
+.wz-t-bottom .accent{color:var(--accent2);font-weight:500}
+.wz-t-bottom .muted{color:var(--text2);font-weight:500}
+
+/* ── TERMINE: KALENDER ── */
+.wz-kalender-grid{display:grid;grid-template-columns:300px 1fr;gap:2rem;align-items:start;margin-top:1.5rem}
+.wz-kal-card{background:var(--w);border:.5px solid rgba(42,123,111,.14);border-radius:16px;padding:1.25rem}
+.wz-kal-title{font-family:'Petrona',serif;font-size:1.2rem;font-weight:600;margin-bottom:1rem}
+.wz-kal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem;margin-bottom:.4rem}
+.wz-kal-weekdays span{text-align:center;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.wz-kal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:.2rem}
+.wz-kal-day{min-height:32px;border-radius:9px;border:none;cursor:default;font-family:'Albert Sans',sans-serif;font-size:.78rem;font-weight:400;background:transparent;color:rgba(108,120,113,.55);transition:background .25s,color .25s}
+.wz-kal-day.has{cursor:pointer;font-weight:600;background:rgba(42,123,111,.12);color:var(--text)}
+.wz-kal-day.voll{background:rgba(212,136,58,.2)}
+.wz-kal-day.sel{background:var(--g);color:var(--w)}
+.wz-kal-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.25rem;font-size:.72rem;color:var(--text3)}
+.wz-kal-legend span{display:inline-flex;align-items:center;gap:.4rem}
+.wz-kal-legend i{width:10px;height:10px;border-radius:50%;display:block}
+.wz-detail-card{background:var(--w);border:.5px solid rgba(42,123,111,.14);border-radius:16px;padding:1.75rem}
+.wz-detail-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:.4rem}
+.wz-detail-datum{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;margin-bottom:.2rem}
+.wz-detail-zeit{font-size:.88rem;color:var(--text2)}
+.wz-detail-hinweis{font-size:.85rem;color:var(--text2);line-height:1.65;margin-top:1.25rem}
+
+/* ── VORMERK-FORMULAR ── */
+.wz-vormerk-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:stretch;margin-top:2.5rem}
+.wz-vormerk-photo{border-radius:16px;overflow:hidden}
+.wz-vormerk-photo img{width:100%;height:100%;object-fit:cover;display:block;min-height:320px}
+.wz-formbox{background:var(--sand);border-radius:16px;padding:2.25rem 2.25rem 2rem}
+.wz-formbox h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.3rem}
+.wz-formbox .ctx{font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:1.75rem}
+.wz-formbox .ctx strong{font-weight:600;color:var(--text)}
+.wz-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.25rem}
+.wz-fgrid .full{grid-column:1 / -1}
+.wz-flabel{display:flex;flex-direction:column;gap:.4rem}
+.wz-flabel span{font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)}
+.wz-flabel input,.wz-flabel textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;color:var(--text);min-height:44px;width:100%}
+.wz-flabel textarea{border-radius:16px;resize:vertical;min-height:80px}
+.wz-flabel input:focus,.wz-flabel textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
+.wz-stepper{display:flex;align-items:center;gap:.75rem;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.3rem .4rem;min-height:44px;width:fit-content}
+.wz-stepper button{width:36px;height:36px;border-radius:50%;border:none;background:rgba(42,123,111,.1);color:var(--g);font-size:1.1rem;cursor:pointer;line-height:1;transition:background .25s}
+.wz-stepper button:hover{background:rgba(42,123,111,.2)}
+.wz-stepper span{min-width:2.2rem;text-align:center;font-size:1rem;font-weight:600}
+.wz-summe-val{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;color:var(--accent2)}
+.wz-summe-hint{font-size:.8rem;color:var(--text3)}
+.wz-gaeste-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem}
+.wz-gast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.3rem .3rem .3rem 1.15rem}
+.wz-gast-label{font-size:.85rem;color:var(--text2)}
+.wz-gast-opts{display:flex;gap:.3rem}
+.wz-gast-opt{position:relative;background:transparent;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:40px}
+.wz-gast-opt-fill{position:absolute;inset:0;border-radius:100px;background:transparent;opacity:0;transition:opacity .22s;pointer-events:none;box-shadow:0 2px 10px rgba(42,123,111,.22)}
+.wz-gast-opt.active .wz-gast-opt-fill{background:var(--g);opacity:1}
+.wz-gast-opt-txt{position:relative;color:var(--text2);transition:color .22s}
+.wz-gast-opt.active .wz-gast-opt-txt{color:var(--w)}
+.wz-consent{display:flex;gap:.65rem;align-items:flex-start;margin-top:1.1rem;font-size:.8rem;color:var(--text2);line-height:1.55;cursor:pointer}
+.wz-consent input{margin-top:.15rem;width:18px;height:18px;accent-color:var(--g);flex-shrink:0}
+.wz-consent a{color:var(--g)}
+.wz-submit2{margin-top:1.6rem;background:var(--g);color:var(--w);border:none;padding:.85rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;min-height:44px;box-shadow:0 2px 14px rgba(42,123,111,.2);transition:background .26s,transform .26s,box-shadow .26s}
+.wz-submit2:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,123,111,.25)}
+.wz-submit2:disabled{opacity:.6;cursor:default;transform:none}
+.wz-form-hint{margin-top:.9rem;font-size:.75rem;color:var(--text3);line-height:1.55}
+.wz-success2{display:flex;gap:1.1rem;align-items:flex-start}
+.wz-success2 .check{width:42px;height:42px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.wz-success2 h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.4rem}
+.wz-success2 p{font-size:.9rem;color:var(--text2);line-height:1.7;max-width:460px}
+.wz-reset-btn{margin-top:1.25rem;background:transparent;border:1.5px solid var(--g);color:var(--g);padding:.6rem 1.4rem;border-radius:100px;font-size:.85rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;transition:background .25s,color .25s}
+.wz-reset-btn:hover{background:var(--g);color:var(--w)}
+
+/* ── FOTO STRIP ── */
+
+/* ── PRIVATE WINTERFEIERN ── */
+.wz-pf2{background:var(--sand)}
+.wz-pf2-grid{display:flex;flex-direction:column;align-items:center;gap:2.5rem;max-width:640px;margin:0 auto}
+.wz-pf2-intro{text-align:center}
+.wz-pf2-intro .wz-sec-tag{justify-content:center}
+.wz-pf2-card{width:100%}
+.wz-pf2-bullets{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:1.5rem}
+.wz-pf2-bullets span{font-size:.78rem;color:var(--text2);background:rgba(42,123,111,.08);border-radius:100px;padding:.34rem .85rem}
+.wz-pf2-card{background:var(--w);border-radius:16px;padding:2rem;border:.5px solid rgba(42,123,111,.1);box-shadow:0 4px 24px rgba(42,123,111,.06)}
+.wz-pf2-card h3{font-family:'Petrona',serif;font-size:1.35rem;font-weight:600;margin-bottom:1.25rem}
+.wz-pf2-grid2{display:grid;gap:.9rem}
+.wz-pf2-row2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.wz-pf2-card input,.wz-pf2-card textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;min-height:44px;width:100%}
+.wz-pf2-card textarea{border-radius:16px;resize:vertical;min-height:80px}
+.wz-pf2-card input:focus,.wz-pf2-card textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
+.wz-pf2-submit{background:transparent;border:1.5px solid var(--accent);color:var(--accent2);padding:.8rem 1.6rem;border-radius:100px;font-size:.88rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;min-height:44px;transition:background .26s,color .26s}
+.wz-pf2-submit:hover{background:var(--accent);color:var(--w)}
+.wz-pf2-submit:disabled{opacity:.6;cursor:default}
+
+/* ── FAQ ── */
+.wz-faq2{padding:5rem 3rem}
+.wz-faq-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:3rem;align-items:center;max-width:1160px;margin:0 auto}
+.wz-faq-img{border-radius:16px;overflow:hidden;background:var(--dark)}
+.wz-faq-img img{width:100%;height:auto;display:block}
+.wz-faq-item{border-bottom:.5px solid rgba(26,36,33,.1);padding:1.1rem 0}
+.wz-faq-item summary{font-size:1rem;font-weight:500;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+.wz-faq-item summary::-webkit-details-marker{display:none}
+.wz-faq-item summary .plus{color:var(--g)}
+.wz-faq-item p{font-size:.9rem;color:var(--text2);line-height:1.7;margin-top:.75rem;max-width:620px}
+
+/* ── ENDBANNER ── */
+
+@media(max-width:900px){
+  .wz-hero2,.wz-fondue-grid,.wz-vormerk-grid{grid-template-columns:1fr}
+  /* Grid-Kinder duerfen unter ihre intrinsische Breite schrumpfen (sonst 8px H-Overflow durch das fixe hCaptcha-iFrame) */
+  .wz-vormerk-grid>*,.wz-fondue-grid>*,.wz-hero2>*{min-width:0}
+  .wz-formbox{padding:1.6rem 1.15rem 1.5rem}
+  .wz-fondue-photo{height:260px;order:-1}
+  .wz-vormerk-photo{height:220px;order:-1}
+  .wz-faq-grid{grid-template-columns:1fr}
+  .wz-faq-img{order:-1}
+  .wz-hero2-left{padding:8rem 1.5rem 2.5rem;order:2}
+  .wz-hero2-right{height:55vw;order:1}
+  .wz-facts{grid-template-columns:repeat(2,1fr);padding:1rem 1.5rem}
+  .wz-sec,.wz-fondue-sec,.wz-faq2,.wz-pf2{padding:2.4rem 1.5rem 3.2rem}
+  .wz-ablauf-grid,.wz-exp-grid{grid-template-columns:1fr}
+  .wz-liste-grid{grid-template-columns:1fr}
+  .wz-kalender-grid{grid-template-columns:1fr}
+  .wz-fgrid{grid-template-columns:1fr}
+  .wz-termine-top{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo" aria-label="Steg 1 Possenhofen — Startseite"><img src="img/logo/logo-teal.png" alt="Steg 1 Possenhofen"></a>
+  <ul class="nav-links">
+    <li><a href="sup">SUP Verleih</a></li>
+    <li><a href="speisekarte">Speisekarte</a></li>
+    <li><a href="galerie">Unser Steg 1</a></li>
+    <li><a href="veranstaltungen">Veranstaltungen</a></li>
+    <li><a href="jobs">Jobs</a></li>
+    <li><a href="winterzauber" class="active">Winterzauber</a></li>
+    <li><a href="kontakt">Kontakt</a></li>
+  </ul>
+  <a href="#vormerken" class="nav-cta">Platz vormerken</a>
+  <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
+    <span class="nav-burger-inner"><span></span><span></span><span></span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="/" class="mm-logo" aria-label="Steg 1 Possenhofen — Startseite"><img src="img/logo/logo-teal.png" alt="Steg 1 Possenhofen"></a>
+  <a href="sup">SUP Verleih</a>
+  <a href="speisekarte">Speisekarte</a>
+  <a href="galerie">Unser Steg 1</a>
+  <a href="veranstaltungen">Veranstaltungen</a>
+  <a href="jobs">Jobs</a>
+  <a href="winterzauber" class="active">Winterzauber</a>
+  <a href="kontakt">Kontakt</a>
+  <a href="#vormerken" class="mm-cta">Platz vormerken</a>
+</div>
+
+<!-- Disabled state: shown when winterzauber_settings.active = false -->
+<div id="wz-disabled-notice" class="wz-disabled-notice" style="display:none">
+  <h2>Diese Seite ist noch nicht freigeschaltet</h2>
+  <p>Der Winterzauber ist bald da — schau bald wieder vorbei.</p>
+</div>
+
+<!-- Main content -->
+<div id="wz-active-content" style="display:none">
+
+  <!-- HERO -->
+  <div class="wz-hero2">
+    <div class="wz-hero2-left">
+      <div class="wz-hero2-glow"></div>
+      <div class="wz-snow" id="wz-snow-hero"></div>
+      <p class="wz-eyebrow"><span></span>Freitag &amp; Samstag · Herbst &amp; Winter</p>
+      <h1 class="wz-h1">Winterzauber<em>am Steg 1.</em></h1>
+      <p class="wz-hero2-p">Käsefondue im beheizten Zelt, direkt am winterstillen Ufer. Lange Tafeln, Glühwein, Blick auf den See — und draußen fällt der Schnee.</p>
+      <div class="wz-pill">
+        <div class="wz-pill-dot"><i></i><i class="ripple"></i></div>
+        <div>
+          <strong id="wz-hero-pill-label">Termine werden geladen…</strong>
+          <span class="hint" id="wz-hero-pill-hint"></span>
+        </div>
+      </div>
+      <div class="wz-hero2-ctas">
+        <a href="#vormerken" class="wz-btn-accent">Platz vormerken</a>
+        <a href="#fondue" class="wz-btn-outline-dark">Was es gibt</a>
+        <a href="#privatfeiern" class="wz-btn-outline-dark">Private Winterfeiern</a>
+      </div>
+    </div>
+    <div class="wz-hero2-right">
+      <div class="ov"></div>
+      <img src="images/winter-hero.jpg" alt="Vereister Steg am Starnberger See im Sonnenaufgang">
+    </div>
+  </div>
+
+  <!-- FAKTENBAR -->
+  <div class="wz-facts">
+    <div class="wz-fact"><div class="wz-fact-val">Fr &amp; Sa · 18:00</div><div class="wz-fact-lbl">Termine</div></div>
+    <div class="wz-fact"><div class="wz-fact-val" id="wz-fact-preis">29 € p. P.</div><div class="wz-fact-lbl">Fondue satt</div></div>
+    <div class="wz-fact"><div class="wz-fact-val" id="wz-fact-min">ab 10 Personen</div><div class="wz-fact-lbl">Termin findet statt</div></div>
+    <div class="wz-fact"><div class="wz-fact-val">beheiztes Zelt</div><div class="wz-fact-lbl">direkt am Ufer</div></div>
+  </div>
+
+  <!-- ABLAUF -->
+  <section class="wz-sec wz-reveal">
+    <p class="wz-sec-tag"><span></span>So läuft's</p>
+    <h2 class="wz-h2">Vormerken statt <em>buchen</em>.</h2>
+    <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Ihr merkt euch unverbindlich vor — sobald der Termin voll ist, bekommt ihr die Bestätigung per Mail. Erst dann wird's verbindlich.</p>
+    <div class="wz-ablauf-grid">
+      <div class="wz-ablauf-card"><div class="wz-ablauf-num">1</div><h3>Termin wählen</h3><p>Freitag oder Samstag, jeweils ab 18:00 Uhr im Zelt.</p></div>
+      <div class="wz-ablauf-card"><div class="wz-ablauf-num">2</div><h3>Unverbindlich vormerken</h3><p>Name, Personenzahl, Fondue-Variante. Dauert eine Minute.</p></div>
+      <div class="wz-ablauf-card"><div class="wz-ablauf-num">3</div><h3>Zehn sind voll</h3><p>Sobald zehn Personen zusammen sind, steht der Abend — Platz ist bis 28.</p></div>
+      <div class="wz-ablauf-card dark"><div class="wz-ablauf-num">4</div><h3>Bestätigung kommt</h3><p>Per Mail — mit allen Infos. Absagen könnt ihr jederzeit über den Link.</p></div>
+    </div>
+  </section>
+
+  <!-- FONDUE -->
+  <section id="fondue" class="wz-sec wz-fondue-sec wz-reveal">
+    <div class="wz-fondue-grid">
+      <div class="wz-fondue-inner">
+        <p class="wz-sec-tag"><span></span>Aus dem Topf</p>
+        <h2 class="wz-h2">Käse, Brot, <em>Nachschlag</em>.</h2>
+        <p class="wz-sec-p" style="margin-bottom:1.75rem">Zwei Varianten, beide so lange, bis keiner mehr kann.</p>
+        <div class="wz-fondue-list" id="wz-varianten-list">
+          <p style="color:var(--text3);font-size:.88rem">Lädt…</p>
+        </div>
+        <span class="wz-beilagen-tag">Beilagen — gegen Aufpreis</span>
+        <p class="wz-beilagen-hint">Zusätzlich zum Fondue-Preis, pro Portion.</p>
+        <div class="wz-beilagen" id="wz-beilagen-list"></div>
+      </div>
+      <div class="wz-fondue-photo"><img src="images/winter-fondue-kessel.jpg" alt="Käsefondue-Topf mit Rechaud-Flamme in gemütlicher Runde"></div>
+    </div>
+  </section>
+
+  <!-- TERMINE + VORMERKUNG -->
+  <section id="vormerken" class="wz-sec wz-reveal">
+    <p class="wz-sec-tag"><span></span>Termine</p>
+    <h2 class="wz-h2">Wann wollt ihr <em>kommen</em>?</h2>
+    <p class="wz-sec-p">Ab zehn Personen findet der Abend statt — Platz ist bis 28. Der Balken zeigt, wie weit der Termin ist.</p>
+
+    <div class="wz-termine-top">
+      <div class="wz-monate" id="wz-monate"></div>
+      <div class="wz-view-toggle">
+        <button type="button" class="wz-view-btn active" id="wz-view-liste"><span class="wz-view-tab-bg"></span><span class="lbl">Liste</span></button>
+        <button type="button" class="wz-view-btn" id="wz-view-kalender"><span class="wz-view-tab-bg"></span><span class="lbl">Kalender</span></button>
+      </div>
+    </div>
+
+    <div id="wz-liste-view" class="wz-liste-grid"></div>
+
+    <div id="wz-kalender-view" class="wz-kalender-grid" style="display:none">
+      <div class="wz-kal-card">
+        <p class="wz-kal-title" id="wz-kal-title"></p>
+        <div class="wz-kal-weekdays"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+        <div class="wz-kal-days" id="wz-kal-days"></div>
+        <div class="wz-kal-legend">
+          <span><i style="background:rgba(42,123,111,.18)"></i>Fondue-Abend</span>
+          <span><i style="background:var(--g)"></i>ausgewählt</span>
+          <span><i style="background:var(--accent)"></i>ausgebucht</span>
+        </div>
+      </div>
+      <div class="wz-detail-card" id="wz-detail-card"></div>
+    </div>
+
+    <div id="wz-keine-termine" style="display:none;margin-top:1.5rem;color:var(--text3);font-size:.9rem">Aktuell sind keine Termine vorgemerkt. Schau bald wieder vorbei.</div>
+
+    <div class="wz-vormerk-grid" id="wz-vormerk-grid" style="display:none">
+      <div class="wz-formbox" id="wz-formbox">
+        <div id="wz-not-sent">
+          <h3>Unverbindlich vormerken</h3>
+          <p class="ctx">Für <strong id="wz-ctx-termin">–</strong></p>
+          <form id="wz-form">
+            <div class="wz-fgrid">
+              <label class="wz-flabel"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
+              <label class="wz-flabel"><span>E-Mail *</span><input type="email" id="wz-email" placeholder="name@beispiel.de" required></label>
+              <label class="wz-flabel"><span>Telefon *</span><input type="tel" id="wz-phone" placeholder="Für Rückfragen" required></label>
+              <div class="wz-flabel">
+                <span>Personen</span>
+                <div class="wz-stepper">
+                  <button type="button" id="wz-dec" aria-label="Weniger Personen">−</button>
+                  <span id="wz-personen-count">2</span>
+                  <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
+                </div>
+              </div>
+              <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
+                <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
+                <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
+              </div>
+              <div class="full" style="display:flex;align-items:baseline;gap:.4rem">
+                <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
+              </div>
+              <label class="wz-flabel full"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. laktosefrei, Nussallergie"></textarea></label>
+            </div>
+
+            <div id="wz-captcha" class="h-captcha" style="margin:1.25rem 0 0"></div>
+
+            <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> gelesen und bin mit der Speicherung meiner Daten für die Vormerkung einverstanden.</span></label>
+            <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verarbeitet werden.</span></label>
+
+            <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
+            <button type="submit" class="wz-submit2" id="wz-submit-btn">Platz vormerken →</button>
+            <p class="wz-form-hint">Unverbindlich. Ihr könnt jederzeit über den Link in der Mail wieder absagen.</p>
+          </form>
+        </div>
+        <div id="wz-sent" class="wz-success2" style="display:none">
+          <div class="check">✓</div>
+          <div>
+            <h3>Vormerkung ist da.</h3>
+            <p id="wz-success-text">Ihr bekommt eine Mail mit eurem Verwaltungslink. Sobald der Abend die zehn Personen erreicht, kommt die verbindliche Bestätigung.</p>
+            <button type="button" class="wz-reset-btn" id="wz-reset-btn">Noch eine Vormerkung</button>
+          </div>
+        </div>
+      </div>
+      <div class="wz-vormerk-photo"><img src="images/winter-fondue-teilen.jpg" alt="Gäste tunken gemeinsam Kartoffeln ins Käsefondue"></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="wz-faq2">
+    <div class="wz-faq-grid">
+      <div>
+        <p class="wz-sec-tag"><span></span>Gut zu wissen</p>
+        <h2 class="wz-h2" style="margin-bottom:2rem">Häufige Fragen</h2>
+        <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und melden uns per Mail. Es entstehen keine Kosten — ihr könnt euch direkt für einen anderen Termin vormerken.</p></details>
+        <details class="wz-faq-item"><summary>Wie warm ist es im Zelt?<span class="plus">+</span></summary><p>Das Zelt ist beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht — der Weg zum Steg lohnt sich immer.</p></details>
+        <details class="wz-faq-item"><summary>Können wir als kleine Gruppe kommen?<span class="plus">+</span></summary><p>Ja. An der langen Tafel sitzen mehrere Gruppen zusammen — genau das macht den Abend aus. Wer lieber unter sich bleibt, fragt eine private Winterfeier an.</p></details>
+        <details class="wz-faq-item"><summary>Wie kommen wir hin?<span class="plus">+</span></summary><p>Kurt-Stieler-Straße 58, 82343 Possenhofen. Parkplätze gibt es direkt vor Ort genug — im Winter müsst ihr euch um einen Platz keine Sorgen machen.</p></details>
+      </div>
+      <div class="wz-faq-img"><img src="images/zelt-illustration.svg" alt="Illustration: beheiztes Zelt am verschneiten Steg bei Nacht"></div>
+    </div>
+  </section>
+
+  <!-- DAS ERLEBNIS -->
+  <section class="wz-sec wz-experience wz-reveal">
+    <p class="wz-sec-tag on-dark"><span></span>Das Erlebnis</p>
+    <h2 class="wz-h2 on-dark">Warm. Gemütlich. <em>Unvergesslich.</em></h2>
+    <p class="wz-sec-p on-dark">Wenn draußen der Frost zieht, laden wir euch in unser winterlich dekoriertes Zelt direkt am Ufer. Käsefondue, Kerzenschein und gute Gesellschaft — ein Abend, der wärmt.</p>
+    <div class="wz-exp-grid">
+      <div class="wz-exp-card"><div class="wz-exp-icon">⛺</div><h3>Beheiztes Winterzelt</h3><p>Ein großes, winterlich dekoriertes Zelt mit Platz bis 28 Personen. Warm, einladend und stimmungsvoll — mit Decken auf den Bänken.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer oder ohne Alkohol — geschmolzener Käse, knuspriges Brot und ausgewählte Beilagen für ein echtes Genusserlebnis.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Freitags &amp; Samstags</h3><p>November 2026 bis Februar 2027, jeweils ab 18:00 Uhr. Die konkreten Termine seht ihr weiter oben.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">📍</div><h3>Am Wasser in Possenhofen</h3><p>Steg 1 · Kurt-Stieler-Straße 58 · 82343 Possenhofen. Direkt am Starnberger See — mitten in der Natur.</p></div>
+    </div>
+  </section>
+
+  <!-- PRIVATE WINTERFEIERN -->
+  <section id="privatfeiern" class="wz-sec wz-pf2 wz-reveal">
+    <div class="wz-pf2-grid">
+      <div class="wz-pf2-intro">
+        <p class="wz-sec-tag"><span></span>Ganz für euch</p>
+        <h2 class="wz-h2">Private <em>Winterfeiern</em>.</h2>
+        <p class="wz-sec-p" style="margin-bottom:0">Weihnachtsfeier, Geburtstag, Vereinsabend: Das Zelt gibt's auch exklusiv — ab 10 Personen, mit eigenem Termin und abgestimmtem Essen. Schreibt uns kurz, was ihr vorhabt.</p>
+        <div class="wz-pf2-bullets">
+          <span>ab 10 Personen</span><span>Zelt exklusiv</span><span>Menü nach Absprache</span>
+        </div>
+      </div>
+      <div class="wz-pf2-card">
+        <h3>Anfrage stellen</h3>
+        <form id="wz-pf-form" class="wz-pf2-grid2">
+          <input type="text" id="pf-name" placeholder="Name" required>
+          <input type="email" id="pf-email" placeholder="E-Mail" required>
+          <div class="wz-pf2-row2">
+            <input type="text" id="pf-datum" placeholder="Wunschtermin" required>
+            <input type="text" id="pf-personen" placeholder="Personen" required>
+          </div>
+          <input type="tel" id="pf-phone" placeholder="Telefon (optional)">
+          <textarea rows="3" id="pf-message" placeholder="Was habt ihr vor?"></textarea>
+          <div id="pf-captcha" class="h-captcha" style="margin:0"></div>
+          <div id="wz-pf-message" style="font-size:.86rem"></div>
+          <button type="submit" class="wz-pf2-submit" id="wz-pf-submit-btn">Anfrage senden</button>
+        </form>
+        <div id="wz-pf-success" style="display:none">
+          <h3 style="margin-top:0">Anfrage gesendet!</h3>
+          <p style="font-size:.9rem;color:var(--text2);line-height:1.6">Vielen Dank für deine Anfrage. Wir melden uns innerhalb von 24 Stunden mit einem persönlichen Angebot.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Zwei hCaptcha-Widgets auf dieser Seite (Vormerk-Formular + Private-Feiern-Formular).
+// Explizites Rendering, weil hCaptchas implizites Rendering ohne Widget-ID immer nur
+// das erste Widget im DOM anspricht. onHcaptchaLoad MUSS vor dem hCaptcha-Script-Tag
+// definiert werden, da das async-Script (v.a. aus dem Cache) seinen onload-Callback
+// aufrufen kann, bevor spätere Inline-Scripts geparst wurden.
+var wzCaptchaWidgetId = null;
+var pfCaptchaWidgetId = null;
+var hcaptchaScriptReady = false;
+var pfCaptchaRendered = false;
+var wzCaptchaRendered = false;
+var wzContentIsVisible = false;
+function onHcaptchaLoad() {
+  hcaptchaScriptReady = true;
+  renderPfCaptchaIfReady();
+  renderWzCaptchaIfReady();
+}
+function renderPfCaptchaIfReady() {
+  if (pfCaptchaRendered || !wzContentIsVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
+  pfCaptchaRendered = true;
+  pfCaptchaWidgetId = hcaptcha.render('pf-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+}
+function renderWzCaptchaIfReady() {
+  var box = document.getElementById('wz-vormerk-grid');
+  var formVisible = box && box.style.display !== 'none';
+  if (wzCaptchaRendered || !formVisible || !hcaptchaScriptReady || !window.hcaptcha) return;
+  wzCaptchaRendered = true;
+  wzCaptchaWidgetId = hcaptcha.render('wz-captcha', { sitekey: '6874b88a-3d38-4a72-b0ec-4f74fa5a2b8e' });
+}
+</script>
+<script src="https://js.hcaptcha.com/1/api.js?onload=onHcaptchaLoad&render=explicit" async defer></script>
+
+<!-- FOOTER -->
+<footer id="kontakt">
+  <div class="fintro">
+    <div class="flogo"><img src="img/logo/logo-white.png" alt="Steg 1 Possenhofen"></div>
+    <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Im Winter: Käsefondue im Zelt.</p>
+    <div class="fsocials">
+      <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://www.facebook.com/Steg1Possenhofen/" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+      </a>
+    </div>
+  </div>
+  <details class="fcol" open>
+    <summary>Navigation</summary>
+    <div class="fcol-body">
+      <a href="sup">SUP Verleih</a>
+      <a href="speisekarte">Speisekarte</a>
+      <a href="galerie">Unser Steg 1</a>
+      <a href="veranstaltungen">Veranstaltungen</a>
+      <a href="winterzauber">Winterzauber</a>
+      <a href="kontakt">Kontakt</a>
+    </div>
+  </details>
+  <details class="fcol" open>
+    <summary>Kontakt</summary>
+    <div class="fcol-body">
+      <address class="faddr">
+        <span>Steg 1 Possenhofen</span>
+        <span>Cathrin Dierks</span>
+        <span>Kurt-Stieler-Str. 58</span>
+        <span>82343 Possenhofen</span>
+      </address>
+      <a href="mailto:info@steg1possenhofen.de">info@steg1possenhofen.de</a>
+    </div>
+  </details>
+  <details class="fcol" open>
+    <summary>Rechtliches</summary>
+    <div class="fcol-body">
+      <a href="impressum">Impressum</a>
+      <a href="datenschutz">Datenschutz</a>
+      <a href="impressum#bildnachweis">Bildnachweis</a>
+    </div>
+  </details>
+</footer>
+<div class="fbot">
+  <span>© 2026 Steg 1 Possenhofen</span>
+  <span>Mit ♥ am See</span>
+</div>
+
+<script>
+// Scroll effect for nav
+window.addEventListener('scroll', function() {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Hamburger / mobile menu
+var burger = document.querySelector('.nav-burger');
+var mobileMenu = document.getElementById('mobile-menu');
+burger.addEventListener('click', function() {
+  var isOpen = mobileMenu.classList.toggle('open');
+  burger.classList.toggle('open', isOpen);
+  burger.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
+  burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+mobileMenu.querySelectorAll('a').forEach(function(link) {
+  link.addEventListener('click', function() {
+    mobileMenu.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-label', 'Menü öffnen');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  });
+});
+</script>
+
+<script>
+var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+
+var WD_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+var termine = [];
+var variantenList = [];
+var beilagenList = [];
+var selectedTerminId = null;
+var currentMonat = null; // null = alle
+var currentView = 'liste';
+var gaesteVarianten = [];
+var baseYear = null;
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function parseLocalDate(iso) {
+  var parts = iso.split('-').map(Number);
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+function monthKey(t) { var d = parseLocalDate(t.date); return d.getFullYear() * 12 + d.getMonth(); }
+function monthLabel(k) {
+  var year = Math.floor(k / 12), month = k % 12;
+  return MON_LONG[month] + (year !== baseYear ? ' ’' + String(year).slice(2) : '');
+}
+function shortDatum(t) { var d = parseLocalDate(t.date); return String(d.getDate()).padStart(2, '0') + '. ' + MON_LONG[d.getMonth()].slice(0, 3); }
+function shortTag(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()].slice(0, 2); }
+function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ', ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
+function shortVariantLabel(name) {
+  return /alkohol/i.test(name || '') ? 'Ohne Alkohol' : 'Klassisch';
+}
+
+function terminState(t) {
+  var min = t.capacity_min, max = t.capacity_max, p = t.personen_gesamt || 0;
+  var frei = Math.max(0, max - p);
+  var voll = p >= max;
+  var laeuft = p >= min;
+  var knapp = !voll && (max - p) <= 6;
+  return {
+    laeuft: laeuft, voll: voll, knapp: knapp,
+    barPercent: laeuft ? (40 + 60 * ((p - min) / Math.max(1, max - min))) : 100,
+    badgeText: voll ? 'ausgebucht' : knapp ? 'fast ausgebucht' : laeuft ? 'findet statt' : 'Anmeldung läuft',
+    badgeClass: voll || knapp ? 'knapp' : laeuft ? 'laeuft' : 'nicht',
+    platzText: voll ? 'Alle Plätze vergeben' : laeuft ? 'Mindestteilnehmerzahl erreicht' : ('Ab ' + min + ' Personen findet der Abend statt'),
+    freiText: voll ? 'ausgebucht' : frei <= 3 ? 'letzte Plätze' : frei <= 10 ? 'nur noch wenige Plätze' : 'Plätze frei',
+    freiClass: voll || knapp ? 'accent' : 'muted',
+    hinweis: voll
+      ? 'Dieser Abend ist voll. Sucht euch gern einen anderen Termin aus — oder fragt eine private Winterfeier an.'
+      : laeuft
+        ? ('Die Mindestteilnehmerzahl ist erreicht — der Abend findet statt. ' + (frei <= 10 ? 'Es sind nur noch wenige Plätze frei.' : 'Es sind noch Plätze frei.'))
+        : ('Die Anmeldung für diesen Abend läuft. Ab ' + min + ' Personen findet er statt — merkt euch unverbindlich vor, ihr geht damit keine Verpflichtung ein.')
+  };
+}
+
+function isPreviewMode() {
+  try { return new URLSearchParams(window.location.search).get('preview') === '1'; }
+  catch (e) { return false; }
+}
+function showPreviewBanner() {
+  if (document.getElementById('wz-preview-banner')) return;
+  var b = document.createElement('div');
+  b.id = 'wz-preview-banner';
+  b.className = 'wz-preview-banner';
+  b.textContent = 'Vorschau-Modus – diese Seite ist noch nicht live. Absenden wird serverseitig blockiert.';
+  document.body.appendChild(b);
+}
+
+function buildSnow(container, count) {
+  var frag = document.createDocumentFragment();
+  for (var i = 0; i < count; i++) {
+    var size = 2 + ((i * 7) % 5);
+    var span = document.createElement('span');
+    span.className = 'wz-flake';
+    span.style.left = ((i * 173) % 100) + '%';
+    span.style.width = size + 'px';
+    span.style.height = size + 'px';
+    span.style.background = 'rgba(253,251,247,' + (0.28 + ((i % 5) * 0.11)) + ')';
+    if (i % 3 === 0) span.style.filter = 'blur(1px)';
+    span.style.setProperty('--dx', (((i * 37) % 80) - 40) + 'px');
+    span.style.animationDuration = (11 + ((i * 3) % 12)) + 's';
+    span.style.animationDelay = (((i * 17) % 130) / 10) + 's';
+    frag.appendChild(span);
+  }
+  container.appendChild(frag);
+}
+
+function initWinterzauber() {
+  var preview = isPreviewMode();
+  fetch(SB_URL + '/rest/v1/winterzauber_settings?id=eq.1&select=active', { headers: { apikey: SB_KEY } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var active = !!(data && data[0] && data[0].active);
+      if (!active && !preview) {
+        document.getElementById('wz-disabled-notice').style.display = 'block';
+        return;
+      }
+      showWinterzauberContent(!active && preview);
+    })
+    .catch(function () {
+      if (preview) { showWinterzauberContent(true); return; }
+      document.getElementById('wz-disabled-notice').style.display = 'block';
+    });
+}
+
+function showWinterzauberContent(preview) {
+  document.getElementById('wz-active-content').style.display = 'block';
+  wzContentIsVisible = true;
+  if (preview) showPreviewBanner();
+  buildSnow(document.getElementById('wz-snow-hero'), 34);
+  renderPfCaptchaIfReady();
+  loadAll();
+}
+
+function loadAll() {
+  Promise.all([
+    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=id,name,description,price_per_person', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=id,name,description,price', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
+  ]).then(function (results) {
+    var today = new Date().toISOString().slice(0, 10);
+    termine = (results[0] || []).filter(function (t) { return t.date >= today; });
+    variantenList = results[1] || [];
+    beilagenList = results[2] || [];
+    baseYear = termine.length ? parseLocalDate(termine[0].date).getFullYear() : new Date().getFullYear();
+
+    renderVarianten();
+    renderBeilagen();
+    initGaeste(2);
+
+    selectedTerminId = null;
+    var offener = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; });
+    if (offener) selectedTerminId = offener.id;
+    else if (termine.length) selectedTerminId = termine[0].id;
+
+    renderHeroFacts();
+    renderAll();
+  });
+}
+
+function renderVarianten() {
+  var el = document.getElementById('wz-varianten-list');
+  if (!variantenList.length) { el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Wird noch eingerichtet.</p>'; return; }
+  el.innerHTML = variantenList.map(function (v) {
+    return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(v.name) + '</h3>' +
+      (v.description ? '<p class="desc">' + escapeHtml(v.description) + '</p>' : '') + '</div>' +
+      '<div class="wz-fondue-price">' + Number(v.price_per_person).toFixed(0) + ' €<span>/ Person</span></div></div>';
+  }).join('');
+}
+
+function beilageIcon(name) {
+  var n = (name || '').toLowerCase();
+  if (/brot|baguette/.test(n)) return '🥖';
+  if (/kartoffel/.test(n)) return '🥔';
+  if (/gurke/.test(n)) return '🥒';
+  if (/zwiebel/.test(n)) return '🧅';
+  if (/ananas/.test(n)) return '🍍';
+  if (/traube/.test(n)) return '🍇';
+  if (/speck/.test(n)) return '🥓';
+  if (/charcuterie|salami|schinken/.test(n)) return '🥩';
+  if (/gl(ü|u)hwein|punsch/.test(n)) return '🍷';
+  return '🍽️';
+}
+
+function renderBeilagen() {
+  var el = document.getElementById('wz-beilagen-list');
+  el.innerHTML = beilagenList.map(function (b) {
+    var priceTxt = (b.price != null && Number(b.price) > 0) ? '<em>' + Number(b.price).toFixed(2).replace('.', ',') + ' €</em>' : '';
+    return '<span>' + beilageIcon(b.name) + ' ' + escapeHtml(b.name) + priceTxt + '</span>';
+  }).join('');
+}
+
+function renderHeroFacts() {
+  if (variantenList.length) {
+    document.getElementById('wz-fact-preis').textContent = Number(variantenList[0].price_per_person).toFixed(0) + ' € p. P.';
+  }
+  if (termine.length) {
+    document.getElementById('wz-fact-min').textContent = 'ab ' + termine[0].capacity_min + ' Personen';
+  }
+  var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
+  if (next) {
+    var st = terminState(next);
+    document.getElementById('wz-hero-pill-label').textContent = 'Nächster Termin: ' + langLabel(next);
+    document.getElementById('wz-hero-pill-hint').textContent = st.laeuft ? ('Findet statt · ' + st.freiText) : 'Anmeldung läuft — jetzt Platz sichern';
+  } else {
+    document.getElementById('wz-hero-pill-label').textContent = 'Termine folgen in Kürze';
+    document.getElementById('wz-hero-pill-hint').textContent = '';
+  }
+}
+
+function renderAll() {
+  renderMonate();
+  renderListe();
+  renderKalender();
+  renderFormContext();
+  var keine = !termine.length;
+  document.getElementById('wz-keine-termine').style.display = keine ? 'block' : 'none';
+  document.getElementById('wz-vormerk-grid').style.display = keine ? 'none' : 'grid';
+  if (!keine) renderWzCaptchaIfReady();
+}
+
+function renderMonate() {
+  var el = document.getElementById('wz-monate');
+  var keys = [];
+  termine.forEach(function (t) { var k = monthKey(t); if (keys.indexOf(k) < 0) keys.push(k); });
+  var html = '<button type="button" class="wz-monat-pill' + (currentMonat === null ? ' active' : '') + '" data-monat="">' +
+    '<span class="wz-monat-ring"></span>Alle Termine</button>';
+  keys.forEach(function (k) {
+    html += '<button type="button" class="wz-monat-pill' + (currentMonat === k ? ' active' : '') + '" data-monat="' + k + '">' +
+      '<span class="wz-monat-ring"></span>' + escapeHtml(monthLabel(k)) + '</button>';
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.wz-monat-pill').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      currentMonat = btn.getAttribute('data-monat') === '' ? null : Number(btn.getAttribute('data-monat'));
+      renderMonate(); renderListe(); renderKalender();
+    });
+  });
+}
+
+function cardHtml(t) {
+  var st = terminState(t);
+  var barInner = st.laeuft
+    ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
+    : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
+  return '<button type="button" class="wz-t-card' + (t.id === selectedTerminId ? ' selected' : '') + '" data-id="' + t.id + '">' +
+    '<span class="wz-t-ring"></span>' +
+    '<span class="wz-t-top"><span class="wz-t-datum">' + shortDatum(t) + '</span><span class="wz-t-tag">' + shortTag(t) + '</span></span>' +
+    '<span class="wz-t-mid"><span class="wz-t-zeit">18:00 Uhr</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
+    '<span class="wz-bar-track">' + barInner + '</span>' +
+    '<span class="wz-t-bottom"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></span>' +
+    '</button>';
+}
+
+function renderListe() {
+  var el = document.getElementById('wz-liste-view');
+  var filtered = currentMonat === null ? termine : termine.filter(function (t) { return monthKey(t) === currentMonat; });
+  var list = filtered.slice(0, 6);
+  el.innerHTML = list.length ? list.map(cardHtml).join('') : '<p style="color:var(--text3);font-size:.88rem">Für diesen Monat sind aktuell keine Termine geplant.</p>';
+  el.querySelectorAll('.wz-t-card').forEach(function (btn) {
+    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
+  });
+}
+
+function renderKalender() {
+  if (!termine.length) { document.getElementById('wz-kal-days').innerHTML = ''; document.getElementById('wz-detail-card').innerHTML = ''; return; }
+  var calKey = currentMonat !== null ? currentMonat : monthKey(termine.find(function (t) { return t.id === selectedTerminId; }) || termine[0]);
+  var calYear = Math.floor(calKey / 12), calMonth = calKey % 12;
+  document.getElementById('wz-kal-title').textContent = MON_LONG[calMonth] + ' ' + calYear;
+
+  var first = new Date(calYear, calMonth, 1);
+  var lead = (first.getDay() + 6) % 7;
+  var days = new Date(calYear, calMonth + 1, 0).getDate();
+  var html = '';
+  for (var i = 0; i < lead; i++) html += '<button type="button" class="wz-kal-day" disabled></button>';
+  for (var n = 1; n <= days; n++) {
+    var t = termine.find(function (x) { var d = parseLocalDate(x.date); return d.getFullYear() === calYear && d.getMonth() === calMonth && d.getDate() === n; });
+    var isSel = t && t.id === selectedTerminId;
+    var voll = t && (t.personen_gesamt || 0) >= t.capacity_max;
+    var cls = 'wz-kal-day' + (t ? ' has' : '') + (voll ? ' voll' : '') + (isSel ? ' sel' : '');
+    html += '<button type="button" class="' + cls + '"' + (t ? ' data-id="' + t.id + '"' : ' disabled') + '>' + n + '</button>';
+  }
+  var el = document.getElementById('wz-kal-days');
+  el.innerHTML = html;
+  el.querySelectorAll('.wz-kal-day.has').forEach(function (btn) {
+    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
+  });
+
+  var selected = termine.find(function (t) { return t.id === selectedTerminId; }) || termine[0];
+  var st = terminState(selected);
+  var barInner = st.laeuft
+    ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
+    : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
+  document.getElementById('wz-detail-card').innerHTML =
+    '<p class="wz-detail-tag">Ausgewählter Abend</p>' +
+    '<p class="wz-detail-datum">' + langLabel(selected) + '</p>' +
+    '<p class="wz-detail-zeit">18:00 Uhr · beheiztes Zelt am Steg</p>' +
+    '<span class="wz-bar-track">' + barInner + '</span>' +
+    '<div class="wz-t-bottom" style="margin-top:.6rem"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></div>' +
+    '<p class="wz-detail-hinweis">' + st.hinweis + '</p>';
+}
+
+function pickTermin(id) {
+  selectedTerminId = id;
+  renderListe(); renderKalender(); renderFormContext();
+}
+
+function renderFormContext() {
+  var t = termine.find(function (x) { return x.id === selectedTerminId; });
+  document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · 18:00 Uhr') : '–';
+}
+
+function switchView(v) {
+  currentView = v;
+  document.getElementById('wz-view-liste').classList.toggle('active', v === 'liste');
+  document.getElementById('wz-view-kalender').classList.toggle('active', v === 'kalender');
+  document.getElementById('wz-liste-view').style.display = v === 'liste' ? 'grid' : 'none';
+  document.getElementById('wz-kalender-view').style.display = v === 'kalender' ? 'grid' : 'none';
+}
+document.getElementById('wz-view-liste').addEventListener('click', function () { switchView('liste'); });
+document.getElementById('wz-view-kalender').addEventListener('click', function () { switchView('kalender'); });
+
+function initGaeste(n) {
+  var v0 = variantenList.length ? variantenList[0].id : null;
+  gaesteVarianten = [];
+  for (var i = 0; i < n; i++) gaesteVarianten.push(v0);
+  renderGaeste();
+}
+
+function renderGaeste() {
+  document.getElementById('wz-personen-count').textContent = gaesteVarianten.length;
+  var opts = variantenList.slice(0, 2);
+  var el = document.getElementById('wz-gaeste-list');
+  el.innerHTML = gaesteVarianten.map(function (vid, i) {
+    var buttons = opts.map(function (v) {
+      return '<button type="button" class="wz-gast-opt' + (vid === v.id ? ' active' : '') + '" data-idx="' + i + '" data-vid="' + v.id + '">' +
+        '<span class="wz-gast-opt-fill"></span><span class="wz-gast-opt-txt">' + escapeHtml(shortVariantLabel(v.name)) + '</span></button>';
+    }).join('');
+    return '<div class="wz-gast-row"><span class="wz-gast-label">' + (i + 1) + '. Person</span><div class="wz-gast-opts">' + buttons + '</div></div>';
+  }).join('');
+  el.querySelectorAll('.wz-gast-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      gaesteVarianten[Number(btn.getAttribute('data-idx'))] = btn.getAttribute('data-vid');
+      renderGaeste();
+    });
+  });
+  updateSumme();
+}
+
+function updateSumme() {
+  var sum = gaesteVarianten.reduce(function (s, vid) {
+    var v = variantenList.find(function (x) { return x.id === vid; });
+    return s + (v ? Number(v.price_per_person) : 0);
+  }, 0);
+  document.getElementById('wz-summe').textContent = sum.toFixed(0) + ' €';
+  document.getElementById('wz-summe-hint').textContent = 'für ' + gaesteVarianten.length + ' × Fondue satt (exkl. Beilagen)';
+}
+
+document.getElementById('wz-inc').addEventListener('click', function () {
+  if (gaesteVarianten.length < 28) {
+    gaesteVarianten.push(variantenList.length ? variantenList[0].id : null);
+    renderGaeste();
+  }
+});
+document.getElementById('wz-dec').addEventListener('click', function () {
+  if (gaesteVarianten.length > 1) { gaesteVarianten.pop(); renderGaeste(); }
+});
+
+document.getElementById('wz-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('wz-submit-btn');
+  var msg = document.getElementById('wz-form-message');
+  msg.textContent = '';
+
+  if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
+
+  var phoneValue = document.getElementById('wz-phone').value.trim();
+  if (phoneValue.replace(/[^0-9]/g, '').length < 6) {
+    msg.textContent = 'Bitte gib eine gültige Telefonnummer an.'; msg.style.color = 'var(--err)'; return;
+  }
+
+  var allergienValue = document.getElementById('wz-allergien').value.trim();
+  var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
+  if (allergienValue && !allergienConsentChecked) {
+    msg.textContent = 'Bitte bestätige die gesonderte Einwilligung zur Verarbeitung deiner Allergie-Angaben.';
+    msg.style.color = 'var(--err)';
+    return;
+  }
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(wzCaptchaWidgetId) : '';
+  if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
+
+  var variantenSel = {};
+  gaesteVarianten.forEach(function (vid) {
+    if (!vid) return;
+    variantenSel[vid] = (variantenSel[vid] || 0) + 1;
+  });
+
+  var payload = {
+    captchaToken: captchaToken,
+    terminId: selectedTerminId,
+    name: document.getElementById('wz-name').value.trim(),
+    email: document.getElementById('wz-email').value.trim(),
+    phone: phoneValue,
+    personen: gaesteVarianten.length,
+    varianten: variantenSel,
+    beilagen: {},
+    allergien: allergienValue,
+    allergienConsent: allergienConsentChecked,
+    agb: document.getElementById('wz-agb').checked
+  };
+
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+
+  fetch(SB_URL + '/functions/v1/create-fondue-anmeldung', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify(payload)
+  })
+    .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+    .then(function (result) {
+      if (!result.ok) {
+        msg.textContent = 'Fehler: ' + (result.data.error || 'unbekannt') + '. Bitte versuche es erneut.';
+        msg.style.color = 'var(--err)';
+        btn.disabled = false; btn.textContent = 'Platz vormerken →';
+        if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
+        return;
+      }
+      document.getElementById('wz-not-sent').style.display = 'none';
+      document.getElementById('wz-sent').style.display = 'flex';
+      document.getElementById('wz-sent').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      loadAll();
+    })
+    .catch(function () {
+      msg.textContent = 'Netzwerkfehler. Bitte versuche es erneut.';
+      msg.style.color = 'var(--err)';
+      btn.disabled = false; btn.textContent = 'Platz vormerken →';
+    });
+});
+
+document.getElementById('wz-reset-btn').addEventListener('click', function () {
+  document.getElementById('wz-sent').style.display = 'none';
+  document.getElementById('wz-not-sent').style.display = 'block';
+  document.getElementById('wz-submit-btn').disabled = false;
+  document.getElementById('wz-submit-btn').textContent = 'Platz vormerken →';
+  if (window.hcaptcha && wzCaptchaWidgetId !== null) hcaptcha.reset(wzCaptchaWidgetId);
+});
+
+document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('wz-pf-submit-btn');
+  var msg = document.getElementById('wz-pf-message');
+  msg.textContent = '';
+
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(pfCaptchaWidgetId) : '';
+  if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
+
+  var messageBody = [
+    'Wunschtermin: ' + document.getElementById('pf-datum').value.trim(),
+    'Personen: ' + document.getElementById('pf-personen').value.trim(),
+    '',
+    document.getElementById('pf-message').value.trim() || '–'
+  ].join('\n');
+
+  var payload = {
+    name: document.getElementById('pf-name').value.trim(),
+    email: document.getElementById('pf-email').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    subject: 'Private Winterfeier-Anfrage',
+    message: messageBody,
+    captchaToken: captchaToken,
+    formType: 'private-feier'
+  };
+
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+
+  fetch(SB_URL + '/functions/v1/send-contact-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify(payload)
+  })
+    .then(function (r) { if (!r.ok) throw new Error('send_failed'); })
+    .then(function () {
+      document.getElementById('wz-pf-form').style.display = 'none';
+      document.getElementById('wz-pf-success').style.display = 'block';
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
+    })
+    .catch(function () {
+      msg.textContent = 'Fehler beim Senden. Bitte versuche es erneut.';
+      msg.style.color = 'var(--err)';
+      btn.disabled = false; btn.textContent = 'Anfrage senden';
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
+    });
+});
+
+initWinterzauber();
+</script>
+
+</body>
+</html>

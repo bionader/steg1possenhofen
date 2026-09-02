@@ -52,6 +52,45 @@
   --dur-1:180ms;--dur-2:260ms;--dur-3:420ms;--dur-4:700ms;
   /* focus */
   --ring:0 0 0 3px rgba(42,123,111,.28), 0 0 0 1.5px var(--g);
+  /* winterzauber teaser */
+  --wz-dark:#1B2B28;
+}
+@keyframes wz-fall{0%{transform:translate3d(0,-12vh,0) rotate(0deg);opacity:0}10%{opacity:.9}100%{transform:translate3d(var(--dx,20px),112vh,0) rotate(360deg);opacity:0}}
+@keyframes wz-kb{0%{transform:scale(1.04)}100%{transform:scale(1.14) translate3d(-1.5%,-1.5%,0)}}
+@keyframes wz-ripple{0%{transform:scale(1);opacity:.5}60%{opacity:.12}100%{transform:scale(2.8);opacity:0}}
+.wz-teaser{display:grid;grid-template-columns:1.05fr 1fr;min-height:440px}
+.wz-teaser-left{background:var(--wz-dark);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:3.5rem}
+.wz-teaser-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 88% 8%, rgba(212,136,58,.16) 0%, transparent 58%),radial-gradient(ellipse at 0% 100%, rgba(42,123,111,.3) 0%, transparent 55%)}
+.wz-teaser-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.wz-teaser-flake{position:absolute;top:0;border-radius:50%;background:rgba(253,251,247,.5);animation:wz-fall linear infinite}
+.wz-teaser-tag{position:relative;z-index:1;font-size:.76rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem}
+.wz-teaser-tag span{width:18px;height:1px;background:var(--accent);opacity:.8;display:block}
+.wz-teaser h2{position:relative;z-index:1;font-family:'Petrona',serif;font-size:clamp(2.2rem,3.6vw,3.2rem);line-height:1.02;font-weight:500;color:var(--w);letter-spacing:-.018em;margin-bottom:1rem}
+.wz-teaser h2 em{font-style:italic;color:var(--accent);display:block;font-weight:400}
+.wz-teaser-p{position:relative;z-index:1;font-size:.96rem;color:rgba(253,250,244,.76);line-height:1.7;max-width:400px;font-weight:300;margin-bottom:1.75rem}
+.wz-teaser-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:.9rem;background:rgba(253,250,244,.07);border:.5px solid rgba(253,250,244,.14);border-radius:18px;padding:.9rem 1.35rem .9rem 1.1rem;align-self:flex-start;margin-bottom:1.75rem;backdrop-filter:blur(14px)}
+.wz-teaser-dot{position:relative;width:11px;height:11px;flex-shrink:0}
+.wz-teaser-dot i{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(212,136,58,.18);display:block}
+.wz-teaser-dot i.ripple{position:absolute;inset:0;background:rgba(212,136,58,.35);box-shadow:none;animation:wz-ripple 2.6s cubic-bezier(.4,0,.2,1) infinite}
+.wz-teaser-pill strong{font-size:.88rem;font-weight:600;color:var(--w);display:block}
+.wz-teaser-pill span.hint{font-size:.75rem;color:rgba(253,250,244,.6);display:block;margin-top:2px}
+.wz-teaser-ctas{position:relative;z-index:1;display:flex;gap:.7rem;flex-wrap:wrap}
+.wz-teaser-btn{text-decoration:none;padding:.75rem 1.6rem;border-radius:100px;font-size:.86rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:var(--accent);color:var(--wz-dark);box-shadow:0 4px 18px rgba(212,136,58,.28);transition:transform .26s var(--ease),background .26s}
+.wz-teaser-btn:hover{background:#E39B4F;transform:translateY(-2px);color:var(--wz-dark)}
+.wz-teaser-btn-outline{text-decoration:none;padding:.75rem 1.6rem;border-radius:100px;font-size:.86rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:transparent;color:var(--w);border:1.5px solid rgba(253,250,244,.3);transition:background .26s,border-color .26s}
+.wz-teaser-btn-outline:hover{background:rgba(253,250,244,.1);border-color:rgba(253,250,244,.55);color:var(--w)}
+.wz-teaser-right{overflow:hidden;position:relative;min-height:320px}
+.wz-teaser-right .ov{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to right, rgba(27,43,40,.5) 0%, transparent 26%),linear-gradient(to top, rgba(27,43,40,.3) 0%, transparent 45%)}
+.wz-teaser-right img{width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block;animation:wz-kb 26s ease-in-out infinite alternate}
+.wz-teaser-facts{background:linear-gradient(135deg,#1F6358 0%,#12332D 100%);display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;padding:1rem 3rem}
+.wz-teaser-fact{display:flex;flex-direction:column;align-items:center;padding:.75rem .5rem;border-radius:10px;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.09)}
+.wz-teaser-fact-val{font-size:1rem;font-weight:500;color:#fff;letter-spacing:.02em}
+.wz-teaser-fact-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.68);margin-top:.25rem}
+@media(max-width:900px){
+  .wz-teaser{grid-template-columns:1fr}
+  .wz-teaser-left{padding:2.4rem 1.5rem;order:2}
+  .wz-teaser-right{height:55vw;order:1}
+  .wz-teaser-facts{grid-template-columns:repeat(2,1fr);padding:1rem 1.5rem}
 }
 html{scroll-behavior:smooth;scroll-padding-top:80px}
 body{font-family:'Albert Sans',sans-serif;background:var(--w);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
@@ -727,6 +766,7 @@ footer{
     <li><a href="galerie">Unser Steg 1</a></li>
     <li><a href="veranstaltungen">Veranstaltungen</a></li>
     <li id="nav-jobs-item"><a href="jobs">Jobs</a></li>
+    <li id="nav-winterzauber-item" style="display:none"><a href="winterzauber">Winterzauber</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
   <a href="sup" class="nav-cta">SUP buchen</a>
@@ -743,6 +783,7 @@ footer{
   <a href="galerie">Unser Steg 1</a>
   <a href="veranstaltungen">Veranstaltungen</a>
   <a href="jobs" id="mm-jobs-item">Jobs</a>
+  <a href="winterzauber" id="mm-winterzauber-item" style="display:none">Winterzauber</a>
   <a href="kontakt">Kontakt</a>
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
@@ -781,6 +822,70 @@ footer{
   <div class="wi"><div class="val" id="wb-water">– °C</div><div class="lbl">Wassertemperatur</div></div>
   <div class="wi"><div class="val" id="wb-wind">– km/h</div><div class="lbl">Wind</div></div>
   <a href="#info" class="wi" style="text-decoration:none;color:inherit"><div class="val" id="wb-status">Geöffnet</div><div class="lbl" id="wb-times">10:00 – 20:00 Uhr</div></a>
+</div>
+
+<!-- INFO: Maps + Öffnungszeiten -->
+<section class="sec reveal" id="info">
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Hier findet Ihr uns</h3>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="info-card">
+      <h3>Öffnungszeiten</h3>
+      <div class="schedule-list" id="schedule-list"></div>
+      <script>
+        // Render default schedule immediately (before Supabase loads)
+        (function(){
+          var D=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+          var M=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+          var h='';
+          for(var j=0;j<7;j++){
+            var d=new Date();d.setDate(d.getDate()+j);
+            var n=j===0?'Heute':D[d.getDay()];
+            h+='<div class="schedule-row'+(j===0?' today':'')+'"><span class="day">'+n+', '+d.getDate()+'. '+M[d.getMonth()]+'</span><span class="time">10:00 – 20:00 Uhr</span></div>';
+          }
+          document.getElementById('schedule-list').innerHTML=h;
+        })();
+      </script>
+      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
+    </div>
+  </div>
+</section>
+
+<!-- WINTERZAUBER TEASER: nur sichtbar wenn winterzauber_settings.active = true -->
+<div id="wz-teaser-wrap" style="display:none">
+  <section class="wz-teaser">
+    <div class="wz-teaser-left">
+      <div class="wz-teaser-glow"></div>
+      <div class="wz-teaser-snow" id="wz-teaser-snow"></div>
+      <p class="wz-teaser-tag"><span></span>Neu im Winter</p>
+      <h2>Winterzauber<em>am Steg 1.</em></h2>
+      <p class="wz-teaser-p">Käsefondue im beheizten Zelt, freitags und samstags am winterstillen Ufer. Ab zehn Personen findet der Abend statt — vormerken ist unverbindlich.</p>
+      <div class="wz-teaser-pill">
+        <div class="wz-teaser-dot"><i></i><i class="ripple"></i></div>
+        <div>
+          <strong id="wz-teaser-pill-label">Termine werden geladen…</strong>
+          <span class="hint" id="wz-teaser-pill-hint"></span>
+        </div>
+      </div>
+      <div class="wz-teaser-ctas">
+        <a href="winterzauber" class="wz-teaser-btn">Platz vormerken</a>
+        <a href="winterzauber#fondue" class="wz-teaser-btn-outline">Was es gibt</a>
+        <a href="winterzauber#privatfeiern" class="wz-teaser-btn-outline">Private Winterfeiern</a>
+      </div>
+    </div>
+    <div class="wz-teaser-right">
+      <div class="ov"></div>
+      <img src="images/winter-hero.jpg" alt="Vereister Steg am Starnberger See im Morgenlicht">
+    </div>
+  </section>
+  <div class="wz-teaser-facts">
+    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val">Fr &amp; Sa · 18:00</div><div class="wz-teaser-fact-lbl">Termine</div></div>
+    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val" id="wz-teaser-fact-preis">29 € p. P.</div><div class="wz-teaser-fact-lbl">Fondue satt</div></div>
+    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val" id="wz-teaser-fact-min">ab 10 Personen</div><div class="wz-teaser-fact-lbl">Termin findet statt</div></div>
+    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val">beheiztes Zelt</div><div class="wz-teaser-fact-lbl">direkt am Ufer</div></div>
+  </div>
 </div>
 
 <!-- SUP -->
@@ -845,39 +950,6 @@ footer{
     <p>Der Steg 1 ist mehr als ein Biergarten — Wasser, Berge und die Stille eines bayerischen Sommerabends. Einfach da sein.</p>
   </div>
 </div>
-
-
-
-
-<!-- INFO: Maps + Öffnungszeiten -->
-<section class="sec reveal" id="info">
-  <div class="info-grid">
-    <div class="info-card">
-      <h3>Hier findet Ihr uns</h3>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d11.3144!3d47.9547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479dcfacc78aa709%3A0x84f248ddf422e31c!2sSteg%201!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
-    <div class="info-card">
-      <h3>Öffnungszeiten</h3>
-      <div class="schedule-list" id="schedule-list"></div>
-      <script>
-        // Render default schedule immediately (before Supabase loads)
-        (function(){
-          var D=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-          var M=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
-          var h='';
-          for(var j=0;j<7;j++){
-            var d=new Date();d.setDate(d.getDate()+j);
-            var n=j===0?'Heute':D[d.getDay()];
-            h+='<div class="schedule-row'+(j===0?' today':'')+'"><span class="day">'+n+', '+d.getDate()+'. '+M[d.getMonth()]+'</span><span class="time">10:00 \u2013 20:00 Uhr</span></div>';
-          }
-          document.getElementById('schedule-list').innerHTML=h;
-        })();
-      </script>
-      <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
-    </div>
-  </div>
-</section>
-
 <!-- INSTAGRAM -->
 <section class="sec reveal" style="background:var(--sand);text-align:center">
   <p class="stag" style="justify-content:center">Folge uns</p>
@@ -916,6 +988,7 @@ footer{
       <a href="speisekarte">Speisekarte</a>
       <a href="galerie">Unser Steg 1</a>
       <a href="veranstaltungen">Veranstaltungen</a>
+      <a href="winterzauber" id="footer-winterzauber-item" style="display:none">Winterzauber</a>
       <a href="kontakt">Kontakt</a>
     </div>
   </details>
@@ -1377,6 +1450,75 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
         if (navItem) navItem.style.display = 'none';
         if (mmItem) mmItem.style.display = 'none';
       }
+    })
+    .catch(function () {});
+})();
+
+// Winterzauber-Teaser + Nav/Footer-Punkt: nur sichtbar wenn winterzauber_settings.active = true
+// (fail-closed — anders als der Jobs-Toggle oben, der fail-open ist, weil ein unfertiges
+// Winter-Feature nicht versehentlich öffentlich sichtbar werden darf).
+(function () {
+  var SB_URL_WZ = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
+  var SB_KEY_WZ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
+  var WD_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  function parseLocalDate(iso) { var p = iso.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ' · ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
+
+  function buildSnow(container, count) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var size = 2 + ((i * 7) % 5);
+      var span = document.createElement('span');
+      span.className = 'wz-teaser-flake';
+      span.style.left = ((i * 173) % 100) + '%';
+      span.style.width = size + 'px';
+      span.style.height = size + 'px';
+      span.style.background = 'rgba(253,251,247,' + (0.26 + ((i % 5) * 0.1)) + ')';
+      if (i % 3 === 0) span.style.filter = 'blur(1px)';
+      span.style.setProperty('--dx', (((i * 37) % 80) - 40) + 'px');
+      span.style.animationDuration = (11 + ((i * 3) % 12)) + 's';
+      span.style.animationDelay = (((i * 17) % 130) / 10) + 's';
+      frag.appendChild(span);
+    }
+    container.appendChild(frag);
+  }
+
+  fetch(SB_URL_WZ + '/rest/v1/winterzauber_settings?id=eq.1&select=active', {
+    headers: { apikey: SB_KEY_WZ, Authorization: 'Bearer ' + SB_KEY_WZ }
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var preview = false;
+      try { preview = new URLSearchParams(window.location.search).get('preview') === '1'; } catch (e) {}
+      var active = preview || !!(data && data[0] && data[0].active);
+      if (!active) return;
+
+      ['nav-winterzauber-item', 'mm-winterzauber-item', 'footer-winterzauber-item', 'wz-teaser-wrap'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = '';
+      });
+      buildSnow(document.getElementById('wz-teaser-snow'), 26);
+
+      return Promise.all([
+        fetch(SB_URL_WZ + '/rest/v1/fondue_termine?order=date.asc&select=date,capacity_min,capacity_max,personen_gesamt', { headers: { apikey: SB_KEY_WZ } }).then(function (r) { return r.json(); }),
+        fetch(SB_URL_WZ + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=price_per_person', { headers: { apikey: SB_KEY_WZ } }).then(function (r) { return r.json(); })
+      ]).then(function (results) {
+        var today = new Date().toISOString().slice(0, 10);
+        var termine = (results[0] || []).filter(function (t) { return t.date >= today; });
+        var varianten = results[1] || [];
+        if (varianten.length) document.getElementById('wz-teaser-fact-preis').textContent = Number(varianten[0].price_per_person).toFixed(0) + ' € p. P.';
+        if (termine.length) document.getElementById('wz-teaser-fact-min').textContent = 'ab ' + termine[0].capacity_min + ' Personen';
+        var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
+        if (next) {
+          var laeuft = (next.personen_gesamt || 0) >= next.capacity_min;
+          document.getElementById('wz-teaser-pill-label').textContent = 'Nächster Termin: ' + langLabel(next);
+          document.getElementById('wz-teaser-pill-hint').textContent = laeuft ? 'Findet statt · Plätze frei' : 'Anmeldung läuft — jetzt Platz sichern';
+        } else {
+          document.getElementById('wz-teaser-pill-label').textContent = 'Termine folgen in Kürze';
+        }
+      });
     })
     .catch(function () {});
 })();
