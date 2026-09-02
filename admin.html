@@ -1707,14 +1707,22 @@
       var sorted = rows.slice().sort(function(a,b){ return (order[a.status] == null ? 9 : order[a.status]) - (order[b.status] == null ? 9 : order[b.status]); });
       var aktiveVarianten = (wzVarianten || []).filter(function(v){ return v.is_active; });
 
+      // Kurzlabel fuer die Fondue-Spalten (voller Name bleibt im title-Tooltip)
+      function wzVariantShort(name){
+        if(/klassisch/i.test(name)) return 'Klass.';
+        if(/alkoholfrei/i.test(name)) return 'Alkfr.';
+        if(/vegan/i.test(name)) return 'Vegan';
+        var w = String(name).split(/\s+/)[0];
+        return w.length > 6 ? w.slice(0,5) + '.' : w;
+      }
+
       var out = '<details class="wz-teilnehmer"><summary>Teilnehmer ('+rows.length+')</summary>';
       out += '<div class="wz-tn-scroll"><table class="wz-tn-table"><thead><tr>';
-      out += '<th>Name</th><th>E-Mail</th><th>Telefon</th><th>Personen</th>';
+      out += '<th>Name</th><th>Status</th><th>E-Mail</th><th>Telefon</th><th>Personen</th>';
       aktiveVarianten.forEach(function(v){
-        var vlabel = v.name.length > 18 ? v.name.slice(0, 17) + '…' : v.name;
-        out += '<th title="'+esc(v.name)+'">'+esc(vlabel)+'</th>';
+        out += '<th title="'+esc(v.name)+'">'+esc(wzVariantShort(v.name))+'</th>';
       });
-      out += '<th>Status</th><th>Nr.</th></tr></thead><tbody>';
+      out += '<th>Nr.</th></tr></thead><tbody>';
 
       sorted.forEach(function(r){
         var isNach = terminStatus === 'bestaetigt' && r.status === 'vorgemerkt';
@@ -1723,11 +1731,11 @@
         var va = r.varianten_auswahl || {};
         out += '<tr class="wz-tn-row-'+r.status+'">';
         out += '<td>'+esc(r.customer_name)+'</td>';
+        out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span></td>';
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
         aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(va[v.id] || 0)+'</td>'; });
-        out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span></td>';
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
         out += '</tr>';
       });
