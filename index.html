@@ -166,21 +166,38 @@ nav.scrolled{
   transform:translateY(-1px);
   box-shadow:0 4px 20px rgba(42,123,111,.22);
 }
-/* Winterzauber: Orange-Variante des Nav-CTA + Werbebanner ueber dem Hero */
-.nav-cta-wz{background:var(--accent);color:#1B2B28;box-shadow:0 2px 12px rgba(212,136,58,.22);margin-right:.55rem}
+/* Winterzauber: Orange-Variante des Nav-CTA + durchlaufender Werbebanner */
+.nav-cta-group{display:flex;align-items:center;gap:.55rem}
+.nav-cta-group .nav-cta{white-space:nowrap}
+.nav-cta-wz{background:var(--accent);color:#1B2B28;box-shadow:0 2px 12px rgba(212,136,58,.22)}
 .nav-cta-wz:hover{background:#E39B4F;color:#1B2B28;box-shadow:0 4px 20px rgba(212,136,58,.28)}
 .mm-cta-wz{background:var(--accent);color:#1B2B28}
 .wz-promo{
   display:block;text-decoration:none;background:var(--accent);color:#1B2B28;
-  text-align:center;font-size:.92rem;font-weight:500;letter-spacing:.01em;line-height:1.4;
-  padding:.85rem 1.25rem;margin-top:6rem;position:relative;z-index:1;transition:background .25s;
+  font-size:.92rem;font-weight:500;letter-spacing:.01em;line-height:1;
+  padding:.8rem 0;margin-top:6rem;position:relative;z-index:1;
+  overflow:hidden;white-space:nowrap;transition:background .25s;
 }
-.wz-promo strong{font-weight:700}
 .wz-promo:hover{background:#E39B4F}
+.wz-promo-track{display:inline-flex;animation:wz-marquee 30s linear infinite;will-change:transform}
+.wz-promo:hover .wz-promo-track{animation-play-state:paused}
+.wz-promo-item{display:inline-block;padding-right:4rem}
+.wz-promo-item strong{font-weight:700}
+/* zwei identische Items, -50% = genau ein Item -> nahtlose Schleife (Abstand steckt im padding-right) */
+@keyframes wz-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.wz-promo-on .hero-left{padding-top:2.4rem}
 @media(max-width:900px){
-  .wz-promo{margin-top:5.2rem;font-size:.8rem;padding:.75rem 1rem}
+  /* Nav ist mobil eng: Orange-Button raus (Werbung laeuft ueber Banner + Mobile-Menue) */
+  #nav-winterzauber-cta{display:none!important}
+  .wz-promo{margin-top:5.2rem;font-size:.8rem;padding:.7rem 0}
+  .wz-promo-item{padding-right:2.75rem}
+  .wz-promo-track{animation-duration:22s}
   body.wz-promo-on .hero-left{padding-top:1.6rem}
+}
+@media (prefers-reduced-motion: reduce){
+  .wz-promo{white-space:normal;text-align:center;padding:.8rem 1.25rem}
+  .wz-promo-track{animation:none;display:block;padding-left:0}
+  .wz-promo-item + .wz-promo-item{display:none}
 }
 .nav-burger{
   display:none;width:44px;height:44px;
@@ -785,16 +802,21 @@ footer{
     <li id="nav-winterzauber-item" style="display:none"><a href="winterzauber">Winterzauber</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
-  <a href="winterzauber" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterzauber</a>
-  <a href="sup" class="nav-cta">SUP buchen</a>
+  <div class="nav-cta-group">
+    <a href="winterzauber" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterzauber</a>
+    <a href="sup" class="nav-cta">SUP buchen</a>
+  </div>
   <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
     <span class="nav-burger-inner"><span></span><span></span><span></span></span>
   </button>
 </nav>
 
-<!-- Winterzauber-Werbebanner (nur sichtbar wenn Feature aktiv, per JS eingeblendet) -->
-<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none">
-  <strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;→
+<!-- Winterzauber-Werbebanner: durchlaufender Marquee (nur sichtbar wenn Feature aktiv) -->
+<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none" aria-label="Neu in diesem Herbst: Winterzauber — Käsefondue im beheizten Zelt">
+  <span class="wz-promo-track" aria-hidden="true">
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+  </span>
 </a>
 
 <!-- Mobile menu overlay -->
