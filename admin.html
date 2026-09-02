@@ -160,9 +160,8 @@
     }
 
     /* Tab navigation — segmented control */
-    .tab-nav{display:flex;gap:3px;background:var(--sand3);border-radius:12px;padding:4px;margin-bottom:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .tab-nav::-webkit-scrollbar{display:none}
-    .tab-btn{flex:1;min-width:0;padding:8px 10px;background:transparent;border:none;border-radius:8px;font-family:inherit;font-size:.78rem;color:var(--text3);cursor:pointer;transition:all .18s;font-weight:500;white-space:nowrap;flex-shrink:0;text-align:center}
+    .tab-nav{display:flex;flex-wrap:wrap;gap:3px;background:var(--sand3);border-radius:12px;padding:4px;margin-bottom:24px}
+    .tab-btn{width:auto;flex:1 1 auto;min-width:max-content;padding:8px 12px;background:transparent;border:none;border-radius:8px;font-family:inherit;font-size:.78rem;color:var(--text3);cursor:pointer;transition:all .18s;font-weight:500;white-space:nowrap;text-align:center}
     .tab-btn:hover{color:var(--text);background:rgba(255,255,255,.5)}
     .tab-btn.active{background:var(--g);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(42,123,111,.25)}
     .tab-content{display:none}
@@ -350,9 +349,15 @@
     .wz-edit-grid label{margin-bottom:4px}
     .wz-zutat-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--sand2)}
     .wz-zutat-row:last-child{border-bottom:none}
-    .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem}
+    .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem;min-width:0}
     .wz-zutat-input.name{flex:2}
     .wz-zutat-input.price{flex:0 0 90px;text-align:right}
+    @media(max-width:600px){
+      /* Zutat-Zeile umbrechen: Name volle Breite, Preis + Toggle + Löschen darunter */
+      .wz-zutat-row{flex-wrap:wrap}
+      .wz-zutat-input.name{flex:1 1 100%}
+      .wz-zutat-input.price{flex:1 1 90px}
+    }
     .wz-zutat-row .toggle{flex:0 0 auto}
     .wz-zutat-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:4px 8px;width:auto}
     .wz-zutat-del:hover{color:#D94F4F}

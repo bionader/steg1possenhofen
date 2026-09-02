@@ -166,6 +166,22 @@ nav.scrolled{
   transform:translateY(-1px);
   box-shadow:0 4px 20px rgba(42,123,111,.22);
 }
+/* Winterzauber: Orange-Variante des Nav-CTA + Werbebanner ueber dem Hero */
+.nav-cta-wz{background:var(--accent);color:#1B2B28;box-shadow:0 2px 12px rgba(212,136,58,.22);margin-right:.55rem}
+.nav-cta-wz:hover{background:#E39B4F;color:#1B2B28;box-shadow:0 4px 20px rgba(212,136,58,.28)}
+.mm-cta-wz{background:var(--accent);color:#1B2B28}
+.wz-promo{
+  display:block;text-decoration:none;background:var(--accent);color:#1B2B28;
+  text-align:center;font-size:.92rem;font-weight:500;letter-spacing:.01em;line-height:1.4;
+  padding:.85rem 1.25rem;margin-top:6rem;position:relative;z-index:1;transition:background .25s;
+}
+.wz-promo strong{font-weight:700}
+.wz-promo:hover{background:#E39B4F}
+body.wz-promo-on .hero-left{padding-top:2.4rem}
+@media(max-width:900px){
+  .wz-promo{margin-top:5.2rem;font-size:.8rem;padding:.75rem 1rem}
+  body.wz-promo-on .hero-left{padding-top:1.6rem}
+}
 .nav-burger{
   display:none;width:44px;height:44px;
   align-items:center;justify-content:center;
@@ -769,11 +785,17 @@ footer{
     <li id="nav-winterzauber-item" style="display:none"><a href="winterzauber">Winterzauber</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
+  <a href="winterzauber" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterzauber</a>
   <a href="sup" class="nav-cta">SUP buchen</a>
   <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
     <span class="nav-burger-inner"><span></span><span></span><span></span></span>
   </button>
 </nav>
+
+<!-- Winterzauber-Werbebanner (nur sichtbar wenn Feature aktiv, per JS eingeblendet) -->
+<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none">
+  <strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;→
+</a>
 
 <!-- Mobile menu overlay -->
 <div class="mobile-menu" id="mobile-menu">
@@ -785,6 +807,7 @@ footer{
   <a href="jobs" id="mm-jobs-item">Jobs</a>
   <a href="winterzauber" id="mm-winterzauber-item" style="display:none">Winterzauber</a>
   <a href="kontakt">Kontakt</a>
+  <a href="winterzauber" id="mm-winterzauber-cta" class="mm-cta mm-cta-wz" style="display:none">Winterzauber vormerken</a>
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
 
@@ -1495,10 +1518,12 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
       var active = preview || !!(data && data[0] && data[0].active);
       if (!active) return;
 
-      ['nav-winterzauber-item', 'mm-winterzauber-item', 'footer-winterzauber-item', 'wz-teaser-wrap'].forEach(function (id) {
+      ['nav-winterzauber-item', 'mm-winterzauber-item', 'footer-winterzauber-item', 'wz-teaser-wrap',
+       'nav-winterzauber-cta', 'mm-winterzauber-cta', 'wz-promo'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.style.display = '';
       });
+      document.body.classList.add('wz-promo-on');
       buildSnow(document.getElementById('wz-teaser-snow'), 26);
 
       return Promise.all([
