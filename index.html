@@ -813,10 +813,10 @@ footer{
 </nav>
 
 <!-- Winterzauber-Werbebanner: durchlaufender Marquee (nur sichtbar wenn Feature aktiv) -->
-<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none" aria-label="Neu in diesem Herbst: Winterzauber — Käsefondue im beheizten Zelt">
+<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none" aria-label="Neu ab diesem Herbst: Winterzauber — Käsefondue im beheizten Zelt">
   <span class="wz-promo-track" aria-hidden="true">
-    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
-    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu in diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue im beheizten Zelt&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Freitags &amp; Samstags am winterstillen Ufer&nbsp;&nbsp;❄️</span>
   </span>
 </a>
 
@@ -895,6 +895,7 @@ footer{
         })();
       </script>
       <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
+      <p class="schedule-hint" id="wz-oeffnung-hint" style="display:none">⛺ Winterzauber-Öffnungszeiten können abweichen</p>
     </div>
   </div>
 </section>
@@ -1542,7 +1543,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
       if (!active) return;
 
       ['nav-winterzauber-item', 'mm-winterzauber-item', 'footer-winterzauber-item', 'wz-teaser-wrap',
-       'nav-winterzauber-cta', 'mm-winterzauber-cta', 'wz-promo'].forEach(function (id) {
+       'nav-winterzauber-cta', 'mm-winterzauber-cta', 'wz-promo', 'wz-oeffnung-hint'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.style.display = '';
       });
