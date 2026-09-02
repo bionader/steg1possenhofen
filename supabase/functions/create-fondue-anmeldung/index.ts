@@ -86,6 +86,8 @@ function dateFormattedDe(yyyymmdd: string): string {
 
 function buildMailHtml(opts: {
   name: string;
+  email: string;
+  phone: string;
   anmeldungId: string;
   manageToken: string;
   dateFormatted: string;
@@ -94,7 +96,7 @@ function buildMailHtml(opts: {
   beilagenLines: string[];
   gesamtpreis: number;
 }): string {
-  const { name, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis } = opts;
+  const { name, email, phone, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis } = opts;
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -113,6 +115,8 @@ function buildMailHtml(opts: {
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             <tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">E-Mail</td><td style="padding:6px 0;font-weight:500">${esc(email)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Telefon</td><td style="padding:6px 0;font-weight:500">${esc(phone)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${variantenLines.map(esc).join("<br>")}</td></tr>
@@ -272,6 +276,8 @@ serve(async (req) => {
         subject: `Deine Vormerkung für den Winterzauber am ${dateFormatted}`,
         html: buildMailHtml({
           name,
+          email,
+          phone,
           anmeldungId: inserted.anmeldung_id,
           manageToken: inserted.manage_token,
           dateFormatted,
