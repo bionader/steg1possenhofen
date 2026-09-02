@@ -112,8 +112,9 @@ function buildMailHtml(opts: {
         <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin-bottom:20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             <tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
-            <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${personen}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${variantenLines.map(esc).join("<br>")}</td></tr>
             ${beilagenLines.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Beilagen</td><td style="padding:6px 0;font-weight:500">${beilagenLines.map(esc).join("<br>")}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871">Voraussichtl. Preis</td><td style="padding:6px 0;font-weight:500">${gesamtpreis.toFixed(2)} &euro;</td></tr>

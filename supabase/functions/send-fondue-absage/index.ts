@@ -74,7 +74,7 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: string): string {
+function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: string, personen: number | string): string {
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -85,7 +85,14 @@ function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: strin
       <div style="padding:28px">
         <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Termin leider abgesagt</h2>
         <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, leider wurde die Mindestteilnehmerzahl f&uuml;r den Winterzauber am ${esc(dateFormatted)} nicht erreicht. Der Termin findet daher nicht statt.</p>
-        <p style="color:#6C7871;font-size:12px;margin:0 0 20px">Anmeldung ${esc(anmeldungId)}</p>
+        <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin:0 0 20px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
+            <tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
+          </table>
+        </div>
         <p style="color:#4A4840;font-size:14px;margin:0">Schau gerne auf unserer Website nach weiteren Terminen vorbei &mdash; wir hoffen, dich bald am Steg 1 begr&uuml;&szlig;en zu d&uuml;rfen.</p>
       </div>
       <div style="border-top:1px solid #E4D9C4;padding:20px 28px;text-align:center">
@@ -113,7 +120,7 @@ serve(async (req) => {
   if (!terminRows.length) return jsonResponse({ error: "termin_not_found" }, 404, cors);
   const dateFormatted = dateFormattedDe(terminRows[0].date);
 
-  const anmeldRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=neq.storniert&select=id,anmeldung_id,manage_token,customer_name,customer_email`);
+  const anmeldRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=neq.storniert&select=id,anmeldung_id,manage_token,customer_name,customer_email,personen_anzahl`);
   if (!anmeldRes.ok) return jsonResponse({ error: "anmeldungen_lookup_failed" }, 500, cors);
   const anmeldungen = await anmeldRes.json();
 
@@ -137,7 +144,7 @@ serve(async (req) => {
           bcc: ["reservierung@steg1possenhofen.de"],
           reply_to: "reservierung@steg1possenhofen.de",
           subject: `Winterzauber-Termin am ${dateFormatted} abgesagt`,
-          html: buildAbsageHtml(a.customer_name, a.anmeldung_id, dateFormatted),
+          html: buildAbsageHtml(a.customer_name, a.anmeldung_id, dateFormatted, a.personen_anzahl),
         }),
       });
       if (mailRes.ok) {
