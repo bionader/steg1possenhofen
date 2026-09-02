@@ -354,6 +354,22 @@
     .wz-anmeld-table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
     .wz-anmeld-table th{text-align:left;padding:8px 10px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2)}
     .wz-anmeld-table td{padding:8px 10px;border-bottom:1px solid var(--sand2);vertical-align:top}
+    /* Aufklappbare Teilnehmerliste je Termin-Karte */
+    .wz-teilnehmer{margin-top:10px;border-top:1px solid var(--sand2);padding-top:8px}
+    .wz-teilnehmer>summary{cursor:pointer;font-size:.82rem;font-weight:600;color:var(--text2);list-style:none;display:flex;align-items:center;gap:6px}
+    .wz-teilnehmer>summary::-webkit-details-marker{display:none}
+    .wz-teilnehmer>summary::before{content:'\25B8';font-size:.7rem;transition:transform .15s}
+    .wz-teilnehmer[open]>summary::before{transform:rotate(90deg)}
+    .wz-tn-empty{margin-top:10px;border-top:1px solid var(--sand2);padding-top:8px;font-size:.8rem;color:var(--text3)}
+    .wz-tn-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;border-bottom:1px solid var(--sand2)}
+    .wz-tn-row:last-child{border-bottom:none}
+    .wz-tn-name{color:var(--text);font-weight:500}
+    .wz-tn-meta{color:var(--text3)}
+    .wz-tn-badge{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:100px;white-space:nowrap}
+    .wz-tn-vorgemerkt{background:rgba(108,120,113,.14);color:var(--text2)}
+    .wz-tn-bestaetigt{background:rgba(46,158,74,.15);color:#1F7A36}
+    .wz-tn-nachzuegler{background:rgba(212,136,58,.18);color:#a85e1c}
+    .wz-tn-storniert,.wz-tn-abgesagt{background:rgba(217,79,79,.12);color:#B53E3E}
   </style>
 </head>
 <body>
@@ -1624,15 +1640,16 @@
       if(!visibleTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Termine in diesem Monat.</p>'; return; }
 
       Promise.all(visibleTermine.map(function(t){
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&status=in.(vorgemerkt,bestaetigt)&select=personen_anzahl',{
+        // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
+        // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,personen_anzahl,status&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
-        }).then(function(r){return r.json()}).then(function(rows){
-          return (rows||[]).reduce(function(sum,r){return sum+r.personen_anzahl},0);
-        });
-      })).then(function(sums){
+        }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
+      })).then(function(rowsPerTermin){
         var html = '';
         visibleTermine.forEach(function(t, i){
-          var total = sums[i];
+          var rows = rowsPerTermin[i] || [];
+          var total = rows.reduce(function(sum,r){ return sum + ((r.status==='vorgemerkt'||r.status==='bestaetigt') ? r.personen_anzahl : 0); }, 0);
           var dateFmt = t.date.split('-').reverse().join('.');
           html += '<div class="wz-termin-card" data-id="'+t.id+'">';
           html += '<div class="wz-termin-card-top">';
@@ -1669,10 +1686,33 @@
             + '<button class="wz-btn-plain" onclick="toggleWzTerminEdit(\''+t.id+'\')">Abbrechen</button>'
             + '</div>'
             + '</div>';
+          html += renderWzTeilnehmer(rows, t.status);
           html += '</div>';
         });
         el.innerHTML = html;
       });
+    }
+
+    // Aufklappbare Teilnehmerliste unter einer Termin-Karte.
+    // "Nachzuegler" = noch "vorgemerkt", obwohl der Termin schon bestaetigt ist.
+    function renderWzTeilnehmer(rows, terminStatus){
+      if(!rows || !rows.length){
+        return '<div class="wz-tn-empty">Noch keine Anmeldungen</div>';
+      }
+      var order = { bestaetigt:0, vorgemerkt:1, storniert:2, abgesagt:3 };
+      var sorted = rows.slice().sort(function(a,b){ return (order[a.status] == null ? 9 : order[a.status]) - (order[b.status] == null ? 9 : order[b.status]); });
+      var out = '<details class="wz-teilnehmer"><summary>Teilnehmer ('+rows.length+')</summary>';
+      sorted.forEach(function(r){
+        var isNach = terminStatus === 'bestaetigt' && r.status === 'vorgemerkt';
+        var cls = isNach ? 'nachzuegler' : r.status;
+        var lbl = isNach ? 'Nachzügler' : (WZ_STATUS_LABELS_ANMELD[r.status] || r.status);
+        out += '<div class="wz-tn-row">'
+          + '<span><span class="wz-tn-name">'+esc(r.customer_name)+'</span> <span class="wz-tn-meta">· '+r.personen_anzahl+' P · '+esc(r.anmeldung_id)+'</span></span>'
+          + '<span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span>'
+          + '</div>';
+      });
+      out += '</details>';
+      return out;
     }
 
     function confirmWinterzauberTermin(terminId, isNachzuegler){
