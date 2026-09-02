@@ -334,8 +334,13 @@
     .wz-badge-bestaetigt{background:rgba(46,158,74,.15);color:#1F7A36}
     .wz-badge-ausgebucht,.wz-badge-abgesagt{background:rgba(217,79,79,.12);color:#B53E3E}
     .wz-termin-progress{font-size:.82rem;color:var(--text2);margin-top:6px}
-    .wz-termin-actions{display:flex;gap:8px;margin-top:10px}
+    .wz-termin-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
     .wz-termin-actions button{width:auto;padding:6px 14px;font-size:.8rem}
+    .wz-termin-actions button:disabled{opacity:.4;cursor:not-allowed}
+    .wz-termin-card.wz-inactive{opacity:.62}
+    .wz-badge-deaktiviert{background:rgba(108,120,113,.18);color:var(--text2)}
+    .wz-btn-del{background:none;border:1.5px solid #D94F4F;color:#D94F4F}
+    .wz-btn-del:hover:not(:disabled){background:#D94F4F;color:#fff}
     .wz-btn-confirm{background:#2E9E4A}
     .wz-btn-cancel-termin{background:#D94F4F}
     .wz-termin-warn{font-size:.8rem;font-weight:600;color:#B53E3E;background:rgba(217,79,79,.1);border-radius:8px;padding:6px 10px;margin-top:8px}
@@ -1601,7 +1606,7 @@
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
-      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
@@ -1654,10 +1659,14 @@
           var rows = rowsPerTermin[i] || [];
           var total = rows.reduce(function(sum,r){ return sum + ((r.status==='vorgemerkt'||r.status==='bestaetigt') ? r.personen_anzahl : 0); }, 0);
           var dateFmt = t.date.split('-').reverse().join('.');
-          html += '<div class="wz-termin-card" data-id="'+t.id+'">';
+          var inaktiv = t.is_active === false;
+          html += '<div class="wz-termin-card'+(inaktiv?' wz-inactive':'')+'" data-id="'+t.id+'">';
           html += '<div class="wz-termin-card-top">';
           html += '<span class="wz-termin-date">'+dateFmt+'</span>';
+          html += '<span>';
+          if(inaktiv) html += '<span class="wz-termin-badge wz-badge-deaktiviert" style="margin-right:6px">Deaktiviert</span>';
           html += '<span class="wz-termin-badge wz-badge-'+t.status+'">'+WZ_STATUS_LABELS[t.status]+'</span>';
+          html += '</span>';
           html += '</div>';
           html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
           // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
@@ -1665,16 +1674,27 @@
             html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – Gäste anrufen oder Termin absagen</div>';
           }
           html += '<div class="wz-termin-actions">';
-          if(t.status==='schwelle_erreicht' || t.status==='ausgebucht'){
-            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', false)">Termin bestätigen</button>';
-          } else if(t.status==='bestaetigt'){
-            // Nachträglich hinzugekommene Anmeldungen (Status "vorgemerkt") verbindlich machen
-            html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', true)">Nachzügler bestätigen</button>';
-          }
-          if(t.status!=='abgesagt'){
-            html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
+          if(!inaktiv){
+            if(t.status==='schwelle_erreicht' || t.status==='ausgebucht'){
+              html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', false)">Termin bestätigen</button>';
+            } else if(t.status==='bestaetigt'){
+              // Nachträglich hinzugekommene Anmeldungen (Status "vorgemerkt") verbindlich machen
+              html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', true)">Nachzügler bestätigen</button>';
+            }
+            if(t.status!=='abgesagt'){
+              html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
+            }
           }
           html += '<button class="wz-btn-edit" onclick="toggleWzTerminEdit(\''+t.id+'\')">Bearbeiten</button>';
+          // Aktiv/inaktiv umschalten — nur solange gar keine Anmeldung existiert
+          var hatAnmeldungen = rows.length > 0;
+          html += '<button class="wz-btn-plain" onclick="toggleWzTerminActive(\''+t.id+'\','+(inaktiv?'false':'true')+')"'
+                + (hatAnmeldungen ? ' disabled title="Nur umschaltbar, solange keine Anmeldung existiert"' : '')
+                + '>'+(inaktiv ? 'Aktivieren' : 'Deaktivieren')+'</button>';
+          // Löschen — nur wenn keine aktiven Gäste (stornierte/abgesagte werden mitgelöscht)
+          html += '<button class="wz-btn-del" onclick="deleteWzTermin(\''+t.id+'\','+rows.length+')"'
+                + (total > 0 ? ' disabled title="Erst alle Gäste absagen"' : '')
+                + '>Löschen</button>';
           html += '</div>';
           // Inline-Bearbeitung: Datum, Notiz, Mindest-/Max-Teilnehmerzahl nachträglich änderbar
           html += '<div class="wz-termin-edit" id="wz-edit-'+t.id+'" style="display:none">'
@@ -1791,6 +1811,41 @@
       .catch(function(){ msg('Fehler beim Speichern','error','wz-admin-message'); });
     }
 
+    // Termin aktiv/inaktiv schalten (reversibel, daher ohne Rueckfrage).
+    // Button ist im Render nur klickbar, wenn keine Anmeldung am Termin haengt.
+    function toggleWzTerminActive(terminId, currentActive){
+      var next = !currentActive;
+      fetch(SB_URL+'/rest/v1/fondue_termine?id=eq.'+terminId,{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({is_active: next})
+      })
+      .then(function(r){ if(!r.ok) throw new Error('patch'); return r.json(); })
+      .then(function(){ msg(next ? 'Termin aktiviert' : 'Termin deaktiviert','','wz-admin-message'); loadWinterzauberTermine(); })
+      .catch(function(){ msg('Fehler beim Umschalten','error','wz-admin-message'); });
+    }
+
+    // Termin endgueltig loeschen. Im Render nur klickbar, wenn keine AKTIVEN Gaeste
+    // (vorgemerkt/bestaetigt) dranhaengen. Stornierte/abgesagte Anmeldungen werden
+    // zuerst geloescht (FK + Recompute-Trigger), dann der Termin.
+    function deleteWzTermin(terminId, anmeldungCount){
+      var q = anmeldungCount > 0
+        ? 'Termin und '+anmeldungCount+' stornierte/abgesagte Anmeldung(en) endgültig löschen? Das kann nicht rückgängig gemacht werden.'
+        : 'Termin endgültig löschen? Das kann nicht rückgängig gemacht werden.';
+      if(!confirm(q)) return;
+      var hdr = {'apikey':SB_KEY,'Authorization':'Bearer '+token};
+      var delTermin = function(){
+        return fetch(SB_URL+'/rest/v1/fondue_termine?id=eq.'+terminId,{ method:'DELETE', headers:hdr });
+      };
+      var chain = anmeldungCount > 0
+        ? fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+terminId,{ method:'DELETE', headers:hdr })
+            .then(function(r){ if(!r.ok) throw new Error('del_anmeld'); return delTermin(); })
+        : delTermin();
+      chain
+      .then(function(r){ if(!r.ok) throw new Error('del_termin'); msg('Termin gelöscht','','wz-admin-message'); loadWinterzauberTermine(); loadWinterzauberAnmeldungenFilter(); })
+      .catch(function(){ msg('Fehler beim Löschen','error','wz-admin-message'); });
+    }
+
     function cancelWinterzauberTermin(terminId, wasConfirmed){
       var q = wasConfirmed
         ? 'ACHTUNG: Dieser Termin ist bereits verbindlich bestätigt. Wirklich absagen? Alle bestätigten Gäste erhalten sofort eine Absage-Mail.'
@@ -1868,7 +1923,7 @@
       // Zutaten zuerst laden — renderWzTeilnehmer braucht wzVarianten fuer die Fondue-Spalten
       loadWinterzauberZutaten()
       .then(function(){
-        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note',{
+        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()});
       })

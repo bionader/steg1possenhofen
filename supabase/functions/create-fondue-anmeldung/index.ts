@@ -183,11 +183,16 @@ serve(async (req) => {
   if (allergien && !allergienConsent) return jsonResponse({ error: "allergien_consent_required" }, 400, corsHeaders);
 
   // Termin laden + Status prüfen
-  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,status,capacity_max`);
+  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,status,capacity_max,is_active`);
   if (!terminRes.ok) return jsonResponse({ error: "termin_lookup_failed" }, 500, corsHeaders);
   const terminRows = await terminRes.json();
   if (!Array.isArray(terminRows) || terminRows.length === 0) return jsonResponse({ error: "termin_not_found" }, 404, corsHeaders);
   const termin = terminRows[0];
+  // Vom Admin deaktivierte Termine nehmen keine Vormerkungen an (RLS versteckt sie zwar
+  // schon fuer anon, der Service-Role-Zugriff hier sieht sie aber weiterhin).
+  if (termin.is_active === false) {
+    return jsonResponse({ error: "termin_inactive" }, 409, corsHeaders);
+  }
   // "bestaetigt" ist erlaubt: Nachzuegler koennen sich weiter vormerken (Admin bestaetigt sie
   // spaeter per "Nachzuegler bestaetigen"). Nur "ausgebucht" und "abgesagt" blockieren.
   if (!["offen", "schwelle_erreicht", "bestaetigt"].includes(termin.status)) {
