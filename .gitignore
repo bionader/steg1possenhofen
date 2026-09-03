@@ -4,6 +4,7 @@
 # Environment / Secrets
 .env
 .env.*
+!.env.example
 
 # macOS
 .DS_Store
@@ -22,3 +23,4 @@ admin-pre-polish.html
 
 # Interne Doku (nicht auf GitHub Pages)
 SETUP.md
+RESTORE.md

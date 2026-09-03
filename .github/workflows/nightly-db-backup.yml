@@ -1,0 +1,66 @@
+name: Nightly DB Backup
+
+# Sicherheitsnetz statt Supabase Point-in-Time-Recovery (Free-Tier).
+# Dumpt die Produktions-DB einmal taeglich und committet sie ins private Repo
+# bionader/steg1possenhofen-backups. Wiederherstellung: siehe RESTORE.md.
+#
+# Benoetigte Repo-Secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_DB_URL    Postgres-URI aus Supabase -> Project Settings -> Database
+#                      -> Connection string -> URI  (enthaelt das DB-Passwort)
+#   BACKUP_REPO_TOKEN  Fine-grained PAT, "Contents: Read and write", NUR auf
+#                      bionader/steg1possenhofen-backups
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # taeglich 03:00 UTC
+  workflow_dispatch: {}    # manuell ausloesbar (fuer den ersten Test)
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase CLI installieren
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: DB dumpen (Schema + Daten, public + auth)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          ts="$(date -u +%Y-%m-%d)"
+          mkdir -p out
+          supabase db dump --db-url "$SUPABASE_DB_URL"             -f "out/${ts}_schema.sql"
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only  -f "out/${ts}_data.sql"
+          # auth.users separat (Login-Konten fuer /admin) — nur Daten
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --schema auth \
+            -f "out/${ts}_auth.sql" || echo "auth-Dump uebersprungen (Rechte?)"
+          ls -la out
+
+      - name: In Backup-Repo committen
+        env:
+          BACKUP_REPO_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          ts="$(date -u +%Y-%m-%d)"
+          git clone --depth 1 \
+            "https://x-access-token:${BACKUP_REPO_TOKEN}@github.com/bionader/steg1possenhofen-backups.git" repo
+          mkdir -p repo/dumps
+          cp out/*.sql repo/dumps/
+          cd repo
+          git config user.name  "steg1-backup-bot"
+          git config user.email "backup@steg1possenhofen.de"
+          # Retention: nur die letzten 30 Kalendertage behalten
+          for kind in schema data auth; do
+            ls -1 dumps/*_${kind}.sql 2>/dev/null | sort | head -n -30 | while read -r f; do
+              git rm --quiet "$f" || rm -f "$f"
+            done
+          done
+          git add dumps
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen — nichts zu committen."
+          else
+            git commit -m "DB-Backup ${ts}"
+            git push
+          fi
