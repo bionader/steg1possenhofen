@@ -74,7 +74,7 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: string, personen: number | string, email: string, phone: string): string {
+function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: string, personen: number | string, email: string, phone: string, reason: string): string {
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -95,6 +95,7 @@ function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: strin
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
           </table>
         </div>
+        ${reason ? `<div style="background:#F2EBD9;border-radius:12px;padding:16px 18px;margin:0 0 20px"><p style="color:#163D36;font-size:13px;font-weight:600;margin:0 0 4px">Grund der Absage</p><p style="color:#4A4840;font-size:13px;margin:0">${esc(reason)}</p></div>` : ""}
         <p style="color:#4A4840;font-size:14px;margin:0">Schau gerne auf unserer Website nach weiteren Terminen vorbei &mdash; wir hoffen, dich bald am Steg 1 begr&uuml;&szlig;en zu d&uuml;rfen.</p>
       </div>
       <div style="border-top:1px solid #E4D9C4;padding:20px 28px;text-align:center">
@@ -115,6 +116,7 @@ serve(async (req) => {
   let body: any;
   try { body = await req.json(); } catch { return jsonResponse({ error: "invalid_json" }, 400, cors); }
   const terminId = String(body?.terminId ?? "");
+  const reason = String(body?.reason ?? "").trim().slice(0, 500);
   if (!UUID_RE.test(terminId)) return jsonResponse({ error: "invalid_termin" }, 400, cors);
 
   const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date`);
@@ -146,7 +148,7 @@ serve(async (req) => {
           bcc: ["reservierung@steg1possenhofen.de"],
           reply_to: "reservierung@steg1possenhofen.de",
           subject: `Winterzauber-Termin am ${dateFormatted} abgesagt`,
-          html: buildAbsageHtml(a.customer_name, a.anmeldung_id, dateFormatted, a.personen_anzahl, a.customer_email, a.customer_phone),
+          html: buildAbsageHtml(a.customer_name, a.anmeldung_id, dateFormatted, a.personen_anzahl, a.customer_email, a.customer_phone, reason),
         }),
       });
       if (mailRes.ok) {
@@ -161,7 +163,10 @@ serve(async (req) => {
   }
 
   // Termin explizit auf abgesagt setzen (Trigger überschreibt bestaetigt/abgesagt nicht mehr automatisch)
-  await pg(`fondue_termine?id=eq.${terminId}`, { method: "PATCH", body: JSON.stringify({ status: "abgesagt" }) });
+  await pg(`fondue_termine?id=eq.${terminId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "abgesagt", cancel_reason: reason || null }),
+  });
 
   return jsonResponse({ total: anmeldungen.length, sent }, 200, cors);
 });

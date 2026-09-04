@@ -24,3 +24,6 @@ admin-pre-polish.html
 # Interne Doku (nicht auf GitHub Pages)
 SETUP.md
 RESTORE.md
+
+# SDD scratch (subagent-driven-development workspace)
+.superpowers/

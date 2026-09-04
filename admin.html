@@ -410,26 +410,26 @@
       </div>
 
       <select class="tab-select" id="tab-select" aria-label="Bereich wählen">
+        <option value="winterzauber">Winterzauber</option>
         <option value="schedule">Öffnungszeiten</option>
         <option value="sup">SUP-Buchungen</option>
         <option value="menu">Speisekarte</option>
         <option value="bestseller">Bestseller</option>
         <option value="events">Veranstaltungen</option>
         <option value="jobs">Jobs</option>
-        <option value="winterzauber">Winterzauber</option>
       </select>
       <div class="tab-nav" id="tab-nav">
-        <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
+        <button class="tab-btn active" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
+        <button class="tab-btn" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
         <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
         <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
         <button class="tab-btn" data-tab="jobs" id="tab-jobs">Jobs</button>
-        <button class="tab-btn" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
-      <div class="tab-content active" id="content-schedule">
+      <div class="tab-content" id="content-schedule">
         <div class="cal-header">
           <h2>Wochenplaner</h2>
           <span class="cal-hint">Rot = ganzer Tag geschlossen</span>
@@ -575,7 +575,7 @@
       </div>
 
       <!-- Tab 7: Winterzauber -->
-      <div class="tab-content" id="content-winterzauber">
+      <div class="tab-content active" id="content-winterzauber">
         <div class="cal-header">
           <h2>Winterzauber — Käsefondue</h2>
           <span class="cal-hint">Feature-Flag, Termine, Anmeldungen, Zutaten</span>
@@ -785,9 +785,13 @@
         document.getElementById('content-schedule').classList.add('active');
         loadSchedule();
       } else {
-        // Admin (Cathy/Edita) — alle Tabs
-        if (sel) sel.value = 'schedule';
-        loadSchedule();
+        // Voll-Admin — alle Tabs. Startansicht: Winterzauber (Punkt 2 Feedback-Runde).
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+        document.getElementById('tab-winterzauber').classList.add('active');
+        document.getElementById('content-winterzauber').classList.add('active');
+        if (sel) sel.value = 'winterzauber';
+        loadWinterzauberPanel();
       }
     }
 
@@ -1611,7 +1615,7 @@
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
-      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
@@ -1655,12 +1659,15 @@
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
         // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,status&order=created_at.asc',{
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
       })).then(function(rowsPerTermin){
         var html = '';
         visibleTermine.forEach(function(t, i){
+          // Rows je Termin fuer den Vorbereitungslisten-Handler bereitstellen
+          window.wzRowsByTermin = window.wzRowsByTermin || {};
+          window.wzRowsByTermin[t.id] = rowsPerTermin[i] || [];
           var rows = rowsPerTermin[i] || [];
           var total = rows.reduce(function(sum,r){ return sum + ((r.status==='vorgemerkt'||r.status==='bestaetigt') ? r.personen_anzahl : 0); }, 0);
           var dateFmt = t.date.split('-').reverse().join('.');
@@ -1674,6 +1681,10 @@
           html += '</span>';
           html += '</div>';
           html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
+          // Gespeicherten Absagegrund bei bereits abgesagten Terminen anzeigen
+          if (t.cancel_reason) {
+            html += '<div style="font-size:.8rem;color:var(--text3);margin-top:4px">Absagegrund: '+esc(t.cancel_reason)+'</div>';
+          }
           // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
           if(t.status==='bestaetigt' && total < t.capacity_min){
             html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – Gäste anrufen oder Termin absagen</div>';
@@ -1687,10 +1698,11 @@
               html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', true)">Nachzügler bestätigen</button>';
             }
             if(t.status!=='abgesagt'){
-              html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
+              html += '<button class="wz-btn-cancel-termin" onclick="toggleWzCancel(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
             }
           }
           html += '<button class="wz-btn-edit" onclick="toggleWzTerminEdit(\''+t.id+'\')">Bearbeiten</button>';
+          html += '<button class="wz-btn-plain" onclick="openWzVorbereitungsliste(\''+t.id+'\')">Vorbereitungsliste</button>';
           // Aktiv/inaktiv umschalten — nur solange gar keine Anmeldung existiert
           var hatAnmeldungen = rows.length > 0;
           html += '<button class="wz-btn-plain" onclick="toggleWzTerminActive(\''+t.id+'\','+(inaktiv?'false':'true')+')"'
@@ -1714,6 +1726,15 @@
             + '<button class="wz-btn-plain" onclick="toggleWzTerminEdit(\''+t.id+'\')">Abbrechen</button>'
             + '</div>'
             + '</div>';
+          // Inline-Absage: optionaler Grund landet in der Absage-Mail
+          html += '<div class="wz-termin-cancel" id="wz-cancel-'+t.id+'" style="display:none">'
+            + '<label style="display:block;font-size:.8rem;color:var(--text2);margin-bottom:4px">Grund der Absage <span style="color:var(--text3)">(optional, erscheint in der Absage-Mail)</span></label>'
+            + '<textarea id="wz-cancel-reason-'+t.id+'" rows="2" style="width:100%;font:inherit;padding:8px;border:1px solid var(--sand2);border-radius:8px"></textarea>'
+            + '<p id="wz-cancel-warn-'+t.id+'" style="font-size:.8rem;color:var(--err);margin:6px 0 0;display:none">Dieser Termin ist bereits verbindlich bestätigt. Alle bestätigten Gäste erhalten sofort eine Absage-Mail.</p>'
+            + '<div class="wz-termin-actions" style="margin-top:8px">'
+            + '<button class="wz-btn-cancel-termin" onclick="submitWinterzauberCancel(\''+t.id+'\')">Absage senden</button>'
+            + '<button class="wz-btn-plain" onclick="toggleWzCancel(\''+t.id+'\', false)">Abbrechen</button>'
+            + '</div></div>';
           html += renderWzTeilnehmer(rows, t.status);
           html += '</div>';
         });
@@ -1731,6 +1752,11 @@
       var order = { bestaetigt:0, vorgemerkt:1, storniert:2, abgesagt:3 };
       var sorted = rows.slice().sort(function(a,b){ return (order[a.status] == null ? 9 : order[a.status]) - (order[b.status] == null ? 9 : order[b.status]); });
       var aktiveVarianten = (wzVarianten || []).filter(function(v){ return v.is_active; });
+      var aktiveBeilagen = (wzBeilagen || []).filter(function(b){ return b.is_active; });
+      function wzBeilageShort(name){
+        var w = String(name).split(/\s+/)[0];
+        return w.length > 8 ? w.slice(0,7) + '.' : w;
+      }
 
       // Kurzlabel fuer die Fondue-Spalten (voller Name bleibt im title-Tooltip)
       function wzVariantShort(name){
@@ -1747,6 +1773,9 @@
       aktiveVarianten.forEach(function(v){
         out += '<th title="'+esc(v.name)+'">'+esc(wzVariantShort(v.name))+'</th>';
       });
+      aktiveBeilagen.forEach(function(b){
+        out += '<th title="'+esc(b.name)+'">'+esc(wzBeilageShort(b.name))+'</th>';
+      });
       out += '<th>Nr.</th></tr></thead><tbody>';
 
       sorted.forEach(function(r){
@@ -1760,13 +1789,93 @@
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
-        aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(va[v.id] || 0)+'</td>'; });
+        aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(Number(va[v.id]) || 0)+'</td>'; });
+        var ba = r.beilagen_auswahl || {};
+        aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(Number(ba[b.id]) || 0)+'</td>'; });
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
         out += '</tr>';
       });
 
       out += '</tbody></table></div></details>';
       return out;
+    }
+
+    // Druckfertige Vorbereitungsliste für einen Termin — reines HTML + Print-CSS,
+    // keine PDF-Library. Zählt nur aktive Anmeldungen (vorgemerkt + bestaetigt).
+    function buildWzVorbereitungsliste(termin, rows){
+      var aktiveVar = (wzVarianten || []).filter(function(v){ return v.is_active; });
+      var aktiveBei = (wzBeilagen || []).filter(function(b){ return b.is_active; });
+      var active = (rows || []).filter(function(r){ return r.status === 'vorgemerkt' || r.status === 'bestaetigt'; });
+
+      var varSum = {}, beiSum = {}, personen = 0;
+      aktiveVar.forEach(function(v){ varSum[v.id] = 0; });
+      aktiveBei.forEach(function(b){ beiSum[b.id] = 0; });
+      active.forEach(function(r){
+        personen += Number(r.personen_anzahl) || 0;
+        var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
+        Object.keys(va).forEach(function(id){ varSum[id] = (varSum[id] || 0) + Number(va[id] || 0); });
+        Object.keys(ba).forEach(function(id){ beiSum[id] = (beiSum[id] || 0) + Number(ba[id] || 0); });
+      });
+
+      function e(s){ var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+      var dateFmt = termin.date.split('-').reverse().join('.');
+      var now = new Date();
+      var erstellt = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+
+      var sumRows = aktiveVar.map(function(v){ return '<tr><td>' + e(v.name) + '</td><td class="n">' + (varSum[v.id] || 0) + '</td></tr>'; }).join('')
+        + aktiveBei.map(function(b){ return '<tr><td>' + e(b.name) + ' <span class="tag">Beilage</span></td><td class="n">' + (beiSum[b.id] || 0) + '</td></tr>'; }).join('');
+
+      var head = '<tr><th>Name</th><th class="n">Pers.</th>'
+        + aktiveVar.map(function(v){ return '<th>' + e(v.name) + '</th>'; }).join('')
+        + aktiveBei.map(function(b){ return '<th>' + e(b.name) + '</th>'; }).join('')
+        + '<th>Allergien</th><th>Telefon</th></tr>';
+
+      var body = active.map(function(r){
+        var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
+        return '<tr><td>' + e(r.customer_name) + '</td><td class="n">' + (Number(r.personen_anzahl) || 0) + '</td>'
+          + aktiveVar.map(function(v){ return '<td class="n">' + (Number(va[v.id]) || 0) + '</td>'; }).join('')
+          + aktiveBei.map(function(b){ return '<td class="n">' + (Number(ba[b.id]) || 0) + '</td>'; }).join('')
+          + '<td>' + e(r.allergien_hinweis || '') + '</td><td>' + e(r.customer_phone || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="99">Keine aktiven Anmeldungen.</td></tr>';
+
+      return '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+        + '<title>Vorbereitungsliste ' + e(dateFmt) + '</title><style>'
+        + '*{box-sizing:border-box}body{font:13px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#1A2421;margin:24px}'
+        + 'h1{font-size:18px;margin:0 0 2px}.meta{color:#666;font-size:12px;margin:0 0 16px}'
+        + 'h2{font-size:14px;margin:20px 0 6px}table{border-collapse:collapse;width:100%;margin-bottom:8px}'
+        + 'th,td{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f2ebd9}'
+        + 'td.n,th.n{text-align:center}.tag{font-size:10px;color:#777}'
+        + '@media print{body{margin:10mm}button{display:none}}'
+        + '</style></head><body>'
+        + '<h1>Winterzauber — Vorbereitungsliste</h1>'
+        + '<p class="meta">Termin ' + e(dateFmt) + ' &middot; Status: ' + e(termin.status) + ' &middot; erstellt ' + e(erstellt) + '</p>'
+        + '<button onclick="window.print()">Drucken / als PDF sichern</button>'
+        + '<h2>Zusammenfassung</h2>'
+        + '<table><tr><th>Position</th><th class="n">Menge gesamt</th></tr>' + sumRows
+        + '<tr><td><strong>Personen gesamt</strong></td><td class="n"><strong>' + personen + '</strong></td></tr>'
+        + '<tr><td><strong>Anmeldungen</strong></td><td class="n"><strong>' + active.length + '</strong></td></tr></table>'
+        + '<h2>Gästeliste</h2>'
+        + '<table><thead>' + head + '</thead><tbody>' + body + '</tbody></table>'
+        + '</body></html>';
+    }
+
+    function openWzVorbereitungsliste(terminId){
+      var termin = (wzTermine || []).find(function(t){ return t.id === terminId; });
+      var rows = (window.wzRowsByTermin || {})[terminId] || [];
+      if(!termin){ msg('Termin nicht gefunden','error','wz-admin-message'); return; }
+      var w = window.open('', '_blank');
+      if(!w){ msg('Bitte Pop-ups für diese Seite erlauben','error','wz-admin-message'); return; }
+      w.document.open();
+      w.document.write(buildWzVorbereitungsliste(termin, rows));
+      w.document.close();
+      // Sofort drucken — bei kleiner Payload ist das load-Event oft schon durch,
+      // bevor der onload-Handler haengt. onload bleibt als Fallback fuer langsames Rendern.
+      // Guard: in Chrome feuert das load-Event auch nach document.close() noch, sonst
+      // bekaeme der Operator einen zweiten Druckdialog.
+      var wzPrinted = false;
+      function wzDoPrint(){ if(wzPrinted) return; wzPrinted = true; try { w.focus(); w.print(); } catch(e){} }
+      wzDoPrint();
+      w.onload = wzDoPrint;
     }
 
     function confirmWinterzauberTermin(terminId, isNachzuegler){
@@ -1851,15 +1960,27 @@
       .catch(function(){ msg('Fehler beim Löschen','error','wz-admin-message'); });
     }
 
-    function cancelWinterzauberTermin(terminId, wasConfirmed){
-      var q = wasConfirmed
-        ? 'ACHTUNG: Dieser Termin ist bereits verbindlich bestätigt. Wirklich absagen? Alle bestätigten Gäste erhalten sofort eine Absage-Mail.'
-        : 'Termin absagen? Alle Gäste erhalten sofort eine Absage-Mail.';
-      if(!confirm(q)) return;
+    function toggleWzCancel(terminId, wasConfirmed){
+      var box = document.getElementById('wz-cancel-'+terminId);
+      if(!box) return;
+      var open = box.style.display !== 'none';
+      box.style.display = open ? 'none' : 'block';
+      if(!open){
+        var warn = document.getElementById('wz-cancel-warn-'+terminId);
+        if(warn) warn.style.display = wasConfirmed ? 'block' : 'none';
+        var ta = document.getElementById('wz-cancel-reason-'+terminId);
+        if(ta) ta.focus();
+      }
+    }
+
+    function submitWinterzauberCancel(terminId){
+      var ta = document.getElementById('wz-cancel-reason-'+terminId);
+      var reason = ta ? ta.value.trim() : '';
+      if(!confirm('Termin jetzt absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
       fetch(SB_URL+'/functions/v1/send-fondue-absage',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-        body:JSON.stringify({terminId:terminId})
+        body:JSON.stringify({terminId:terminId, reason:reason})
       })
       .then(function(r){if(!r.ok)throw new Error('cancel_failed');return r.json();})
       .then(function(result){
@@ -1928,7 +2049,7 @@
       // Zutaten zuerst laden — renderWzTeilnehmer braucht wzVarianten fuer die Fondue-Spalten
       loadWinterzauberZutaten()
       .then(function(){
-        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
+        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()});
       })
@@ -1966,19 +2087,26 @@
     function renderWinterzauberAnmeldungen(rows){
       var el = document.getElementById('wz-anmeldungen-list');
       if(!rows.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Anmeldungen.</p>'; return; }
+      // Varianten/Beilagen ausgeschrieben statt "X Position(en)"
+      function nameMengeList(auswahl, list){
+        var keys = Object.keys(auswahl || {});
+        if(!keys.length) return '–';
+        return keys.map(function(id){
+          var item = (list || []).find(function(x){ return x.id === id; });
+          return (Number(auswahl[id]) || 0) + '× ' + esc(item ? item.name : '?');
+        }).join(', ');
+      }
       var html = '<table class="wz-anmeld-table"><thead><tr>';
       html += '<th>ID</th><th>Name</th><th>Kontakt</th><th>Personen</th><th>Varianten</th><th>Beilagen</th><th>Allergien</th><th>Status</th>';
       html += '</tr></thead><tbody>';
       rows.forEach(function(r){
-        var varCount = Object.keys(r.varianten_auswahl||{}).length;
-        var beiCount = Object.keys(r.beilagen_auswahl||{}).length;
         html += '<tr>';
         html += '<td>'+r.anmeldung_id+'</td>';
         html += '<td>'+esc(r.customer_name)+'</td>';
         html += '<td>'+esc(r.customer_email)+(r.customer_phone?'<br>'+esc(r.customer_phone):'')+'</td>';
         html += '<td>'+r.personen_anzahl+'</td>';
-        html += '<td>'+varCount+' Position(en)</td>';
-        html += '<td>'+beiCount+' Position(en)</td>';
+        html += '<td>'+nameMengeList(r.varianten_auswahl, wzVarianten)+'</td>';
+        html += '<td>'+nameMengeList(r.beilagen_auswahl, wzBeilagen)+'</td>';
         html += '<td>'+(r.allergien_hinweis?esc(r.allergien_hinweis):'–')+'</td>';
         html += '<td>'+WZ_STATUS_LABELS_ANMELD[r.status]+'</td>';
         html += '</tr>';

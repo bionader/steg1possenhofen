@@ -387,6 +387,7 @@ footer{
 .wz-flabel input,.wz-flabel textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;color:var(--text);min-height:44px;width:100%}
 .wz-flabel textarea{border-radius:16px;resize:vertical;min-height:80px}
 .wz-flabel input:focus,.wz-flabel textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
+.wz-addr-hint{font-size:.75rem;color:var(--text3);margin:-.35rem 0 0;line-height:1.5}
 .wz-stepper{display:flex;align-items:center;gap:.75rem;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.3rem .4rem;min-height:44px;width:fit-content}
 .wz-stepper button{width:36px;height:36px;border-radius:50%;border:none;background:rgba(42,123,111,.1);color:var(--g);font-size:1.1rem;cursor:pointer;line-height:1;transition:background .25s}
 .wz-stepper button:hover{background:rgba(42,123,111,.2)}
@@ -394,6 +395,14 @@ footer{
 .wz-summe-val{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;color:var(--accent2)}
 .wz-summe-hint{font-size:.8rem;color:var(--text3)}
 .wz-gaeste-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem}
+.wz-beilmengen{display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem}
+.wz-beilmenge-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;font-size:.86rem;color:var(--text)}
+.wz-beilmenge-row .lbl{flex:1;min-width:0}
+.wz-beilmenge-row .price{color:var(--text3);font-size:.78rem;white-space:nowrap}
+.wz-beilmenge-step{display:inline-flex;align-items:center;gap:.5rem}
+.wz-beilmenge-step button{width:26px;height:26px;border-radius:100px;border:1px solid var(--sand2);background:var(--w);color:var(--g);font-size:1rem;line-height:1;cursor:pointer}
+.wz-beilmenge-step button:disabled{opacity:.4;cursor:default}
+.wz-beilmenge-step .cnt{min-width:1.4ch;text-align:center;font-variant-numeric:tabular-nums}
 .wz-gast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.3rem .3rem .3rem 1.15rem}
 .wz-gast-label{font-size:.85rem;color:var(--text2)}
 .wz-gast-opts{display:flex;gap:.3rem}
@@ -627,6 +636,11 @@ footer{
               <label class="wz-flabel"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
               <label class="wz-flabel"><span>E-Mail *</span><input type="email" id="wz-email" placeholder="name@beispiel.de" required></label>
               <label class="wz-flabel"><span>Telefon *</span><input type="tel" id="wz-phone" placeholder="Für Rückfragen" required></label>
+              <label class="wz-flabel"><span>Straße *</span><input type="text" id="wz-street" placeholder="Straße" autocomplete="address-line1" required></label>
+              <label class="wz-flabel"><span>Hausnr. *</span><input type="text" id="wz-houseno" placeholder="Nr." autocomplete="address-line2" required></label>
+              <label class="wz-flabel"><span>PLZ *</span><input type="text" id="wz-plz" inputmode="numeric" placeholder="PLZ" autocomplete="postal-code" required></label>
+              <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
+              <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
               <div class="wz-flabel">
                 <span>Personen</span>
                 <div class="wz-stepper">
@@ -638,6 +652,10 @@ footer{
               <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
                 <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
                 <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
+              </div>
+              <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
+                <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
+                <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
               </div>
               <div class="full" style="display:flex;align-items:baseline;gap:.4rem">
                 <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
@@ -652,7 +670,7 @@ footer{
 
             <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
             <button type="submit" class="wz-submit2" id="wz-submit-btn">Platz vormerken →</button>
-            <p class="wz-form-hint">Unverbindlich. Ihr könnt jederzeit über den Link in der Mail wieder absagen.</p>
+            <p class="wz-form-hint">Unverbindliche Vormerkung. Bis 48&nbsp;Stunden vor dem Termin könnt ihr über den Link in eurer Mail kostenlos absagen. Danach wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
           </form>
         </div>
         <div id="wz-sent" class="wz-success2" style="display:none">
@@ -676,6 +694,7 @@ footer{
         <p class="wz-sec-tag"><span></span>Gut zu wissen</p>
         <h2 class="wz-h2" style="margin-bottom:2rem">Häufige Fragen</h2>
         <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und melden uns per Mail. Es entstehen keine Kosten — ihr könnt euch direkt für einen anderen Termin vormerken.</p></details>
+        <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Ja. Bis 48&nbsp;Stunden vor dem Termin storniert ihr kostenlos über den Link in eurer Bestätigungsmail. Innerhalb der letzten 48&nbsp;Stunden ist eine Stornierung weiterhin möglich, die Reservierung inklusive aller gewählten Beilagen wird dann aber berechnet – wir kaufen die Zutaten frisch für eure Runde ein.</p></details>
         <details class="wz-faq-item"><summary>Wie warm ist es im Zelt?<span class="plus">+</span></summary><p>Das Zelt ist beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht — der Weg zum Steg lohnt sich immer.</p></details>
         <details class="wz-faq-item"><summary>Können wir als kleine Gruppe kommen?<span class="plus">+</span></summary><p>Ja. An der langen Tafel sitzen mehrere Gruppen zusammen — genau das macht den Abend aus. Wer lieber unter sich bleibt, fragt eine private Winterfeier an.</p></details>
         <details class="wz-faq-item"><summary>Wie kommen wir hin?<span class="plus">+</span></summary><p>Kurt-Stieler-Straße 58, 82343 Possenhofen. Parkplätze gibt es direkt vor Ort genug — im Winter müsst ihr euch um einen Platz keine Sorgen machen.</p></details>
@@ -855,6 +874,7 @@ var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August',
 var termine = [];
 var variantenList = [];
 var beilagenList = [];
+var wzBeilagenMengen = {}; // { beilageId: menge } — gilt pro Vormerkung, nicht pro Person
 var selectedTerminId = null;
 var currentMonat = null; // null = alle
 var currentView = 'liste';
@@ -989,6 +1009,7 @@ function loadAll() {
 
     renderVarianten();
     renderBeilagen();
+    renderBeilMengen();
     initGaeste(2);
 
     selectedTerminId = null;
@@ -1191,12 +1212,55 @@ function renderGaeste() {
 }
 
 function updateSumme() {
-  var sum = gaesteVarianten.reduce(function (s, vid) {
+  var varSum = gaesteVarianten.reduce(function (s, vid) {
     var v = variantenList.find(function (x) { return x.id === vid; });
     return s + (v ? Number(v.price_per_person) : 0);
   }, 0);
-  document.getElementById('wz-summe').textContent = sum.toFixed(0) + ' €';
-  document.getElementById('wz-summe-hint').textContent = 'für ' + gaesteVarianten.length + ' × Fondue satt (exkl. Beilagen)';
+  var beilSum = Object.keys(wzBeilagenMengen).reduce(function (s, id) {
+    var b = beilagenList.find(function (x) { return x.id === id; });
+    return s + (b ? Number(b.price) * wzBeilagenMengen[id] : 0);
+  }, 0);
+  var total = varSum + beilSum;
+  document.getElementById('wz-summe').textContent = total.toFixed(0) + ' €';
+  document.getElementById('wz-summe-hint').textContent =
+    'für ' + gaesteVarianten.length + ' × Fondue satt' + (beilSum > 0 ? ' inkl. Beilagen' : '');
+}
+
+function renderBeilMengen() {
+  var el = document.getElementById('wz-beilmengen-list');
+  if (!el) return;
+  if (!beilagenList.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
+  el.innerHTML = beilagenList.map(function (b) {
+    var n = wzBeilagenMengen[b.id] || 0;
+    var priceTxt = Number(b.price) > 0 ? (Number(b.price).toFixed(2) + ' €/Portion') : 'ohne Aufpreis';
+    return '<div class="wz-beilmenge-row" data-id="' + b.id + '">' +
+      '<span class="lbl">' + escapeHtml(b.name) + '</span>' +
+      '<span class="price">' + priceTxt + '</span>' +
+      '<span class="wz-beilmenge-step">' +
+        '<button type="button" class="wz-bm-dec" data-id="' + b.id + '" aria-label="Weniger">−</button>' +
+        '<span class="cnt" id="wz-bm-cnt-' + b.id + '">' + n + '</span>' +
+        '<button type="button" class="wz-bm-inc" data-id="' + b.id + '" aria-label="Mehr">+</button>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.wz-bm-inc').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.min(99, (wzBeilagenMengen[id] || 0) + 1);
+      document.getElementById('wz-bm-cnt-' + id).textContent = wzBeilagenMengen[id];
+      updateSumme();
+    });
+  });
+  el.querySelectorAll('.wz-bm-dec').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.max(0, (wzBeilagenMengen[id] || 0) - 1);
+      var shown = wzBeilagenMengen[id];
+      if (wzBeilagenMengen[id] === 0) delete wzBeilagenMengen[id];
+      document.getElementById('wz-bm-cnt-' + id).textContent = shown;
+      updateSumme();
+    });
+  });
 }
 
 document.getElementById('wz-inc').addEventListener('click', function () {
@@ -1222,6 +1286,14 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     msg.textContent = 'Bitte gib eine gültige Telefonnummer an.'; msg.style.color = 'var(--err)'; return;
   }
 
+  var streetValue = document.getElementById('wz-street').value.trim();
+  var housenoValue = document.getElementById('wz-houseno').value.trim();
+  var plzValue = document.getElementById('wz-plz').value.trim();
+  var cityValue = document.getElementById('wz-city').value.trim();
+  if (!streetValue || !housenoValue || !plzValue || !cityValue) {
+    msg.textContent = 'Bitte gib deine vollständige Anschrift an.'; msg.style.color = 'var(--err)'; return;
+  }
+
   var allergienValue = document.getElementById('wz-allergien').value.trim();
   var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
   if (allergienValue && !allergienConsentChecked) {
@@ -1244,9 +1316,13 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     name: document.getElementById('wz-name').value.trim(),
     email: document.getElementById('wz-email').value.trim(),
     phone: phoneValue,
+    street: streetValue,
+    houseNo: housenoValue,
+    postalCode: plzValue,
+    city: cityValue,
     personen: gaesteVarianten.length,
     varianten: variantenSel,
-    beilagen: {},
+    beilagen: wzBeilagenMengen,
     allergien: allergienValue,
     allergienConsent: allergienConsentChecked,
     agb: document.getElementById('wz-agb').checked
@@ -1286,6 +1362,8 @@ document.getElementById('wz-reset-btn').addEventListener('click', function () {
   document.getElementById('wz-submit-btn').disabled = false;
   document.getElementById('wz-submit-btn').textContent = 'Platz vormerken →';
   if (window.hcaptcha && wzCaptchaWidgetId !== null) hcaptcha.reset(wzCaptchaWidgetId);
+  wzBeilagenMengen = {};
+  renderBeilMengen();
 });
 
 document.getElementById('wz-pf-form').addEventListener('submit', function (e) {

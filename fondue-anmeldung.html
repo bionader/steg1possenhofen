@@ -236,6 +236,8 @@ footer{
 .fa-btn{flex:1;display:block;text-align:center;padding:.8rem 1.2rem;border-radius:100px;font-family:inherit;font-size:.88rem;font-weight:500;text-decoration:none;cursor:pointer;border:1.5px solid transparent;transition:all .25s ease}
 .fa-btn-cancel{background:var(--w);color:var(--text3);border-color:var(--sand2)}
 .fa-btn-cancel:hover{border-color:var(--err);color:var(--err)}
+.fa-storno-hint{font-size:.82rem;color:var(--text3);line-height:1.55;margin:0 0 .75rem;text-align:left}
+.fa-48h-warn{font-size:.85rem;font-weight:500;color:var(--err-ink,#b23b3b);background:rgba(217,79,79,.1);border:1px solid rgba(217,79,79,.35);border-radius:10px;padding:.7rem .9rem;margin:0 0 1rem;text-align:left}
 .fa-cancel-dialog{background:var(--w);border:1.5px solid var(--sand2);border-radius:var(--r-lg);padding:2rem;margin-bottom:1.5rem;text-align:center;display:none}
 .fa-cancel-dialog.active{display:block}
 .fa-cancel-dialog h3{font-family:'Petrona',serif;font-size:1.2rem;color:var(--dark);margin-bottom:.5rem}
@@ -301,6 +303,9 @@ footer{
         <tr><td>Name</td><td id="fa-name"></td></tr>
       </table>
     </div>
+
+    <p class="fa-storno-hint">Unverbindliche Vormerkung. Bis 48&nbsp;Stunden vor dem Termin storniert ihr hier kostenlos. Danach wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
+    <p class="fa-48h-warn" id="fa-48h-warn" style="display:none">Achtung: weniger als 48&nbsp;Stunden bis zum Termin – die Reservierung inklusive aller gewählten Beilagen wird berechnet.</p>
 
     <div class="fa-actions" id="fa-action-buttons">
       <button class="fa-btn fa-btn-cancel" onclick="showCancelDialog()">Anmeldung stornieren</button>
@@ -446,8 +451,22 @@ function renderAnmeldung() {
   document.getElementById('fa-cancel-msg').textContent =
     'Möchtest du deine Anmeldung für den Termin am ' + d + ' wirklich stornieren?';
 
+  // Roter Hinweis nur zeigen, wenn der Termin < 48 h entfernt und die Anmeldung noch offen ist
+  var rawDate = anmeldung.fondue_termine && anmeldung.fondue_termine.date;
+  var warn = document.getElementById('fa-48h-warn');
+  if (warn && rawDate) {
+    var eventStart = new Date(rawDate + 'T18:00:00');
+    var within48h = (eventStart.getTime() - Date.now()) < 48 * 60 * 60 * 1000;
+    var stillOpen = anmeldung.status === 'vorgemerkt' || anmeldung.status === 'bestaetigt';
+    warn.style.display = (within48h && stillOpen) ? 'block' : 'none';
+  }
+
   if (anmeldung.status === 'storniert' || anmeldung.status === 'abgesagt') {
     document.getElementById('fa-action-buttons').style.display = 'none';
+    // Statischen Storno-Hinweis mit ausblenden — bei bereits stornierten/abgesagten
+    // Buchungen soll er nicht mehr suggerieren, dass noch storniert werden kann.
+    var sh = document.querySelector('.fa-storno-hint');
+    if (sh) sh.style.display = 'none';
   }
 }
 
