@@ -376,9 +376,9 @@ footer{
 .wz-vormerk-grid{display:grid;grid-template-columns:1fr;gap:2rem;margin-top:2.5rem}
 .wz-formbox{background:var(--sand);border-radius:16px;padding:2.25rem 2.25rem 2rem}
 .wz-form2col{display:grid;grid-template-columns:1fr 1fr;gap:1.75rem 2rem;align-items:start}
-.wz-form2col .wz-addr{grid-column:1;grid-row:1}
-.wz-form2col .wz-fcolB{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;gap:1.1rem}
-.wz-form2col .wz-confirm{grid-column:1;grid-row:2;margin-top:1.25rem}
+.wz-fcolLeft{display:flex;flex-direction:column}
+.wz-fcolB{display:flex;flex-direction:column;gap:1.1rem}
+.wz-confirm{margin-top:1.25rem}
 .wz-formbox h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.3rem}
 .wz-formbox .ctx{font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:1.75rem}
 .wz-formbox .ctx strong{font-weight:600;color:var(--text)}
@@ -469,7 +469,8 @@ footer{
   .wz-vormerk-grid>*,.wz-fondue-grid>*,.wz-hero2>*{min-width:0}
   /* Formular einspaltig, Reihenfolge: Adresse -> Personen/Fondue/Beilagen -> Bestaetigung */
   .wz-form2col{display:flex;flex-direction:column;gap:1.5rem}
-  .wz-form2col>*{min-width:0}
+  .wz-form2col>*,.wz-fcolLeft>*{min-width:0}
+  .wz-fcolLeft{display:contents}
   .wz-form2col .wz-addr{order:1}
   .wz-form2col .wz-fcolB{order:2;margin-top:0}
   .wz-form2col .wz-confirm{order:3;margin-top:0}
@@ -643,6 +644,7 @@ footer{
           <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Mit dem Absenden ist eure Vormerkung verbindlich. Bis 48&nbsp;Stunden vor dem Termin könnt ihr über den Link in eurer Mail kostenlos stornieren; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
           <form id="wz-form">
             <div class="wz-form2col">
+              <div class="wz-fcolLeft">
               <div class="wz-addr">
                 <div class="wz-fgrid">
                   <label class="wz-flabel full"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
@@ -654,6 +656,14 @@ footer{
                   <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
                   <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
                 </div>
+              </div>
+              <div class="wz-confirm">
+                <div id="wz-captcha" class="h-captcha" style="margin:0 0 1rem"></div>
+                <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> und die <a href="stornobedingungen">Stornobedingungen</a> gelesen und akzeptiere sie.</span></label>
+                <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verarbeitet werden.</span></label>
+                <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
+                <button type="submit" class="wz-submit2" id="wz-submit-btn">Platz vormerken →</button>
+              </div>
               </div>
               <div class="wz-fcolB">
                 <div class="wz-flabel">
@@ -676,13 +686,6 @@ footer{
                   <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
                 </div>
                 <label class="wz-flabel"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. laktosefrei, Nussallergie"></textarea></label>
-              </div>
-              <div class="wz-confirm">
-                <div id="wz-captcha" class="h-captcha" style="margin:0 0 1rem"></div>
-                <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> und die <a href="stornobedingungen">Stornobedingungen</a> gelesen und akzeptiere sie.</span></label>
-                <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verarbeitet werden.</span></label>
-                <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
-                <button type="submit" class="wz-submit2" id="wz-submit-btn">Platz vormerken →</button>
               </div>
             </div>
           </form>
