@@ -70,6 +70,9 @@
     .logout-row{display:flex;justify-content:flex-end;margin-bottom:20px}
     .logout-btn{width:auto;padding:8px 20px;background:var(--g);font-size:.82rem;border-radius:100px}
     .logout-btn:hover{background:var(--g2)}
+    #btn-refresh{background:transparent;color:var(--text2);border:1.5px solid var(--sand2)}
+    #btn-refresh:hover{background:transparent;border-color:var(--g);color:var(--g)}
+    #btn-refresh:disabled{opacity:.5;cursor:default}
     .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     .cal-header h2{font-family:'Petrona',serif;font-size:1.5rem;font-weight:500;color:var(--text);letter-spacing:-.01em}
     .cal-hint{font-size:.72rem;color:var(--text3)}
@@ -407,7 +410,10 @@
     <div class="dashboard" id="dashboard">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <span class="admin-badge" style="margin-bottom:0">Admin Panel</span>
-        <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
+        <span style="display:flex;gap:8px">
+          <button type="button" class="logout-btn" id="btn-refresh">&#x21bb; Aktualisieren</button>
+          <button type="button" class="logout-btn" id="btn-logout">Abmelden</button>
+        </span>
       </div>
 
       <select class="tab-select" id="tab-select" aria-label="Bereich wählen">
@@ -857,6 +863,23 @@
       var btn = document.getElementById('tab-' + this.value);
       if (btn) btn.click();
     });
+
+    // Aktualisieren-Button oben rechts: lädt nur die Daten des aktiven Tabs neu,
+    // ohne die ganze Seite neu zu laden.
+    function refreshActiveTab(){
+      var active = document.querySelector('.tab-btn.active');
+      var tab = active ? active.dataset.tab : 'schedule';
+      var btn = document.getElementById('btn-refresh');
+      if (btn) { btn.disabled = true; setTimeout(function(){ btn.disabled = false; }, 800); }
+      if (tab === 'schedule') loadSchedule();
+      else if (tab === 'sup') { loadSupCalendar(); loadSupSettingsPanel(); }
+      else if (tab === 'menu') loadMenu();
+      else if (tab === 'bestseller') loadBestseller();
+      else if (tab === 'events') loadEvents();
+      else if (tab === 'jobs') loadJobSettingsPanel();
+      else if (tab === 'winterzauber') loadWinterzauberPanel();
+    }
+    document.getElementById('btn-refresh').addEventListener('click', refreshActiveTab);
 
     function msg(text,type,target){
       var el=document.getElementById(target||'message');
