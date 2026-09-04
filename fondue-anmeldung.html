@@ -463,6 +463,10 @@ function renderAnmeldung() {
 
   if (anmeldung.status === 'storniert' || anmeldung.status === 'abgesagt') {
     document.getElementById('fa-action-buttons').style.display = 'none';
+    // Statischen Storno-Hinweis mit ausblenden — bei bereits stornierten/abgesagten
+    // Buchungen soll er nicht mehr suggerieren, dass noch storniert werden kann.
+    var sh = document.querySelector('.fa-storno-hint');
+    if (sh) sh.style.display = 'none';
   }
 }
 
