@@ -1888,7 +1888,7 @@
         + 'th,td{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f2ebd9}'
         + 'td.n,th.n{text-align:center}.tag{font-size:10px;color:#777}'
         + 'table.gl{width:auto;max-width:100%}table.gl th.nm{white-space:nowrap;padding:5px 14px}table.gl td{white-space:nowrap}th.rowlbl{white-space:nowrap;text-align:left}'
-        + '@media print{body{margin:10mm}button{display:none}}'
+        + '@media print{body{margin:10mm}button{display:none}.pagebreak{break-before:page;page-break-before:always}table.gl{break-inside:avoid}}'
         + '</style></head><body>'
         + '<h1>Winterzauber — Vorbereitungsliste</h1>'
         + '<p class="meta">Termin ' + e(dateFmt) + ' &middot; Status: ' + e(termin.status) + ' &middot; erstellt ' + e(erstellt) + '</p>'
@@ -1897,7 +1897,7 @@
         + '<table><tr><th>Position</th><th class="n">Menge gesamt</th></tr>' + sumRows
         + '<tr><td><strong>Personen gesamt</strong></td><td class="n"><strong>' + personen + '</strong></td></tr>'
         + '<tr><td><strong>Anmeldungen</strong></td><td class="n"><strong>' + active.length + '</strong></td></tr></table>'
-        + '<h2>Gästeliste</h2>'
+        + '<h2 class="pagebreak">Gästeliste</h2>'
         + gaesteTable
         + '</body></html>';
     }
