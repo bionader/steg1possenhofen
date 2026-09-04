@@ -387,6 +387,7 @@ footer{
 .wz-flabel input,.wz-flabel textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;color:var(--text);min-height:44px;width:100%}
 .wz-flabel textarea{border-radius:16px;resize:vertical;min-height:80px}
 .wz-flabel input:focus,.wz-flabel textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
+.wz-addr-hint{font-size:.75rem;color:var(--text3);margin:-.35rem 0 0;line-height:1.5}
 .wz-stepper{display:flex;align-items:center;gap:.75rem;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.3rem .4rem;min-height:44px;width:fit-content}
 .wz-stepper button{width:36px;height:36px;border-radius:50%;border:none;background:rgba(42,123,111,.1);color:var(--g);font-size:1.1rem;cursor:pointer;line-height:1;transition:background .25s}
 .wz-stepper button:hover{background:rgba(42,123,111,.2)}
@@ -627,6 +628,11 @@ footer{
               <label class="wz-flabel"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
               <label class="wz-flabel"><span>E-Mail *</span><input type="email" id="wz-email" placeholder="name@beispiel.de" required></label>
               <label class="wz-flabel"><span>Telefon *</span><input type="tel" id="wz-phone" placeholder="Für Rückfragen" required></label>
+              <label class="wz-flabel"><span>Straße *</span><input type="text" id="wz-street" placeholder="Straße" autocomplete="address-line1" required></label>
+              <label class="wz-flabel"><span>Hausnr. *</span><input type="text" id="wz-houseno" placeholder="Nr." autocomplete="address-line2" required></label>
+              <label class="wz-flabel"><span>PLZ *</span><input type="text" id="wz-plz" inputmode="numeric" placeholder="PLZ" autocomplete="postal-code" required></label>
+              <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
+              <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
               <div class="wz-flabel">
                 <span>Personen</span>
                 <div class="wz-stepper">
@@ -1222,6 +1228,14 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     msg.textContent = 'Bitte gib eine gültige Telefonnummer an.'; msg.style.color = 'var(--err)'; return;
   }
 
+  var streetValue = document.getElementById('wz-street').value.trim();
+  var housenoValue = document.getElementById('wz-houseno').value.trim();
+  var plzValue = document.getElementById('wz-plz').value.trim();
+  var cityValue = document.getElementById('wz-city').value.trim();
+  if (!streetValue || !housenoValue || !plzValue || !cityValue) {
+    msg.textContent = 'Bitte gib deine vollständige Anschrift an.'; msg.style.color = 'var(--err)'; return;
+  }
+
   var allergienValue = document.getElementById('wz-allergien').value.trim();
   var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
   if (allergienValue && !allergienConsentChecked) {
@@ -1244,6 +1258,10 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     name: document.getElementById('wz-name').value.trim(),
     email: document.getElementById('wz-email').value.trim(),
     phone: phoneValue,
+    street: streetValue,
+    houseNo: housenoValue,
+    postalCode: plzValue,
+    city: cityValue,
     personen: gaesteVarianten.length,
     varianten: variantenSel,
     beilagen: {},
