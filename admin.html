@@ -1851,23 +1851,34 @@
 
       // Gästeliste transponiert: Positionen (Personen / Varianten / Beilagen / Allergien /
       // Telefon) laufen nach unten, jede Reservierung ist eine Spalte nach rechts.
+      // Die Position-Spalte ist so breit wie ihr längster Text; passen nicht alle Gäste
+      // nebeneinander, werden sie in weitere Tabellen darunter aufgeteilt.
       var guests = active;
-      function gRow(label, numeric, cellFn){
-        return '<tr><th class="rowlbl">' + label + '</th>'
-          + guests.map(function(r){ return '<td' + (numeric ? ' class="n"' : '') + '>' + cellFn(r) + '</td>'; }).join('')
+      var GUESTS_PER_TABLE = 8;
+      function gTable(chunk){
+        function row(label, numeric, cellFn){
+          return '<tr><th class="rowlbl">' + label + '</th>'
+            + chunk.map(function(r){ return '<td' + (numeric ? ' class="n"' : '') + '>' + cellFn(r) + '</td>'; }).join('')
+            + '</tr>';
+        }
+        var head = '<tr><th>Position</th>'
+          + chunk.map(function(r){ return '<th class="nm">' + e(r.customer_name) + '</th>'; }).join('')
           + '</tr>';
+        var bodyRows = row('Personen', true, function(r){ return Number(r.personen_anzahl) || 0; })
+          + aktiveVar.map(function(v){ return row(e(v.name), true, function(r){ return Number((r.varianten_auswahl || {})[v.id]) || 0; }); }).join('')
+          + aktiveBei.map(function(bl){ return row(e(bl.name) + ' <span class="tag">Beilage</span>', true, function(r){ return Number((r.beilagen_auswahl || {})[bl.id]) || 0; }); }).join('')
+          + row('Allergien', false, function(r){ return e(r.allergien_hinweis || ''); })
+          + row('Telefon', false, function(r){ return e(r.customer_phone || ''); });
+        return '<table class="gl"><thead>' + head + '</thead><tbody>' + bodyRows + '</tbody></table>';
       }
-      var gHead = '<tr><th>Position</th>'
-        + guests.map(function(r){ return '<th class="nm">' + e(r.customer_name) + '</th>'; }).join('')
-        + '</tr>';
-      var gBody = gRow('Personen', true, function(r){ return Number(r.personen_anzahl) || 0; })
-        + aktiveVar.map(function(v){ return gRow(e(v.name), true, function(r){ return Number((r.varianten_auswahl || {})[v.id]) || 0; }); }).join('')
-        + aktiveBei.map(function(b){ return gRow(e(b.name) + ' <span class="tag">Beilage</span>', true, function(r){ return Number((r.beilagen_auswahl || {})[b.id]) || 0; }); }).join('')
-        + gRow('Allergien', false, function(r){ return e(r.allergien_hinweis || ''); })
-        + gRow('Telefon', false, function(r){ return e(r.customer_phone || ''); });
-      var gaesteTable = guests.length
-        ? ('<table><thead>' + gHead + '</thead><tbody>' + gBody + '</tbody></table>')
-        : '<p>Keine aktiven Anmeldungen.</p>';
+      var gaesteTable;
+      if (!guests.length) {
+        gaesteTable = '<p>Keine aktiven Anmeldungen.</p>';
+      } else {
+        var chunks = [];
+        for (var gi = 0; gi < guests.length; gi += GUESTS_PER_TABLE) chunks.push(guests.slice(gi, gi + GUESTS_PER_TABLE));
+        gaesteTable = chunks.map(gTable).join('<div style="height:16px"></div>');
+      }
 
       return '<!doctype html><html lang="de"><head><meta charset="utf-8">'
         + '<title>Vorbereitungsliste ' + e(dateFmt) + '</title><style>'
@@ -1876,7 +1887,7 @@
         + 'h2{font-size:14px;margin:20px 0 6px}table{border-collapse:collapse;width:100%;margin-bottom:8px}'
         + 'th,td{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f2ebd9}'
         + 'td.n,th.n{text-align:center}.tag{font-size:10px;color:#777}'
-        + 'th.nm{white-space:nowrap}th.rowlbl{white-space:nowrap;text-align:left}'
+        + 'table.gl{width:auto;max-width:100%}table.gl th.nm{white-space:nowrap;padding:5px 14px}table.gl td{white-space:nowrap}th.rowlbl{white-space:nowrap;text-align:left}'
         + '@media print{body{margin:10mm}button{display:none}}'
         + '</style></head><body>'
         + '<h1>Winterzauber — Vorbereitungsliste</h1>'
