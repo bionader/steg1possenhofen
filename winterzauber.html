@@ -646,21 +646,21 @@ footer{
                   <label class="wz-flabel"><span>PLZ *</span><input type="text" id="wz-plz" inputmode="numeric" placeholder="PLZ" autocomplete="postal-code" required></label>
                   <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
                   <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
+                  <div class="wz-flabel">
+                    <span>Personen</span>
+                    <div class="wz-stepper">
+                      <button type="button" id="wz-dec" aria-label="Weniger Personen">−</button>
+                      <span id="wz-personen-count">2</span>
+                      <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
+                    </div>
+                  </div>
+                  <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
+                    <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
+                    <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
+                  </div>
                 </div>
               </div>
               <div class="wz-fcolB">
-                <div class="wz-flabel">
-                  <span>Personen</span>
-                  <div class="wz-stepper">
-                    <button type="button" id="wz-dec" aria-label="Weniger Personen">−</button>
-                    <span id="wz-personen-count">2</span>
-                    <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
-                  </div>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:.4rem">
-                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
-                  <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
-                </div>
                 <div style="display:flex;flex-direction:column;gap:.4rem">
                   <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
                   <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
