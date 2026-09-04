@@ -1615,7 +1615,7 @@
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
-      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
@@ -1678,6 +1678,10 @@
           html += '</span>';
           html += '</div>';
           html += '<div class="wz-termin-progress">'+total+' / '+t.capacity_min+' Personen (max. '+t.capacity_max+')</div>';
+          // Gespeicherten Absagegrund bei bereits abgesagten Terminen anzeigen
+          if (t.cancel_reason) {
+            html += '<div style="font-size:.8rem;color:var(--text3);margin-top:4px">Absagegrund: '+esc(t.cancel_reason)+'</div>';
+          }
           // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
           if(t.status==='bestaetigt' && total < t.capacity_min){
             html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – Gäste anrufen oder Termin absagen</div>';
@@ -1691,10 +1695,11 @@
               html += '<button class="wz-btn-confirm" onclick="confirmWinterzauberTermin(\''+t.id+'\', true)">Nachzügler bestätigen</button>';
             }
             if(t.status!=='abgesagt'){
-              html += '<button class="wz-btn-cancel-termin" onclick="cancelWinterzauberTermin(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
+              html += '<button class="wz-btn-cancel-termin" onclick="toggleWzCancel(\''+t.id+'\', '+(t.status==='bestaetigt'?'true':'false')+')">Termin absagen</button>';
             }
           }
           html += '<button class="wz-btn-edit" onclick="toggleWzTerminEdit(\''+t.id+'\')">Bearbeiten</button>';
+          html += '<button class="wz-btn-plain" onclick="openWzVorbereitungsliste(\''+t.id+'\')">Vorbereitungsliste</button>';
           // Aktiv/inaktiv umschalten — nur solange gar keine Anmeldung existiert
           var hatAnmeldungen = rows.length > 0;
           html += '<button class="wz-btn-plain" onclick="toggleWzTerminActive(\''+t.id+'\','+(inaktiv?'false':'true')+')"'
@@ -1718,6 +1723,15 @@
             + '<button class="wz-btn-plain" onclick="toggleWzTerminEdit(\''+t.id+'\')">Abbrechen</button>'
             + '</div>'
             + '</div>';
+          // Inline-Absage: optionaler Grund landet in der Absage-Mail
+          html += '<div class="wz-termin-cancel" id="wz-cancel-'+t.id+'" style="display:none">'
+            + '<label style="display:block;font-size:.8rem;color:var(--text2);margin-bottom:4px">Grund der Absage <span style="color:var(--text3)">(optional, erscheint in der Absage-Mail)</span></label>'
+            + '<textarea id="wz-cancel-reason-'+t.id+'" rows="2" style="width:100%;font:inherit;padding:8px;border:1px solid var(--sand2);border-radius:8px"></textarea>'
+            + '<p id="wz-cancel-warn-'+t.id+'" style="font-size:.8rem;color:var(--err);margin:6px 0 0;display:none">Dieser Termin ist bereits verbindlich bestätigt. Alle bestätigten Gäste erhalten sofort eine Absage-Mail.</p>'
+            + '<div class="wz-termin-actions" style="margin-top:8px">'
+            + '<button class="wz-btn-cancel-termin" onclick="submitWinterzauberCancel(\''+t.id+'\')">Absage senden</button>'
+            + '<button class="wz-btn-plain" onclick="toggleWzCancel(\''+t.id+'\', false)">Abbrechen</button>'
+            + '</div></div>';
           html += renderWzTeilnehmer(rows, t.status);
           html += '</div>';
         });
@@ -1855,15 +1869,27 @@
       .catch(function(){ msg('Fehler beim Löschen','error','wz-admin-message'); });
     }
 
-    function cancelWinterzauberTermin(terminId, wasConfirmed){
-      var q = wasConfirmed
-        ? 'ACHTUNG: Dieser Termin ist bereits verbindlich bestätigt. Wirklich absagen? Alle bestätigten Gäste erhalten sofort eine Absage-Mail.'
-        : 'Termin absagen? Alle Gäste erhalten sofort eine Absage-Mail.';
-      if(!confirm(q)) return;
+    function toggleWzCancel(terminId, wasConfirmed){
+      var box = document.getElementById('wz-cancel-'+terminId);
+      if(!box) return;
+      var open = box.style.display !== 'none';
+      box.style.display = open ? 'none' : 'block';
+      if(!open){
+        var warn = document.getElementById('wz-cancel-warn-'+terminId);
+        if(warn) warn.style.display = wasConfirmed ? 'block' : 'none';
+        var ta = document.getElementById('wz-cancel-reason-'+terminId);
+        if(ta) ta.focus();
+      }
+    }
+
+    function submitWinterzauberCancel(terminId){
+      var ta = document.getElementById('wz-cancel-reason-'+terminId);
+      var reason = ta ? ta.value.trim() : '';
+      if(!confirm('Termin jetzt absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
       fetch(SB_URL+'/functions/v1/send-fondue-absage',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-        body:JSON.stringify({terminId:terminId})
+        body:JSON.stringify({terminId:terminId, reason:reason})
       })
       .then(function(r){if(!r.ok)throw new Error('cancel_failed');return r.json();})
       .then(function(result){
