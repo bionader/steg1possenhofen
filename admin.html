@@ -410,26 +410,26 @@
       </div>
 
       <select class="tab-select" id="tab-select" aria-label="Bereich wählen">
+        <option value="winterzauber">Winterzauber</option>
         <option value="schedule">Öffnungszeiten</option>
         <option value="sup">SUP-Buchungen</option>
         <option value="menu">Speisekarte</option>
         <option value="bestseller">Bestseller</option>
         <option value="events">Veranstaltungen</option>
         <option value="jobs">Jobs</option>
-        <option value="winterzauber">Winterzauber</option>
       </select>
       <div class="tab-nav" id="tab-nav">
-        <button class="tab-btn active" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
+        <button class="tab-btn active" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
+        <button class="tab-btn" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
         <button class="tab-btn" data-tab="bestseller" id="tab-bestseller">Bestseller</button>
         <button class="tab-btn" data-tab="events" id="tab-events">Veranstaltungen</button>
         <button class="tab-btn" data-tab="jobs" id="tab-jobs">Jobs</button>
-        <button class="tab-btn" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
       </div>
 
       <!-- Tab 1: Öffnungszeiten (existing content) -->
-      <div class="tab-content active" id="content-schedule">
+      <div class="tab-content" id="content-schedule">
         <div class="cal-header">
           <h2>Wochenplaner</h2>
           <span class="cal-hint">Rot = ganzer Tag geschlossen</span>
@@ -575,7 +575,7 @@
       </div>
 
       <!-- Tab 7: Winterzauber -->
-      <div class="tab-content" id="content-winterzauber">
+      <div class="tab-content active" id="content-winterzauber">
         <div class="cal-header">
           <h2>Winterzauber — Käsefondue</h2>
           <span class="cal-hint">Feature-Flag, Termine, Anmeldungen, Zutaten</span>
@@ -785,9 +785,13 @@
         document.getElementById('content-schedule').classList.add('active');
         loadSchedule();
       } else {
-        // Admin (Cathy/Edita) — alle Tabs
-        if (sel) sel.value = 'schedule';
-        loadSchedule();
+        // Voll-Admin — alle Tabs. Startansicht: Winterzauber (Punkt 2 Feedback-Runde).
+        document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+        document.getElementById('tab-winterzauber').classList.add('active');
+        document.getElementById('content-winterzauber').classList.add('active');
+        if (sel) sel.value = 'winterzauber';
+        loadWinterzauberPanel();
       }
     }
 
