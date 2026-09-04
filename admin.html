@@ -1789,9 +1789,9 @@
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
-        aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(va[v.id] || 0)+'</td>'; });
+        aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(Number(va[v.id]) || 0)+'</td>'; });
         var ba = r.beilagen_auswahl || {};
-        aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(ba[b.id] || 0)+'</td>'; });
+        aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(Number(ba[b.id]) || 0)+'</td>'; });
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
         out += '</tr>';
       });
@@ -1833,8 +1833,8 @@
       var body = active.map(function(r){
         var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
         return '<tr><td>' + e(r.customer_name) + '</td><td class="n">' + (Number(r.personen_anzahl) || 0) + '</td>'
-          + aktiveVar.map(function(v){ return '<td class="n">' + (va[v.id] || 0) + '</td>'; }).join('')
-          + aktiveBei.map(function(b){ return '<td class="n">' + (ba[b.id] || 0) + '</td>'; }).join('')
+          + aktiveVar.map(function(v){ return '<td class="n">' + (Number(va[v.id]) || 0) + '</td>'; }).join('')
+          + aktiveBei.map(function(b){ return '<td class="n">' + (Number(ba[b.id]) || 0) + '</td>'; }).join('')
           + '<td>' + e(r.allergien_hinweis || '') + '</td><td>' + e(r.customer_phone || '') + '</td></tr>';
       }).join('') || '<tr><td colspan="99">Keine aktiven Anmeldungen.</td></tr>';
 
@@ -1870,8 +1870,12 @@
       w.document.close();
       // Sofort drucken — bei kleiner Payload ist das load-Event oft schon durch,
       // bevor der onload-Handler haengt. onload bleibt als Fallback fuer langsames Rendern.
-      try { w.focus(); w.print(); } catch(e){}
-      w.onload = function(){ try { w.focus(); w.print(); } catch(e){} };
+      // Guard: in Chrome feuert das load-Event auch nach document.close() noch, sonst
+      // bekaeme der Operator einen zweiten Druckdialog.
+      var wzPrinted = false;
+      function wzDoPrint(){ if(wzPrinted) return; wzPrinted = true; try { w.focus(); w.print(); } catch(e){} }
+      wzDoPrint();
+      w.onload = wzDoPrint;
     }
 
     function confirmWinterzauberTermin(terminId, isNachzuegler){
@@ -2045,7 +2049,7 @@
       // Zutaten zuerst laden — renderWzTeilnehmer braucht wzVarianten fuer die Fondue-Spalten
       loadWinterzauberZutaten()
       .then(function(){
-        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active',{
+        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()});
       })
@@ -2089,7 +2093,7 @@
         if(!keys.length) return '–';
         return keys.map(function(id){
           var item = (list || []).find(function(x){ return x.id === id; });
-          return auswahl[id] + '× ' + esc(item ? item.name : '?');
+          return (Number(auswahl[id]) || 0) + '× ' + esc(item ? item.name : '?');
         }).join(', ');
       }
       var html = '<table class="wz-anmeld-table"><thead><tr>';
