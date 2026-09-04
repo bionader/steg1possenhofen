@@ -110,7 +110,7 @@ function buildMailHtml(opts: {
         <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${esc(name)}, vielen Dank f&uuml;r deine Anmeldung zum Winterzauber.</p>
         <div style="background:#fff;border:1.5px solid #D4883A;border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:20px">
           <p style="color:#163D36;font-size:14px;font-weight:600;margin:0 0 4px">Wichtiger Hinweis</p>
-          <p style="color:#4A4840;font-size:13px;margin:0">Ihre Anmeldung ist zun&auml;chst eine unverbindliche Vormerkung. Der Termin findet ab insgesamt zehn angemeldeten Personen statt. Sobald die Mindestteilnehmerzahl erreicht ist, erhalten Sie von uns eine verbindliche Buchungsbest&auml;tigung. Bis 48&nbsp;Stunden vor dem Termin k&ouml;nnen Sie &uuml;ber den Link unten kostenlos absagen. Danach wird die Reservierung inklusive aller gew&auml;hlten Beilagen berechnet.</p>
+          <p style="color:#4A4840;font-size:13px;margin:0">Ihre Vormerkung ist mit dem Absenden verbindlich. Der Termin findet ab insgesamt zehn angemeldeten Personen statt; sobald die Mindestteilnehmerzahl erreicht ist, erhalten Sie von uns die Best&auml;tigung. Bis 48&nbsp;Stunden vor Terminbeginn k&ouml;nnen Sie &uuml;ber den Link unten kostenlos stornieren. Danach wird die Reservierung inklusive aller gew&auml;hlten Beilagen berechnet. Die vollst&auml;ndigen <a href="https://steg1possenhofen.de/stornobedingungen" style="color:#2A7B6F">Stornobedingungen</a> finden Sie auf unserer Website.</p>
         </div>
         <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin-bottom:20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">

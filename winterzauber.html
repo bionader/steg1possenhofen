@@ -418,6 +418,7 @@ footer{
 .wz-submit2:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,123,111,.25)}
 .wz-submit2:disabled{opacity:.6;cursor:default;transform:none}
 .wz-form-hint{margin-top:.9rem;font-size:.75rem;color:var(--text3);line-height:1.55}
+.wz-form-hint a{color:var(--g);text-decoration:underline}
 .wz-success2{display:flex;gap:1.1rem;align-items:flex-start}
 .wz-success2 .check{width:42px;height:42px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
 .wz-success2 h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.4rem}
@@ -456,6 +457,7 @@ footer{
 .wz-faq-item summary::-webkit-details-marker{display:none}
 .wz-faq-item summary .plus{color:var(--g)}
 .wz-faq-item p{font-size:.9rem;color:var(--text2);line-height:1.7;margin-top:.75rem;max-width:620px}
+.wz-faq-item p a{color:var(--g);text-decoration:underline}
 
 /* ── ENDBANNER ── */
 
@@ -567,10 +569,10 @@ footer{
   <section class="wz-sec wz-reveal">
     <p class="wz-sec-tag"><span></span>So läuft's</p>
     <h2 class="wz-h2">Vormerken statt <em>buchen</em>.</h2>
-    <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Ihr merkt euch zunächst unverbindlich vor — sobald genügend Anmeldungen zusammen sind, bekommt ihr per Mail die <strong>verbindliche Bestätigung</strong>. Bis 48&nbsp;Stunden vor dem Termin könnt ihr kostenlos stornieren; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
+    <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Eure Vormerkung ist mit dem Absenden <strong>verbindlich</strong> — sobald genügend Anmeldungen zusammen sind, bekommt ihr von uns die Bestätigung per Mail. Bis 48&nbsp;Stunden vor dem Termin könnt ihr kostenlos stornieren; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
     <div class="wz-ablauf-grid">
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">1</div><h3>Termin wählen</h3><p>Donnerstag oder Freitag, jeweils ab 18:00 Uhr im Zelt.</p></div>
-      <div class="wz-ablauf-card"><div class="wz-ablauf-num">2</div><h3>Unverbindlich vormerken</h3><p>Name, Personenzahl, Fondue-Variante. Dauert eine Minute — bis 48&nbsp;Stunden vor dem Termin kostenlos stornierbar.</p></div>
+      <div class="wz-ablauf-card"><div class="wz-ablauf-num">2</div><h3>Verbindlich vormerken</h3><p>Name, Personenzahl, Fondue-Variante. Dauert eine Minute — bis 48&nbsp;Stunden vor dem Termin kostenlos stornierbar.</p></div>
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">3</div><h3>Zehn sind voll</h3><p>Sobald zehn Personen zusammen sind, steht der Abend — Platz ist bis 28.</p></div>
       <div class="wz-ablauf-card dark"><div class="wz-ablauf-num">4</div><h3>Verbindliche Bestätigung</h3><p>Kommt per Mail mit allen Infos. Bis 48&nbsp;Stunden vorher storniert ihr kostenlos über den Link; danach wird die Reservierung inkl. Beilagen berechnet.</p></div>
     </div>
@@ -629,9 +631,9 @@ footer{
     <div class="wz-vormerk-grid" id="wz-vormerk-grid" style="display:none">
       <div class="wz-formbox" id="wz-formbox">
         <div id="wz-not-sent">
-          <h3>Unverbindlich vormerken</h3>
+          <h3>Jetzt vormerken</h3>
           <p class="ctx">Für <strong id="wz-ctx-termin">–</strong></p>
-          <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Unverbindliche Vormerkung. Bis 48&nbsp;Stunden vor dem Termin könnt ihr über den Link in eurer Mail kostenlos absagen. Danach wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
+          <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Mit dem Absenden ist eure Vormerkung verbindlich. Bis 48&nbsp;Stunden vor dem Termin könnt ihr über den Link in eurer Mail kostenlos stornieren; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
           <form id="wz-form">
             <div class="wz-fgrid">
               <label class="wz-flabel"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
@@ -666,7 +668,7 @@ footer{
 
             <div id="wz-captcha" class="h-captcha" style="margin:1.25rem 0 0"></div>
 
-            <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> gelesen und bin mit der Speicherung meiner Daten für die Vormerkung einverstanden.</span></label>
+            <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> und die <a href="stornobedingungen">Stornobedingungen</a> gelesen und akzeptiere sie.</span></label>
             <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verarbeitet werden.</span></label>
 
             <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
@@ -694,7 +696,7 @@ footer{
         <p class="wz-sec-tag"><span></span>Gut zu wissen</p>
         <h2 class="wz-h2" style="margin-bottom:2rem">Häufige Fragen</h2>
         <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und melden uns per Mail. Es entstehen keine Kosten — ihr könnt euch direkt für einen anderen Termin vormerken.</p></details>
-        <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Ja. Bis 48&nbsp;Stunden vor dem Termin storniert ihr kostenlos über den Link in eurer Bestätigungsmail. Innerhalb der letzten 48&nbsp;Stunden ist eine Stornierung weiterhin möglich, die Reservierung inklusive aller gewählten Beilagen wird dann aber berechnet – wir kaufen die Zutaten frisch für eure Runde ein.</p></details>
+        <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Die Vormerkung ist mit dem Absenden verbindlich, ihr habt aber ein kostenfreies Rücktrittsrecht: Bis 48&nbsp;Stunden vor dem Termin storniert ihr kostenlos über den Link in eurer Mail. Innerhalb der letzten 48&nbsp;Stunden ist eine Stornierung weiterhin möglich, die Reservierung inklusive aller gewählten Beilagen wird dann aber berechnet – wir kaufen die Zutaten frisch für eure Runde ein. Einzelheiten stehen in den <a href="stornobedingungen">Stornobedingungen</a>.</p></details>
         <details class="wz-faq-item"><summary>Wie warm ist es im Zelt?<span class="plus">+</span></summary><p>Das Zelt ist beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht — der Weg zum Steg lohnt sich immer.</p></details>
         <details class="wz-faq-item"><summary>In welchem Zelt findet das Fondue statt?<span class="plus">+</span></summary><p>Für das Käsefondue nutzen wir vor allem die kleinen, beheizten Iglu-Zelte mit Platz für etwa 10–12 Personen. Kleinere Gruppen setzen wir dort auch gemischt an einen Tisch. Das große Zelt ist für Fondue-Runden mit vielen Personen sowie für private Winter- und Weihnachtsfeiern oder andere Anfragen da.</p></details>
         <details class="wz-faq-item"><summary>Können wir als kleine Gruppe kommen?<span class="plus">+</span></summary><p>Ja. An der langen Tafel sitzen mehrere Gruppen zusammen — genau das macht den Abend aus. Wer lieber unter sich bleibt, fragt eine private Winterfeier an.</p></details>
@@ -829,6 +831,7 @@ function renderWzCaptchaIfReady() {
     <div class="fcol-body">
       <a href="impressum">Impressum</a>
       <a href="datenschutz">Datenschutz</a>
+      <a href="stornobedingungen">Stornobedingungen</a>
       <a href="impressum#bildnachweis">Bildnachweis</a>
     </div>
   </details>
@@ -924,7 +927,7 @@ function terminState(t) {
       ? 'Dieser Abend ist voll. Sucht euch gern einen anderen Termin aus — oder fragt eine private Winterfeier an.'
       : laeuft
         ? ('Die Mindestteilnehmerzahl ist erreicht — der Abend findet statt. ' + (frei <= 10 ? 'Es sind nur noch wenige Plätze frei.' : 'Es sind noch Plätze frei.'))
-        : ('Die Anmeldung für diesen Abend läuft. Ab ' + min + ' Personen findet er statt — merkt euch unverbindlich vor, ihr geht damit keine Verpflichtung ein.')
+        : ('Die Anmeldung für diesen Abend läuft. Ab ' + min + ' Personen findet er statt — die Vormerkung ist mit dem Absenden verbindlich, bis 48 Stunden vorher kostenlos stornierbar.')
   };
 }
 

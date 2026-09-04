@@ -10,32 +10,15 @@
 <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
 <link rel="manifest" href="img/favicon/site.webmanifest">
 <meta name="theme-color" content="#2A7B6F">
+<meta name="robots" content="noindex, nofollow">
 <!-- Umami Analytics (cookiefrei, DSGVO-konform) -->
 <script defer src="https://cloud.umami.is/script.js" data-website-id="9354bd56-dae4-44c5-94a7-efed5310b49f"></script>
-<title>Speisekarte — Steg 1 Possenhofen am Starnberger See</title>
-<meta name="description" content="Unsere Speisekarte: Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See bei Steg 1 Possenhofen.">
-<link rel="canonical" href="https://steg1possenhofen.de/speisekarte">
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Speisekarte — Steg 1 Possenhofen am Starnberger See">
-<meta property="og:description" content="Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See.">
-<meta property="og:url" content="https://steg1possenhofen.de/speisekarte.html">
-<meta property="og:image" content="https://steg1possenhofen.de/img/og-image-v2.jpg">
-<meta property="og:locale" content="de_DE">
-<meta property="og:site_name" content="Steg 1 Possenhofen">
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Speisekarte — Steg 1 Possenhofen am Starnberger See">
-<meta name="twitter:description" content="Flammkuchen, Pizza, Schnitzel, Steckerlfisch und kühle Getränke — direkt am Starnberger See.">
-<meta name="twitter:image" content="https://steg1possenhofen.de/img/og-image-v2.jpg">
-<!-- Performance -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Stornobedingungen — Steg 1 Possenhofen</title>
 <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --g:#2A7B6F;--g2:#1F6358;--accent:#D4883A;--accent2:#C07A2E;
+  --g:#2A7B6F;--g2:#1F6358;
   --sand:#F2EBD9;--sand2:#E4D9C4;
   --text:#1A2421;--text2:#4A5652;--text3:#7A8580;
   --w:#FDFBF7;--dark:#1B2B28;
@@ -80,8 +63,6 @@ nav.scrolled{
 }
 .nav-links a:hover{color:var(--g)}
 .nav-links a:hover::after{width:100%}
-.nav-links a.active{color:var(--g)}
-.nav-links a.active::after{width:100%}
 .nav-cta{
   background:var(--g);color:var(--w);border:none;
   padding:.55rem 1.5rem;border-radius:100px;
@@ -114,120 +95,41 @@ nav.scrolled{
 .nav-burger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
 .mobile-menu{display:none}
 
-/* ── HERO (simple text hero) ── */
-.menu-hero{
-  padding-top:120px;
-  padding-bottom:3.5rem;
-  background:var(--sand);
-  text-align:center;
+/* ── CONTENT ── */
+.legal-content{
+  max-width:700px;
+  margin:0 auto;
+  padding:7rem 2rem 4rem;
 }
-.menu-hero .eyebrow{
-  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--g);display:flex;align-items:center;justify-content:center;gap:.7rem;
-  margin-bottom:1rem;
-}
-.menu-hero .eyebrow::before,
-.menu-hero .eyebrow::after{
-  content:'';width:28px;height:1.5px;background:var(--g);opacity:.35;
-}
-.menu-hero h1{
+.legal-content h1{
   font-family:'Petrona',serif;
-  font-size:clamp(2.6rem,5vw,4rem);
-  line-height:1.05;font-weight:600;color:var(--text);
-  margin-bottom:1rem;letter-spacing:-.02em;
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:600;line-height:1.1;
+  margin-bottom:2.5rem;color:var(--text);
 }
-.menu-hero p{
-  font-size:1.05rem;color:var(--text2);
-  line-height:1.7;max-width:440px;margin:0 auto;font-weight:300;
+.legal-content h2{
+  font-family:'Petrona',serif;
+  font-size:1.35rem;font-weight:600;
+  margin-top:2.5rem;margin-bottom:.75rem;
+  color:var(--text);line-height:1.2;
 }
-.menu-hero .back-link{
+.legal-content p{
+  font-size:.9rem;color:var(--text2);
+  line-height:1.75;margin-bottom:.75rem;
+}
+.legal-content a{
+  color:var(--g);text-decoration:underline;
+  text-underline-offset:2px;
+  transition:color .2s ease;
+}
+.legal-content a:hover{color:var(--g2)}
+.back-link{
   display:inline-flex;align-items:center;gap:.4rem;
-  font-size:.82rem;color:var(--g);text-decoration:none;
-  margin-top:1.5rem;transition:opacity .2s;
+  font-size:.84rem;color:var(--text3);text-decoration:none;
+  margin-bottom:2rem;transition:color .2s;
 }
-.menu-hero .back-link:hover{opacity:.7}
-.menu-hero .back-link svg{width:16px;height:16px}
-
-/* ── FOOD GALLERY (Bento) ── */
-.food-gallery{padding:3.5rem 3rem 1rem;background:var(--w)}
-.food-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:220px;gap:1rem;max-width:1100px;margin:0 auto}
-.food-item{margin:0;border-radius:14px;overflow:hidden;background:var(--sand);position:relative}
-.food-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.4,0,.2,1)}
-.food-item:hover img{transform:scale(1.06)}
-/* Bento spans: 1 = tall left, 2 = wide top, 3 + 4 = normal bottom */
-.food-item:nth-child(1){grid-row:span 2}
-.food-item:nth-child(2){grid-column:span 2}
-.food-item:nth-child(3),.food-item:nth-child(4){grid-column:span 1}
-@media(max-width:768px){
-  .food-gallery{padding:2.5rem 0 .5rem}
-  .food-grid{display:flex;grid-template-columns:none;grid-auto-rows:auto;overflow-x:auto;scroll-snap-type:x mandatory;gap:.7rem;padding:0 1.5rem 1rem;margin:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:none}
-  .food-grid::-webkit-scrollbar{display:none}
-  .food-item{aspect-ratio:3/2;flex:0 0 85%;scroll-snap-align:start;min-width:0}
-  .food-item:nth-child(1),.food-item:nth-child(2),.food-item:nth-child(3),.food-item:nth-child(4){grid-column:auto;grid-row:auto}
-  /* Auf Mobile zuerst Steckerlfisch (DOM-Index 3) */
-  .food-item:nth-child(3){order:-1}
-}
-
-/* ── SECTION DEFAULTS ── */
-.sec{padding:4.5rem 3rem}
-.stag{
-  font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--g);display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;
-}
-.stag::before{content:'';width:16px;height:1px;background:var(--g)}
-h2{font-family:'Petrona',serif;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;margin-bottom:.75rem}
-.ssub{font-size:.95rem;color:var(--text2);line-height:1.7;max-width:480px}
-
-/* ── MENU GRID ── */
-.menu-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:2rem;margin-top:2.5rem;
-  max-width:1100px;
-}
-.menu-card{
-  background:var(--sand);border-radius:14px;
-  padding:2rem 1.8rem 1.5rem;
-  border:.5px solid transparent;
-  transition:border-color .2s ease;
-}
-.menu-card:hover{border-color:rgba(42,123,111,.12)}
-.menu-card h3{
-  font-family:'Petrona',serif;
-  font-size:1.35rem;font-weight:600;color:var(--text);
-  margin-bottom:1.2rem;
-  padding-bottom:.6rem;
-  border-bottom:1.5px solid var(--sand2);
-}
-.menu-item{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:.6rem 0;
-  border-bottom:.5px solid rgba(228,217,196,.5);
-}
-.menu-item:last-child{border-bottom:none}
-.menu-item-left{flex:1;min-width:0;padding-right:1rem}
-.menu-item-name{
-  font-size:.88rem;font-weight:500;color:var(--text);
-}
-.menu-item-desc{
-  font-size:.78rem;color:var(--text3);line-height:1.5;margin-top:.15rem;
-}
-.menu-item-price{
-  font-size:.88rem;font-weight:600;color:var(--accent);
-  white-space:nowrap;flex-shrink:0;
-}
-.menu-item.sub-item .menu-item-name{
-  font-weight:400;color:var(--text2);font-size:.84rem;
-  padding-left:.75rem;
-}
-.menu-item.sub-item .menu-item-price{
-  font-weight:500;font-size:.84rem;
-}
-
-/* ── FOOTER NOTE ── */
-.menu-note{
-  text-align:center;padding:2rem 3rem 0;
-  font-size:.82rem;color:var(--text3);line-height:1.7;
-}
+.back-link:hover{color:var(--g)}
+.back-link svg{width:16px;height:16px}
 
 /* ── FOOTER ── */
 footer{
@@ -257,21 +159,6 @@ footer{
   border-top:.5px solid rgba(255,255,255,.07);
 }
 
-/* ── SCROLL REVEAL ── */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
-.reveal.visible{opacity:1;transform:none}
-
-/* ── HERO ENTRANCE ── */
-.menu-hero>*{
-  opacity:0;transform:translateY(22px);
-  transition:opacity .7s ease,transform .7s ease;
-}
-.menu-hero.loaded>*{opacity:1;transform:none}
-.menu-hero.loaded>*:nth-child(1){transition-delay:.1s}
-.menu-hero.loaded>*:nth-child(2){transition-delay:.22s}
-.menu-hero.loaded>*:nth-child(3){transition-delay:.35s}
-.menu-hero.loaded>*:nth-child(4){transition-delay:.48s}
-
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   nav{padding:.85rem 1.5rem}
@@ -300,7 +187,6 @@ footer{
     transition:color .2s;
   }
   .mobile-menu a:hover{color:var(--g)}
-  .mobile-menu a.active{color:var(--g);font-weight:500}
   .mobile-menu .mm-logo{display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;text-decoration:none}  .mobile-menu .mm-logo img{height:72px;width:auto;display:block}  .mobile-menu .mm-cta{
     background:var(--g);color:var(--w);
     padding:.7rem 2rem;border-radius:100px;
@@ -308,9 +194,7 @@ footer{
     box-shadow:0 2px 12px rgba(42,123,111,.18);
   }
 
-  .sec{padding:3rem 1.5rem}
-  .menu-grid{grid-template-columns:1fr;gap:1.5rem}
-  .menu-hero{padding-top:90px;padding-bottom:2.5rem}
+  .legal-content{padding:5.5rem 1.5rem 3rem}
   footer{grid-template-columns:1fr;gap:0;padding:2rem 1.5rem .5rem;text-align:center}
   footer .flogo{font-size:1.2rem;display:flex;justify-content:center}footer .flogo img{margin:0 auto}
   footer .fdesc{font-size:.78rem;line-height:1.55;max-width:none;margin:0 auto}
@@ -323,7 +207,6 @@ footer{
   .fcol-body{padding:0 0 .9rem}
   .fcol-body a,.fcol-body span{font-size:.82rem;margin-bottom:.35rem}
   .fbot{padding:.75rem 1.5rem 1rem}
-  .menu-note{padding:1.5rem 1.5rem 0}
 }
 .logo img{height:64px;width:auto;display:block}.logo:hover{opacity:.75}.flogo img{height:80px;width:auto;display:block}@media(max-width:900px){.logo img{height:52px}.flogo img{height:64px}}
 </style>
@@ -335,7 +218,7 @@ footer{
   <a href="/" class="logo" aria-label="Steg 1 Possenhofen — Startseite"><img src="img/logo/logo-teal.png" alt="Steg 1 Possenhofen"></a>
   <ul class="nav-links">
     <li><a href="sup">SUP Verleih</a></li>
-    <li><a href="speisekarte" class="active">Speisekarte</a></li>
+    <li><a href="speisekarte">Speisekarte</a></li>
     <li><a href="galerie">Unser Steg 1</a></li>
     <li><a href="veranstaltungen">Veranstaltungen</a></li>
     <li id="nav-jobs-item"><a href="jobs">Jobs</a></li>
@@ -352,7 +235,7 @@ footer{
 <div class="mobile-menu" id="mobile-menu">
   <a href="/" class="mm-logo" aria-label="Steg 1 Possenhofen — Startseite"><img src="img/logo/logo-teal.png" alt="Steg 1 Possenhofen"></a>
   <a href="sup">SUP Verleih</a>
-  <a href="speisekarte" class="active">Speisekarte</a>
+  <a href="speisekarte">Speisekarte</a>
   <a href="galerie">Unser Steg 1</a>
   <a href="veranstaltungen">Veranstaltungen</a>
   <a href="jobs" id="mm-jobs-item">Jobs</a>
@@ -361,66 +244,42 @@ footer{
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
 
-<!-- HERO -->
-<section class="menu-hero" id="top">
-  <p class="eyebrow">Unsere Karte</p>
-  <h1>Speisekarte</h1>
-  <p>Frische Küche, kühle Getränke — direkt am See.</p>
+<!-- CONTENT -->
+<main class="legal-content">
   <a href="/" class="back-link">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Zurück zur Startseite
   </a>
-</section>
 
-<!-- ═══════════════════════════════ -->
-<!-- FOOD GALLERY                    -->
-<!-- ═══════════════════════════════ -->
-<section class="food-gallery reveal">
-  <div class="food-grid">
-    <figure class="food-item">
-      <img src="images/food/food-03.jpg" alt="Aperol Spritz mit Blick auf den Starnberger See" loading="lazy" decoding="async">
-    </figure>
-    <figure class="food-item">
-      <img src="images/food/food-02.jpg" alt="Sommerliche Drinks und Cocktails am Steg 1" loading="lazy" decoding="async">
-    </figure>
-    <figure class="food-item">
-      <img src="images/food/food-01.jpg" alt="Frisch gegrillter Steckerlfisch am Steg 1" loading="lazy" decoding="async">
-    </figure>
-    <figure class="food-item">
-      <img src="images/food/food-04.jpg" alt="Kaffee und Kuchen mit Blick auf den Steg" loading="lazy" decoding="async">
-    </figure>
-    <!-- weitere food-items kommen hier dazu -->
-  </div>
-</section>
+  <h1>Stornobedingungen</h1>
+  <p style="color:var(--text3)">Für die Vormerkung zum Winterzauber-Käsefondue am Steg 1 Possenhofen.</p>
 
-<!-- ═══════════════════════════════ -->
-<!-- SPEISEN                         -->
-<!-- ═══════════════════════════════ -->
-<section class="sec reveal" id="speisen">
-  <div class="stag">Küche</div>
-  <h2>Speisen</h2>
-  <p class="ssub">Bayerische Küche, frisch zubereitet — von Flammkuchen bis Steckerlfisch.</p>
+  <h2>1. Verbindlichkeit der Vormerkung</h2>
+  <p>Mit dem Absenden des Vormerk-Formulars gibt der Gast eine verbindliche Reservierung ab. Der Gast ist ab diesem Zeitpunkt an die Vormerkung gebunden; ein Rücktritt ist nur nach Maßgabe von Ziffer&nbsp;4 und&nbsp;5 möglich. Steg&nbsp;1 bestätigt die Vormerkung anschließend gesondert per E-Mail. Die Bestätigung kann bis kurz vor dem Termin erfolgen, auch weniger als 48&nbsp;Stunden vorher. Der Zeitpunkt der Bestätigung durch Steg&nbsp;1 hat keinen Einfluss auf die Frist nach Ziffer&nbsp;4 – maßgeblich ist stets der Terminbeginn.</p>
 
-  <div class="menu-grid" id="menu-speisen">
-    <p style="color:var(--text3);font-size:.88rem">Karte wird geladen...</p>
-  </div>
-</section>
+  <h2>2. Mindestteilnehmerzahl</h2>
+  <p>Ein Fondue-Abend findet ab 10 angemeldeten Personen statt. Kommt diese Zahl nicht zustande, kann Steg&nbsp;1 den Termin absagen (Ziffer&nbsp;6).</p>
 
-<!-- ═══════════════════════════════ -->
-<!-- GETRÄNKE                        -->
-<!-- ═══════════════════════════════ -->
-<section class="sec reveal" id="getraenke">
-  <div class="stag">Getränke</div>
-  <h2>Getränkekarte</h2>
-  <p class="ssub">Vom frisch gezapften Tegernseer bis zum Steg 1 Spritz — für jeden Geschmack.</p>
+  <h2>3. Preise</h2>
+  <p>Käsefondue „satt": der zum Zeitpunkt der Vormerkung angezeigte Preis pro Person (derzeit 29,00&nbsp;€). Beilagen: laut Auswahl in der Vormerkung, zum jeweils angezeigten Portionspreis. Es fällt keine Vorauszahlung an; die Abrechnung erfolgt nach dem Termin bzw. im Fall von Ziffer&nbsp;5 per Rechnung an die in der Vormerkung angegebene Anschrift.</p>
 
-  <div class="menu-grid" id="menu-getraenke">
-    <p style="color:var(--text3);font-size:.88rem">Karte wird geladen...</p>
-  </div>
-</section>
+  <h2>4. Kostenfreier Rücktritt des Gastes</h2>
+  <p>Der Gast kann bis 48&nbsp;Stunden vor Terminbeginn (Terminbeginn = 18:00&nbsp;Uhr am Termintag) kostenfrei von der Vormerkung zurücktreten – über den Link in der E-Mail oder per Nachricht an <a href="mailto:reservierung@steg1possenhofen.de">reservierung@steg1possenhofen.de</a>. Eine Reduzierung der Personenzahl ist innerhalb derselben Frist auf demselben Weg möglich.</p>
 
-<!-- Hinweis -->
-<div class="menu-note">Alle Preise inkl. MwSt. · Änderungen vorbehalten.</div>
+  <h2>5. Rücktritt oder Nichterscheinen ab 48 Stunden vor Terminbeginn</h2>
+  <p>Bei Rücktritt ab 48&nbsp;Stunden vor Terminbeginn, bei Nichterscheinen oder bei Erscheinen mit weniger Personen als vorgemerkt wird die Reservierung in vollem Umfang berechnet: der Fondue-Preis je vorgemerkter Person zuzüglich aller in der Vormerkung gewählten Beilagen. Die Rechnung geht an die angegebene Anschrift und ist innerhalb von 14&nbsp;Tagen zahlbar. Dem Gast bleibt der Nachweis vorbehalten, dass Steg&nbsp;1 kein oder ein geringerer Schaden entstanden ist.</p>
+
+  <h2>6. Absage durch Steg 1</h2>
+  <p>Steg&nbsp;1 kann den Termin absagen, insbesondere bei Nichterreichen der Mindestteilnehmerzahl, bei Witterungsbedingungen, höherer Gewalt oder Betriebsstörungen. In diesem Fall entstehen dem Gast keine Kosten; bereits gezahlte Beträge werden erstattet. Steg&nbsp;1 informiert so früh wie möglich, in der Regel spätestens zwei Tage vor dem Termin.</p>
+
+  <h2>7. Datenverarbeitung</h2>
+  <p>Die Verarbeitung der im Rahmen der Vormerkung erhobenen Daten – einschließlich der Anschrift zur Rechnungsstellung – richtet sich nach der <a href="datenschutz">Datenschutzerklärung</a>.</p>
+
+  <h2>8. Schlussbestimmungen</h2>
+  <p>Es gilt deutsches Recht. Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+
+  <p style="color:var(--text3);margin-top:2rem">Stand: September 2026</p>
+</main>
 
 <!-- FOOTER -->
 <footer>
@@ -477,104 +336,21 @@ window.addEventListener('scroll', function() {
   document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// Hero entrance animation
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
-    document.querySelector('.menu-hero').classList.add('loaded');
-  }, 100);
-});
-
-// Scroll reveal observer
-var obs = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      obs.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(function(el) {
-  obs.observe(el);
-});
-
 // Mobile menu toggle
 var burger = document.querySelector('.nav-burger');
-var mobileMenu = document.getElementById('mobile-menu');
+var mobileMenu = document.querySelector('.mobile-menu');
 if (burger && mobileMenu) {
   burger.addEventListener('click', function() {
     burger.classList.toggle('open');
     mobileMenu.classList.toggle('open');
-    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
   });
-  // Close menu on link click
-  mobileMenu.querySelectorAll('a').forEach(function(a) {
-    a.addEventListener('click', function() {
+  mobileMenu.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
       burger.classList.remove('open');
       mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
     });
   });
 }
-</script>
-<script>
-(function(){
-  var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
-  var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
-  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-
-  fetch(SB_URL+'/rest/v1/menu_items?order=sort_order&select=category,section,name,description,price',{
-    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
-  }).then(function(r){
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    return r.json();
-  }).then(function(data){
-    if(!data||!data.length){
-      document.getElementById('menu-speisen').innerHTML='<p style="color:var(--text3)">Keine Einträge vorhanden.</p>';
-      return;
-    }
-    renderSection(data,'speisen','menu-speisen');
-    renderSection(data,'getraenke','menu-getraenke');
-  }).catch(function(e){
-    console.error('Menu load error',e);
-    var el=document.getElementById('menu-speisen');
-    if(el)el.innerHTML='<p style="color:#D94F4F">Speisekarte konnte nicht geladen werden. Bitte Seite neu laden.</p>';
-  });
-
-  function renderSection(data,section,containerId){
-    var container=document.getElementById(containerId);
-    if(!container)return;
-    var items=data.filter(function(i){return i.section===section});
-
-    // Diese Kategorien sollen ans Ende
-    var endCategories=['Kuchen & Eis','Saisonale Gerichte'];
-
-    // Erst gruppieren nach Kategorie, dann rendern — verhindert doppelte
-    // Boxen wenn sort_order zwischen Kategorien hin- und her-springt.
-    // Reihenfolge der Kategorien = erste Erscheinung in sort_order.
-    var groups={};
-    var catOrder=[];
-    items.forEach(function(item){
-      if(!groups[item.category]){groups[item.category]=[];catOrder.push(item.category)}
-      groups[item.category].push(item);
-    });
-
-    // End-Kategorien hinten anhängen
-    var ordered=catOrder.filter(function(c){return endCategories.indexOf(c)===-1});
-    endCategories.forEach(function(c){if(catOrder.indexOf(c)!==-1) ordered.push(c)});
-
-    var html='';
-    ordered.forEach(function(cat){
-      html+='<div class="menu-card"><h3>'+esc(cat)+'</h3>';
-      groups[cat].forEach(function(item){
-        html+='<div class="menu-item"><div class="menu-item-left"><div class="menu-item-name">'+esc(item.name)+'</div>';
-        if(item.description)html+='<div class="menu-item-desc">'+esc(item.description)+'</div>';
-        html+='</div><div class="menu-item-price">'+esc(item.price)+'</div></div>';
-      });
-      html+='</div>';
-    });
-    container.innerHTML=html;
-  }
-})();
 </script>
 <script>
 // Footer-Accordion: Mobile startet collapsed, Desktop immer offen
