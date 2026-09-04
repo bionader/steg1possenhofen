@@ -36,9 +36,11 @@ function dateFormattedDe(yyyymmdd: string): string {
 
 // 48-h-Grenze: Termindatum 18:00 Uhr minus 48 Stunden. Identisch zur Frontend-Logik
 // in fondue-anmeldung.html. `date` ist ein reiner DATE-Wert (kein Zeitanteil).
+// Offset fest auf CET (+01:00) gepinnt: Deno Deploy laeuft in UTC, ohne Offset waere
+// 18:00 sonst UTC statt Europe/Berlin. Winterzauber-Saison ist Nov–Feb, also kein DST.
 function isWithin48h(dateYmd: string): boolean {
   if (!dateYmd) return false;
-  const eventStart = new Date(dateYmd + "T18:00:00");
+  const eventStart = new Date(dateYmd + "T18:00:00+01:00");
   return eventStart.getTime() - Date.now() < 48 * 60 * 60 * 1000;
 }
 
