@@ -88,6 +88,7 @@ function buildMailHtml(opts: {
   name: string;
   email: string;
   phone: string;
+  address: string;
   anmeldungId: string;
   manageToken: string;
   dateFormatted: string;
@@ -96,7 +97,7 @@ function buildMailHtml(opts: {
   beilagenLines: string[];
   gesamtpreis: number;
 }): string {
-  const { name, email, phone, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis } = opts;
+  const { name, email, phone, address, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis } = opts;
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -109,7 +110,7 @@ function buildMailHtml(opts: {
         <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${esc(name)}, vielen Dank f&uuml;r deine Anmeldung zum Winterzauber.</p>
         <div style="background:#fff;border:1.5px solid #D4883A;border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:20px">
           <p style="color:#163D36;font-size:14px;font-weight:600;margin:0 0 4px">Wichtiger Hinweis</p>
-          <p style="color:#4A4840;font-size:13px;margin:0">Ihre Anmeldung ist zun&auml;chst eine unverbindliche Vormerkung. Der Termin findet ab insgesamt zehn angemeldeten Personen statt. Sobald die Mindestteilnehmerzahl erreicht ist, erhalten Sie von uns eine verbindliche Buchungsbest&auml;tigung.</p>
+          <p style="color:#4A4840;font-size:13px;margin:0">Ihre Anmeldung ist zun&auml;chst eine unverbindliche Vormerkung. Der Termin findet ab insgesamt zehn angemeldeten Personen statt. Sobald die Mindestteilnehmerzahl erreicht ist, erhalten Sie von uns eine verbindliche Buchungsbest&auml;tigung. Bis 48&nbsp;Stunden vor dem Termin k&ouml;nnen Sie &uuml;ber den Link unten kostenlos absagen. Danach wird die Reservierung inklusive aller gew&auml;hlten Beilagen berechnet.</p>
         </div>
         <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin-bottom:20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
@@ -117,6 +118,7 @@ function buildMailHtml(opts: {
             <tr><td style="padding:6px 0;color:#6C7871">Name</td><td style="padding:6px 0;font-weight:500">${esc(name)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">E-Mail</td><td style="padding:6px 0;font-weight:500">${esc(email)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Telefon</td><td style="padding:6px 0;font-weight:500">${esc(phone)}</td></tr>
+            <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Anschrift</td><td style="padding:6px 0;font-weight:500">${esc(opts.address)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${variantenLines.map(esc).join("<br>")}</td></tr>
@@ -159,6 +161,10 @@ serve(async (req) => {
   const varianten = (body?.varianten && typeof body.varianten === "object") ? body.varianten : {};
   const beilagen = (body?.beilagen && typeof body.beilagen === "object") ? body.beilagen : {};
   const allergien = String(body?.allergien ?? "").trim().slice(0, 500);
+  const street = String(body?.street ?? "").trim();
+  const houseNo = String(body?.houseNo ?? "").trim();
+  const postalCode = String(body?.postalCode ?? "").trim();
+  const city = String(body?.city ?? "").trim();
   const allergienConsent = body?.allergienConsent === true;
   const agb = body?.agb === true;
 
@@ -176,6 +182,13 @@ serve(async (req) => {
   if (!name || name.length > 100) return jsonResponse({ error: "invalid_name" }, 400, corsHeaders);
   if (!EMAIL_RE.test(email) || email.length > 200) return jsonResponse({ error: "invalid_email" }, 400, corsHeaders);
   if (phoneDigits.length < 6 || phone.length > 40) return jsonResponse({ error: "invalid_phone" }, 400, corsHeaders);
+  // Punkt 3: Anschrift ist Pflicht (Einkaufsplanung + Durchsetzung der Stornobedingungen,
+  // bewusst kein Zahlungsanbieter). Längenlimits gegen Missbrauch, PLZ als Freitext
+  // (nicht auf DE-Format festgenagelt).
+  if (!street || street.length > 120) return jsonResponse({ error: "invalid_address" }, 400, corsHeaders);
+  if (!houseNo || houseNo.length > 20) return jsonResponse({ error: "invalid_address" }, 400, corsHeaders);
+  if (!postalCode || postalCode.length > 12) return jsonResponse({ error: "invalid_address" }, 400, corsHeaders);
+  if (!city || city.length > 120) return jsonResponse({ error: "invalid_address" }, 400, corsHeaders);
   if (!Number.isInteger(personen) || personen < 1 || personen > 30) return jsonResponse({ error: "invalid_personen" }, 400, corsHeaders);
   if (!agb) return jsonResponse({ error: "agb_required" }, 400, corsHeaders);
   // Art. 9 DSGVO: gesonderte, ausdrückliche Einwilligung nötig, sobald Gesundheitsdaten
@@ -248,6 +261,10 @@ serve(async (req) => {
       customer_name: name,
       customer_email: email,
       customer_phone: phone,
+      addr_street: street,
+      addr_house_no: houseNo,
+      addr_postal_code: postalCode,
+      addr_city: city,
       personen_anzahl: personen,
       varianten_auswahl: varianten,
       beilagen_auswahl: beilagen,
@@ -283,6 +300,7 @@ serve(async (req) => {
           name,
           email,
           phone,
+          address: `${street} ${houseNo}, ${postalCode} ${city}`,
           anmeldungId: inserted.anmeldung_id,
           manageToken: inserted.manage_token,
           dateFormatted,
