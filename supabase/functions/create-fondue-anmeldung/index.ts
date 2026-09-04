@@ -232,6 +232,10 @@ serve(async (req) => {
 
   let gesamtpreis = 0;
   const variantenLines: string[] = [];
+  // Nur akzeptierte {id: integerCount}-Einträge werden persistiert — die rohen Client-Objekte
+  // landen NICHT in der DB (sonst stored XSS über die Mengen-Werte im Admin).
+  const variantenClean: Record<string, number> = {};
+  const beilagenClean: Record<string, number> = {};
   for (const [vid, anzahl] of Object.entries(varianten)) {
     const count = Number(anzahl);
     if (!Number.isInteger(count) || count <= 0) continue;
@@ -239,6 +243,7 @@ serve(async (req) => {
     if (!v) return jsonResponse({ error: "invalid_variante", id: vid }, 400, corsHeaders);
     gesamtpreis += count * Number(v.price_per_person);
     variantenLines.push(`${count}x ${v.name}`);
+    variantenClean[vid] = count;
   }
   if (variantenLines.length === 0) return jsonResponse({ error: "no_variante_selected" }, 400, corsHeaders);
 
@@ -250,6 +255,7 @@ serve(async (req) => {
     if (!b) return jsonResponse({ error: "invalid_beilage", id: bid }, 400, corsHeaders);
     gesamtpreis += count * Number(b.price);
     beilagenLines.push(`${count}x ${b.name}`);
+    beilagenClean[bid] = count;
   }
 
   // Insert via Service-Role
@@ -266,8 +272,8 @@ serve(async (req) => {
       addr_postal_code: postalCode,
       addr_city: city,
       personen_anzahl: personen,
-      varianten_auswahl: varianten,
-      beilagen_auswahl: beilagen,
+      varianten_auswahl: variantenClean,
+      beilagen_auswahl: beilagenClean,
       allergien_hinweis: allergien || null,
       agb_akzeptiert: true,
       status: "vorgemerkt",
