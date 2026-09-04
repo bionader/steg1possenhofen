@@ -1665,6 +1665,9 @@
       })).then(function(rowsPerTermin){
         var html = '';
         visibleTermine.forEach(function(t, i){
+          // Rows je Termin fuer den Vorbereitungslisten-Handler bereitstellen
+          window.wzRowsByTermin = window.wzRowsByTermin || {};
+          window.wzRowsByTermin[t.id] = rowsPerTermin[i] || [];
           var rows = rowsPerTermin[i] || [];
           var total = rows.reduce(function(sum,r){ return sum + ((r.status==='vorgemerkt'||r.status==='bestaetigt') ? r.personen_anzahl : 0); }, 0);
           var dateFmt = t.date.split('-').reverse().join('.');
@@ -1795,6 +1798,77 @@
 
       out += '</tbody></table></div></details>';
       return out;
+    }
+
+    // Druckfertige Vorbereitungsliste für einen Termin — reines HTML + Print-CSS,
+    // keine PDF-Library. Zählt nur aktive Anmeldungen (vorgemerkt + bestaetigt).
+    function buildWzVorbereitungsliste(termin, rows){
+      var aktiveVar = (wzVarianten || []).filter(function(v){ return v.is_active; });
+      var aktiveBei = (wzBeilagen || []).filter(function(b){ return b.is_active; });
+      var active = (rows || []).filter(function(r){ return r.status === 'vorgemerkt' || r.status === 'bestaetigt'; });
+
+      var varSum = {}, beiSum = {}, personen = 0;
+      aktiveVar.forEach(function(v){ varSum[v.id] = 0; });
+      aktiveBei.forEach(function(b){ beiSum[b.id] = 0; });
+      active.forEach(function(r){
+        personen += Number(r.personen_anzahl) || 0;
+        var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
+        Object.keys(va).forEach(function(id){ varSum[id] = (varSum[id] || 0) + Number(va[id] || 0); });
+        Object.keys(ba).forEach(function(id){ beiSum[id] = (beiSum[id] || 0) + Number(ba[id] || 0); });
+      });
+
+      function e(s){ var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
+      var dateFmt = termin.date.split('-').reverse().join('.');
+      var now = new Date();
+      var erstellt = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+
+      var sumRows = aktiveVar.map(function(v){ return '<tr><td>' + e(v.name) + '</td><td class="n">' + (varSum[v.id] || 0) + '</td></tr>'; }).join('')
+        + aktiveBei.map(function(b){ return '<tr><td>' + e(b.name) + ' <span class="tag">Beilage</span></td><td class="n">' + (beiSum[b.id] || 0) + '</td></tr>'; }).join('');
+
+      var head = '<tr><th>Name</th><th class="n">Pers.</th>'
+        + aktiveVar.map(function(v){ return '<th>' + e(v.name) + '</th>'; }).join('')
+        + aktiveBei.map(function(b){ return '<th>' + e(b.name) + '</th>'; }).join('')
+        + '<th>Allergien</th><th>Telefon</th></tr>';
+
+      var body = active.map(function(r){
+        var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
+        return '<tr><td>' + e(r.customer_name) + '</td><td class="n">' + (Number(r.personen_anzahl) || 0) + '</td>'
+          + aktiveVar.map(function(v){ return '<td class="n">' + (va[v.id] || 0) + '</td>'; }).join('')
+          + aktiveBei.map(function(b){ return '<td class="n">' + (ba[b.id] || 0) + '</td>'; }).join('')
+          + '<td>' + e(r.allergien_hinweis || '') + '</td><td>' + e(r.customer_phone || '') + '</td></tr>';
+      }).join('') || '<tr><td colspan="99">Keine aktiven Anmeldungen.</td></tr>';
+
+      return '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+        + '<title>Vorbereitungsliste ' + e(dateFmt) + '</title><style>'
+        + '*{box-sizing:border-box}body{font:13px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#1A2421;margin:24px}'
+        + 'h1{font-size:18px;margin:0 0 2px}.meta{color:#666;font-size:12px;margin:0 0 16px}'
+        + 'h2{font-size:14px;margin:20px 0 6px}table{border-collapse:collapse;width:100%;margin-bottom:8px}'
+        + 'th,td{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f2ebd9}'
+        + 'td.n,th.n{text-align:center}.tag{font-size:10px;color:#777}'
+        + '@media print{body{margin:10mm}button{display:none}}'
+        + '</style></head><body>'
+        + '<h1>Winterzauber — Vorbereitungsliste</h1>'
+        + '<p class="meta">Termin ' + e(dateFmt) + ' &middot; Status: ' + e(termin.status) + ' &middot; erstellt ' + e(erstellt) + '</p>'
+        + '<button onclick="window.print()">Drucken / als PDF sichern</button>'
+        + '<h2>Zusammenfassung</h2>'
+        + '<table><tr><th>Position</th><th class="n">Menge gesamt</th></tr>' + sumRows
+        + '<tr><td><strong>Personen gesamt</strong></td><td class="n"><strong>' + personen + '</strong></td></tr>'
+        + '<tr><td><strong>Anmeldungen</strong></td><td class="n"><strong>' + active.length + '</strong></td></tr></table>'
+        + '<h2>Gästeliste</h2>'
+        + '<table><thead>' + head + '</thead><tbody>' + body + '</tbody></table>'
+        + '</body></html>';
+    }
+
+    function openWzVorbereitungsliste(terminId){
+      var termin = (wzTermine || []).find(function(t){ return t.id === terminId; });
+      var rows = (window.wzRowsByTermin || {})[terminId] || [];
+      if(!termin){ msg('Termin nicht gefunden','error','wz-admin-message'); return; }
+      var w = window.open('', '_blank');
+      if(!w){ msg('Bitte Pop-ups für diese Seite erlauben','error','wz-admin-message'); return; }
+      w.document.open();
+      w.document.write(buildWzVorbereitungsliste(termin, rows));
+      w.document.close();
+      w.onload = function(){ try { w.focus(); w.print(); } catch(e){} };
     }
 
     function confirmWinterzauberTermin(terminId, isNachzuegler){
