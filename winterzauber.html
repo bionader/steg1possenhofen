@@ -395,6 +395,14 @@ footer{
 .wz-summe-val{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;color:var(--accent2)}
 .wz-summe-hint{font-size:.8rem;color:var(--text3)}
 .wz-gaeste-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem}
+.wz-beilmengen{display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem}
+.wz-beilmenge-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;font-size:.86rem;color:var(--text)}
+.wz-beilmenge-row .lbl{flex:1;min-width:0}
+.wz-beilmenge-row .price{color:var(--text3);font-size:.78rem;white-space:nowrap}
+.wz-beilmenge-step{display:inline-flex;align-items:center;gap:.5rem}
+.wz-beilmenge-step button{width:26px;height:26px;border-radius:100px;border:1px solid var(--sand2);background:var(--w);color:var(--g);font-size:1rem;line-height:1;cursor:pointer}
+.wz-beilmenge-step button:disabled{opacity:.4;cursor:default}
+.wz-beilmenge-step .cnt{min-width:1.4ch;text-align:center;font-variant-numeric:tabular-nums}
 .wz-gast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.3rem .3rem .3rem 1.15rem}
 .wz-gast-label{font-size:.85rem;color:var(--text2)}
 .wz-gast-opts{display:flex;gap:.3rem}
@@ -645,6 +653,10 @@ footer{
                 <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
                 <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
               </div>
+              <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
+                <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
+                <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
+              </div>
               <div class="full" style="display:flex;align-items:baseline;gap:.4rem">
                 <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
               </div>
@@ -861,6 +873,7 @@ var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August',
 var termine = [];
 var variantenList = [];
 var beilagenList = [];
+var wzBeilagenMengen = {}; // { beilageId: menge } — gilt pro Vormerkung, nicht pro Person
 var selectedTerminId = null;
 var currentMonat = null; // null = alle
 var currentView = 'liste';
@@ -995,6 +1008,7 @@ function loadAll() {
 
     renderVarianten();
     renderBeilagen();
+    renderBeilMengen();
     initGaeste(2);
 
     selectedTerminId = null;
@@ -1197,12 +1211,55 @@ function renderGaeste() {
 }
 
 function updateSumme() {
-  var sum = gaesteVarianten.reduce(function (s, vid) {
+  var varSum = gaesteVarianten.reduce(function (s, vid) {
     var v = variantenList.find(function (x) { return x.id === vid; });
     return s + (v ? Number(v.price_per_person) : 0);
   }, 0);
-  document.getElementById('wz-summe').textContent = sum.toFixed(0) + ' €';
-  document.getElementById('wz-summe-hint').textContent = 'für ' + gaesteVarianten.length + ' × Fondue satt (exkl. Beilagen)';
+  var beilSum = Object.keys(wzBeilagenMengen).reduce(function (s, id) {
+    var b = beilagenList.find(function (x) { return x.id === id; });
+    return s + (b ? Number(b.price) * wzBeilagenMengen[id] : 0);
+  }, 0);
+  var total = varSum + beilSum;
+  document.getElementById('wz-summe').textContent = total.toFixed(0) + ' €';
+  document.getElementById('wz-summe-hint').textContent =
+    'für ' + gaesteVarianten.length + ' × Fondue satt' + (beilSum > 0 ? ' inkl. Beilagen' : '');
+}
+
+function renderBeilMengen() {
+  var el = document.getElementById('wz-beilmengen-list');
+  if (!el) return;
+  if (!beilagenList.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
+  el.innerHTML = beilagenList.map(function (b) {
+    var n = wzBeilagenMengen[b.id] || 0;
+    var priceTxt = Number(b.price) > 0 ? (Number(b.price).toFixed(2) + ' €/Portion') : 'ohne Aufpreis';
+    return '<div class="wz-beilmenge-row" data-id="' + b.id + '">' +
+      '<span class="lbl">' + escapeHtml(b.name) + '</span>' +
+      '<span class="price">' + priceTxt + '</span>' +
+      '<span class="wz-beilmenge-step">' +
+        '<button type="button" class="wz-bm-dec" data-id="' + b.id + '" aria-label="Weniger">−</button>' +
+        '<span class="cnt" id="wz-bm-cnt-' + b.id + '">' + n + '</span>' +
+        '<button type="button" class="wz-bm-inc" data-id="' + b.id + '" aria-label="Mehr">+</button>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.wz-bm-inc').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.min(99, (wzBeilagenMengen[id] || 0) + 1);
+      document.getElementById('wz-bm-cnt-' + id).textContent = wzBeilagenMengen[id];
+      updateSumme();
+    });
+  });
+  el.querySelectorAll('.wz-bm-dec').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.max(0, (wzBeilagenMengen[id] || 0) - 1);
+      var shown = wzBeilagenMengen[id];
+      if (wzBeilagenMengen[id] === 0) delete wzBeilagenMengen[id];
+      document.getElementById('wz-bm-cnt-' + id).textContent = shown;
+      updateSumme();
+    });
+  });
 }
 
 document.getElementById('wz-inc').addEventListener('click', function () {
@@ -1264,7 +1321,7 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     city: cityValue,
     personen: gaesteVarianten.length,
     varianten: variantenSel,
-    beilagen: {},
+    beilagen: wzBeilagenMengen,
     allergien: allergienValue,
     allergienConsent: allergienConsentChecked,
     agb: document.getElementById('wz-agb').checked
@@ -1304,6 +1361,8 @@ document.getElementById('wz-reset-btn').addEventListener('click', function () {
   document.getElementById('wz-submit-btn').disabled = false;
   document.getElementById('wz-submit-btn').textContent = 'Platz vormerken →';
   if (window.hcaptcha && wzCaptchaWidgetId !== null) hcaptcha.reset(wzCaptchaWidgetId);
+  wzBeilagenMengen = {};
+  renderBeilMengen();
 });
 
 document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
