@@ -373,10 +373,10 @@ footer{
 .wz-detail-hinweis{font-size:.85rem;color:var(--text2);line-height:1.65;margin-top:1.25rem}
 
 /* ── VORMERK-FORMULAR ── */
-.wz-vormerk-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;align-items:stretch;margin-top:2.5rem}
-.wz-vormerk-photo{border-radius:16px;overflow:hidden}
-.wz-vormerk-photo img{width:100%;height:100%;object-fit:cover;display:block;min-height:320px}
+.wz-vormerk-grid{display:grid;grid-template-columns:1fr;gap:2rem;margin-top:2.5rem}
 .wz-formbox{background:var(--sand);border-radius:16px;padding:2.25rem 2.25rem 2rem}
+.wz-form2col{display:grid;grid-template-columns:1fr 1fr;gap:1.75rem;align-items:start}
+.wz-fcolB{display:flex;flex-direction:column;gap:1.1rem}
 .wz-formbox h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.3rem}
 .wz-formbox .ctx{font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:1.75rem}
 .wz-formbox .ctx strong{font-weight:600;color:var(--text)}
@@ -462,12 +462,12 @@ footer{
 /* ── ENDBANNER ── */
 
 @media(max-width:900px){
-  .wz-hero2,.wz-fondue-grid,.wz-vormerk-grid{grid-template-columns:1fr}
+  .wz-hero2,.wz-fondue-grid,.wz-vormerk-grid,.wz-form2col{grid-template-columns:1fr}
   /* Grid-Kinder duerfen unter ihre intrinsische Breite schrumpfen (sonst 8px H-Overflow durch das fixe hCaptcha-iFrame) */
   .wz-vormerk-grid>*,.wz-fondue-grid>*,.wz-hero2>*{min-width:0}
+  .wz-form2col>*{min-width:0}
   .wz-formbox{padding:1.6rem 1.15rem 1.5rem}
   .wz-fondue-photo{height:260px;order:-1}
-  .wz-vormerk-photo{height:220px;order:-1}
   .wz-faq-grid{grid-template-columns:1fr}
   .wz-faq-img{order:-1}
   /* Hero mobil: Grünfläche kürzer (kein erzwungenes 660px-min), Bild grosszuegig */
@@ -635,35 +635,41 @@ footer{
           <p class="ctx">Für <strong id="wz-ctx-termin">–</strong></p>
           <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Mit dem Absenden ist eure Vormerkung verbindlich. Bis 48&nbsp;Stunden vor dem Termin könnt ihr über den Link in eurer Mail kostenlos stornieren; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
           <form id="wz-form">
-            <div class="wz-fgrid">
-              <label class="wz-flabel"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
-              <label class="wz-flabel"><span>E-Mail *</span><input type="email" id="wz-email" placeholder="name@beispiel.de" required></label>
-              <label class="wz-flabel"><span>Telefon *</span><input type="tel" id="wz-phone" placeholder="Für Rückfragen" required></label>
-              <label class="wz-flabel"><span>Straße *</span><input type="text" id="wz-street" placeholder="Straße" autocomplete="address-line1" required></label>
-              <label class="wz-flabel"><span>Hausnr. *</span><input type="text" id="wz-houseno" placeholder="Nr." autocomplete="address-line2" required></label>
-              <label class="wz-flabel"><span>PLZ *</span><input type="text" id="wz-plz" inputmode="numeric" placeholder="PLZ" autocomplete="postal-code" required></label>
-              <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
-              <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
-              <div class="wz-flabel">
-                <span>Personen</span>
-                <div class="wz-stepper">
-                  <button type="button" id="wz-dec" aria-label="Weniger Personen">−</button>
-                  <span id="wz-personen-count">2</span>
-                  <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
+            <div class="wz-form2col">
+              <div class="wz-fcolA">
+                <div class="wz-fgrid">
+                  <label class="wz-flabel full"><span>Name *</span><input type="text" id="wz-name" placeholder="Vor- und Nachname" required></label>
+                  <label class="wz-flabel full"><span>E-Mail *</span><input type="email" id="wz-email" placeholder="name@beispiel.de" required></label>
+                  <label class="wz-flabel full"><span>Telefon *</span><input type="tel" id="wz-phone" placeholder="Für Rückfragen" required></label>
+                  <label class="wz-flabel"><span>Straße *</span><input type="text" id="wz-street" placeholder="Straße" autocomplete="address-line1" required></label>
+                  <label class="wz-flabel"><span>Hausnr. *</span><input type="text" id="wz-houseno" placeholder="Nr." autocomplete="address-line2" required></label>
+                  <label class="wz-flabel"><span>PLZ *</span><input type="text" id="wz-plz" inputmode="numeric" placeholder="PLZ" autocomplete="postal-code" required></label>
+                  <label class="wz-flabel"><span>Ort *</span><input type="text" id="wz-city" placeholder="Ort" autocomplete="address-level2" required></label>
+                  <p class="wz-addr-hint full">Für die Einkaufsplanung und die Reservierungsbestätigung.</p>
                 </div>
               </div>
-              <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
-                <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
-                <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
+              <div class="wz-fcolB">
+                <div class="wz-flabel">
+                  <span>Personen</span>
+                  <div class="wz-stepper">
+                    <button type="button" id="wz-dec" aria-label="Weniger Personen">−</button>
+                    <span id="wz-personen-count">2</span>
+                    <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:.4rem">
+                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
+                  <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:.4rem">
+                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
+                  <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:.4rem">
+                  <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
+                </div>
+                <label class="wz-flabel"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. laktosefrei, Nussallergie"></textarea></label>
               </div>
-              <div class="full" style="display:flex;flex-direction:column;gap:.4rem">
-                <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
-                <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
-              </div>
-              <div class="full" style="display:flex;align-items:baseline;gap:.4rem">
-                <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
-              </div>
-              <label class="wz-flabel full"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. laktosefrei, Nussallergie"></textarea></label>
             </div>
 
             <div id="wz-captcha" class="h-captcha" style="margin:1.25rem 0 0"></div>
@@ -685,7 +691,6 @@ footer{
           </div>
         </div>
       </div>
-      <div class="wz-vormerk-photo"><img src="images/winter-fondue-teilen.jpg" alt="Gäste tunken gemeinsam Kartoffeln ins Käsefondue"></div>
     </div>
   </section>
 
