@@ -1659,7 +1659,7 @@
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
         // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,status&order=created_at.asc',{
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
       })).then(function(rowsPerTermin){
@@ -1749,6 +1749,11 @@
       var order = { bestaetigt:0, vorgemerkt:1, storniert:2, abgesagt:3 };
       var sorted = rows.slice().sort(function(a,b){ return (order[a.status] == null ? 9 : order[a.status]) - (order[b.status] == null ? 9 : order[b.status]); });
       var aktiveVarianten = (wzVarianten || []).filter(function(v){ return v.is_active; });
+      var aktiveBeilagen = (wzBeilagen || []).filter(function(b){ return b.is_active; });
+      function wzBeilageShort(name){
+        var w = String(name).split(/\s+/)[0];
+        return w.length > 8 ? w.slice(0,7) + '.' : w;
+      }
 
       // Kurzlabel fuer die Fondue-Spalten (voller Name bleibt im title-Tooltip)
       function wzVariantShort(name){
@@ -1765,6 +1770,9 @@
       aktiveVarianten.forEach(function(v){
         out += '<th title="'+esc(v.name)+'">'+esc(wzVariantShort(v.name))+'</th>';
       });
+      aktiveBeilagen.forEach(function(b){
+        out += '<th title="'+esc(b.name)+'">'+esc(wzBeilageShort(b.name))+'</th>';
+      });
       out += '<th>Nr.</th></tr></thead><tbody>';
 
       sorted.forEach(function(r){
@@ -1779,6 +1787,8 @@
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
         aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(va[v.id] || 0)+'</td>'; });
+        var ba = r.beilagen_auswahl || {};
+        aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(ba[b.id] || 0)+'</td>'; });
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
         out += '</tr>';
       });
@@ -1996,19 +2006,26 @@
     function renderWinterzauberAnmeldungen(rows){
       var el = document.getElementById('wz-anmeldungen-list');
       if(!rows.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Anmeldungen.</p>'; return; }
+      // Varianten/Beilagen ausgeschrieben statt "X Position(en)"
+      function nameMengeList(auswahl, list){
+        var keys = Object.keys(auswahl || {});
+        if(!keys.length) return '–';
+        return keys.map(function(id){
+          var item = (list || []).find(function(x){ return x.id === id; });
+          return auswahl[id] + '× ' + esc(item ? item.name : '?');
+        }).join(', ');
+      }
       var html = '<table class="wz-anmeld-table"><thead><tr>';
       html += '<th>ID</th><th>Name</th><th>Kontakt</th><th>Personen</th><th>Varianten</th><th>Beilagen</th><th>Allergien</th><th>Status</th>';
       html += '</tr></thead><tbody>';
       rows.forEach(function(r){
-        var varCount = Object.keys(r.varianten_auswahl||{}).length;
-        var beiCount = Object.keys(r.beilagen_auswahl||{}).length;
         html += '<tr>';
         html += '<td>'+r.anmeldung_id+'</td>';
         html += '<td>'+esc(r.customer_name)+'</td>';
         html += '<td>'+esc(r.customer_email)+(r.customer_phone?'<br>'+esc(r.customer_phone):'')+'</td>';
         html += '<td>'+r.personen_anzahl+'</td>';
-        html += '<td>'+varCount+' Position(en)</td>';
-        html += '<td>'+beiCount+' Position(en)</td>';
+        html += '<td>'+nameMengeList(r.varianten_auswahl, wzVarianten)+'</td>';
+        html += '<td>'+nameMengeList(r.beilagen_auswahl, wzBeilagen)+'</td>';
         html += '<td>'+(r.allergien_hinweis?esc(r.allergien_hinweis):'–')+'</td>';
         html += '<td>'+WZ_STATUS_LABELS_ANMELD[r.status]+'</td>';
         html += '</tr>';
