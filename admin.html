@@ -1868,6 +1868,9 @@
       w.document.open();
       w.document.write(buildWzVorbereitungsliste(termin, rows));
       w.document.close();
+      // Sofort drucken — bei kleiner Payload ist das load-Event oft schon durch,
+      // bevor der onload-Handler haengt. onload bleibt als Fallback fuer langsames Rendern.
+      try { w.focus(); w.print(); } catch(e){}
       w.onload = function(){ try { w.focus(); w.print(); } catch(e){} };
     }
 
