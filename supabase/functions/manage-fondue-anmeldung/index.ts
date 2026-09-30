@@ -4,6 +4,7 @@
 // (Service-Role) darf lesen/ändern, nur mit gültigem Token.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { terminLabelDe, berlinToDate } from "../_shared/fondue-slot.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -30,20 +31,14 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function dateFormattedDe(yyyymmdd: string): string {
-  return yyyymmdd.split("-").reverse().join(".");
-}
-
-// Kostenfreie Stornofrist: bis 5 Tage vor Terminbeginn (Termindatum 18:00 Uhr).
-// Danach ist ein Storno kostenpflichtig. Identisch zur Frontend-Logik
-// (FREE_CANCEL_DAYS / isWithinFeeWindow) in fondue-anmeldung.html. `date` ist ein reiner DATE-Wert (kein Zeitanteil).
-// Offset fest auf CET (+01:00) gepinnt: Deno Deploy laeuft in UTC, ohne Offset waere
-// 18:00 sonst UTC statt Europe/Berlin. Winterzauber-Saison ist Nov–Feb, also kein DST.
+// Kostenfreie Stornofrist: bis 5 Tage vor Beginn des gebuchten Slots (Europe/Berlin,
+// Sommer-/Winterzeit korrekt). Danach ist ein Storno kostenpflichtig. Identisch zur
+// Frontend-Logik (FREE_CANCEL_DAYS / isWithinFeeWindow) in fondue-anmeldung.html.
 const FREE_CANCEL_DAYS = 5;
-function isWithinFeeWindow(dateYmd: string): boolean {
+function isWithinFeeWindow(dateYmd: string, startTime: string | null | undefined): boolean {
   if (!dateYmd) return false;
-  const eventStart = new Date(dateYmd + "T18:00:00+01:00");
-  return eventStart.getTime() - Date.now() < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
+  const slotStart = berlinToDate(dateYmd, startTime || "18:00"); // Fallback nur für Altdaten
+  return slotStart.getTime() - Date.now() < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
 }
 
 async function bumpQuota(times = 1) {
@@ -146,7 +141,7 @@ function jsonResponse(body: unknown, status: number, cors: Record<string, string
 }
 
 async function findAnmeldungByToken(token: string) {
-  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}&select=*,fondue_termine(date,status)&limit=1`;
+  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}&select=*,fondue_termine(date,status,start_time,end_time)&limit=1`;
   const res = await fetch(url, {
     headers: {
       "apikey": SUPABASE_SERVICE_ROLE_KEY,
@@ -159,7 +154,7 @@ async function findAnmeldungByToken(token: string) {
 }
 
 async function patchAnmeldungByToken(token: string, patch: Record<string, unknown>) {
-  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}&select=*,fondue_termine(date,status)`;
+  const url = `${SUPABASE_URL}/rest/v1/fondue_anmeldungen?manage_token=eq.${encodeURIComponent(token)}&select=*,fondue_termine(date,status,start_time,end_time)`;
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
@@ -212,7 +207,7 @@ serve(async (req) => {
         return jsonResponse(existing, 200, cors); // idempotent — keine erneute Mail
       }
       // Nach Ablauf der kostenfreien Frist nur mit ausdruecklicher Bestaetigung des Gastes
-      const lateCancel = isWithinFeeWindow(existing.fondue_termine?.date ?? "");
+      const lateCancel = isWithinFeeWindow(existing.fondue_termine?.date ?? "", existing.fondue_termine?.start_time);
       if (lateCancel && body?.acknowledgeFee !== true) {
         return jsonResponse({ error: "fee_ack_required" }, 409, cors);
       }
@@ -223,7 +218,8 @@ serve(async (req) => {
       // wiederholten Cancel-Aufrufen (Finding 1).
       const row = result.row;
       if (row) {
-        const dateFmt = row.fondue_termine?.date ? dateFormattedDe(row.fondue_termine.date) : "";
+        const t = row.fondue_termine;
+        const dateFmt = t?.date ? terminLabelDe(t.date, t.start_time, t.end_time) : "";
         await sendStornoMail(row.customer_email, row.customer_name, dateFmt, row.anmeldung_id, row.personen_anzahl, row.customer_phone, lateCancel);
       }
       return jsonResponse(row, 200, cors);

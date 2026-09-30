@@ -3,6 +3,7 @@
 // Insert → Eingangsbestätigungs-Mail. Modelliert 1:1 nach create-booking.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { terminLabelDe } from "../_shared/fondue-slot.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -78,10 +79,6 @@ function esc(s: unknown): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function dateFormattedDe(yyyymmdd: string): string {
-  return yyyymmdd.split("-").reverse().join(".");
 }
 
 function buildMailHtml(opts: {
@@ -196,7 +193,7 @@ serve(async (req) => {
   if (allergien && !allergienConsent) return jsonResponse({ error: "allergien_consent_required" }, 400, corsHeaders);
 
   // Termin laden + Status prüfen
-  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,status,capacity_max,is_active`);
+  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,status,capacity_max,is_active,start_time,end_time`);
   if (!terminRes.ok) return jsonResponse({ error: "termin_lookup_failed" }, 500, corsHeaders);
   const terminRows = await terminRes.json();
   if (!Array.isArray(terminRows) || terminRows.length === 0) return jsonResponse({ error: "termin_not_found" }, 404, corsHeaders);
@@ -291,7 +288,7 @@ serve(async (req) => {
   const updatedTerminRows = updatedTerminRes.ok ? await updatedTerminRes.json() : [];
   const terminStatus = updatedTerminRows[0]?.status ?? termin.status;
 
-  const dateFormatted = dateFormattedDe(termin.date);
+  const dateFormatted = terminLabelDe(termin.date, termin.start_time, termin.end_time);
   try {
     const mailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",

@@ -4,6 +4,7 @@
 // verbindliche Bestätigungsmail. Auth: Supabase-Access-Token (authenticated Rolle).
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { terminLabelDe } from "../_shared/fondue-slot.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -66,10 +67,6 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function dateFormattedDe(yyyymmdd: string): string {
-  return yyyymmdd.split("-").reverse().join(".");
-}
-
 function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -120,10 +117,10 @@ serve(async (req) => {
   const terminId = String(body?.terminId ?? "");
   if (!UUID_RE.test(terminId)) return jsonResponse({ error: "invalid_termin" }, 400, cors);
 
-  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date`);
+  const terminRes = await pg(`fondue_termine?id=eq.${terminId}&select=id,date,start_time,end_time`);
   const terminRows = terminRes.ok ? await terminRes.json() : [];
   if (!terminRows.length) return jsonResponse({ error: "termin_not_found" }, 404, cors);
-  const dateFormatted = dateFormattedDe(terminRows[0].date);
+  const dateFormatted = terminLabelDe(terminRows[0].date, terminRows[0].start_time, terminRows[0].end_time);
 
   const anmeldRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=eq.vorgemerkt&select=id,anmeldung_id,manage_token,customer_name,customer_email,customer_phone,personen_anzahl`);
   if (!anmeldRes.ok) return jsonResponse({ error: "anmeldungen_lookup_failed" }, 500, cors);
