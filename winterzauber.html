@@ -371,6 +371,13 @@ footer{
 .wz-detail-datum{font-family:'Petrona',serif;font-size:1.6rem;font-weight:600;margin-bottom:.2rem}
 .wz-detail-zeit{font-size:.88rem;color:var(--text2)}
 .wz-detail-hinweis{font-size:.85rem;color:var(--text2);line-height:1.65;margin-top:1.25rem}
+.wz-slots{display:grid;gap:.6rem;margin-top:1rem}
+.wz-slot{display:block;width:100%;text-align:left;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:12px;padding:.85rem 1rem;cursor:pointer;font-family:inherit;color:inherit;transition:border-color .2s}
+.wz-slot:hover{border-color:var(--g)}
+.wz-slot.selected{border:2px solid var(--g);padding:calc(.85rem - 1px) calc(1rem - 1px)}
+.wz-slot[disabled]{opacity:.55;cursor:not-allowed}
+.wz-slot .wz-bar-track{margin:.55rem 0 .45rem}
+.wz-slot-zeit{font-weight:600;font-size:.95rem}
 
 /* ── VORMERK-FORMULAR ── */
 .wz-vormerk-grid{display:grid;grid-template-columns:1fr;gap:2rem;margin-top:2.5rem}
@@ -567,7 +574,7 @@ footer{
 
   <!-- FAKTENBAR -->
   <div class="wz-facts">
-    <div class="wz-fact"><div class="wz-fact-val">Do &amp; Fr · 18:00</div><div class="wz-fact-lbl">Termine</div></div>
+    <div class="wz-fact"><div class="wz-fact-val">Do &amp; Fr · 17:15 / 19:30</div><div class="wz-fact-lbl">Termine</div></div>
     <div class="wz-fact"><div class="wz-fact-val" id="wz-fact-preis">29 € p. P.</div><div class="wz-fact-lbl">Fondue satt</div></div>
     <div class="wz-fact"><div class="wz-fact-val" id="wz-fact-min">ab 10 Personen</div><div class="wz-fact-lbl">Termin findet statt</div></div>
     <div class="wz-fact"><div class="wz-fact-val">beheiztes Zelt</div><div class="wz-fact-lbl">direkt am Ufer</div></div>
@@ -579,7 +586,7 @@ footer{
     <h2 class="wz-h2">Vormerken statt <em>buchen</em>.</h2>
     <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Eure Vormerkung ist mit dem Absenden <strong>verbindlich</strong> — sobald genügend Anmeldungen zusammen sind, bekommt ihr von uns die Bestätigung per Mail. Bis 5&nbsp;Tage vor dem Termin könnt ihr kostenlos stornieren. <strong>Spätere Stornierungen sind kostenpflichtig</strong> – dann wird die Reservierung inklusive aller gewählten Beilagen berechnet.</p>
     <div class="wz-ablauf-grid">
-      <div class="wz-ablauf-card"><div class="wz-ablauf-num">1</div><h3>Termin wählen</h3><p>Donnerstag oder Freitag, jeweils ab 18:00 Uhr im Zelt.</p></div>
+      <div class="wz-ablauf-card"><div class="wz-ablauf-num">1</div><h3>Termin wählen</h3><p>Donnerstag oder Freitag, 17:15–19:15 oder 19:30–21:30 Uhr im Zelt.</p></div>
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">2</div><h3>Verbindlich vormerken</h3><p>Name, Personenzahl, Fondue-Variante. Dauert eine Minute — bis 5&nbsp;Tage vor dem Termin kostenlos stornierbar.</p></div>
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">3</div><h3>Zehn sind voll</h3><p>Sobald zehn Personen zusammen sind, steht der Abend — Platz ist bis 28.</p></div>
       <div class="wz-ablauf-card dark"><div class="wz-ablauf-num">4</div><h3>Verbindliche Bestätigung</h3><p>Kommt per Mail mit allen Infos. Bis 5&nbsp;Tage vorher storniert ihr kostenlos über den Link; danach ist eine Stornierung kostenpflichtig (Reservierung inkl. Beilagen).</p></div>
@@ -730,7 +737,7 @@ footer{
     <div class="wz-exp-grid">
       <div class="wz-exp-card"><div class="wz-exp-icon">⛺</div><h3>Iglu-Zelte &amp; großes Zelt</h3><p>Gemütliche, beheizte Iglu-Zelte für rund 10–12 Personen — hier findet vor allem das Käsefondue statt, kleinere Gruppen auch gemischt an einem Tisch. Das große Zelt ist für große Fondue-Runden und private Feiern reserviert.</p></div>
       <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer oder ohne Alkohol — geschmolzener Käse, knuspriges Brot und ausgewählte Beilagen für ein echtes Genusserlebnis.</p></div>
-      <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Donnerstags &amp; Freitags</h3><p>November 2026 bis Februar 2027, jeweils ab 18:00 Uhr. Die konkreten Termine seht ihr weiter oben.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Donnerstags &amp; Freitags</h3><p>November 2026 bis Februar 2027, jeweils 17:15–19:15 oder 19:30–21:30 Uhr. Die konkreten Termine seht ihr weiter oben.</p></div>
       <div class="wz-exp-card"><div class="wz-exp-icon">📍</div><h3>Am Wasser in Possenhofen</h3><p>Steg 1 · Kurt-Stieler-Straße 58 · 82343 Possenhofen. Direkt am Starnberger See — mitten in der Natur.</p></div>
     </div>
   </section>
@@ -921,6 +928,11 @@ function monthLabel(k) {
 function shortDatum(t) { var d = parseLocalDate(t.date); return String(d.getDate()).padStart(2, '0') + '. ' + MON_LONG[d.getMonth()].slice(0, 3); }
 function shortTag(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()].slice(0, 2); }
 function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ', ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
+
+// Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15 Uhr"
+function hhmm(t) { return String(t || '').slice(0, 5); }
+function slotLabel(t) { return hhmm(t.start_time) + '–' + hhmm(t.end_time) + ' Uhr'; }
+function slotsOfDate(date) { return termine.filter(function (x) { return x.date === date; }); }
 function shortVariantLabel(name) {
   return /alkohol/i.test(name || '') ? 'Ohne Alkohol' : 'Klassisch';
 }
@@ -1017,12 +1029,12 @@ function showWinterzauberContent(preview) {
 
 function loadAll() {
   Promise.all([
-    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=id,date,start_time,end_time,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
     fetch(SB_URL + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=id,name,description,price_per_person', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
     fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=id,name,description,price', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
   ]).then(function (results) {
     var today = new Date().toISOString().slice(0, 10);
-    termine = (results[0] || []).filter(function (t) { return t.date >= today; });
+    termine = (results[0] || []).filter(function (t) { return t.date >= today && t.status !== 'abgesagt'; });
     variantenList = results[1] || [];
     beilagenList = results[2] || [];
     baseYear = termine.length ? parseLocalDate(termine[0].date).getFullYear() : new Date().getFullYear();
@@ -1084,7 +1096,7 @@ function renderHeroFacts() {
   var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
   if (next) {
     var st = terminState(next);
-    document.getElementById('wz-hero-pill-label').textContent = 'Nächster Termin: ' + langLabel(next);
+    document.getElementById('wz-hero-pill-label').textContent = 'Nächster Termin: ' + langLabel(next) + ', ' + hhmm(next.start_time) + ' Uhr';
     document.getElementById('wz-hero-pill-hint').textContent = st.laeuft ? ('Findet statt · ' + st.freiText) : 'Anmeldung läuft — jetzt Platz sichern';
   } else {
     document.getElementById('wz-hero-pill-label').textContent = 'Termine folgen in Kürze';
@@ -1130,7 +1142,7 @@ function cardHtml(t) {
   return '<button type="button" class="wz-t-card' + (t.id === selectedTerminId ? ' selected' : '') + '" data-id="' + t.id + '">' +
     '<span class="wz-t-ring"></span>' +
     '<span class="wz-t-top"><span class="wz-t-datum">' + shortDatum(t) + '</span><span class="wz-t-tag">' + shortTag(t) + '</span></span>' +
-    '<span class="wz-t-mid"><span class="wz-t-zeit">18:00 Uhr</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
+    '<span class="wz-t-mid"><span class="wz-t-zeit">' + slotLabel(t) + '</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
     '<span class="wz-bar-track">' + barInner + '</span>' +
     '<span class="wz-t-bottom"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></span>' +
     '</button>';
@@ -1139,7 +1151,7 @@ function cardHtml(t) {
 function renderListe() {
   var el = document.getElementById('wz-liste-view');
   var filtered = currentMonat === null ? termine : termine.filter(function (t) { return monthKey(t) === currentMonat; });
-  var list = filtered.slice(0, 6);
+  var list = filtered.slice(0, 12);
   el.innerHTML = list.length ? list.map(cardHtml).join('') : '<p style="color:var(--text3);font-size:.88rem">Für diesen Monat sind aktuell keine Termine geplant.</p>';
   el.querySelectorAll('.wz-t-card').forEach(function (btn) {
     btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
@@ -1158,11 +1170,14 @@ function renderKalender() {
   var html = '';
   for (var i = 0; i < lead; i++) html += '<button type="button" class="wz-kal-day" disabled></button>';
   for (var n = 1; n <= days; n++) {
-    var t = termine.find(function (x) { var d = parseLocalDate(x.date); return d.getFullYear() === calYear && d.getMonth() === calMonth && d.getDate() === n; });
-    var isSel = t && t.id === selectedTerminId;
-    var voll = t && (t.personen_gesamt || 0) >= t.capacity_max;
-    var cls = 'wz-kal-day' + (t ? ' has' : '') + (voll ? ' voll' : '') + (isSel ? ' sel' : '');
-    html += '<button type="button" class="' + cls + '"' + (t ? ' data-id="' + t.id + '"' : ' disabled') + '>' + n + '</button>';
+    var daySlots = termine.filter(function (x) { var d = parseLocalDate(x.date); return d.getFullYear() === calYear && d.getMonth() === calMonth && d.getDate() === n; });
+    var has = daySlots.length > 0;
+    var isSel = daySlots.some(function (x) { return x.id === selectedTerminId; });
+    var voll = has && daySlots.every(function (x) { return (x.personen_gesamt || 0) >= x.capacity_max; });
+    // Klick auf den Tag wählt den ersten Slot mit freien Plätzen
+    var target = has ? (daySlots.find(function (x) { return (x.personen_gesamt || 0) < x.capacity_max; }) || daySlots[0]) : null;
+    var cls = 'wz-kal-day' + (has ? ' has' : '') + (voll ? ' voll' : '') + (isSel ? ' sel' : '');
+    html += '<button type="button" class="' + cls + '"' + (has ? ' data-id="' + target.id + '"' : ' disabled') + '>' + n + '</button>';
   }
   var el = document.getElementById('wz-kal-days');
   el.innerHTML = html;
@@ -1171,17 +1186,27 @@ function renderKalender() {
   });
 
   var selected = termine.find(function (t) { return t.id === selectedTerminId; }) || termine[0];
-  var st = terminState(selected);
-  var barInner = st.laeuft
-    ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
-    : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
-  document.getElementById('wz-detail-card').innerHTML =
+  var slotsHtml = slotsOfDate(selected.date).map(function (s) {
+    var st = terminState(s);
+    var barInner = st.laeuft
+      ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
+      : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
+    return '<button type="button" class="wz-slot' + (s.id === selectedTerminId ? ' selected' : '') + '" data-id="' + s.id + '"' + (st.voll ? ' disabled' : '') + '>' +
+      '<span class="wz-t-mid" style="margin-top:0"><span class="wz-slot-zeit">' + slotLabel(s) + '</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
+      '<span class="wz-bar-track">' + barInner + '</span>' +
+      '<span class="wz-t-bottom"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></span>' +
+      '</button>';
+  }).join('');
+  var detail = document.getElementById('wz-detail-card');
+  detail.innerHTML =
     '<p class="wz-detail-tag">Ausgewählter Abend</p>' +
     '<p class="wz-detail-datum">' + langLabel(selected) + '</p>' +
-    '<p class="wz-detail-zeit">18:00 Uhr · beheiztes Zelt am Steg</p>' +
-    '<span class="wz-bar-track">' + barInner + '</span>' +
-    '<div class="wz-t-bottom" style="margin-top:.6rem"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></div>' +
-    '<p class="wz-detail-hinweis">' + st.hinweis + '</p>';
+    '<p class="wz-detail-zeit">Zwei Zeitfenster · beheiztes Zelt am Steg</p>' +
+    '<div class="wz-slots">' + slotsHtml + '</div>' +
+    '<p class="wz-detail-hinweis">' + terminState(selected).hinweis + '</p>';
+  detail.querySelectorAll('.wz-slot:not([disabled])').forEach(function (btn) {
+    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
+  });
 }
 
 function pickTermin(id) {
@@ -1191,7 +1216,7 @@ function pickTermin(id) {
 
 function renderFormContext() {
   var t = termine.find(function (x) { return x.id === selectedTerminId; });
-  document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · 18:00 Uhr') : '–';
+  document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · ' + slotLabel(t)) : '–';
 }
 
 function switchView(v) {
