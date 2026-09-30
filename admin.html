@@ -345,6 +345,7 @@
     .wz-btn-del:hover:not(:disabled){background:#D94F4F;color:#fff}
     .wz-btn-confirm{background:#2E9E4A}
     .wz-btn-cancel-termin{background:#D94F4F}
+    .wz-termin-hint{font-size:.8rem;font-weight:600;color:#a85e1c;background:rgba(212,136,58,.14);border-radius:8px;padding:6px 10px;margin-top:8px}
     .wz-termin-warn{font-size:.8rem;font-weight:600;color:#B53E3E;background:rgba(217,79,79,.1);border-radius:8px;padding:6px 10px;margin-top:8px}
     .wz-btn-edit,.wz-btn-plain{background:var(--sand2);color:var(--text)}
     .wz-termin-edit{margin-top:10px;padding:12px;background:var(--w);border:1px solid var(--sand2);border-radius:10px}
@@ -1636,6 +1637,7 @@
 
     // ── Winterzauber: Termine ──
     var wzTermine = [];
+    var WZ_DECISION_DAYS = 5; // identisch zur kostenfreien Stornofrist der Gäste
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
@@ -1709,9 +1711,22 @@
           if (t.cancel_reason) {
             html += '<div style="font-size:.8rem;color:var(--text3);margin-top:4px">Absagegrund: '+esc(t.cancel_reason)+'</div>';
           }
+          // Entscheidungsfrist: Absage wegen Mindestzahl nur bis 5 Tage vor Terminbeginn (18:00),
+          // danach beginnt die kostenpflichtige Stornofrist der Gäste (siehe stornobedingungen.html Ziffer 2)
+          var wzDeadline = new Date(new Date(t.date+'T18:00:00').getTime() - WZ_DECISION_DAYS*864e5);
+          var wzDeadlinePassed = Date.now() >= wzDeadline.getTime();
+          var wzDaysLeft = (wzDeadline.getTime() - Date.now()) / 864e5;
+          var wzDeadlineFmt = String(wzDeadline.getDate()).padStart(2,'0')+'.'+String(wzDeadline.getMonth()+1).padStart(2,'0')+'., 18:00 Uhr';
+          var wzUndecided = !inaktiv && (t.status==='offen' || t.status==='schwelle_erreicht');
+          if(wzUndecided && !wzDeadlinePassed && wzDaysLeft <= 3){
+            html += '<div class="wz-termin-hint">⏰ Entscheidung bis '+wzDeadlineFmt+': Termin bestätigen oder absagen. Danach ist eine Absage wegen zu weniger Anmeldungen nicht mehr möglich.</div>';
+          } else if(wzUndecided && wzDeadlinePassed && new Date(t.date+'T23:59:59') > new Date()){
+            html += '<div class="wz-termin-warn">⚠ Entscheidungsfrist abgelaufen – der Abend findet statt. Absage nur noch bei Wetter, Sicherheit oder technischem Notfall.</div>';
+          }
           // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
           if(t.status==='bestaetigt' && total < t.capacity_min){
-            html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – Gäste anrufen oder Termin absagen</div>';
+            html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – '
+              + (wzDeadlinePassed ? 'Abend findet trotzdem statt (Absage wegen Mindestzahl nur bis 5 Tage vorher)' : 'Gäste anrufen oder bis '+wzDeadlineFmt+' absagen') + '</div>';
           }
           html += '<div class="wz-termin-actions">';
           if(!inaktiv){
