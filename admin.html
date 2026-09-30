@@ -330,6 +330,8 @@
     .wz-termin-card{border:1.5px solid var(--sand2);border-radius:14px;padding:14px 16px;margin-bottom:10px}
     .wz-termin-card-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
     .wz-termin-date{font-weight:600;color:var(--text)}
+    .wz-termin-daygroup{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin:18px 0 6px}
+    .wz-termin-daygroup:first-child{margin-top:0}
     .wz-termin-badge{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:100px}
     .wz-badge-offen{background:rgba(108,120,113,.12);color:var(--text2)}
     .wz-badge-schwelle_erreicht{background:rgba(212,136,58,.18);color:#a85e1c}
@@ -635,6 +637,13 @@
               <div>
                 <label for="wz-nt-max">Max. Kapazität</label>
                 <input type="number" id="wz-nt-max" value="28" min="1" step="1">
+              </div>
+            </div>
+            <div style="margin-bottom:12px">
+              <label>Zeitfenster</label>
+              <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem">
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="wz-nt-slot1" checked style="width:auto"> 17:15–19:15 Uhr</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="wz-nt-slot2" checked style="width:auto"> 19:30–21:30 Uhr</label>
               </div>
             </div>
             <div style="display:flex;gap:10px">
@@ -1637,11 +1646,14 @@
 
     // ── Winterzauber: Termine ──
     var wzTermine = [];
+    // Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15"
+    function wzHhmm(t){ return String(t||'').slice(0,5); }
+    function wzSlotLabel(t){ return wzHhmm(t.start_time)+'–'+wzHhmm(t.end_time); }
     var WZ_DECISION_DAYS = 2; // Absage mangels Teilnehmern bis 2 Tage vorher (stornobedingungen.html Ziffer 2)
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
-      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
+      fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=id,date,start_time,end_time,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
       })
       .then(function(r){return r.json()})
@@ -1698,9 +1710,14 @@
           var total = rows.reduce(function(sum,r){ return sum + ((r.status==='vorgemerkt'||r.status==='bestaetigt') ? r.personen_anzahl : 0); }, 0);
           var dateFmt = t.date.split('-').reverse().join('.');
           var inaktiv = t.is_active === false;
+          // Datums-Überschrift, sobald ein neues Datum beginnt (Slots sind nach Datum+Zeit sortiert)
+          if(i === 0 || visibleTermine[i-1].date !== t.date){
+            var wd = ['So','Mo','Di','Mi','Do','Fr','Sa'][new Date(t.date+'T12:00:00').getDay()];
+            html += '<div class="wz-termin-daygroup">'+wd+', '+dateFmt+'</div>';
+          }
           html += '<div class="wz-termin-card'+(inaktiv?' wz-inactive':'')+'" data-id="'+t.id+'">';
           html += '<div class="wz-termin-card-top">';
-          html += '<span class="wz-termin-date">'+dateFmt+'</span>';
+          html += '<span class="wz-termin-date">'+dateFmt+' · '+wzSlotLabel(t)+' Uhr</span>';
           html += '<span>';
           if(inaktiv) html += '<span class="wz-termin-badge wz-badge-deaktiviert" style="margin-right:6px">Deaktiviert</span>';
           html += '<span class="wz-termin-badge wz-badge-'+t.status+'">'+WZ_STATUS_LABELS[t.status]+'</span>';
@@ -1711,12 +1728,13 @@
           if (t.cancel_reason) {
             html += '<div style="font-size:.8rem;color:var(--text3);margin-top:4px">Absagegrund: '+esc(t.cancel_reason)+'</div>';
           }
-          // Entscheidungsfrist: Absage wegen Mindestzahl nur bis WZ_DECISION_DAYS vor Terminbeginn (18:00),
+          // Entscheidungsfrist: Absage wegen Mindestzahl nur bis WZ_DECISION_DAYS vor Terminbeginn (Slot-Beginn),
           // danach findet der Termin statt (siehe stornobedingungen.html Ziffer 2)
-          var wzDeadline = new Date(new Date(t.date+'T18:00:00').getTime() - WZ_DECISION_DAYS*864e5);
+          var wzSlotStart = wzHhmm(t.start_time) || '18:00';
+          var wzDeadline = new Date(new Date(t.date+'T'+wzSlotStart+':00').getTime() - WZ_DECISION_DAYS*864e5);
           var wzDeadlinePassed = Date.now() >= wzDeadline.getTime();
           var wzDaysLeft = (wzDeadline.getTime() - Date.now()) / 864e5;
-          var wzDeadlineFmt = String(wzDeadline.getDate()).padStart(2,'0')+'.'+String(wzDeadline.getMonth()+1).padStart(2,'0')+'., 18:00 Uhr';
+          var wzDeadlineFmt = String(wzDeadline.getDate()).padStart(2,'0')+'.'+String(wzDeadline.getMonth()+1).padStart(2,'0')+'., '+wzSlotStart+' Uhr';
           var wzUndecided = !inaktiv && (t.status==='offen' || t.status==='schwelle_erreicht');
           if(wzUndecided && !wzDeadlinePassed && wzDaysLeft <= 3){
             html += '<div class="wz-termin-hint">⏰ Entscheidung bis '+wzDeadlineFmt+': Termin bestätigen oder absagen. Danach ist eine Absage wegen zu weniger Anmeldungen nicht mehr möglich.</div>';
@@ -1857,7 +1875,7 @@
       });
 
       function e(s){ var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
-      var dateFmt = termin.date.split('-').reverse().join('.');
+      var dateFmt = termin.date.split('-').reverse().join('.') + (termin.start_time ? ' · ' + wzSlotLabel(termin) + ' Uhr' : '');
       var now = new Date();
       var erstellt = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
 
@@ -2056,6 +2074,8 @@
       document.getElementById('wz-nt-note').value = '';
       document.getElementById('wz-nt-min').value = '10';
       document.getElementById('wz-nt-max').value = '28';
+      document.getElementById('wz-nt-slot1').checked = true;
+      document.getElementById('wz-nt-slot2').checked = true;
     }
 
     document.getElementById('btn-wz-new-termin').addEventListener('click',function(){
@@ -2084,21 +2104,35 @@
       if(!min || min < 1){ msg('Mindestteilnehmer muss mindestens 1 sein','error','wz-admin-message'); return; }
       if(!max || max < min){ msg('Max. Kapazität muss ≥ Mindestteilnehmer sein','error','wz-admin-message'); return; }
 
+      var slots = [];
+      if(document.getElementById('wz-nt-slot1').checked) slots.push({start_time:'17:15', end_time:'19:15'});
+      if(document.getElementById('wz-nt-slot2').checked) slots.push({start_time:'19:30', end_time:'21:30'});
+      if(!slots.length){ msg('Bitte mindestens ein Zeitfenster wählen','error','wz-admin-message'); return; }
+
       btn.disabled = true; btn.textContent = 'Anlegen...';
       fetch(SB_URL+'/rest/v1/fondue_termine',{
         method:'POST',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
-        body:JSON.stringify({date:dateStr, capacity_min:min, capacity_max:max, note: note || null})
+        body:JSON.stringify(slots.map(function(s){
+          return {date:dateStr, start_time:s.start_time, end_time:s.end_time, capacity_min:min, capacity_max:max, note: note || null};
+        }))
       })
-      .then(function(r){ if(!r.ok) throw new Error('insert'); return r.json(); })
+      .then(function(r){
+        // 409 = Unique (date,start_time) verletzt → Zeitfenster existiert schon
+        if(r.status === 409) throw new Error('duplicate');
+        if(!r.ok) throw new Error('insert');
+        return r.json();
+      })
       .then(function(data){
         if(data && data.length){
-          msg('Termin angelegt','','wz-admin-message');
+          msg(data.length === 1 ? 'Zeitfenster angelegt' : 'Termin mit 2 Zeitfenstern angelegt','','wz-admin-message');
           wzNewTerminForm.style.display = 'none';
           loadWinterzauberTermine();
         }
       })
-      .catch(function(){ msg('Fehler beim Anlegen','error','wz-admin-message'); })
+      .catch(function(err){
+        msg(err && err.message === 'duplicate' ? 'Dieses Zeitfenster gibt es an dem Datum schon' : 'Fehler beim Anlegen','error','wz-admin-message');
+      })
       .finally(function(){ btn.disabled = false; btn.textContent = 'Anlegen'; });
     });
 
@@ -2107,7 +2141,7 @@
       // Zutaten zuerst laden — renderWzTeilnehmer braucht wzVarianten fuer die Fondue-Spalten
       loadWinterzauberZutaten()
       .then(function(){
-        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc&select=id,date,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
+        return fetch(SB_URL+'/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=id,date,start_time,end_time,capacity_min,capacity_max,status,note,is_active,cancel_reason',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()});
       })
@@ -2127,7 +2161,7 @@
       wzTermine.forEach(function(t){
         var opt = document.createElement('option');
         opt.value = t.id;
-        opt.textContent = t.date.split('-').reverse().join('.');
+        opt.textContent = t.date.split('-').reverse().join('.') + ' · ' + wzHhmm(t.start_time);
         sel.appendChild(opt);
       });
       sel.onchange = function(){ loadWinterzauberAnmeldungen(sel.value); };
