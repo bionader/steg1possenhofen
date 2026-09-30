@@ -238,9 +238,12 @@ footer{
 .fa-btn-cancel:hover{border-color:var(--err);color:var(--err)}
 .fa-storno-hint{font-size:.82rem;color:var(--text3);line-height:1.55;margin:0 0 .75rem;text-align:left}
 .fa-storno-hint a{color:var(--g);text-decoration:underline}
-.fa-48h-warn{font-size:.85rem;font-weight:500;color:var(--err-ink,#b23b3b);background:rgba(217,79,79,.1);border:1px solid rgba(217,79,79,.35);border-radius:10px;padding:.7rem .9rem;margin:0 0 1rem;text-align:left}
+.fa-late-warn{font-size:.85rem;font-weight:500;color:var(--err-ink,#b23b3b);background:rgba(217,79,79,.1);border:1px solid rgba(217,79,79,.35);border-radius:10px;padding:.7rem .9rem;margin:0 0 1rem;text-align:left}
 .fa-cancel-dialog{background:var(--w);border:1.5px solid var(--sand2);border-radius:var(--r-lg);padding:2rem;margin-bottom:1.5rem;text-align:center;display:none}
 .fa-cancel-dialog.active{display:block}
+.fa-late-ack{display:none;align-items:flex-start;gap:.6rem;text-align:left;font-size:.85rem;color:var(--text);background:rgba(217,79,79,.08);border:1px solid rgba(217,79,79,.35);border-radius:10px;padding:.8rem .9rem;margin:0 0 1.25rem;cursor:pointer}
+.fa-late-ack input{margin-top:.2rem;flex-shrink:0;accent-color:var(--err)}
+.fa-btn:disabled{opacity:.45;cursor:not-allowed}
 .fa-cancel-dialog h3{font-family:'Petrona',serif;font-size:1.2rem;color:var(--dark);margin-bottom:.5rem}
 .fa-cancel-dialog p{color:var(--text2);font-size:.88rem;margin-bottom:1.5rem}
 .fa-btn-danger{background:var(--err);color:#fff;border-color:var(--err)}
@@ -305,8 +308,8 @@ footer{
       </table>
     </div>
 
-    <p class="fa-storno-hint">Eure Vormerkung ist verbindlich. Bis 48&nbsp;Stunden vor dem Termin storniert ihr hier kostenlos; danach wird die Reservierung inklusive aller gewählten Beilagen berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
-    <p class="fa-48h-warn" id="fa-48h-warn" style="display:none">Achtung: weniger als 48&nbsp;Stunden bis zum Termin – die Reservierung inklusive aller gewählten Beilagen wird berechnet.</p>
+    <p class="fa-storno-hint">Eure Vormerkung ist verbindlich. Bis 5&nbsp;Tage vor dem Termin storniert ihr hier kostenlos. Danach ist eine Stornierung <strong>kostenpflichtig</strong>: Die Reservierung inklusive aller gewählten Beilagen wird berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
+    <p class="fa-late-warn" id="fa-late-warn" style="display:none">Achtung: Die kostenfreie Stornofrist (5&nbsp;Tage vor dem Termin) ist abgelaufen. Eine Stornierung ist jetzt <strong>kostenpflichtig</strong> – die Reservierung inklusive aller gewählten Beilagen wird berechnet.</p>
 
     <div class="fa-actions" id="fa-action-buttons">
       <button class="fa-btn fa-btn-cancel" onclick="showCancelDialog()">Anmeldung stornieren</button>
@@ -315,15 +318,19 @@ footer{
     <div class="fa-cancel-dialog" id="fa-cancel-dialog">
       <h3>Anmeldung stornieren?</h3>
       <p id="fa-cancel-msg">Möchtest du deine Anmeldung wirklich stornieren?</p>
+      <label class="fa-late-ack" id="fa-late-ack">
+        <input type="checkbox" id="fa-late-ack-box" onchange="updateCancelButton()">
+        <span>Mir ist bewusst, dass die kostenfreie Stornofrist abgelaufen ist und diese Stornierung <strong>kostenpflichtig</strong> ist: Die Reservierung inklusive aller gewählten Beilagen wird berechnet.</span>
+      </label>
       <div class="fa-actions" style="margin-bottom:0">
-        <button class="fa-btn fa-btn-danger" onclick="confirmCancel()">Ja, stornieren</button>
+        <button class="fa-btn fa-btn-danger" id="fa-cancel-confirm" onclick="confirmCancel()">Ja, stornieren</button>
         <button class="fa-btn fa-btn-back" onclick="hideCancelDialog()">Abbrechen</button>
       </div>
     </div>
 
     <div class="fa-success-box" id="fa-cancel-success">
       <h3>Anmeldung storniert</h3>
-      <p>Deine Anmeldung wurde erfolgreich storniert.</p>
+      <p id="fa-cancel-success-text">Deine Anmeldung wurde erfolgreich storniert.</p>
     </div>
   </div>
 </div>
@@ -453,15 +460,12 @@ function renderAnmeldung() {
   document.getElementById('fa-cancel-msg').textContent =
     'Möchtest du deine Anmeldung für den Termin am ' + d + ' wirklich stornieren?';
 
-  // Roter Hinweis nur zeigen, wenn der Termin < 48 h entfernt und die Anmeldung noch offen ist
+  // Kostenfreie Stornofrist: bis 5 Tage vor Terminbeginn (18:00 Uhr am Termintag).
+  // Danach roter Hinweis + Pflicht-Bestaetigung im Storno-Dialog.
   var rawDate = anmeldung.fondue_termine && anmeldung.fondue_termine.date;
-  var warn = document.getElementById('fa-48h-warn');
-  if (warn && rawDate) {
-    var eventStart = new Date(rawDate + 'T18:00:00');
-    var within48h = (eventStart.getTime() - Date.now()) < 48 * 60 * 60 * 1000;
-    var stillOpen = anmeldung.status === 'vorgemerkt' || anmeldung.status === 'bestaetigt';
-    warn.style.display = (within48h && stillOpen) ? 'block' : 'none';
-  }
+  var stillOpen = anmeldung.status === 'vorgemerkt' || anmeldung.status === 'bestaetigt';
+  isLateCancel = stillOpen && isWithinFeeWindow(rawDate);
+  document.getElementById('fa-late-warn').style.display = isLateCancel ? 'block' : 'none';
 
   if (anmeldung.status === 'storniert' || anmeldung.status === 'abgesagt') {
     document.getElementById('fa-action-buttons').style.display = 'none';
@@ -472,7 +476,26 @@ function renderAnmeldung() {
   }
 }
 
+// Muss identisch zu isWithinFeeWindow() in manage-fondue-anmeldung bleiben
+var FREE_CANCEL_DAYS = 5;
+var isLateCancel = false;
+function isWithinFeeWindow(dateYmd) {
+  if (!dateYmd) return false;
+  var eventStart = new Date(dateYmd + 'T18:00:00');
+  return (eventStart.getTime() - Date.now()) < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
+}
+
+function updateCancelButton() {
+  var btn = document.getElementById('fa-cancel-confirm');
+  btn.disabled = isLateCancel && !document.getElementById('fa-late-ack-box').checked;
+}
+
 function showCancelDialog() {
+  var ack = document.getElementById('fa-late-ack');
+  ack.style.display = isLateCancel ? 'flex' : 'none';
+  document.getElementById('fa-late-ack-box').checked = false;
+  document.getElementById('fa-cancel-confirm').textContent = isLateCancel ? 'Ja, kostenpflichtig stornieren' : 'Ja, stornieren';
+  updateCancelButton();
   document.getElementById('fa-cancel-dialog').classList.add('active');
   document.getElementById('fa-action-buttons').style.display = 'none';
 }
@@ -485,11 +508,26 @@ function confirmCancel() {
   fetch(SB_URL + '/functions/v1/manage-fondue-anmeldung', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-    body: JSON.stringify({ token: token, action: 'cancel' })
+    body: JSON.stringify({ token: token, action: 'cancel', acknowledgeFee: isLateCancel && document.getElementById('fa-late-ack-box').checked })
   })
-    .then(function (r) { if (!r.ok) throw new Error('cancel_failed'); return r.json(); })
+    .then(function (r) {
+      // Frist ist abgelaufen, waehrend die Seite offen war → Pflicht-Bestaetigung nachholen
+      if (r.status === 409) {
+        return r.json().then(function (e) {
+          if (e && e.error === 'fee_ack_required') { isLateCancel = true; throw new Error('fee_ack_required'); }
+          throw new Error('cancel_failed');
+        });
+      }
+      if (!r.ok) throw new Error('cancel_failed');
+      return r.json();
+    })
     .then(function (updated) {
       anmeldung = updated;
+      if (isLateCancel) {
+        document.getElementById('fa-cancel-success-text').textContent =
+          'Deine Anmeldung wurde storniert. Da die Stornierung nach Ablauf der kostenfreien Frist erfolgt ist, wird die Reservierung inklusive aller gewählten Beilagen berechnet – die Rechnung erhältst du an deine angegebene Anschrift.';
+      }
+      document.getElementById('fa-late-warn').style.display = 'none';
       document.getElementById('fa-cancel-dialog').classList.remove('active');
       document.getElementById('fa-cancel-success').classList.add('active');
 
@@ -500,7 +538,12 @@ function confirmCancel() {
       badge.textContent = 'Storniert';
       badge.className = 'fa-badge fa-badge-storniert';
     })
-    .catch(function () {
+    .catch(function (err) {
+      if (err && err.message === 'fee_ack_required') {
+        document.getElementById('fa-late-warn').style.display = 'block';
+        showCancelDialog();
+        return;
+      }
       alert('Fehler beim Stornieren. Bitte versuche es erneut.');
     });
 }
