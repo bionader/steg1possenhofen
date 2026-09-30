@@ -315,30 +315,16 @@ footer{
 
 /* ── ATMOSPHÄRE SPLIT ── */
 
-/* ── TERMINE: FILTER + TOGGLE ── */
+/* ── TERMINE: MONATSAUSWAHL ── */
 .wz-termine-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:2rem}
 .wz-monate{display:flex;gap:.4rem;flex-wrap:wrap}
 .wz-monat-pill{position:relative;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.5rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:40px;transition:background .25s}
 .wz-monat-pill:hover{background:rgba(42,123,111,.08)}
 .wz-monat-ring{position:absolute;inset:-1px;border-radius:100px;border:2px solid var(--g);pointer-events:none;opacity:0;transition:opacity .25s}
 .wz-monat-pill.active .wz-monat-ring{opacity:1}
-.wz-view-toggle{display:flex;align-items:center;gap:.25rem;background:rgba(42,123,111,.08);border-radius:100px;padding:.25rem;min-height:40px}
-.wz-view-btn{position:relative;border:none;background:transparent;border-radius:100px;padding:.4rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:32px}
-.wz-view-tab-bg{position:absolute;inset:0;border-radius:100px;background:var(--w);box-shadow:0 1px 6px rgba(42,123,111,.14);pointer-events:none;opacity:0;transition:opacity .22s}
-.wz-view-btn.active .wz-view-tab-bg{opacity:1}
-.wz-view-btn span.lbl{position:relative}
 
-/* ── TERMINE: LISTE ── */
-.wz-liste-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.5rem}
-.wz-t-card{position:relative;text-align:left;background:var(--w);border:.5px solid rgba(42,123,111,.14);border-radius:16px;padding:1.35rem 1.4rem;cursor:pointer;font-family:'Albert Sans',sans-serif;transition:transform .3s var(--ease),box-shadow .3s;width:100%}
-.wz-t-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(42,123,111,.1)}
-.wz-t-ring{position:absolute;inset:-1px;border-radius:16px;pointer-events:none;border:2px solid var(--g);box-shadow:0 10px 30px rgba(42,123,111,.16);opacity:0;transition:opacity .25s}
-.wz-t-card.selected .wz-t-ring{opacity:1}
-.wz-t-top{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:.75rem}
-.wz-t-datum{font-family:'Petrona',serif;font-size:1.35rem;font-weight:600;color:var(--text)}
-.wz-t-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+/* ── TERMINE: STATUS-BADGES (Slot-Karten im Kalender) ── */
 .wz-t-mid{position:relative;display:flex;align-items:center;gap:.5rem;margin-top:.35rem}
-.wz-t-zeit{font-size:.82rem;color:var(--text2)}
 .wz-t-badge{font-size:.72rem;font-weight:500;border-radius:100px;padding:.2rem .65rem}
 .wz-t-badge.laeuft{background:rgba(42,123,111,.14);color:#1F6358}
 .wz-t-badge.knapp{background:rgba(212,136,58,.18);color:#C07A2E}
@@ -496,7 +482,6 @@ footer{
   .wz-pf2-card{padding:1.5rem .9rem}
   .wz-pf2-row2>*{min-width:0}
   .wz-ablauf-grid,.wz-exp-grid{grid-template-columns:1fr}
-  .wz-liste-grid{grid-template-columns:1fr}
   .wz-kalender-grid{grid-template-columns:1fr}
   .wz-fgrid{grid-template-columns:1fr}
   .wz-termine-top{flex-direction:column;align-items:flex-start}
@@ -619,15 +604,10 @@ footer{
 
     <div class="wz-termine-top">
       <div class="wz-monate" id="wz-monate"></div>
-      <div class="wz-view-toggle">
-        <button type="button" class="wz-view-btn active" id="wz-view-liste"><span class="wz-view-tab-bg"></span><span class="lbl">Liste</span></button>
-        <button type="button" class="wz-view-btn" id="wz-view-kalender"><span class="wz-view-tab-bg"></span><span class="lbl">Kalender</span></button>
-      </div>
     </div>
 
-    <div id="wz-liste-view" class="wz-liste-grid"></div>
 
-    <div id="wz-kalender-view" class="wz-kalender-grid" style="display:none">
+    <div id="wz-kalender-view" class="wz-kalender-grid">
       <div class="wz-kal-card">
         <p class="wz-kal-title" id="wz-kal-title"></p>
         <div class="wz-kal-weekdays"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
@@ -903,8 +883,7 @@ var variantenList = [];
 var beilagenList = [];
 var wzBeilagenMengen = {}; // { beilageId: menge } — gilt pro Vormerkung, nicht pro Person
 var selectedTerminId = null;
-var currentMonat = null; // null = alle
-var currentView = 'liste';
+var currentMonat = null; // Monatsschlüssel (Jahr*12+Monat) des angezeigten Kalendermonats
 var gaesteVarianten = [];
 var baseYear = null;
 
@@ -925,8 +904,6 @@ function monthLabel(k) {
   var year = Math.floor(k / 12), month = k % 12;
   return MON_LONG[month] + (year !== baseYear ? ' ’' + String(year).slice(2) : '');
 }
-function shortDatum(t) { var d = parseLocalDate(t.date); return String(d.getDate()).padStart(2, '0') + '. ' + MON_LONG[d.getMonth()].slice(0, 3); }
-function shortTag(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()].slice(0, 2); }
 function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ', ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
 
 // Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15 Uhr"
@@ -1048,6 +1025,8 @@ function loadAll() {
     var offener = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; });
     if (offener) selectedTerminId = offener.id;
     else if (termine.length) selectedTerminId = termine[0].id;
+    var startTermin = termine.find(function (t) { return t.id === selectedTerminId; });
+    currentMonat = startTermin ? monthKey(startTermin) : null;
 
     renderHeroFacts();
     renderAll();
@@ -1106,7 +1085,6 @@ function renderHeroFacts() {
 
 function renderAll() {
   renderMonate();
-  renderListe();
   renderKalender();
   renderFormContext();
   var keine = !termine.length;
@@ -1119,42 +1097,22 @@ function renderMonate() {
   var el = document.getElementById('wz-monate');
   var keys = [];
   termine.forEach(function (t) { var k = monthKey(t); if (keys.indexOf(k) < 0) keys.push(k); });
-  var html = '<button type="button" class="wz-monat-pill' + (currentMonat === null ? ' active' : '') + '" data-monat="">' +
-    '<span class="wz-monat-ring"></span>Alle Termine</button>';
-  keys.forEach(function (k) {
-    html += '<button type="button" class="wz-monat-pill' + (currentMonat === k ? ' active' : '') + '" data-monat="' + k + '">' +
+  el.innerHTML = keys.map(function (k) {
+    return '<button type="button" class="wz-monat-pill' + (currentMonat === k ? ' active' : '') + '" data-monat="' + k + '">' +
       '<span class="wz-monat-ring"></span>' + escapeHtml(monthLabel(k)) + '</button>';
-  });
-  el.innerHTML = html;
+  }).join('');
   el.querySelectorAll('.wz-monat-pill').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      currentMonat = btn.getAttribute('data-monat') === '' ? null : Number(btn.getAttribute('data-monat'));
-      renderMonate(); renderListe(); renderKalender();
+      currentMonat = Number(btn.getAttribute('data-monat'));
+      // Liegt der gewählte Slot nicht im neuen Monat: ersten Slot mit freien Plätzen dort wählen
+      var sel = termine.find(function (t) { return t.id === selectedTerminId; });
+      if (!sel || monthKey(sel) !== currentMonat) {
+        var imMonat = termine.filter(function (t) { return monthKey(t) === currentMonat; });
+        var ziel = imMonat.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || imMonat[0];
+        if (ziel) selectedTerminId = ziel.id;
+      }
+      renderMonate(); renderKalender(); renderFormContext();
     });
-  });
-}
-
-function cardHtml(t) {
-  var st = terminState(t);
-  var barInner = st.laeuft
-    ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
-    : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
-  return '<button type="button" class="wz-t-card' + (t.id === selectedTerminId ? ' selected' : '') + '" data-id="' + t.id + '">' +
-    '<span class="wz-t-ring"></span>' +
-    '<span class="wz-t-top"><span class="wz-t-datum">' + shortDatum(t) + '</span><span class="wz-t-tag">' + shortTag(t) + '</span></span>' +
-    '<span class="wz-t-mid"><span class="wz-t-zeit">' + slotLabel(t) + '</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
-    '<span class="wz-bar-track">' + barInner + '</span>' +
-    '<span class="wz-t-bottom"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></span>' +
-    '</button>';
-}
-
-function renderListe() {
-  var el = document.getElementById('wz-liste-view');
-  var filtered = currentMonat === null ? termine : termine.filter(function (t) { return monthKey(t) === currentMonat; });
-  var list = filtered.slice(0, 12);
-  el.innerHTML = list.length ? list.map(cardHtml).join('') : '<p style="color:var(--text3);font-size:.88rem">Für diesen Monat sind aktuell keine Termine geplant.</p>';
-  el.querySelectorAll('.wz-t-card').forEach(function (btn) {
-    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
   });
 }
 
@@ -1211,7 +1169,7 @@ function renderKalender() {
 
 function pickTermin(id) {
   selectedTerminId = id;
-  renderListe(); renderKalender(); renderFormContext();
+  renderKalender(); renderFormContext();
 }
 
 function renderFormContext() {
@@ -1219,15 +1177,6 @@ function renderFormContext() {
   document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · ' + slotLabel(t)) : '–';
 }
 
-function switchView(v) {
-  currentView = v;
-  document.getElementById('wz-view-liste').classList.toggle('active', v === 'liste');
-  document.getElementById('wz-view-kalender').classList.toggle('active', v === 'kalender');
-  document.getElementById('wz-liste-view').style.display = v === 'liste' ? 'grid' : 'none';
-  document.getElementById('wz-kalender-view').style.display = v === 'kalender' ? 'grid' : 'none';
-}
-document.getElementById('wz-view-liste').addEventListener('click', function () { switchView('liste'); });
-document.getElementById('wz-view-kalender').addEventListener('click', function () { switchView('kalender'); });
 
 function initGaeste(n) {
   var v0 = variantenList.length ? variantenList[0].id : null;
