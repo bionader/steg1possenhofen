@@ -1637,7 +1637,7 @@
 
     // ── Winterzauber: Termine ──
     var wzTermine = [];
-    var WZ_DECISION_DAYS = 5; // identisch zur kostenfreien Stornofrist der Gäste
+    var WZ_DECISION_DAYS = 2; // Absage mangels Teilnehmern bis 2 Tage vorher (stornobedingungen.html Ziffer 2)
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
     function loadWinterzauberTermine(){
@@ -1711,8 +1711,8 @@
           if (t.cancel_reason) {
             html += '<div style="font-size:.8rem;color:var(--text3);margin-top:4px">Absagegrund: '+esc(t.cancel_reason)+'</div>';
           }
-          // Entscheidungsfrist: Absage wegen Mindestzahl nur bis 5 Tage vor Terminbeginn (18:00),
-          // danach beginnt die kostenpflichtige Stornofrist der Gäste (siehe stornobedingungen.html Ziffer 2)
+          // Entscheidungsfrist: Absage wegen Mindestzahl nur bis WZ_DECISION_DAYS vor Terminbeginn (18:00),
+          // danach findet der Termin statt (siehe stornobedingungen.html Ziffer 2)
           var wzDeadline = new Date(new Date(t.date+'T18:00:00').getTime() - WZ_DECISION_DAYS*864e5);
           var wzDeadlinePassed = Date.now() >= wzDeadline.getTime();
           var wzDaysLeft = (wzDeadline.getTime() - Date.now()) / 864e5;
@@ -1726,7 +1726,7 @@
           // Warnung: bestätigter Termin ist unter die Mindestzahl gefallen (Stornos nach Bestätigung)
           if(t.status==='bestaetigt' && total < t.capacity_min){
             html += '<div class="wz-termin-warn">⚠ Unter Mindestzahl gefallen ('+total+'/'+t.capacity_min+') – '
-              + (wzDeadlinePassed ? 'Abend findet trotzdem statt (Absage wegen Mindestzahl nur bis 5 Tage vorher)' : 'Gäste anrufen oder bis '+wzDeadlineFmt+' absagen') + '</div>';
+              + (wzDeadlinePassed ? 'Abend findet trotzdem statt (Absage wegen Mindestzahl nur bis '+WZ_DECISION_DAYS+' Tage vorher)' : 'Gäste anrufen oder bis '+wzDeadlineFmt+' absagen') + '</div>';
           }
           html += '<div class="wz-termin-actions">';
           if(!inaktiv){
