@@ -448,6 +448,10 @@ function renderAnmeldung() {
     ? anmeldung.fondue_termine.date.split('-').reverse().join('.')
     : '–';
 
+  var ft = anmeldung.fondue_termine || {};
+  // Slot-Uhrzeit anhängen (fehlt nur bei Altdaten)
+  if (ft.start_time && ft.end_time) d += ', ' + ft.start_time.slice(0, 5) + '–' + ft.end_time.slice(0, 5) + ' Uhr';
+
   document.getElementById('fa-id').textContent = '#' + anmeldung.anmeldung_id;
   document.getElementById('fa-date').textContent = d;
   document.getElementById('fa-personen').textContent = anmeldung.personen_anzahl;
@@ -460,11 +464,11 @@ function renderAnmeldung() {
   document.getElementById('fa-cancel-msg').textContent =
     'Möchtest du deine Anmeldung für den Termin am ' + d + ' wirklich stornieren?';
 
-  // Kostenfreie Stornofrist: bis 5 Tage vor Terminbeginn (18:00 Uhr am Termintag).
+  // Kostenfreie Stornofrist: bis 5 Tage vor Beginn des gebuchten Slots.
   // Danach roter Hinweis + Pflicht-Bestaetigung im Storno-Dialog.
   var rawDate = anmeldung.fondue_termine && anmeldung.fondue_termine.date;
   var stillOpen = anmeldung.status === 'vorgemerkt' || anmeldung.status === 'bestaetigt';
-  isLateCancel = stillOpen && isWithinFeeWindow(rawDate);
+  isLateCancel = stillOpen && isWithinFeeWindow(rawDate, ft.start_time);
   document.getElementById('fa-late-warn').style.display = isLateCancel ? 'block' : 'none';
 
   if (anmeldung.status === 'storniert' || anmeldung.status === 'abgesagt') {
@@ -479,10 +483,11 @@ function renderAnmeldung() {
 // Muss identisch zu isWithinFeeWindow() in manage-fondue-anmeldung bleiben
 var FREE_CANCEL_DAYS = 5;
 var isLateCancel = false;
-function isWithinFeeWindow(dateYmd) {
+function isWithinFeeWindow(dateYmd, startTime) {
   if (!dateYmd) return false;
-  var eventStart = new Date(dateYmd + 'T18:00:00');
-  return (eventStart.getTime() - Date.now()) < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
+  // Slot-Beginn in Browser-Lokalzeit (Zielgruppe DE); Fallback 18:00 nur für Altdaten
+  var slotStart = new Date(dateYmd + 'T' + String(startTime || '18:00').slice(0, 5) + ':00');
+  return (slotStart.getTime() - Date.now()) < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
 }
 
 function updateCancelButton() {
