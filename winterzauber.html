@@ -1201,7 +1201,7 @@ function renderKalender() {
   detail.innerHTML =
     '<p class="wz-detail-tag">Ausgewählter Abend</p>' +
     '<p class="wz-detail-datum">' + langLabel(selected) + '</p>' +
-    '<p class="wz-detail-zeit">Zwei Zeitfenster · beheiztes Zelt am Steg</p>' +
+    '<p class="wz-detail-zeit">' + (slotsOfDate(selected.date).length === 1 ? 'Ein Zeitfenster' : 'Zwei Zeitfenster') + ' · beheiztes Zelt am Steg</p>' +
     '<div class="wz-slots">' + slotsHtml + '</div>' +
     '<p class="wz-detail-hinweis">' + terminState(selected).hinweis + '</p>';
   detail.querySelectorAll('.wz-slot:not([disabled])').forEach(function (btn) {

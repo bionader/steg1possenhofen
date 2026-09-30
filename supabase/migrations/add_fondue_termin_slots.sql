@@ -11,5 +11,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS fondue_termine_date_start_uniq
 INSERT INTO fondue_termine (date, start_time, end_time, capacity_min, capacity_max, is_active, note)
 SELECT date, '19:30', '21:30', capacity_min, capacity_max, is_active, note
 FROM fondue_termine
-WHERE start_time = '17:15'
+-- Nur künftige, nicht abgesagte Termine: sonst entstünde für abgesagte oder
+-- vergangene Daten ein buchbarer Slot 2.
+WHERE start_time = '17:15' AND status <> 'abgesagt' AND date >= current_date
 ON CONFLICT (date, start_time) DO NOTHING;

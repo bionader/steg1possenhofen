@@ -1649,6 +1649,16 @@
     // Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15"
     function wzHhmm(t){ return String(t||'').slice(0,5); }
     function wzSlotLabel(t){ return wzHhmm(t.start_time)+'–'+wzHhmm(t.end_time); }
+    // "dd.mm.yyyy · 17:15–19:15 Uhr" für Bestätigungsdialoge (leer, wenn Termin unbekannt)
+    function wzTerminName(terminId){
+      for(var i=0;i<wzTermine.length;i++){
+        if(String(wzTermine[i].id)===String(terminId)){
+          var t = wzTermine[i], d = String(t.date||'').split('-');
+          return (d.length===3 ? d[2]+'.'+d[1]+'.'+d[0] : t.date)+' · '+wzSlotLabel(t)+' Uhr';
+        }
+      }
+      return '';
+    }
     var WZ_DECISION_DAYS = 2; // Absage mangels Teilnehmern bis 2 Tage vorher (stornobedingungen.html Ziffer 2)
     var WZ_STATUS_LABELS = {offen:'Offen',schwelle_erreicht:'Schwelle erreicht',bestaetigt:'Bestätigt',ausgebucht:'Ausgebucht',abgesagt:'Abgesagt'};
 
@@ -1957,7 +1967,7 @@
     function confirmWinterzauberTermin(terminId, isNachzuegler){
       var q = isNachzuegler
         ? 'Nachträglich angemeldete Gäste (Status „vorgemerkt") jetzt verbindlich bestätigen? Sie erhalten sofort eine Bestätigungsmail. Bereits bestätigte Gäste werden nicht erneut angeschrieben.'
-        : 'Termin verbindlich bestätigen? Alle vorgemerkten Gäste erhalten sofort eine Bestätigungsmail.';
+        : 'Termin '+(wzTerminName(terminId) ? wzTerminName(terminId)+' ' : '')+'verbindlich bestätigen? Alle vorgemerkten Gäste erhalten sofort eine Bestätigungsmail.';
       if(!confirm(q)) return;
       fetch(SB_URL+'/functions/v1/send-fondue-confirmation',{
         method:'POST',
@@ -1996,9 +2006,9 @@
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
         body:JSON.stringify({date:date, note: note || null, capacity_min:cmin, capacity_max:cmax})
       })
-      .then(function(r){ if(!r.ok) throw new Error('patch'); return r.json(); })
+      .then(function(r){ if(r.status === 409) throw new Error('duplicate'); if(!r.ok) throw new Error('patch'); return r.json(); })
       .then(function(){ msg('Termin aktualisiert','','wz-admin-message'); loadWinterzauberTermine(); })
-      .catch(function(){ msg('Fehler beim Speichern','error','wz-admin-message'); });
+      .catch(function(err){ msg(err && err.message === 'duplicate' ? 'Dieses Zeitfenster gibt es an dem Datum schon' : 'Fehler beim Speichern','error','wz-admin-message'); });
     }
 
     // Termin aktiv/inaktiv schalten (reversibel, daher ohne Rueckfrage).
@@ -2052,7 +2062,7 @@
     function submitWinterzauberCancel(terminId){
       var ta = document.getElementById('wz-cancel-reason-'+terminId);
       var reason = ta ? ta.value.trim() : '';
-      if(!confirm('Termin jetzt absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
+      if(!confirm('Termin '+(wzTerminName(terminId) ? wzTerminName(terminId)+' ' : '')+'jetzt absagen? Alle Gäste erhalten sofort eine Absage-Mail.')) return;
       fetch(SB_URL+'/functions/v1/send-fondue-absage',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
@@ -2131,7 +2141,7 @@
         }
       })
       .catch(function(err){
-        msg(err && err.message === 'duplicate' ? 'Dieses Zeitfenster gibt es an dem Datum schon' : 'Fehler beim Anlegen','error','wz-admin-message');
+        msg(err && err.message === 'duplicate' ? 'Mindestens eines der Zeitfenster gibt es an dem Datum schon – nichts angelegt' : 'Fehler beim Anlegen','error','wz-admin-message');
       })
       .finally(function(){ btn.disabled = false; btn.textContent = 'Anlegen'; });
     });

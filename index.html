@@ -1552,7 +1552,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
       buildSnow(document.getElementById('wz-teaser-snow'), 26);
 
       return Promise.all([
-        fetch(SB_URL_WZ + '/rest/v1/fondue_termine?order=date.asc&select=date,capacity_min,capacity_max,personen_gesamt', { headers: { apikey: SB_KEY_WZ } }).then(function (r) { return r.json(); }),
+        fetch(SB_URL_WZ + '/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=date,start_time,capacity_min,capacity_max,personen_gesamt', { headers: { apikey: SB_KEY_WZ } }).then(function (r) { return r.json(); }),
         fetch(SB_URL_WZ + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=price_per_person', { headers: { apikey: SB_KEY_WZ } }).then(function (r) { return r.json(); })
       ]).then(function (results) {
         var today = new Date().toISOString().slice(0, 10);
@@ -1563,7 +1563,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
         var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
         if (next) {
           var laeuft = (next.personen_gesamt || 0) >= next.capacity_min;
-          document.getElementById('wz-teaser-pill-label').textContent = 'Nächster Termin: ' + langLabel(next);
+          document.getElementById('wz-teaser-pill-label').textContent = 'Nächster Termin: ' + langLabel(next) + (next.start_time ? ', ' + String(next.start_time).slice(0, 5) + ' Uhr' : '');
           document.getElementById('wz-teaser-pill-hint').textContent = laeuft ? 'Findet statt · Plätze frei' : 'Anmeldung läuft — jetzt Platz sichern';
         } else {
           document.getElementById('wz-teaser-pill-label').textContent = 'Termine folgen in Kürze';
