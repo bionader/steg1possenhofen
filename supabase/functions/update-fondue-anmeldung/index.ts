@@ -218,7 +218,8 @@ serve(async (req) => {
     if (!sRes.ok) return jsonResponse({ error: "capacity_lookup_failed" }, 500, cors);
     const rows = await sRes.json();
     const andereSumme = rows.filter((r: any) => r.id !== a.id).reduce((s: number, r: any) => s + Number(r.personen_anzahl || 0), 0);
-    if (andereSumme + personenNeu > Number(termin.capacity_max)) {
+    // Kapazität nur beim Vergrößern prüfen – Reduzierungen sind immer möglich
+    if (personenNeu > personenAlt && andereSumme + personenNeu > Number(termin.capacity_max)) {
       return jsonResponse({ error: "capacity_exceeded", available: Math.max(0, Number(termin.capacity_max) - andereSumme) }, 409, cors);
     }
     const gruppen = rows.map((r: any) => ({ id: String(r.id), personen: Number(r.personen_anzahl), verteilung: r.iglu_verteilung, fixiert: !!r.iglu_fixiert }));
@@ -240,8 +241,9 @@ serve(async (req) => {
     beilagen_alt: beilagenAlt, beilagen_neu: beilagenNeu,
     spaet,
   };
-  const patchRes = await pg(`fondue_anmeldungen?id=eq.${a.id}`, {
+  const patchRes = await pg(`fondue_anmeldungen?id=eq.${a.id}&status=in.(vorgemerkt,bestaetigt)`, {
     method: "PATCH",
+    headers: { Prefer: "return=representation" },
     body: JSON.stringify({
       personen_anzahl: personenNeu,
       varianten_auswahl: variantenNeu,
@@ -256,12 +258,21 @@ serve(async (req) => {
     console.error("[update-fondue-anmeldung] patch failed", patchRes.status, await patchRes.text());
     return jsonResponse({ error: "update_failed" }, 500, cors);
   }
+  // 0 aktualisierte Zeilen: Gast hat zwischenzeitlich storniert
+  const aktualisiert = await patchRes.json().catch(() => null);
+  if (!Array.isArray(aktualisiert) || aktualisiert.length === 0) {
+    return jsonResponse({ error: "not_active" }, 409, cors);
+  }
 
   // Andere (nicht fixierte) Gruppen, die für die neue Größe umgesetzt wurden, nachziehen.
   // Fehler machen die Änderung nicht ungültig; der Admin erkennt Überbelegung beim Laden.
   for (const [anmId, verteilung] of Object.entries(verschoben)) {
-    const r = await pg(`fondue_anmeldungen?id=eq.${anmId}`, { method: "PATCH", body: JSON.stringify({ iglu_verteilung: verteilung }) });
-    if (!r.ok) console.error("[update-fondue-anmeldung] iglu patch failed", anmId, r.status, await r.text());
+    try {
+      const r = await pg(`fondue_anmeldungen?id=eq.${anmId}`, { method: "PATCH", body: JSON.stringify({ iglu_verteilung: verteilung }) });
+      if (!r.ok) console.error("[update-fondue-anmeldung] iglu patch failed", anmId, r.status, await r.text());
+    } catch (e) {
+      console.error("[update-fondue-anmeldung] iglu patch exception", anmId, e);
+    }
   }
 
   // Preis zu aktuellen Preisen

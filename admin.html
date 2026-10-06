@@ -410,7 +410,7 @@
     .wz-anm-gruppe{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px}
     .wz-anm-label{width:100%;font-size:.75rem;font-weight:600;color:var(--text2)}
     .wz-anm-feld{display:flex;flex-direction:column;gap:3px;font-size:.75rem;color:var(--text2)}
-    .wz-anm-feld input{width:72px;min-height:44px;font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--sand2);border-radius:8px;background:var(--w)}
+    .wz-anm-feld input{width:72px;min-height:44px;font:inherit;font-size:16px;padding:6px 8px;border:1px solid var(--sand2);border-radius:8px;background:var(--w)}
     .wz-anm-summe{font-size:.82rem;font-weight:600;color:var(--g);padding-bottom:12px}
     .wz-anm-msg{font-size:.8rem;margin:6px 0 0;color:var(--text2)}
     .wz-anm-msg.err{color:var(--err)}
@@ -2067,7 +2067,11 @@
       keine_personen: 'Mindestens 1 Person – zum Entfernen bitte die Anmeldung stornieren.',
       keine_aenderung: 'Es wurde nichts geändert.',
       not_active: 'Diese Anmeldung ist nicht mehr aktiv.',
-      unauthorized: 'Keine Berechtigung – bitte neu einloggen.'
+      unauthorized: 'Keine Berechtigung – bitte neu einloggen.',
+      invalid_personen: 'Höchstens 30 Personen pro Anmeldung.',
+      invalid_variante: 'Ungültige Fondue-Menge (0–30 je Variante).',
+      invalid_beilage: 'Ungültige Beilagen-Menge (0–99 je Beilage).',
+      not_found: 'Anmeldung nicht gefunden – bitte Seite neu laden.'
     };
     function wzAnmSave(anmId){
       var w = wzAnmWerte(anmId);
@@ -2075,23 +2079,25 @@
       var btn = document.getElementById('wz-anm-save-'+anmId);
       function zeige(text, fehler){ if(box){ box.textContent = text; box.className = 'wz-anm-msg' + (fehler ? ' err' : ''); } }
       if(w.personen < 1){ zeige(WZ_ANM_FEHLER.keine_personen, true); return; }
+      if(w.personen > 30){ zeige(WZ_ANM_FEHLER.invalid_personen, true); return; }
       if(btn){ btn.disabled = true; btn.textContent = 'Wird gespeichert…'; }
       fetch(SB_URL+'/functions/v1/update-fondue-anmeldung',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
         body:JSON.stringify({ id: anmId, varianten: w.v, beilagen: w.b })
       })
-      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d || {} }; }); })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, status: r.status, d: d || {} }; }); })
       .then(function(res){
         if(btn){ btn.disabled = false; btn.textContent = 'Speichern & Gast informieren'; }
         if(!res.ok){
-          var d = res.d, text = WZ_ANM_FEHLER[d.error];
+          var d = res.d, text = WZ_ANM_FEHLER[d.error] || (res.status === 401 ? WZ_ANM_FEHLER.unauthorized : null);
           if(d.error === 'capacity_exceeded') text = 'Nicht genug Plätze frei – für diese Anmeldung sind höchstens '+d.available+' Personen möglich.';
           if(d.error === 'iglu_kein_platz') text = 'Kein gemeinsamer Iglu-Platz für '+w.personen+' Personen – höchstens '+d.max_gruppe+' möglich.';
           zeige(text || 'Fehler beim Speichern ('+(d.error || 'unbekannt')+').', true);
           return;
         }
         msg(res.d.mail ? 'Anmeldung geändert, Gast informiert' : 'Anmeldung geändert – Mail konnte nicht gesendet werden', res.d.mail ? 'success' : 'error', 'wz-admin-message');
+        if(!res.d.mail) alert('Gespeichert – die Mail an den Gast konnte aber nicht gesendet werden. Bitte den Gast direkt informieren.');
         loadWinterzauberTermine();
       })
       .catch(function(){
