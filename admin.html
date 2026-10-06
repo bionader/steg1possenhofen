@@ -392,6 +392,8 @@
     .wz-iglu-gruppe{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;padding:6px 0;border-top:1px solid var(--sand2)}
     .wz-iglu-gruppe select{font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:44px}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
+    .wz-iglu-opt{background:#FBEBD9;border:1.5px solid #E39A4B;color:#A85A12}
+    .wz-iglu-opt:hover{background:#F6DCC0}
     .wz-tn-table td.num{text-align:center}
     .wz-tn-table td.nm{white-space:nowrap}
     .wz-tn-row-storniert td,.wz-tn-row-abgesagt td{color:var(--text3);text-decoration:line-through}
@@ -1798,6 +1800,8 @@
           html += '<button class="wz-btn-del" onclick="deleteWzTermin(\''+t.id+'\','+rows.length+')"'
                 + (total > 0 ? ' disabled title="Erst alle Gäste absagen"' : '')
                 + '>Löschen</button>';
+          // Oranger Hinweis, wenn "Automatisch neu verteilen" Iglu 1 voller machen wuerde
+          html += '<span id="wz-iglu-opt-'+t.id+'">'+renderWzIgluHinweis(t.id)+'</span>';
           html += '</div>';
           // Inline-Bearbeitung: Datum, Notiz, Mindest-/Max-Teilnehmerzahl nachträglich änderbar
           html += '<div class="wz-termin-edit" id="wz-edit-'+t.id+'" style="display:none">'
@@ -1821,7 +1825,7 @@
             + '<button class="wz-btn-cancel-termin" onclick="submitWinterzauberCancel(\''+t.id+'\')">Absage senden</button>'
             + '<button class="wz-btn-plain" onclick="toggleWzCancel(\''+t.id+'\', false)">Abbrechen</button>'
             + '</div></div>';
-          html += '<details class="wz-teilnehmer"><summary>Iglu-Verteilung</summary><div id="wz-iglu-'+t.id+'">'+renderWzIglu(t.id)+'</div></details>';
+          html += '<details class="wz-teilnehmer" id="wz-iglu-details-'+t.id+'"><summary>Iglu-Verteilung</summary><div id="wz-iglu-'+t.id+'">'+renderWzIglu(t.id)+'</div></details>';
           html += renderWzTeilnehmer(rows, t.status);
           html += '</div>';
         });
@@ -1847,6 +1851,20 @@
     function wzIgluRefresh(terminId){
       var box = document.getElementById('wz-iglu-'+terminId);
       if(box) box.innerHTML = renderWzIglu(terminId);
+      var hinweis = document.getElementById('wz-iglu-opt-'+terminId);
+      if(hinweis) hinweis.innerHTML = renderWzIgluHinweis(terminId);
+    }
+    function renderWzIgluHinweis(terminId){
+      var IV = window.IgluVerteilung;
+      if(!IV || !IV.optimierbar(wzIgluGruppen(terminId))) return '';
+      return '<button class="wz-iglu-opt" onclick="wzIgluOeffnen(\''+terminId+'\')">Neu verteilen möglich: bessere Zeltauslastung</button>';
+    }
+    // Klappt die Iglu-Verteilung auf, damit "Automatisch neu verteilen" direkt sichtbar ist
+    function wzIgluOeffnen(terminId){
+      var d = document.getElementById('wz-iglu-details-'+terminId);
+      if(!d) return;
+      d.open = true;
+      d.scrollIntoView({behavior:'smooth', block:'start'});
     }
     function wzIgluPatch(anmId, body){
       return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?id=eq.'+anmId,{

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   teileGruppe, belegung, ergaenze, platziere, maxGruppe,
-  verteileNeu, umsetzen, iglusText, aufteilungsSatz,
+  verteileNeu, umsetzen, iglusText, aufteilungsSatz, optimierbar,
 } from "./iglu-verteilung.js";
 
 const g = (id, personen, verteilung = null, fixiert = false) => ({ id, personen, verteilung, fixiert });
@@ -143,6 +143,99 @@ test("Performance: viele kleine Gruppen < 200 ms", () => {
   const r = ergaenze(gr);
   maxGruppe(gr.map((x) => ({ ...x, verteilung: r.verschoben[x.id] })));
   assert.ok(r.ok);
+  assert.ok(performance.now() - t0 < 200);
+});
+
+// ── Fuellreihenfolge: Iglu 1 so voll wie moeglich, dann Iglu 2, Iglu 3 zuletzt ──
+
+test("verteileNeu fuellt Iglu 1 zuerst (Screenshot-Fall 7/6/6 -> 12 | 7 | 0)", () => {
+  const gr = [g("m7", 7, { 1: 7 }), g("t6", 6, { 2: 6 }), g("m6", 6, { 2: 6 })];
+  const r = verteileNeu(gr);
+  assert.equal(r.ok, true);
+  const neu = gr.map((x) => ({ ...x, verteilung: r.verteilungen[x.id] }));
+  assert.deepEqual(belegung(neu), [12, 7, 0]);
+});
+
+test("Neue Gruppe kommt ins niedrigste Iglu, in das sie passt", () => {
+  const r = platziere([g("a", 5, { 2: 5 })], 4);
+  assert.deepEqual(r.neu, { 1: 4 });
+  const r2 = platziere([g("a", 10, { 1: 10 })], 4);
+  assert.deepEqual(r2.neu, { 2: 4 });
+});
+
+test("Grossgruppe belegt die niedrigsten Iglus", () => {
+  assert.deepEqual(platziere([], 16).neu, { 1: 8, 2: 8 });
+  assert.deepEqual(platziere([], 25).neu, { 1: 9, 2: 8, 3: 8 });
+});
+
+test("Stufe 2 ordnet nach Fuellreihenfolge um und laesst Fixierte stehen", () => {
+  // a fixiert in Iglu 2; die neue 12er-Gruppe passt nur nach Umordnen von b und c
+  const gr = [g("a", 6, { 2: 6 }, true), g("b", 5, { 1: 5 }), g("c", 5, { 3: 5 })];
+  const r = platziere(gr, 12);
+  assert.equal(r.ok, true);
+  assert.equal(r.verschoben.a, undefined);
+  assert.deepEqual(r.neu, { 1: 12 });
+  const alle = gr.map((x) => ({ ...x, verteilung: r.verschoben[x.id] || x.verteilung })).concat([g("neu", 12, r.neu)]);
+  assert.deepEqual(belegung(alle), [12, 11, 5]);
+});
+
+test("optimierbar erkennt bessere Fuellung, Ueberbelegung und Optimum", () => {
+  const schlecht = [g("m7", 7, { 1: 7 }), g("t6", 6, { 2: 6 }), g("m6", 6, { 2: 6 })];
+  assert.equal(optimierbar(schlecht), true);
+  const gut = [g("m7", 7, { 2: 7 }), g("t6", 6, { 1: 6 }), g("m6", 6, { 1: 6 })];
+  assert.equal(optimierbar(gut), false);
+  const ueber = [g("a", 10, { 1: 10 }), g("b", 5, { 1: 5 })];
+  assert.equal(optimierbar(ueber), true);
+  assert.equal(optimierbar([]), false);
+});
+
+test("Optimalitaet: Ergebnis ist lexikografisch maximal (Brute-Force-Vergleich)", () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  for (let run = 0; run < 300; run++) {
+    const gr = [];
+    let summe = 0;
+    while (gr.length < 6) {
+      const n = 1 + Math.floor(rnd() * (rnd() < 0.15 ? 20 : 9));
+      if (summe + n > 36) break;
+      summe += n;
+      gr.push(g("x" + gr.length, n));
+    }
+    // Brute Force ueber alle Zuordnungen der Teile
+    const teile = [];
+    gr.forEach((x) => teileGruppe(x.personen).forEach((s) => teile.push({ id: x.id, s })));
+    let best = null;
+    const zu = new Array(teile.length);
+    (function bf(i) {
+      if (i === teile.length) {
+        const l = [0, 0, 0];
+        for (let j = 0; j < teile.length; j++) l[zu[j]] += teile[j].s;
+        if (l.some((v) => v > 12)) return;
+        for (let j = 0; j < teile.length; j++) for (let k = j + 1; k < teile.length; k++) {
+          if (teile[j].id === teile[k].id && zu[j] === zu[k]) return;
+        }
+        if (!best || l[0] > best[0] || (l[0] === best[0] && l[1] > best[1])) best = l;
+        return;
+      }
+      for (let k = 0; k < 3; k++) { zu[i] = k; bf(i + 1); }
+    })(0);
+    const r = verteileNeu(gr);
+    if (!best) { assert.equal(r.ok, false); continue; }
+    assert.equal(r.ok, true);
+    const neu = gr.map((x) => ({ ...x, verteilung: r.verteilungen[x.id] }));
+    assert.deepEqual(belegung(neu), best);
+  }
+});
+
+test("Performance: 36 Einzelpersonen und maxGruppe bei vielen Gruppen < 200 ms", () => {
+  const einzeln = [];
+  for (let i = 0; i < 36; i++) einzeln.push(g("e" + i, 1));
+  const t0 = performance.now();
+  assert.equal(verteileNeu(einzeln).ok, true);
+  const gemischt = [];
+  for (let i = 0; i < 10; i++) gemischt.push(g("m" + i, 1 + (i % 3)));
+  const r = ergaenze(gemischt);
+  maxGruppe(gemischt.map((x) => ({ ...x, verteilung: r.verschoben[x.id] })));
   assert.ok(performance.now() - t0 < 200);
 });
 

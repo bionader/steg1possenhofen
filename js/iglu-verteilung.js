@@ -72,40 +72,70 @@ export function belegung(gruppen) {
   return lastenVon(normalisiere(gruppen));
 }
 
-// Backtracking: verteilt die Teile der Gruppen ausgehend von den Grundlasten.
-// Teile derselben Gruppe muessen in verschiedenen Iglus liegen.
+// Lexikografischer Vergleich zweier Belegungen: true, wenn a Iglu 1 voller macht
+// (bei Gleichstand Iglu 2, dann Iglu 3) als b.
+function besser(a, b) {
+  for (let k = 0; k < IGLU_ANZAHL; k++) {
+    if (a[k] !== b[k]) return a[k] > b[k];
+  }
+  return false;
+}
+
+function zustandsSchluessel(last, maske) {
+  return last.join(",") + "|" + maske;
+}
+
+// Exakte Optimierung per dynamischer Programmierung ueber die Iglu-Belegungen.
+// Unter allen gueltigen Zuordnungen (je Iglu <= 12, Teile einer Gruppe in
+// verschiedenen Iglus) wird die gewaehlt, die Iglu 1 am vollsten macht, dann
+// Iglu 2, Iglu 3 bleibt so lange wie moeglich leer ("Iglu 1 zuerst fuellen").
+// Zustand = Belegung aller Iglus + Bitmaske der Iglus, die die aktuelle Gruppe
+// schon nutzt; die Zustandsmenge bleibt klein (hoechstens 13^3 * 8).
 // Rueckgabe: { [id]: verteilung } oder null.
 function loese(grundlast, gruppen) {
   const teile = [];
   for (const g of gruppen) {
     const t = teileGruppe(g.personen);
     if (!t.length || t.length > IGLU_ANZAHL) return null;
-    t.forEach((s) => teile.push({ id: g.id, s }));
+    // Teile einer Gruppe stehen direkt hintereinander; "start" setzt die Maske zurueck
+    t.forEach((s, i) => teile.push({ id: g.id, s, start: i === 0 }));
   }
   const frei = grundlast.reduce((a, l) => a + Math.max(0, PLAETZE_PRO_IGLU - l), 0);
   if (teile.reduce((a, t) => a + t.s, 0) > frei) return null;
-  teile.sort((a, b) => b.s - a.s);
 
-  const last = grundlast.slice();
-  const zuordnung = new Array(teile.length);
-  function rec(i) {
-    if (i === teile.length) return true;
-    const t = teile[i];
-    for (let k = 0; k < IGLU_ANZAHL; k++) {
-      if (last[k] + t.s > PLAETZE_PRO_IGLU) continue;
-      let konflikt = false;
-      for (let j = 0; j < i; j++) {
-        if (teile[j].id === t.id && zuordnung[j] === k) { konflikt = true; break; }
+  // schichten[i] = erreichbare Zustaende nach den ersten i Teilen (mit Rueckverweis)
+  const startLast = grundlast.slice();
+  const schichten = [new Map([[zustandsSchluessel(startLast, 0), { last: startLast, maske: 0, vor: null, k: -1 }]])];
+  for (const t of teile) {
+    const naechste = new Map();
+    for (const [schluessel, z] of schichten[schichten.length - 1]) {
+      const maske = t.start ? 0 : z.maske;
+      for (let k = 0; k < IGLU_ANZAHL; k++) {
+        if (maske & (1 << k)) continue;
+        if (z.last[k] + t.s > PLAETZE_PRO_IGLU) continue;
+        const last = z.last.slice();
+        last[k] += t.s;
+        const neueMaske = maske | (1 << k);
+        const nk = zustandsSchluessel(last, neueMaske);
+        if (!naechste.has(nk)) naechste.set(nk, { last, maske: neueMaske, vor: schluessel, k });
       }
-      if (konflikt) continue;
-      last[k] += t.s;
-      zuordnung[i] = k;
-      if (rec(i + 1)) return true;
-      last[k] -= t.s;
     }
-    return false;
+    if (!naechste.size) return null;
+    schichten.push(naechste);
   }
-  if (!rec(0)) return null;
+
+  // Besten Endzustand waehlen und die Zuordnung rueckwaerts rekonstruieren
+  let bestSchluessel = null, best = null;
+  for (const [schluessel, z] of schichten[schichten.length - 1]) {
+    if (!best || besser(z.last, best.last)) { best = z; bestSchluessel = schluessel; }
+  }
+  const zuordnung = new Array(teile.length);
+  let schluessel = bestSchluessel;
+  for (let i = teile.length; i >= 1; i--) {
+    const z = schichten[i].get(schluessel);
+    zuordnung[i - 1] = z.k;
+    schluessel = z.vor;
+  }
 
   const ergebnis = {};
   gruppen.forEach((g) => { ergebnis[g.id] = {}; });
@@ -125,6 +155,7 @@ function gleicheVerteilung(a, b) {
 // Gibt allen Gruppen ohne gueltige Verteilung eine.
 // Stufe 1: bestehende Verteilungen bleiben stehen.
 // Stufe 2: alle nicht fixierten Gruppen werden neu verteilt.
+// In beiden Stufen gilt die Fuellreihenfolge Iglu 1 -> 2 -> 3 (siehe loese).
 // Rueckgabe: { ok: true, verschoben: { [id]: verteilung } } (nur geaenderte Gruppen) oder { ok: false }
 export function ergaenze(gruppen) {
   const alle = normalisiere(gruppen);
@@ -167,12 +198,26 @@ export function maxGruppe(gruppen) {
   return IGLU_ANZAHL * PLAETZE_PRO_IGLU;
 }
 
-// Verteilt alle Gruppen komplett neu, Fixierungen werden ignoriert (Admin-Button).
+// Verteilt alle Gruppen komplett neu und optimal (Iglu 1 zuerst), Fixierungen werden
+// ignoriert (Admin-Button).
 // Rueckgabe: { ok: true, verteilungen: { [id]: verteilung } } oder { ok: false }
 export function verteileNeu(gruppen) {
   const alle = normalisiere(gruppen);
   const r = loese(new Array(IGLU_ANZAHL).fill(0), alle);
   return r ? { ok: true, verteilungen: r } : { ok: false };
+}
+
+// true, wenn "Automatisch neu verteilen" eine bessere Fuellung ergaebe (Iglu 1 voller,
+// dann Iglu 2 ...) oder ein Iglu ueberbelegt ist — Grundlage fuer den Admin-Hinweis.
+export function optimierbar(gruppen) {
+  const alle = normalisiere(gruppen);
+  if (!alle.length) return false;
+  const alt = lastenVon(alle);
+  if (alt.some((l) => l > PLAETZE_PRO_IGLU)) return true;
+  const r = verteileNeu(alle);
+  if (!r.ok) return false;
+  const neu = lastenVon(alle.map((g) => ({ ...g, verteilung: r.verteilungen[g.id] })));
+  return besser(neu, alt);
 }
 
 // Setzt den Teil einer Gruppe aus Iglu `von` nach Iglu `ziel` um.
