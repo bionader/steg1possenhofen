@@ -382,8 +382,7 @@
     .wz-tn-table th{text-align:left;padding:6px 8px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2);white-space:nowrap}
     .wz-tn-table td{padding:6px 8px;border-bottom:1px solid var(--sand2);vertical-align:top}
     .wz-tn-table tr:last-child td{border-bottom:none}
-    .wz-iglu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
-    @media(max-width:640px){.wz-iglu-grid{grid-template-columns:1fr}}
+    .wz-iglu-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:8px;max-width:560px}
     .wz-iglu-col{background:var(--w);border:1px solid var(--sand2);border-radius:12px;padding:10px 12px}
     .wz-iglu-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;color:var(--text2)}
     .wz-iglu-count.over{color:var(--err)}
@@ -395,8 +394,8 @@
     .wz-iglu-nm .n{overflow:hidden;text-overflow:ellipsis}
     .wz-iglu-nm .p{flex:0 0 auto;color:var(--text2)}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
-    .wz-iglu-opt{background:#FBEBD9;border:1.5px solid #E39A4B;color:#A85A12}
-    .wz-iglu-opt:hover{background:#F6DCC0}
+    .wz-iglu-opt{background:#E07B24;color:#fff}
+    .wz-iglu-opt:hover{background:#C96A18}
     .wz-btn-iglu-neu{background:#E07B24;color:#fff}
     .wz-btn-iglu-neu:hover{background:#C96A18}
     .wz-tn-table td.num{text-align:center}
@@ -408,7 +407,10 @@
     .wz-tn-nachzuegler{background:rgba(212,136,58,.18);color:#a85e1c}
     .wz-tn-storniert,.wz-tn-abgesagt{background:rgba(217,79,79,.12);color:#B53E3E}
     .wz-tn-spaet{background:rgba(212,136,58,.18);color:#a85e1c}
-    .wz-tn-edit-btn{padding:4px 12px;font-size:.75rem;white-space:nowrap}
+    .wz-tn-nm{display:flex;align-items:center;gap:6px;max-width:200px}
+    .wz-tn-nm .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+    .wz-tn-edit-btn{flex:0 0 auto;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--sand2);color:var(--text);border-radius:8px}
+    .wz-tn-edit-btn:hover{background:#E07B24;color:#fff}
     .wz-tn-editrow>td{background:var(--sand);padding:0}
     .wz-anm-edit{position:sticky;left:0;box-sizing:border-box;width:min(560px, calc(100vw - 48px));padding:12px 14px}
     .wz-anm-titel{font-size:.85rem;font-weight:600;color:var(--text);margin:0 0 8px}
@@ -2145,31 +2147,32 @@
       aktiveBeilagen.forEach(function(b){
         out += '<th title="'+esc(b.name)+'">'+esc(wzBeilageShort(b.name))+'</th>';
       });
-      out += '<th>Nr.</th><th></th></tr></thead><tbody>';
+      out += '<th>Nr.</th></tr></thead><tbody>';
 
       sorted.forEach(function(r){
         var isNach = terminStatus === 'bestaetigt' && r.status === 'vorgemerkt';
         var cls = isNach ? 'nachzuegler' : r.status;
         var lbl = isNach ? 'Nachzügler' : (WZ_STATUS_LABELS_ANMELD[r.status] || r.status);
         var va = r.varianten_auswahl || {};
+        var aktiv = r.status==='vorgemerkt' || r.status==='bestaetigt';
         out += '<tr class="wz-tn-row-'+r.status+'">';
-        out += '<td class="nm">'+esc(r.customer_name)+'</td>';
+        out += '<td class="nm"><span class="wz-tn-nm"><span class="n" title="'+esc(r.customer_name).replace(/"/g,'&quot;')+'">'+esc(r.customer_name)+'</span>'
+          + (aktiv ? '<button class="wz-tn-edit-btn" onclick="wzAnmToggleEdit(\''+r.id+'\')" aria-label="Anmeldung ändern" title="Anmeldung ändern"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></button>' : '')
+          + '</span></td>';
         out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span>'
           + (r.spaet_reduziert ? ' <span class="wz-tn-badge wz-tn-spaet" title="Reduzierung nach Ablauf der kostenfreien Frist">Spät reduziert</span>' : '')
           + '</td>';
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
-        var aktiv = r.status==='vorgemerkt' || r.status==='bestaetigt';
         out += '<td class="num" id="wz-tn-iglu-'+r.id+'">'+(aktiv && window.IgluVerteilung ? esc(window.IgluVerteilung.iglusText(r.iglu_verteilung)) : '–')+'</td>';
         aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(Number(va[v.id]) || 0)+'</td>'; });
         var ba = r.beilagen_auswahl || {};
         aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(Number(ba[b.id]) || 0)+'</td>'; });
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
-        out += '<td>'+(aktiv ? '<button class="wz-btn-plain wz-tn-edit-btn" onclick="wzAnmToggleEdit(\''+r.id+'\')">Ändern</button>' : '')+'</td>';
         out += '</tr>';
         if(aktiv){
-          var spalten = 8 + aktiveVarianten.length + aktiveBeilagen.length;
+          var spalten = 7 + aktiveVarianten.length + aktiveBeilagen.length;
           out += '<tr class="wz-tn-editrow" id="wz-anm-edit-'+r.id+'" style="display:none"><td colspan="'+spalten+'">'+renderWzAnmEditor(r, termin)+'</td></tr>';
         }
       });
