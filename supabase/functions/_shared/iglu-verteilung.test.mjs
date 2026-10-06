@@ -109,6 +109,24 @@ test("umsetzen: Teile einer Grossgruppe lassen sich nicht ueber 12 zusammenlegen
   assert.deepEqual(umsetzen(gr, "a", 2, 3), { ok: true, verteilung: { 1: 8, 3: 8 } });
 });
 
+test("Gespeicherte Verteilung ueber 12 oder mit falscher Teilezahl wird ergaenzt", () => {
+  // Gruppe a: 13 Personen mit { 1: 13 } — ueber 12-Limit, wird rejected
+  // Gruppe b: 12 Personen mit { 1: 6, 2: 6 } — falsche Teilezahl (sollte 1 sein), wird rejected
+  const gr = [g("a", 13, { 1: 13 }), g("b", 12, { 1: 6, 2: 6 })];
+  const r = ergaenze(gr);
+  assert.equal(r.ok, true);
+  // a sollte neu verteilt werden: 13 -> [7, 6]
+  assert.ok(r.verschoben.a);
+  assert.deepEqual(Object.values(r.verschoben.a).sort(), [6, 7]);
+  assert.equal(Object.keys(r.verschoben.a).length, 2);
+  // b sollte neu verteilt werden: 12 -> [12]
+  assert.ok(r.verschoben.b);
+  assert.deepEqual(r.verschoben.b, { 1: 12 });
+  // belegung mit ungueltig gespeicherter a sollte [0,0,0] sein
+  const belegungA = belegung([g("a", 13, { 1: 13 })]);
+  assert.deepEqual(belegungA, [0, 0, 0]);
+});
+
 test("iglusText und aufteilungsSatz", () => {
   assert.equal(iglusText({ 1: 10 }), "1");
   assert.equal(iglusText({ 3: 8, 2: 8 }), "2 + 3");

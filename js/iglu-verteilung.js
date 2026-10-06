@@ -25,17 +25,25 @@ export function teileGruppe(n) {
   return teile;
 }
 
-// Verteilung nur uebernehmen, wenn sie formal gueltig ist und zur Personenzahl passt
+// Verteilung nur uebernehmen, wenn sie formal gueltig ist und zur Personenzahl passt:
+// - Iglunummern 1..3, positive Personen
+// - Summe = personen
+// - Keine Komponente ueber PLAETZE_PRO_IGLU
+// - Teilezahl muss mit teileGruppe() uebereinstimmen (um falsch gespeicherte Splits zu erkennen)
 function gueltigeVerteilung(personen, v) {
   if (!v || typeof v !== "object") return null;
   let summe = 0;
   for (const [k, p] of Object.entries(v)) {
     const nr = Number(k);
     if (!Number.isInteger(nr) || nr < 1 || nr > IGLU_ANZAHL) return null;
-    if (!Number.isInteger(p) || p < 1) return null;
+    if (!Number.isInteger(p) || p < 1 || p > PLAETZE_PRO_IGLU) return null;
     summe += p;
   }
-  return summe === personen ? v : null;
+  if (summe !== personen) return null;
+  // Teilezahl muss mit teileGruppe() uebereinstimmen
+  const teile = teileGruppe(personen);
+  if (Object.keys(v).length !== teile.length) return null;
+  return v;
 }
 
 function normalisiere(gruppen) {
