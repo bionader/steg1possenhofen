@@ -412,6 +412,8 @@ footer{
 .wz-submit2{margin-top:1.6rem;background:var(--g);color:var(--w);border:none;padding:.85rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;min-height:44px;box-shadow:0 2px 14px rgba(42,123,111,.2);transition:background .26s,transform .26s,box-shadow .26s}
 .wz-submit2:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,123,111,.25)}
 .wz-submit2:disabled{opacity:.6;cursor:default;transform:none}
+.wz-iglu-hint{font-size:.8rem;line-height:1.5;color:var(--text2);margin:-.4rem 0 0}
+.wz-iglu-hint.err{color:var(--err)}
 .wz-form-hint{margin-top:.9rem;font-size:.75rem;color:var(--text3);line-height:1.55}
 .wz-form-hint a{color:var(--g);text-decoration:underline}
 .wz-success2{display:flex;gap:1.1rem;align-items:flex-start}
@@ -661,6 +663,7 @@ footer{
                     <button type="button" id="wz-inc" aria-label="Mehr Personen">+</button>
                   </div>
                 </div>
+                <p class="wz-iglu-hint" id="wz-iglu-hint" style="display:none" aria-live="polite"></p>
                 <div style="display:flex;flex-direction:column;gap:.4rem">
                   <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Fondue je Person</span>
                   <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
@@ -698,6 +701,7 @@ footer{
         <h2 class="wz-h2" style="margin-bottom:2rem">Häufige Fragen</h2>
         <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und melden uns per Mail. Es entstehen keine Kosten — ihr könnt euch direkt für einen anderen Termin vormerken.</p></details>
         <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Die Vormerkung ist mit dem Absenden verbindlich, ihr habt aber ein kostenfreies Rücktrittsrecht: Bis 5&nbsp;Tage vor dem Termin storniert ihr kostenlos über den Link in eurer Mail. Innerhalb der letzten fünf Tage ist eine Stornierung weiterhin möglich, aber <strong>kostenpflichtig</strong>: Die Reservierung inklusive aller gewählten Beilagen wird dann berechnet – wir kaufen die Zutaten frisch für eure Runde ein. Einzelheiten stehen in den <a href="stornobedingungen">Stornobedingungen</a>.</p></details>
+        <details class="wz-faq-item"><summary>Sitzen wir als Gruppe zusammen?<span class="plus">+</span></summary><p>Ja. Jedes unserer drei Iglus bietet Platz für bis zu 12 Personen, und Gruppen bis 12 sitzen immer gemeinsam in einem Iglu. Größere Gruppen verteilen sich gleichmäßig auf mehrere Iglus, 16 Personen zum Beispiel auf zweimal 8.</p></details>
         <details class="wz-faq-item"><summary>Was passiert bei Sturm oder Unwetter?<span class="plus">+</span></summary><p>Unsere Iglus sind beheizte, aber wetterabhängige Außenzelte. Bei extremer Witterung wie Sturm, Orkan oder Gewitter, bei akuter Sicherheitsgefahr oder einem unvorhergesehenen technischen Notfall müssen wir einen Abend im Zweifel auch kurzfristig absagen – eure Sicherheit geht vor. Wir melden uns dann schnellstmöglich per Mail; für euch entstehen keine Kosten. Fahrtkosten können wir leider nicht übernehmen. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p></details>
         <details class="wz-faq-item"><summary>Wie warm ist es im Zelt?<span class="plus">+</span></summary><p>Das Zelt ist beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht — der Weg zum Steg lohnt sich immer.</p></details>
         <details class="wz-faq-item"><summary>In welchem Zelt findet das Fondue statt?<span class="plus">+</span></summary><p>Für das Käsefondue nutzen wir vor allem die kleinen, beheizten Iglu-Zelte mit Platz für etwa 10–12 Personen. Kleinere Gruppen setzen wir dort auch gemischt an einen Tisch. Das große Zelt ist für Fondue-Runden mit vielen Personen sowie für private Winter- und Weihnachtsfeiern oder andere Anfragen da.</p></details>
@@ -869,6 +873,13 @@ mobileMenu.querySelectorAll('a').forEach(function(link) {
     document.body.style.overflow = '';
   });
 });
+</script>
+
+<script type="module">
+  // Iglu-Verteilungslogik (gleiche Datei wie Admin; Edge Function nutzt eine Kopie)
+  import * as IgluVerteilung from './js/iglu-verteilung.js';
+  window.IgluVerteilung = IgluVerteilung;
+  window.dispatchEvent(new Event('iglu-ready'));
 </script>
 
 <script>
@@ -1175,7 +1186,78 @@ function pickTermin(id) {
 function renderFormContext() {
   var t = termine.find(function (x) { return x.id === selectedTerminId; });
   document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · ' + slotLabel(t)) : '–';
+  if (selectedTerminId && selectedTerminId !== wzBelegungFor) loadBelegung(selectedTerminId);
 }
+
+// ── Iglu-Belegung des gewaehlten Slots (nur Gruppengroessen, keine Namen) ──
+// Logik in js/iglu-verteilung.js; der Server prueft verbindlich (create-fondue-anmeldung).
+var wzBelegung = null;        // aktive Gruppen des Slots oder null (unbekannt)
+var wzBelegungFor = null;     // terminId, fuer den wzBelegung gilt/geladen wird
+var wzServerMaxGruppe = null; // max_gruppe aus einer 409-Antwort, gilt bis zum Slotwechsel
+
+function loadBelegung(terminId, keepServerMax) {
+  wzBelegung = null; wzBelegungFor = terminId;
+  if (!keepServerMax) wzServerMaxGruppe = null;
+  updateIgluHinweis();
+  fetch(SB_URL + '/rest/v1/rpc/fondue_belegung', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ p_termin_id: terminId })
+  })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rows) {
+      // Inzwischen anderer Slot gewaehlt -> veraltete Antwort verwerfen
+      if (wzBelegungFor !== terminId || !Array.isArray(rows)) return;
+      wzBelegung = rows.map(function (r, i) {
+        return { id: 'b' + i, personen: Number(r.personen_anzahl), verteilung: r.iglu_verteilung, fixiert: !!r.iglu_fixiert };
+      });
+      updateIgluHinweis();
+    })
+    .catch(function () { /* ohne Belegung kein Hinweis – der Server prueft verbindlich */ });
+}
+
+function igluStatus(n) {
+  var IV = window.IgluVerteilung;
+  if (wzServerMaxGruppe !== null && n > wzServerMaxGruppe) return { passt: false, max: wzServerMaxGruppe };
+  // Restkapazitaet des Slots (capacity_max) – der Server prueft sie vor dem Iglu-Check
+  var t = termine.find(function (x) { return x.id === selectedTerminId; });
+  var rest = t ? Math.max(0, Number(t.capacity_max) - (t.personen_gesamt || 0)) : null;
+  var belegungMax = (IV && wzBelegung) ? IV.maxGruppe(wzBelegung) : null;
+  if (rest !== null && n > rest) {
+    return { passt: false, max: belegungMax !== null ? Math.min(rest, belegungMax) : rest };
+  }
+  if (!IV || !wzBelegung) return { passt: true, max: null };
+  if (IV.platziere(wzBelegung, n).ok) return { passt: true, max: null };
+  return { passt: false, max: rest !== null ? Math.min(rest, belegungMax) : belegungMax };
+}
+
+function updateIgluHinweis() {
+  var el = document.getElementById('wz-iglu-hint');
+  var btn = document.getElementById('wz-submit-btn');
+  if (!el || !btn) return;
+  var n = gaesteVarianten.length;
+  var st = igluStatus(n);
+  if (!st.passt) {
+    var t = termine.find(function (x) { return x.id === selectedTerminId; });
+    var andere = t ? slotsOfDate(t.date).filter(function (x) { return x.id !== t.id && (x.personen_gesamt || 0) < x.capacity_max; })[0] : null;
+    el.textContent = 'Für ' + n + (n === 1 ? ' Person' : ' Personen') + ' ist an diesem Abend '
+      + (n <= 12 ? 'kein gemeinsamer Tisch mehr frei' : 'leider kein Platz mehr frei')
+      + (st.max > 0 ? ', für bis zu ' + st.max + (st.max === 1 ? ' Person' : ' Personen') + ' noch ja.' : '.')
+      + (andere ? ' Probiert gern das Zeitfenster um ' + hhmm(andere.start_time) + ' Uhr.' : '');
+    el.className = 'wz-iglu-hint err';
+    el.style.display = 'block';
+    btn.disabled = true;
+    return;
+  }
+  var satz = window.IgluVerteilung ? window.IgluVerteilung.aufteilungsSatz(n) : '';
+  el.textContent = satz;
+  el.className = 'wz-iglu-hint';
+  el.style.display = satz ? 'block' : 'none';
+  // Nur freigeben, wenn nicht gerade gesendet wird
+  if (btn.textContent === 'Platz vormerken →') btn.disabled = false;
+}
+
+window.addEventListener('iglu-ready', updateIgluHinweis);
 
 
 function initGaeste(n) {
@@ -1203,6 +1285,7 @@ function renderGaeste() {
     });
   });
   updateSumme();
+  updateIgluHinweis();
 }
 
 function updateSumme() {
@@ -1274,6 +1357,7 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
   msg.textContent = '';
 
   if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
+  if (!igluStatus(gaesteVarianten.length).passt) { updateIgluHinweis(); return; }
 
   var phoneValue = document.getElementById('wz-phone').value.trim();
   if (phoneValue.replace(/[^0-9]/g, '').length < 6) {
@@ -1332,6 +1416,16 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
     .then(function (result) {
       if (!result.ok) {
+        if (result.data && (result.data.error === 'iglu_kein_platz' || result.data.error === 'capacity_exceeded')) {
+          // Zwischen Laden und Absenden hat jemand anderes gebucht -> freundlicher Hinweis statt Fehlercode
+          wzServerMaxGruppe = Number(result.data.error === 'capacity_exceeded' ? result.data.available : result.data.max_gruppe) || 0;
+          btn.textContent = 'Platz vormerken →';
+          msg.textContent = '';
+          updateIgluHinweis();
+          if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
+          if (selectedTerminId) loadBelegung(selectedTerminId, true);
+          return;
+        }
         msg.textContent = 'Fehler: ' + (result.data.error || 'unbekannt') + '. Bitte versuche es erneut.';
         msg.style.color = 'var(--err)';
         btn.disabled = false; btn.textContent = 'Platz vormerken →';
@@ -1341,6 +1435,7 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
       document.getElementById('wz-not-sent').style.display = 'none';
       document.getElementById('wz-sent').style.display = 'flex';
       document.getElementById('wz-sent').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      wzBelegungFor = null;
       loadAll();
     })
     .catch(function () {
