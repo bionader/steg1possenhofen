@@ -390,7 +390,7 @@
     .wz-iglu-bar{height:6px;background:var(--sand2);border-radius:100px;margin:6px 0 4px;overflow:hidden}
     .wz-iglu-bar>span{display:block;height:100%;background:var(--g)}
     .wz-iglu-gruppe{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;padding:6px 0;border-top:1px solid var(--sand2)}
-    .wz-iglu-gruppe select{font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:32px}
+    .wz-iglu-gruppe select{font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:44px}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
     .wz-tn-table td.num{text-align:center}
     .wz-tn-table td.nm{white-space:nowrap}
@@ -1883,7 +1883,8 @@
           for(var z=1; z<=IV.IGLU_ANZAHL; z++){
             var chk = z===k ? {ok:true} : IV.umsetzen(gruppen, g.id, k, z);
             var frei = Math.max(0, IV.PLAETZE_PRO_IGLU - last[z-1]);
-            html += '<option value="'+z+'"'+(z===k?' selected':'')+(chk.ok?'':' disabled')+'>Iglu '+z+(chk.ok?'':' (nur noch '+frei+' frei)')+'</option>';
+            var grund = chk.ok ? '' : (v[z] ? ' (Teil dieser Gruppe sitzt schon dort)' : (frei === 0 ? ' (voll)' : ' (nur noch '+frei+' frei)'));
+            html += '<option value="'+z+'"'+(z===k?' selected':'')+(chk.ok?'':' disabled')+'>Iglu '+z+grund+'</option>';
           }
           html += '</select></div>';
         });
@@ -1899,7 +1900,10 @@
       var ziel = Number(sel.value);
       var res = window.IgluVerteilung.umsetzen(wzIgluGruppen(terminId), anmId, von, ziel);
       if(!res.ok){ msg(res.grund,'error','wz-admin-message'); sel.value = String(von); return; }
-      sel.disabled = true;
+      // Alle Selects des Slots sperren, solange der PATCH laeuft (sonst Validierung gegen veralteten Cache)
+      var box = document.getElementById('wz-iglu-'+terminId);
+      var selects = box ? Array.prototype.slice.call(box.querySelectorAll('select')) : [sel];
+      selects.forEach(function(x){ x.disabled = true; });
       wzIgluPatch(anmId, { iglu_verteilung: res.verteilung, iglu_fixiert: true })
         .then(function(){
           var row = wzIgluRow(terminId, anmId);
@@ -1909,7 +1913,8 @@
         })
         .catch(function(){
           msg('Konnte Iglu nicht speichern – bitte erneut versuchen','error','wz-admin-message');
-          sel.value = String(von); sel.disabled = false;
+          sel.value = String(von);
+          selects.forEach(function(x){ x.disabled = false; });
         });
     }
 

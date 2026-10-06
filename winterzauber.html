@@ -1195,8 +1195,9 @@ var wzBelegung = null;        // aktive Gruppen des Slots oder null (unbekannt)
 var wzBelegungFor = null;     // terminId, fuer den wzBelegung gilt/geladen wird
 var wzServerMaxGruppe = null; // max_gruppe aus einer 409-Antwort, gilt bis zum Slotwechsel
 
-function loadBelegung(terminId) {
-  wzBelegung = null; wzBelegungFor = terminId; wzServerMaxGruppe = null;
+function loadBelegung(terminId, keepServerMax) {
+  wzBelegung = null; wzBelegungFor = terminId;
+  if (!keepServerMax) wzServerMaxGruppe = null;
   updateIgluHinweis();
   fetch(SB_URL + '/rest/v1/rpc/fondue_belegung', {
     method: 'POST',
@@ -1218,9 +1219,16 @@ function loadBelegung(terminId) {
 function igluStatus(n) {
   var IV = window.IgluVerteilung;
   if (wzServerMaxGruppe !== null && n > wzServerMaxGruppe) return { passt: false, max: wzServerMaxGruppe };
+  // Restkapazitaet des Slots (capacity_max) – der Server prueft sie vor dem Iglu-Check
+  var t = termine.find(function (x) { return x.id === selectedTerminId; });
+  var rest = t ? Math.max(0, Number(t.capacity_max) - (t.personen_gesamt || 0)) : null;
+  var belegungMax = (IV && wzBelegung) ? IV.maxGruppe(wzBelegung) : null;
+  if (rest !== null && n > rest) {
+    return { passt: false, max: belegungMax !== null ? Math.min(rest, belegungMax) : rest };
+  }
   if (!IV || !wzBelegung) return { passt: true, max: null };
   if (IV.platziere(wzBelegung, n).ok) return { passt: true, max: null };
-  return { passt: false, max: IV.maxGruppe(wzBelegung) };
+  return { passt: false, max: rest !== null ? Math.min(rest, belegungMax) : belegungMax };
 }
 
 function updateIgluHinweis() {
@@ -1232,7 +1240,7 @@ function updateIgluHinweis() {
   if (!st.passt) {
     var t = termine.find(function (x) { return x.id === selectedTerminId; });
     var andere = t ? slotsOfDate(t.date).filter(function (x) { return x.id !== t.id && (x.personen_gesamt || 0) < x.capacity_max; })[0] : null;
-    el.textContent = 'Für ' + n + ' Personen ist an diesem Abend '
+    el.textContent = 'Für ' + n + (n === 1 ? ' Person' : ' Personen') + ' ist an diesem Abend '
       + (n <= 12 ? 'kein gemeinsamer Tisch mehr frei' : 'leider kein Platz mehr frei')
       + (st.max > 0 ? ', für bis zu ' + st.max + (st.max === 1 ? ' Person' : ' Personen') + ' noch ja.' : '.')
       + (andere ? ' Probiert gern das Zeitfenster um ' + hhmm(andere.start_time) + ' Uhr.' : '');
@@ -1408,13 +1416,14 @@ document.getElementById('wz-form').addEventListener('submit', function (e) {
     .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
     .then(function (result) {
       if (!result.ok) {
-        if (result.data && result.data.error === 'iglu_kein_platz') {
+        if (result.data && (result.data.error === 'iglu_kein_platz' || result.data.error === 'capacity_exceeded')) {
           // Zwischen Laden und Absenden hat jemand anderes gebucht -> freundlicher Hinweis statt Fehlercode
-          wzServerMaxGruppe = Number(result.data.max_gruppe) || 0;
+          wzServerMaxGruppe = Number(result.data.error === 'capacity_exceeded' ? result.data.available : result.data.max_gruppe) || 0;
           btn.textContent = 'Platz vormerken →';
           msg.textContent = '';
           updateIgluHinweis();
           if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
+          if (selectedTerminId) loadBelegung(selectedTerminId, true);
           return;
         }
         msg.textContent = 'Fehler: ' + (result.data.error || 'unbekannt') + '. Bitte versuche es erneut.';

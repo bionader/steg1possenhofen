@@ -234,7 +234,7 @@ serve(async (req) => {
   }));
   const platz = platziere(igluGruppen, personen);
   if (!platz.ok) {
-    return jsonResponse({ error: "iglu_kein_platz", max_gruppe: maxGruppe(igluGruppen) }, 409, corsHeaders);
+    return jsonResponse({ error: "iglu_kein_platz", max_gruppe: Math.min(maxGruppe(igluGruppen), Math.max(0, Number(termin.capacity_max) - existingSum)) }, 409, corsHeaders);
   }
 
   // Varianten + Beilagen serverseitig validieren und Preis berechnen — Client-Preis wird ignoriert
