@@ -245,6 +245,28 @@ export function umsetzen(gruppen, gruppenId, von, ziel) {
   return { ok: true, verteilung };
 }
 
+// Aendert die Personenzahl einer bestehenden Gruppe (Admin "Aendern").
+// 1. Bis 12 Personen und das bisherige Iglu reicht weiter -> Gruppe bleibt dort,
+//    Fixierung bleibt, niemand wird verschoben.
+// 2. Sonst wird sie ohne Fixierung per platziere() neu einsortiert (Iglu 1 zuerst).
+// Rueckgabe: { ok: true, verteilung, fixiert, verschoben } oder { ok: false, max }
+export function aendere(gruppen, gruppenId, n) {
+  const alle = normalisiere(gruppen);
+  const g = alle.find((x) => x.id === String(gruppenId));
+  if (!g || !Number.isInteger(n) || n < 1) return { ok: false, max: 0 };
+  const andere = alle.filter((x) => x.id !== g.id);
+  const keys = g.verteilung ? Object.keys(g.verteilung) : [];
+  if (n <= PLAETZE_PRO_IGLU && keys.length === 1) {
+    const k = Number(keys[0]);
+    if (lastenVon(andere)[k - 1] + n <= PLAETZE_PRO_IGLU) {
+      return { ok: true, verteilung: { [keys[0]]: n }, fixiert: g.fixiert, verschoben: {} };
+    }
+  }
+  const r = platziere(andere, n);
+  if (!r.ok) return { ok: false, max: maxGruppe(andere) };
+  return { ok: true, verteilung: r.neu, fixiert: false, verschoben: r.verschoben };
+}
+
 // Kurztext fuer Listen: {"1":10} -> "1", {"3":8,"2":8} -> "2 + 3", null -> "–"
 export function iglusText(verteilung) {
   if (!verteilung || typeof verteilung !== "object") return "–";

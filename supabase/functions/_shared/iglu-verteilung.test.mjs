@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   teileGruppe, belegung, ergaenze, platziere, maxGruppe,
-  verteileNeu, umsetzen, iglusText, aufteilungsSatz, optimierbar,
+  verteileNeu, umsetzen, iglusText, aufteilungsSatz, optimierbar, aendere,
 } from "./iglu-verteilung.js";
 
 const g = (id, personen, verteilung = null, fixiert = false) => ({ id, personen, verteilung, fixiert });
@@ -244,6 +244,39 @@ test("Performance: 36 Einzelpersonen und maxGruppe bei vielen Gruppen < 200 ms",
   const r = ergaenze(gemischt);
   maxGruppe(gemischt.map((x) => ({ ...x, verteilung: r.verschoben[x.id] })));
   assert.ok(performance.now() - t0 < 200);
+});
+
+// ── aendere(): Personenzahl einer bestehenden Gruppe im Admin anpassen ──
+
+test("aendere: Verkleinerung bleibt im eigenen Iglu, Fixierung bleibt", () => {
+  const gr = [g("a", 7, { 2: 7 }, true), g("b", 4, { 2: 4 })];
+  assert.deepEqual(aendere(gr, "a", 6), { ok: true, verteilung: { 2: 6 }, fixiert: true, verschoben: {} });
+  assert.deepEqual(aendere(gr, "b", 5), { ok: true, verteilung: { 2: 5 }, fixiert: false, verschoben: {} });
+});
+
+test("aendere: Vergroesserung ueber den Platz im Iglu -> neu platziert, ohne Fixierung", () => {
+  const gr = [g("a", 7, { 1: 7 }, true), g("b", 4, { 1: 4 })];
+  assert.deepEqual(aendere(gr, "a", 9), { ok: true, verteilung: { 2: 9 }, fixiert: false, verschoben: {} });
+});
+
+test("aendere: kein Platz -> ok false mit max", () => {
+  const gr = [g("a", 12, { 1: 12 }), g("b", 12, { 2: 12 }), g("c", 10, { 3: 10 })];
+  assert.deepEqual(aendere(gr, "c", 13), { ok: false, max: 12 });
+});
+
+test("aendere: 12 -> 13 wird geteilt, 13 -> 12 zusammengelegt (auch mit Umordnen)", () => {
+  assert.deepEqual(aendere([g("a", 12, { 1: 12 })], "a", 13).verteilung, { 1: 7, 2: 6 });
+  const gr = [g("a", 13, { 1: 7, 2: 6 }), g("b", 5, { 1: 5 }), g("c", 6, { 2: 6 }), g("d", 1, { 3: 1 })];
+  const r = aendere(gr, "a", 12);
+  assert.equal(r.ok, true);
+  assert.deepEqual(Object.values(r.verteilung), [12]);
+  const andere = gr.filter((x) => x.id !== "a").map((x) => ({ ...x, verteilung: r.verschoben[x.id] || x.verteilung }));
+  assert.ok(belegung(andere.concat([g("a", 12, r.verteilung)])).every((l) => l <= 12));
+});
+
+test("aendere: unbekannte Gruppe oder ungueltige Zahl -> ok false", () => {
+  assert.equal(aendere([g("a", 5, { 1: 5 })], "x", 4).ok, false);
+  assert.equal(aendere([g("a", 5, { 1: 5 })], "a", 0).ok, false);
 });
 
 test("Kopie fuer die Edge Function ist identisch mit js/iglu-verteilung.js", () => {
