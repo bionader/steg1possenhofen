@@ -382,6 +382,16 @@
     .wz-tn-table th{text-align:left;padding:6px 8px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2);white-space:nowrap}
     .wz-tn-table td{padding:6px 8px;border-bottom:1px solid var(--sand2);vertical-align:top}
     .wz-tn-table tr:last-child td{border-bottom:none}
+    .wz-iglu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    @media(max-width:640px){.wz-iglu-grid{grid-template-columns:1fr}}
+    .wz-iglu-col{background:var(--w);border:1px solid var(--sand2);border-radius:12px;padding:10px 12px}
+    .wz-iglu-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;color:var(--text2)}
+    .wz-iglu-count.over{color:var(--err)}
+    .wz-iglu-bar{height:6px;background:var(--sand2);border-radius:100px;margin:6px 0 4px;overflow:hidden}
+    .wz-iglu-bar>span{display:block;height:100%;background:var(--g)}
+    .wz-iglu-gruppe{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;padding:6px 0;border-top:1px solid var(--sand2)}
+    .wz-iglu-gruppe select{font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:32px}
+    .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
     .wz-tn-table td.num{text-align:center}
     .wz-tn-table td.nm{white-space:nowrap}
     .wz-tn-row-storniert td,.wz-tn-row-abgesagt td{color:var(--text3);text-decoration:line-through}
@@ -713,6 +723,13 @@
     </div>
   </div>
 </div>
+
+  <script type="module">
+    // Iglu-Verteilungslogik (gleiche Datei wie winterzauber.html; Edge Function nutzt eine Kopie)
+    import * as IgluVerteilung from './js/iglu-verteilung.js';
+    window.IgluVerteilung = IgluVerteilung;
+    window.dispatchEvent(new Event('iglu-ready'));
+  </script>
 
   <script>
     var SB_URL='https://tdnnfmfaymnzukjhoidq.supabase.co';
@@ -1673,6 +1690,8 @@
       })
       .catch(function(){msg('Konnte Termine nicht laden','error','wz-admin-message')});
     }
+    // Modul laedt asynchron: falls Termine schon gerendert sind, mit Iglu-Daten neu zeichnen
+    window.addEventListener('iglu-ready', function(){ if(wzTermine && wzTermine.length) renderWinterzauberTermine(); });
 
     var WZ_MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
@@ -1707,7 +1726,7 @@
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
         // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status&order=created_at.asc',{
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=id,anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status,iglu_verteilung,iglu_fixiert&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
       })).then(function(rowsPerTermin){
@@ -1802,10 +1821,134 @@
             + '<button class="wz-btn-cancel-termin" onclick="submitWinterzauberCancel(\''+t.id+'\')">Absage senden</button>'
             + '<button class="wz-btn-plain" onclick="toggleWzCancel(\''+t.id+'\', false)">Abbrechen</button>'
             + '</div></div>';
+          html += '<details class="wz-teilnehmer"><summary>Iglu-Verteilung</summary><div id="wz-iglu-'+t.id+'">'+renderWzIglu(t.id)+'</div></details>';
           html += renderWzTeilnehmer(rows, t.status);
           html += '</div>';
         });
         el.innerHTML = html;
+        wzIgluErgaenzeFehlende(visibleTermine);
+      });
+    }
+
+    // ── Iglu-Verteilung je Slot (Logik: js/iglu-verteilung.js, 3 Iglus x 12 Plaetze) ──
+    function wzIgluGruppen(terminId){
+      return ((window.wzRowsByTermin||{})[terminId]||[])
+        .filter(function(r){ return r.status==='vorgemerkt'||r.status==='bestaetigt'; })
+        .map(function(r){ return { id:r.id, personen:Number(r.personen_anzahl), verteilung:r.iglu_verteilung, fixiert:!!r.iglu_fixiert }; });
+    }
+    function wzIgluRow(terminId, anmId){
+      return ((window.wzRowsByTermin||{})[terminId]||[]).find(function(r){ return r.id===anmId; });
+    }
+    // Iglu-Zelle in der Teilnehmerliste nachziehen, ohne die ganze Liste neu zu rendern
+    function wzTnIgluCell(anmId, verteilung){
+      var c = document.getElementById('wz-tn-iglu-'+anmId);
+      if(c && window.IgluVerteilung) c.textContent = window.IgluVerteilung.iglusText(verteilung);
+    }
+    function wzIgluRefresh(terminId){
+      var box = document.getElementById('wz-iglu-'+terminId);
+      if(box) box.innerHTML = renderWzIglu(terminId);
+    }
+    function wzIgluPatch(anmId, body){
+      return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?id=eq.'+anmId,{
+        method:'PATCH',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(body)
+      }).then(function(r){ if(!r.ok) throw new Error('patch '+r.status); });
+    }
+
+    function renderWzIglu(terminId){
+      var IV = window.IgluVerteilung;
+      if(!IV) return '<p class="wz-iglu-empty">Wird geladen…</p>';
+      var gruppen = wzIgluGruppen(terminId);
+      if(!gruppen.length) return '<p class="wz-iglu-empty">Noch keine aktiven Anmeldungen</p>';
+      var last = IV.belegung(gruppen);
+      var html = '';
+      if(last.some(function(l){ return l > IV.PLAETZE_PRO_IGLU; })){
+        html += '<div class="wz-termin-warn">⚠ Ein Iglu ist überbelegt. Bitte Gruppen umsetzen oder „Automatisch neu verteilen“.</div>';
+      }
+      html += '<div class="wz-iglu-grid">';
+      for(var k=1; k<=IV.IGLU_ANZAHL; k++){
+        var l = last[k-1];
+        html += '<div class="wz-iglu-col">'
+          + '<div class="wz-iglu-head"><span>Iglu '+k+'</span><span class="wz-iglu-count'+(l>IV.PLAETZE_PRO_IGLU?' over':'')+'">'+l+' / '+IV.PLAETZE_PRO_IGLU+'</span></div>'
+          + '<div class="wz-iglu-bar"><span style="width:'+Math.min(100, Math.round(l/IV.PLAETZE_PRO_IGLU*100))+'%"></span></div>';
+        gruppen.forEach(function(g){
+          var v = g.verteilung;
+          if(!v || !v[k]) return;
+          var row = wzIgluRow(terminId, g.id);
+          var name = row ? row.customer_name : '?';
+          var teil = v[k] === g.personen ? String(g.personen) : v[k]+' von '+g.personen;
+          html += '<div class="wz-iglu-gruppe"><span>'+(g.fixiert?'📌 ':'')+esc(name)+' · '+teil+'</span>'
+            + '<select aria-label="Iglu für '+esc(name).replace(/"/g,'&quot;')+'" onchange="wzIgluUmsetzen(\''+terminId+'\',\''+g.id+'\','+k+',this)">';
+          for(var z=1; z<=IV.IGLU_ANZAHL; z++){
+            var chk = z===k ? {ok:true} : IV.umsetzen(gruppen, g.id, k, z);
+            var frei = Math.max(0, IV.PLAETZE_PRO_IGLU - last[z-1]);
+            html += '<option value="'+z+'"'+(z===k?' selected':'')+(chk.ok?'':' disabled')+'>Iglu '+z+(chk.ok?'':' (nur noch '+frei+' frei)')+'</option>';
+          }
+          html += '</select></div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '<div class="wz-termin-actions" style="margin-top:8px"><button class="wz-btn-plain" onclick="wzIgluNeuVerteilen(\''+terminId+'\')">Automatisch neu verteilen</button></div>';
+      return html;
+    }
+
+    // Manuelles Umsetzen: ein PATCH, danach nur den Iglu-Bereich neu zeichnen (kein Refetch)
+    function wzIgluUmsetzen(terminId, anmId, von, sel){
+      var ziel = Number(sel.value);
+      var res = window.IgluVerteilung.umsetzen(wzIgluGruppen(terminId), anmId, von, ziel);
+      if(!res.ok){ msg(res.grund,'error','wz-admin-message'); sel.value = String(von); return; }
+      sel.disabled = true;
+      wzIgluPatch(anmId, { iglu_verteilung: res.verteilung, iglu_fixiert: true })
+        .then(function(){
+          var row = wzIgluRow(terminId, anmId);
+          if(row){ row.iglu_verteilung = res.verteilung; row.iglu_fixiert = true; }
+          wzTnIgluCell(anmId, res.verteilung);
+          wzIgluRefresh(terminId);
+        })
+        .catch(function(){
+          msg('Konnte Iglu nicht speichern – bitte erneut versuchen','error','wz-admin-message');
+          sel.value = String(von); sel.disabled = false;
+        });
+    }
+
+    function wzIgluNeuVerteilen(terminId){
+      if(!confirm('Alle Gruppen dieses Zeitfensters automatisch neu verteilen? Manuell gesetzte Iglus (📌) werden dabei aufgehoben.')) return;
+      var res = window.IgluVerteilung.verteileNeu(wzIgluGruppen(terminId));
+      if(!res.ok){ msg('Keine gültige Verteilung möglich – zu viele Personen für 3 Iglus.','error','wz-admin-message'); return; }
+      var ids = Object.keys(res.verteilungen);
+      Promise.all(ids.map(function(id){ return wzIgluPatch(id, { iglu_verteilung: res.verteilungen[id], iglu_fixiert: false }); }))
+        .then(function(){
+          ids.forEach(function(id){
+            var row = wzIgluRow(terminId, id);
+            if(row){ row.iglu_verteilung = res.verteilungen[id]; row.iglu_fixiert = false; }
+            wzTnIgluCell(id, res.verteilungen[id]);
+          });
+          wzIgluRefresh(terminId);
+          msg('Iglus neu verteilt','success','wz-admin-message');
+        })
+        .catch(function(){ msg('Neu verteilen teilweise fehlgeschlagen – bitte Seite neu laden','error','wz-admin-message'); });
+    }
+
+    // Anmeldungen ohne gueltige Verteilung (Testdaten von vor der Migration) einmalig verteilen
+    function wzIgluErgaenzeFehlende(termine){
+      var IV = window.IgluVerteilung;
+      if(!IV) return;
+      termine.forEach(function(t){
+        var res = IV.ergaenze(wzIgluGruppen(t.id));
+        var ids = res.ok ? Object.keys(res.verschoben) : [];
+        if(!ids.length) return;
+        Promise.all(ids.map(function(id){ return wzIgluPatch(id, { iglu_verteilung: res.verschoben[id] }); }))
+          .then(function(){
+            ids.forEach(function(id){
+              var row = wzIgluRow(t.id, id);
+              if(row) row.iglu_verteilung = res.verschoben[id];
+              wzTnIgluCell(id, res.verschoben[id]);
+            });
+            wzIgluRefresh(t.id);
+          })
+          .catch(function(){ /* naechster Ladevorgang versucht es erneut */ });
       });
     }
 
@@ -1836,7 +1979,7 @@
 
       var out = '<details class="wz-teilnehmer"><summary>Teilnehmer ('+rows.length+')</summary>';
       out += '<div class="wz-tn-scroll"><table class="wz-tn-table"><thead><tr>';
-      out += '<th>Name</th><th>Status</th><th>E-Mail</th><th>Telefon</th><th>Personen</th>';
+      out += '<th>Name</th><th>Status</th><th>E-Mail</th><th>Telefon</th><th>Personen</th><th>Iglu</th>';
       aktiveVarianten.forEach(function(v){
         out += '<th title="'+esc(v.name)+'">'+esc(wzVariantShort(v.name))+'</th>';
       });
@@ -1856,6 +1999,8 @@
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
+        var aktiv = r.status==='vorgemerkt' || r.status==='bestaetigt';
+        out += '<td class="num" id="wz-tn-iglu-'+r.id+'">'+(aktiv && window.IgluVerteilung ? esc(window.IgluVerteilung.iglusText(r.iglu_verteilung)) : '–')+'</td>';
         aktiveVarianten.forEach(function(v){ out += '<td class="num">'+(Number(va[v.id]) || 0)+'</td>'; });
         var ba = r.beilagen_auswahl || {};
         aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(Number(ba[b.id]) || 0)+'</td>'; });
@@ -1896,7 +2041,10 @@
       // Telefon) laufen nach unten, jede Reservierung ist eine Spalte nach rechts.
       // Die Position-Spalte ist so breit wie ihr längster Text; passen nicht alle Gäste
       // nebeneinander, werden sie in weitere Tabellen darunter aufgeteilt.
-      var guests = active;
+      // Gaeste nach (erstem) Iglu sortiert, damit beim Eindecken pro Zelt gearbeitet werden kann
+      var IV = window.IgluVerteilung;
+      function ersterIglu(r){ var ks = Object.keys(r.iglu_verteilung || {}).map(Number); return ks.length ? Math.min.apply(null, ks) : 99; }
+      var guests = active.slice().sort(function(a, b){ return ersterIglu(a) - ersterIglu(b); });
       var GUESTS_PER_TABLE = 8;
       function gTable(chunk){
         function row(label, numeric, cellFn){
@@ -1908,6 +2056,7 @@
           + chunk.map(function(r){ return '<th class="nm">' + e(r.customer_name) + '</th>'; }).join('')
           + '</tr>';
         var bodyRows = row('Personen', true, function(r){ return Number(r.personen_anzahl) || 0; })
+          + row('Iglu', true, function(r){ return e(IV ? IV.iglusText(r.iglu_verteilung) : '–'); })
           + aktiveVar.map(function(v){ return row(e(v.name), true, function(r){ return Number((r.varianten_auswahl || {})[v.id]) || 0; }); }).join('')
           + aktiveBei.map(function(bl){ return row(e(bl.name) + ' <span class="tag">Beilage</span>', true, function(r){ return Number((r.beilagen_auswahl || {})[bl.id]) || 0; }); }).join('')
           + row('Allergien', false, function(r){ return e(r.allergien_hinweis || ''); })
