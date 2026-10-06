@@ -212,10 +212,13 @@ export function verteileNeu(gruppen) {
 export function optimierbar(gruppen) {
   const alle = normalisiere(gruppen);
   if (!alle.length) return false;
-  const alt = lastenVon(alle);
-  if (alt.some((l) => l > PLAETZE_PRO_IGLU)) return true;
+  // Unverteilte Gruppen erst per ergaenze() einsortieren lassen — sonst falscher Alarm
+  if (alle.some((g) => !g.verteilung)) return false;
+  // Ohne gueltige Neuverteilung waere der Hinweis eine Sackgasse
   const r = verteileNeu(alle);
   if (!r.ok) return false;
+  const alt = lastenVon(alle);
+  if (alt.some((l) => l > PLAETZE_PRO_IGLU)) return true;
   const neu = lastenVon(alle.map((g) => ({ ...g, verteilung: r.verteilungen[g.id] })));
   return besser(neu, alt);
 }

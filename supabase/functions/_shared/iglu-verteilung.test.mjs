@@ -189,6 +189,13 @@ test("optimierbar erkennt bessere Fuellung, Ueberbelegung und Optimum", () => {
   assert.equal(optimierbar([]), false);
 });
 
+test("optimierbar: kein Hinweis bei unverteilten Gruppen oder unloesbarer Belegung", () => {
+  assert.equal(optimierbar([g("a", 7), g("b", 6, { 1: 6 })]), false);
+  const unloesbar = [g("a", 12, { 1: 12 }), g("b", 12, { 2: 12 }), g("c", 7, { 3: 7 }), g("d", 6, { 3: 6 })];
+  assert.equal(optimierbar(unloesbar), false);
+  assert.equal(optimierbar([g("a", 7, { 2: 7 }, true)]), true); // Fixierung zaehlt bewusst nicht
+});
+
 test("Optimalitaet: Ergebnis ist lexikografisch maximal (Brute-Force-Vergleich)", () => {
   let seed = 7;
   const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
