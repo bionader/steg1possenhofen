@@ -405,7 +405,7 @@
     .wz-tn-spaet{background:rgba(212,136,58,.18);color:#a85e1c}
     .wz-tn-edit-btn{padding:4px 12px;font-size:.75rem;white-space:nowrap}
     .wz-tn-editrow>td{background:var(--sand);padding:0}
-    .wz-anm-edit{max-width:560px;padding:12px 14px}
+    .wz-anm-edit{position:sticky;left:0;box-sizing:border-box;width:min(560px, calc(100vw - 48px));padding:12px 14px}
     .wz-anm-titel{font-size:.85rem;font-weight:600;color:var(--text);margin:0 0 8px}
     .wz-anm-gruppe{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px}
     .wz-anm-label{width:100%;font-size:.75rem;font-weight:600;color:var(--text2)}
@@ -2027,6 +2027,7 @@
       var tr = document.getElementById('wz-anm-edit-'+anmId);
       if(!tr) return;
       tr.style.display = tr.style.display === 'none' ? '' : 'none';
+      if(tr.style.display !== 'none'){ var sc = tr.closest('.wz-tn-scroll'); if(sc) sc.scrollLeft = 0; tr.scrollIntoView({behavior:'smooth', block:'nearest'}); }
       wzAnmUpdate(anmId);
     }
     // Liest die Eingaben eines Editors: { v: {id: n}, b: {id: n}, personen }
