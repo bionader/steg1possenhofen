@@ -393,6 +393,7 @@
     .wz-iglu-nm{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;white-space:nowrap;line-height:1.4}
     .wz-iglu-nm .n{overflow:hidden;text-overflow:ellipsis}
     .wz-iglu-nm .p{flex:0 0 auto;color:var(--text2)}
+    .wz-iglu-legende{max-width:400px;font-size:.75rem;line-height:1.5;color:var(--text3);margin:8px 0 0}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
     .wz-iglu-opt{background:#E07B24;color:#fff}
     .wz-iglu-opt:hover{background:#C96A18}
@@ -1918,7 +1919,7 @@
           var teil = v[k] === g.personen
             ? g.personen + (g.personen === 1 ? ' Person' : ' Personen')
             : v[k] + ' von ' + g.personen + ' Personen';
-          html += '<div class="wz-iglu-gruppe"><span class="wz-iglu-nm"><span class="n">'+(g.fixiert?'📌 ':'')+esc(name)+'</span><span class="p">'+teil+'</span></span>'
+          html += '<div class="wz-iglu-gruppe"><span class="wz-iglu-nm"><span class="n">'+(g.fixiert?'✋* ':'')+esc(name)+'</span><span class="p">'+teil+'</span></span>'
             + '<select aria-label="Iglu für '+esc(name).replace(/"/g,'&quot;')+'" onchange="wzIgluUmsetzen(\''+terminId+'\',\''+g.id+'\','+k+',this)">';
           for(var z=1; z<=IV.IGLU_ANZAHL; z++){
             var chk = z===k ? {ok:true} : IV.umsetzen(gruppen, g.id, k, z);
@@ -1931,6 +1932,9 @@
         html += '</div>';
       }
       html += '</div>';
+      if(gruppen.some(function(g){ return g.fixiert; })){
+        html += '<p class="wz-iglu-legende">* ✋ = von Hand in dieses Iglu gesetzt. Die Gruppe bleibt dort, auch wenn neue Buchungen dazukommen. „Automatisch neu verteilen“ hebt das wieder auf.</p>';
+      }
       html += '<div class="wz-termin-actions" style="margin-top:8px"><button class="wz-btn-iglu-neu" onclick="wzIgluNeuVerteilen(\''+terminId+'\')">Automatisch neu verteilen</button></div>';
       return html;
     }
@@ -1959,7 +1963,7 @@
     }
 
     function wzIgluNeuVerteilen(terminId){
-      if(!confirm('Alle Gruppen dieses Zeitfensters automatisch neu verteilen? Manuell gesetzte Iglus (📌) werden dabei aufgehoben.')) return;
+      if(!confirm('Alle Gruppen dieses Zeitfensters automatisch neu verteilen? Von Hand gesetzte Gruppen (✋) werden dabei wieder automatisch verteilt.')) return;
       var res = window.IgluVerteilung.verteileNeu(wzIgluGruppen(terminId));
       if(!res.ok){ msg('Keine gültige Verteilung möglich – zu viele Personen für 3 Iglus.','error','wz-admin-message'); return; }
       var ids = Object.keys(res.verteilungen);
