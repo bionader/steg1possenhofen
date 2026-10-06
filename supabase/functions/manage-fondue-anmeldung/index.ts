@@ -4,7 +4,7 @@
 // (Service-Role) darf lesen/ändern, nur mit gültigem Token.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { terminLabelDe, berlinToDate } from "../_shared/fondue-slot.ts";
+import { terminLabelDe, isWithinFeeWindow } from "../_shared/fondue-slot.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -31,15 +31,8 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// Kostenfreie Stornofrist: bis 5 Tage vor Beginn des gebuchten Slots (Europe/Berlin,
-// Sommer-/Winterzeit korrekt). Danach ist ein Storno kostenpflichtig. Identisch zur
-// Frontend-Logik (FREE_CANCEL_DAYS / isWithinFeeWindow) in fondue-anmeldung.html.
-const FREE_CANCEL_DAYS = 5;
-function isWithinFeeWindow(dateYmd: string, startTime: string | null | undefined): boolean {
-  if (!dateYmd) return false;
-  const slotStart = berlinToDate(dateYmd, startTime || "18:00"); // Fallback nur für Altdaten
-  return slotStart.getTime() - Date.now() < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
-}
+// Kostenfreie Stornofrist (5 Tage vor Slot-Beginn): isWithinFeeWindow aus _shared/fondue-slot.ts,
+// gemeinsam mit update-fondue-anmeldung.
 
 async function bumpQuota(times = 1) {
   for (let i = 0; i < times; i++) {

@@ -31,3 +31,13 @@ export function berlinToDate(dateYmd: string, time: string): Date {
   const berlinAsUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"));
   return new Date(asUtc - (berlinAsUtc - asUtc));
 }
+
+// Kostenfreie Stornofrist: bis 5 Tage vor Beginn des gebuchten Slots (Europe/Berlin).
+// Danach sind Stornierungen und Reduzierungen kostenpflichtig (stornobedingungen.html
+// Ziffer 4/5). Frontend-Pendant: FREE_CANCEL_DAYS / isWithinFeeWindow in fondue-anmeldung.html.
+export const FREE_CANCEL_DAYS = 5;
+export function isWithinFeeWindow(dateYmd: string, startTime: string | null | undefined, now: number = Date.now()): boolean {
+  if (!dateYmd) return false;
+  const slotStart = berlinToDate(dateYmd, startTime || "18:00"); // Fallback nur für Altdaten
+  return slotStart.getTime() - now < FREE_CANCEL_DAYS * 24 * 60 * 60 * 1000;
+}

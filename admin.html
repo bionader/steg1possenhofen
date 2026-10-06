@@ -402,6 +402,18 @@
     .wz-tn-bestaetigt{background:rgba(46,158,74,.15);color:#1F7A36}
     .wz-tn-nachzuegler{background:rgba(212,136,58,.18);color:#a85e1c}
     .wz-tn-storniert,.wz-tn-abgesagt{background:rgba(217,79,79,.12);color:#B53E3E}
+    .wz-tn-spaet{background:rgba(212,136,58,.18);color:#a85e1c}
+    .wz-tn-edit-btn{padding:4px 12px;font-size:.75rem;white-space:nowrap}
+    .wz-tn-editrow>td{background:var(--sand);padding:0}
+    .wz-anm-edit{position:sticky;left:0;box-sizing:border-box;width:min(560px, calc(100vw - 48px));padding:12px 14px}
+    .wz-anm-titel{font-size:.85rem;font-weight:600;color:var(--text);margin:0 0 8px}
+    .wz-anm-gruppe{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px}
+    .wz-anm-label{width:100%;font-size:.75rem;font-weight:600;color:var(--text2)}
+    .wz-anm-feld{display:flex;flex-direction:column;gap:3px;font-size:.75rem;color:var(--text2)}
+    .wz-anm-feld input{width:72px;min-height:44px;font:inherit;font-size:16px;padding:6px 8px;border:1px solid var(--sand2);border-radius:8px;background:var(--w)}
+    .wz-anm-summe{font-size:.82rem;font-weight:600;color:var(--g);padding-bottom:12px}
+    .wz-anm-msg{font-size:.8rem;margin:6px 0 0;color:var(--text2)}
+    .wz-anm-msg.err{color:var(--err)}
   </style>
 </head>
 <body>
@@ -1728,7 +1740,7 @@
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
         // die Fortschritts-Summe unten zaehlt nur vorgemerkt + bestaetigt.
-        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=id,anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status,iglu_verteilung,iglu_fixiert&order=created_at.asc',{
+        return fetch(SB_URL+'/rest/v1/fondue_anmeldungen?termin_id=eq.'+t.id+'&select=id,anmeldung_id,customer_name,customer_email,customer_phone,personen_anzahl,varianten_auswahl,beilagen_auswahl,allergien_hinweis,status,iglu_verteilung,iglu_fixiert,spaet_reduziert&order=created_at.asc',{
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
         }).then(function(r){return r.json()}).then(function(rows){ return rows||[]; });
       })).then(function(rowsPerTermin){
@@ -1826,7 +1838,7 @@
             + '<button class="wz-btn-plain" onclick="toggleWzCancel(\''+t.id+'\', false)">Abbrechen</button>'
             + '</div></div>';
           html += '<details class="wz-teilnehmer" id="wz-iglu-details-'+t.id+'"><summary>Iglu-Verteilung</summary><div id="wz-iglu-'+t.id+'">'+renderWzIglu(t.id)+'</div></details>';
-          html += renderWzTeilnehmer(rows, t.status);
+          html += renderWzTeilnehmer(rows, t.status, t);
           html += '</div>';
         });
         el.innerHTML = html;
@@ -1975,10 +1987,129 @@
       });
     }
 
+    // ── Anmeldung aendern (Personen ueber Varianten, Beilagen) — Server: update-fondue-anmeldung ──
+    // Zeigt aktive Varianten/Beilagen plus solche, die die Anmeldung bereits hat (auch wenn inaktiv).
+    function renderWzAnmEditor(r, termin){
+      var va = r.varianten_auswahl || {}, ba = r.beilagen_auswahl || {};
+      var vars = (wzVarianten || []).filter(function(v){ return v.is_active || va[v.id]; });
+      var beis = (wzBeilagen || []).filter(function(b){ return b.is_active || ba[b.id]; });
+      function feld(art, x, wert, max){
+        return '<label class="wz-anm-feld"><span>'+esc(x.name)+'</span>'
+          + '<input type="number" inputmode="numeric" min="0" max="'+max+'" step="1" value="'+(Number(wert)||0)+'"'
+          + ' data-art="'+art+'" data-id="'+x.id+'" oninput="wzAnmUpdate(\''+r.id+'\')"></label>';
+      }
+      var out = '<div class="wz-anm-edit" data-termin="'+(termin ? termin.id : '')+'">';
+      out += '<p class="wz-anm-titel">Anmeldung von '+esc(r.customer_name)+' ändern</p>';
+      out += '<div class="wz-anm-gruppe"><span class="wz-anm-label">Fondue je Person</span>';
+      vars.forEach(function(v){ out += feld('v', v, va[v.id], 30); });
+      out += '<span class="wz-anm-summe" id="wz-anm-summe-'+r.id+'">= '+r.personen_anzahl+' Personen</span></div>';
+      if(beis.length){
+        out += '<div class="wz-anm-gruppe"><span class="wz-anm-label">Beilagen</span>';
+        beis.forEach(function(b){ out += feld('b', b, ba[b.id], 99); });
+        out += '</div>';
+      }
+      out += '<div class="wz-termin-hint" id="wz-anm-spaet-'+r.id+'" style="display:none">Kostenfreie Frist abgelaufen – die Änderung wird als „spät reduziert“ markiert.</div>';
+      out += '<p class="wz-anm-msg" id="wz-anm-msg-'+r.id+'"></p>';
+      out += '<div class="wz-termin-actions"><button class="wz-btn-confirm" id="wz-anm-save-'+r.id+'" onclick="wzAnmSave(\''+r.id+'\')">Speichern &amp; Gast informieren</button>'
+        + '<button class="wz-btn-plain" onclick="wzAnmToggleEdit(\''+r.id+'\')">Abbrechen</button></div>';
+      out += '</div>';
+      return out;
+    }
+    function wzAnmRow(anmId){
+      var alle = window.wzRowsByTermin || {};
+      for(var tid in alle){
+        var hit = (alle[tid] || []).find(function(r){ return r.id === anmId; });
+        if(hit) return { row: hit, terminId: tid };
+      }
+      return null;
+    }
+    function wzAnmToggleEdit(anmId){
+      var tr = document.getElementById('wz-anm-edit-'+anmId);
+      if(!tr) return;
+      tr.style.display = tr.style.display === 'none' ? '' : 'none';
+      if(tr.style.display !== 'none'){ var sc = tr.closest('.wz-tn-scroll'); if(sc) sc.scrollLeft = 0; tr.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+      wzAnmUpdate(anmId);
+    }
+    // Liest die Eingaben eines Editors: { v: {id: n}, b: {id: n}, personen }
+    function wzAnmWerte(anmId){
+      var tr = document.getElementById('wz-anm-edit-'+anmId);
+      var w = { v: {}, b: {}, personen: 0 };
+      if(!tr) return w;
+      tr.querySelectorAll('input[data-art]').forEach(function(inp){
+        var n = parseInt(inp.value, 10);
+        if(!(n > 0)) return;
+        w[inp.getAttribute('data-art')][inp.getAttribute('data-id')] = n;
+        if(inp.getAttribute('data-art') === 'v') w.personen += n;
+      });
+      return w;
+    }
+    // Wie isWithinFeeWindow im Backend: weniger als 5 Tage bis Slot-Beginn (Browserzeit = Berlin)
+    function wzImKostenFenster(termin){
+      if(!termin) return false;
+      var start = new Date(termin.date+'T'+(wzHhmm(termin.start_time) || '18:00')+':00');
+      return start.getTime() - Date.now() < 5*864e5;
+    }
+    // Live: Personensumme + oranger Hinweis bei spaeter Reduzierung
+    function wzAnmUpdate(anmId){
+      var info = wzAnmRow(anmId);
+      if(!info) return;
+      var r = info.row, w = wzAnmWerte(anmId);
+      var summe = document.getElementById('wz-anm-summe-'+anmId);
+      if(summe) summe.textContent = '= '+w.personen+(w.personen === 1 ? ' Person' : ' Personen');
+      var termin = (wzTermine || []).find(function(t){ return String(t.id) === String(info.terminId); });
+      var ba = r.beilagen_auswahl || {};
+      var weniger = w.personen < Number(r.personen_anzahl)
+        || Object.keys(ba).some(function(id){ return (w.b[id] || 0) < Number(ba[id] || 0); });
+      var hinweis = document.getElementById('wz-anm-spaet-'+anmId);
+      if(hinweis) hinweis.style.display = (weniger && wzImKostenFenster(termin)) ? '' : 'none';
+    }
+    var WZ_ANM_FEHLER = {
+      keine_personen: 'Mindestens 1 Person – zum Entfernen bitte die Anmeldung stornieren.',
+      keine_aenderung: 'Es wurde nichts geändert.',
+      not_active: 'Diese Anmeldung ist nicht mehr aktiv.',
+      unauthorized: 'Keine Berechtigung – bitte neu einloggen.',
+      invalid_personen: 'Höchstens 30 Personen pro Anmeldung.',
+      invalid_variante: 'Ungültige Fondue-Menge (0–30 je Variante).',
+      invalid_beilage: 'Ungültige Beilagen-Menge (0–99 je Beilage).',
+      not_found: 'Anmeldung nicht gefunden – bitte Seite neu laden.'
+    };
+    function wzAnmSave(anmId){
+      var w = wzAnmWerte(anmId);
+      var box = document.getElementById('wz-anm-msg-'+anmId);
+      var btn = document.getElementById('wz-anm-save-'+anmId);
+      function zeige(text, fehler){ if(box){ box.textContent = text; box.className = 'wz-anm-msg' + (fehler ? ' err' : ''); } }
+      if(w.personen < 1){ zeige(WZ_ANM_FEHLER.keine_personen, true); return; }
+      if(w.personen > 30){ zeige(WZ_ANM_FEHLER.invalid_personen, true); return; }
+      if(btn){ btn.disabled = true; btn.textContent = 'Wird gespeichert…'; }
+      fetch(SB_URL+'/functions/v1/update-fondue-anmeldung',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({ id: anmId, varianten: w.v, beilagen: w.b })
+      })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, status: r.status, d: d || {} }; }); })
+      .then(function(res){
+        if(btn){ btn.disabled = false; btn.textContent = 'Speichern & Gast informieren'; }
+        if(!res.ok){
+          var d = res.d, text = WZ_ANM_FEHLER[d.error] || (res.status === 401 ? WZ_ANM_FEHLER.unauthorized : null);
+          if(d.error === 'capacity_exceeded') text = 'Nicht genug Plätze frei – für diese Anmeldung sind höchstens '+d.available+' Personen möglich.';
+          if(d.error === 'iglu_kein_platz') text = 'Kein gemeinsamer Iglu-Platz für '+w.personen+' Personen – höchstens '+d.max_gruppe+' möglich.';
+          zeige(text || 'Fehler beim Speichern ('+(d.error || 'unbekannt')+').', true);
+          return;
+        }
+        msg(res.d.mail ? 'Anmeldung geändert, Gast informiert' : 'Anmeldung geändert – Mail konnte nicht gesendet werden', res.d.mail ? 'success' : 'error', 'wz-admin-message');
+        if(!res.d.mail) alert('Gespeichert – die Mail an den Gast konnte aber nicht gesendet werden. Bitte den Gast direkt informieren.');
+        loadWinterzauberTermine();
+      })
+      .catch(function(){
+        if(btn){ btn.disabled = false; btn.textContent = 'Speichern & Gast informieren'; }
+        zeige('Netzwerkfehler – bitte erneut versuchen.', true);
+      });
+    }
+
     // Aufklappbare Teilnehmer-Tabelle unter einer Termin-Karte.
     // "Nachzuegler" = noch "vorgemerkt", obwohl der Termin schon bestaetigt ist.
     // Fondue-Spalten werden dynamisch aus den aktiven Varianten (wzVarianten) gebaut.
-    function renderWzTeilnehmer(rows, terminStatus){
+    function renderWzTeilnehmer(rows, terminStatus, termin){
       if(!rows || !rows.length){
         return '<div class="wz-tn-empty">Noch keine Anmeldungen</div>';
       }
@@ -2009,7 +2140,7 @@
       aktiveBeilagen.forEach(function(b){
         out += '<th title="'+esc(b.name)+'">'+esc(wzBeilageShort(b.name))+'</th>';
       });
-      out += '<th>Nr.</th></tr></thead><tbody>';
+      out += '<th>Nr.</th><th></th></tr></thead><tbody>';
 
       sorted.forEach(function(r){
         var isNach = terminStatus === 'bestaetigt' && r.status === 'vorgemerkt';
@@ -2018,7 +2149,9 @@
         var va = r.varianten_auswahl || {};
         out += '<tr class="wz-tn-row-'+r.status+'">';
         out += '<td class="nm">'+esc(r.customer_name)+'</td>';
-        out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span></td>';
+        out += '<td><span class="wz-tn-badge wz-tn-'+cls+'">'+lbl+'</span>'
+          + (r.spaet_reduziert ? ' <span class="wz-tn-badge wz-tn-spaet" title="Reduzierung nach Ablauf der kostenfreien Frist">Spät reduziert</span>' : '')
+          + '</td>';
         out += '<td>'+esc(r.customer_email || '–')+'</td>';
         out += '<td>'+esc(r.customer_phone || '–')+'</td>';
         out += '<td class="num">'+r.personen_anzahl+'</td>';
@@ -2028,7 +2161,12 @@
         var ba = r.beilagen_auswahl || {};
         aktiveBeilagen.forEach(function(b){ out += '<td class="num">'+(Number(ba[b.id]) || 0)+'</td>'; });
         out += '<td>'+esc(r.anmeldung_id)+'</td>';
+        out += '<td>'+(aktiv ? '<button class="wz-btn-plain wz-tn-edit-btn" onclick="wzAnmToggleEdit(\''+r.id+'\')">Ändern</button>' : '')+'</td>';
         out += '</tr>';
+        if(aktiv){
+          var spalten = 8 + aktiveVarianten.length + aktiveBeilagen.length;
+          out += '<tr class="wz-tn-editrow" id="wz-anm-edit-'+r.id+'" style="display:none"><td colspan="'+spalten+'">'+renderWzAnmEditor(r, termin)+'</td></tr>';
+        }
       });
 
       out += '</tbody></table></div></details>';
