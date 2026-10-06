@@ -382,7 +382,7 @@
     .wz-tn-table th{text-align:left;padding:6px 8px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2);white-space:nowrap}
     .wz-tn-table td{padding:6px 8px;border-bottom:1px solid var(--sand2);vertical-align:top}
     .wz-tn-table tr:last-child td{border-bottom:none}
-    .wz-iglu-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:8px;max-width:560px}
+    .wz-iglu-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:8px;max-width:400px}
     .wz-iglu-col{background:var(--w);border:1px solid var(--sand2);border-radius:12px;padding:10px 12px}
     .wz-iglu-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;color:var(--text2)}
     .wz-iglu-count.over{color:var(--err)}
@@ -390,7 +390,7 @@
     .wz-iglu-bar>span{display:block;height:100%;background:var(--g)}
     .wz-iglu-gruppe{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;padding:6px 0;border-top:1px solid var(--sand2)}
     .wz-iglu-gruppe select{flex:0 0 88px;width:88px;font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:44px}
-    .wz-iglu-nm{flex:1;min-width:0;display:flex;gap:4px;white-space:nowrap}
+    .wz-iglu-nm{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;white-space:nowrap;line-height:1.4}
     .wz-iglu-nm .n{overflow:hidden;text-overflow:ellipsis}
     .wz-iglu-nm .p{flex:0 0 auto;color:var(--text2)}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
@@ -1914,8 +1914,11 @@
           if(!v || !v[k]) return;
           var row = wzIgluRow(terminId, g.id);
           var name = row ? row.customer_name : '?';
-          var teil = v[k] === g.personen ? String(g.personen) : v[k]+' von '+g.personen;
-          html += '<div class="wz-iglu-gruppe"><span class="wz-iglu-nm"><span class="n">'+(g.fixiert?'📌 ':'')+esc(name)+'</span><span class="p">· '+teil+'</span></span>'
+          // "5 Personen" / "1 Person" / bei geteilten Gruppen "8 von 16 Personen"
+          var teil = v[k] === g.personen
+            ? g.personen + (g.personen === 1 ? ' Person' : ' Personen')
+            : v[k] + ' von ' + g.personen + ' Personen';
+          html += '<div class="wz-iglu-gruppe"><span class="wz-iglu-nm"><span class="n">'+(g.fixiert?'📌 ':'')+esc(name)+'</span><span class="p">'+teil+'</span></span>'
             + '<select aria-label="Iglu für '+esc(name).replace(/"/g,'&quot;')+'" onchange="wzIgluUmsetzen(\''+terminId+'\',\''+g.id+'\','+k+',this)">';
           for(var z=1; z<=IV.IGLU_ANZAHL; z++){
             var chk = z===k ? {ok:true} : IV.umsetzen(gruppen, g.id, k, z);
