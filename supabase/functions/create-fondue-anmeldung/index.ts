@@ -4,6 +4,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { terminLabelDe } from "../_shared/fondue-slot.ts";
+import { platziere, maxGruppe, aufteilungsSatz } from "../_shared/iglu-verteilung.js";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -93,8 +94,9 @@ function buildMailHtml(opts: {
   variantenLines: string[];
   beilagenLines: string[];
   gesamtpreis: number;
+  aufteilung: string;
 }): string {
-  const { name, email, phone, address, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis } = opts;
+  const { name, email, phone, address, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis, aufteilung } = opts;
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -118,6 +120,7 @@ function buildMailHtml(opts: {
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Anschrift</td><td style="padding:6px 0;font-weight:500">${esc(opts.address)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Termin</td><td style="padding:6px 0;font-weight:500">${esc(dateFormatted)}</td></tr>
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
+            ${aufteilung ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Iglus</td><td style="padding:6px 0;font-weight:500">${esc(aufteilung)}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${variantenLines.map(esc).join("<br>")}</td></tr>
             ${beilagenLines.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Beilagen</td><td style="padding:6px 0;font-weight:500">${beilagenLines.map(esc).join("<br>")}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871">Voraussichtl. Preis</td><td style="padding:6px 0;font-weight:500">${gesamtpreis.toFixed(2)} &euro;</td></tr>
@@ -212,12 +215,26 @@ serve(async (req) => {
   // Kapazität serverseitig durchsetzen (Finding 4) — Trigger setzt den Termin-Status erst
   // NACH dem Insert auf 'ausgebucht', daher hier vorab die Summe der aktiven Anmeldungen
   // prüfen, mirrored von admin.html's Termine-Ladepattern (status in vorgemerkt/bestaetigt).
-  const sumRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=in.(vorgemerkt,bestaetigt)&select=personen_anzahl`);
+  const sumRes = await pg(`fondue_anmeldungen?termin_id=eq.${terminId}&status=in.(vorgemerkt,bestaetigt)&select=id,personen_anzahl,iglu_verteilung,iglu_fixiert`);
   if (!sumRes.ok) return jsonResponse({ error: "capacity_lookup_failed" }, 500, corsHeaders);
   const sumRows = await sumRes.json();
   const existingSum = Array.isArray(sumRows) ? sumRows.reduce((sum: number, r: any) => sum + Number(r.personen_anzahl || 0), 0) : 0;
   if (existingSum + personen > Number(termin.capacity_max)) {
     return jsonResponse({ error: "capacity_exceeded", available: Number(termin.capacity_max) - existingSum }, 409, corsHeaders);
+  }
+
+  // Iglu-Verteilung (3 x 12): jede Gruppe bis 12 Personen muss gemeinsam in ein Iglu passen,
+  // groessere werden gleichmaessig geteilt. Logik in _shared/iglu-verteilung.js (Kopie von
+  // js/iglu-verteilung.js, das Website + Admin nutzen).
+  const igluGruppen = (Array.isArray(sumRows) ? sumRows : []).map((r: any) => ({
+    id: String(r.id),
+    personen: Number(r.personen_anzahl),
+    verteilung: r.iglu_verteilung,
+    fixiert: !!r.iglu_fixiert,
+  }));
+  const platz = platziere(igluGruppen, personen);
+  if (!platz.ok) {
+    return jsonResponse({ error: "iglu_kein_platz", max_gruppe: maxGruppe(igluGruppen) }, 409, corsHeaders);
   }
 
   // Varianten + Beilagen serverseitig validieren und Preis berechnen — Client-Preis wird ignoriert
@@ -274,6 +291,7 @@ serve(async (req) => {
       allergien_hinweis: allergien || null,
       agb_akzeptiert: true,
       status: "vorgemerkt",
+      iglu_verteilung: platz.neu,
     }),
   });
   if (!insertRes.ok) {
@@ -282,6 +300,19 @@ serve(async (req) => {
     return jsonResponse({ error: "insert_failed", detail: errText }, 500, corsHeaders);
   }
   const inserted = (await insertRes.json())[0];
+
+  // Stufe 2 der Verteilung hat ggf. andere (nicht fixierte) Gruppen umgesetzt -> nachziehen.
+  // Ein Fehler hier macht die neue Anmeldung nicht ungueltig; der Admin erkennt eine
+  // Ueberbelegung beim Laden und bietet "Automatisch neu verteilen" an.
+  for (const [anmId, verteilung] of Object.entries(platz.verschoben)) {
+    const patchRes = await pg(`fondue_anmeldungen?id=eq.${anmId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ iglu_verteilung: verteilung }),
+    });
+    if (!patchRes.ok) {
+      console.error("[create-fondue-anmeldung] iglu patch failed", anmId, patchRes.status, await patchRes.text());
+    }
+  }
 
   // Aktualisierten Termin-Status nach dem Trigger nachladen (für Response)
   const updatedTerminRes = await pg(`fondue_termine?id=eq.${terminId}&select=status`);
@@ -311,6 +342,7 @@ serve(async (req) => {
           variantenLines,
           beilagenLines,
           gesamtpreis,
+          aufteilung: aufteilungsSatz(personen),
         }),
       }),
     });
