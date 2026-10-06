@@ -382,7 +382,7 @@
     .wz-tn-table th{text-align:left;padding:6px 8px;color:var(--text3);font-weight:600;border-bottom:1.5px solid var(--sand2);white-space:nowrap}
     .wz-tn-table td{padding:6px 8px;border-bottom:1px solid var(--sand2);vertical-align:top}
     .wz-tn-table tr:last-child td{border-bottom:none}
-    .wz-iglu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .wz-iglu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
     @media(max-width:640px){.wz-iglu-grid{grid-template-columns:1fr}}
     .wz-iglu-col{background:var(--w);border:1px solid var(--sand2);border-radius:12px;padding:10px 12px}
     .wz-iglu-head{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600;color:var(--text2)}
@@ -390,10 +390,15 @@
     .wz-iglu-bar{height:6px;background:var(--sand2);border-radius:100px;margin:6px 0 4px;overflow:hidden}
     .wz-iglu-bar>span{display:block;height:100%;background:var(--g)}
     .wz-iglu-gruppe{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;padding:6px 0;border-top:1px solid var(--sand2)}
-    .wz-iglu-gruppe select{font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:44px}
+    .wz-iglu-gruppe select{flex:0 0 88px;width:88px;font:inherit;font-size:.78rem;padding:4px 6px;border:1px solid var(--sand2);border-radius:8px;background:var(--w);min-height:44px}
+    .wz-iglu-nm{flex:1;min-width:0;display:flex;gap:4px;white-space:nowrap}
+    .wz-iglu-nm .n{overflow:hidden;text-overflow:ellipsis}
+    .wz-iglu-nm .p{flex:0 0 auto;color:var(--text2)}
     .wz-iglu-empty{font-size:.82rem;color:var(--text3);margin:8px 0 0}
     .wz-iglu-opt{background:#FBEBD9;border:1.5px solid #E39A4B;color:#A85A12}
     .wz-iglu-opt:hover{background:#F6DCC0}
+    .wz-btn-iglu-neu{background:#E07B24;color:#fff}
+    .wz-btn-iglu-neu:hover{background:#C96A18}
     .wz-tn-table td.num{text-align:center}
     .wz-tn-table td.nm{white-space:nowrap}
     .wz-tn-row-storniert td,.wz-tn-row-abgesagt td{color:var(--text3);text-decoration:line-through}
@@ -1908,7 +1913,7 @@
           var row = wzIgluRow(terminId, g.id);
           var name = row ? row.customer_name : '?';
           var teil = v[k] === g.personen ? String(g.personen) : v[k]+' von '+g.personen;
-          html += '<div class="wz-iglu-gruppe"><span>'+(g.fixiert?'📌 ':'')+esc(name)+' · '+teil+'</span>'
+          html += '<div class="wz-iglu-gruppe"><span class="wz-iglu-nm"><span class="n">'+(g.fixiert?'📌 ':'')+esc(name)+'</span><span class="p">· '+teil+'</span></span>'
             + '<select aria-label="Iglu für '+esc(name).replace(/"/g,'&quot;')+'" onchange="wzIgluUmsetzen(\''+terminId+'\',\''+g.id+'\','+k+',this)">';
           for(var z=1; z<=IV.IGLU_ANZAHL; z++){
             var chk = z===k ? {ok:true} : IV.umsetzen(gruppen, g.id, k, z);
@@ -1921,7 +1926,7 @@
         html += '</div>';
       }
       html += '</div>';
-      html += '<div class="wz-termin-actions" style="margin-top:8px"><button class="wz-btn-plain" onclick="wzIgluNeuVerteilen(\''+terminId+'\')">Automatisch neu verteilen</button></div>';
+      html += '<div class="wz-termin-actions" style="margin-top:8px"><button class="wz-btn-iglu-neu" onclick="wzIgluNeuVerteilen(\''+terminId+'\')">Automatisch neu verteilen</button></div>';
       return html;
     }
 
