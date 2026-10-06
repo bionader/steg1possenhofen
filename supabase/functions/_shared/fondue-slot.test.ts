@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hhmm, slotLabel, terminLabelDe, berlinToDate } from "./fondue-slot.ts";
+import { hhmm, slotLabel, terminLabelDe, berlinToDate, isWithinFeeWindow } from "./fondue-slot.ts";
 
 test("hhmm schneidet Sekunden ab", () => {
   assert.equal(hhmm("17:15:00"), "17:15");
@@ -23,4 +23,12 @@ test("berlinToDate: Sommerzeit (22.10.2026 = CEST, +02:00)", () => {
 
 test("berlinToDate: Winterzeit (12.11.2026 = CET, +01:00)", () => {
   assert.equal(berlinToDate("2026-11-12", "19:30:00").toISOString(), "2026-11-12T18:30:00.000Z");
+});
+
+test("isWithinFeeWindow: Frist endet genau 5 Tage vor Slot-Beginn (Berliner Zeit)", () => {
+  // Slot 22.10.2026 17:15 CEST = 15:15Z; Frist endet 17.10.2026 15:15Z
+  const fristEnde = Date.UTC(2026, 9, 17, 15, 15);
+  assert.equal(isWithinFeeWindow("2026-10-22", "17:15:00", fristEnde - 60000), false);
+  assert.equal(isWithinFeeWindow("2026-10-22", "17:15:00", fristEnde + 60000), true);
+  assert.equal(isWithinFeeWindow("", "17:15", fristEnde), false);
 });
