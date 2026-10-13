@@ -733,6 +733,14 @@
           <div id="wz-beilagen-editor"></div>
           <button type="button" id="btn-wz-add-beilage" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Beilage hinzufügen</button>
         </div>
+
+        <div class="month-section">
+          <div class="month-section-header">
+            <h3>Dessert</h3>
+          </div>
+          <div id="wz-desserts-editor"></div>
+          <button type="button" id="btn-wz-add-dessert" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Dessert hinzufügen</button>
+        </div>
         </div>
       </div>
     </div>
@@ -2040,11 +2048,12 @@
       out += '<div class="wz-anm-gruppe"><span class="wz-anm-label">Fondue je Person</span>';
       vars.forEach(function(v){ out += feld('v', v, va[v.id], 30); });
       out += '<span class="wz-anm-summe" id="wz-anm-summe-'+r.id+'">= '+r.personen_anzahl+' Personen</span></div>';
-      if(beis.length){
-        out += '<div class="wz-anm-gruppe"><span class="wz-anm-label">Beilagen</span>';
-        beis.forEach(function(b){ out += feld('b', b, ba[b.id], 99); });
+      [['Beilagen', beis.filter(function(b){ return !wzIstDessert(b); })], ['Dessert', beis.filter(wzIstDessert)]].forEach(function(g){
+        if(!g[1].length) return;
+        out += '<div class="wz-anm-gruppe"><span class="wz-anm-label">'+g[0]+'</span>';
+        g[1].forEach(function(b){ out += feld('b', b, ba[b.id], 99); });
         out += '</div>';
-      }
+      });
       out += '<div class="wz-termin-hint" id="wz-anm-spaet-'+r.id+'" style="display:none">Kostenfreie Frist abgelaufen – die Änderung wird als „spät reduziert“ markiert.</div>';
       out += '<p class="wz-anm-msg" id="wz-anm-msg-'+r.id+'"></p>';
       out += '<div class="wz-termin-actions"><button class="wz-btn-confirm" id="wz-anm-save-'+r.id+'" onclick="wzAnmSave(\''+r.id+'\')">Speichern &amp; Gast informieren</button>'
@@ -2155,6 +2164,7 @@
       var aktiveVarianten = (wzVarianten || []).filter(function(v){ return v.is_active; });
       var aktiveBeilagen = (wzBeilagen || []).filter(function(b){ return b.is_active; });
       function wzBeilageShort(name){
+        if(/strudel/i.test(name)) return 'Strudel';
         var w = String(name).split(/\s+/)[0];
         return w.length > 8 ? w.slice(0,7) + '.' : w;
       }
@@ -2235,7 +2245,7 @@
       var erstellt = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
 
       var sumRows = aktiveVar.map(function(v){ return '<tr><td>' + e(v.name) + '</td><td class="n">' + (varSum[v.id] || 0) + '</td></tr>'; }).join('')
-        + aktiveBei.map(function(b){ return '<tr><td>' + e(b.name) + ' <span class="tag">Beilage</span></td><td class="n">' + (beiSum[b.id] || 0) + '</td></tr>'; }).join('');
+        + aktiveBei.map(function(b){ return '<tr><td>' + e(b.name) + ' <span class="tag">' + (wzIstDessert(b) ? 'Dessert' : 'Beilage') + '</span></td><td class="n">' + (beiSum[b.id] || 0) + '</td></tr>'; }).join('');
 
       // Gästeliste transponiert: Positionen (Personen / Varianten / Beilagen / Allergien /
       // Telefon) laufen nach unten, jede Reservierung ist eine Spalte nach rechts.
@@ -2258,7 +2268,7 @@
         var bodyRows = row('Personen', true, function(r){ return Number(r.personen_anzahl) || 0; })
           + row('Iglu', true, function(r){ return e(IV ? IV.iglusText(r.iglu_verteilung) : '–'); })
           + aktiveVar.map(function(v){ return row(e(v.name), true, function(r){ return Number((r.varianten_auswahl || {})[v.id]) || 0; }); }).join('')
-          + aktiveBei.map(function(bl){ return row(e(bl.name) + ' <span class="tag">Beilage</span>', true, function(r){ return Number((r.beilagen_auswahl || {})[bl.id]) || 0; }); }).join('')
+          + aktiveBei.map(function(bl){ return row(e(bl.name) + ' <span class="tag">' + (wzIstDessert(bl) ? 'Dessert' : 'Beilage') + '</span>', true, function(r){ return Number((r.beilagen_auswahl || {})[bl.id]) || 0; }); }).join('')
           + row('Allergien', false, function(r){ return e(r.allergien_hinweis || ''); })
           + row('Telefon', false, function(r){ return e(r.customer_phone || ''); });
         return '<table class="gl"><thead>' + head + '</thead><tbody>' + bodyRows + '</tbody></table>';
@@ -2539,6 +2549,15 @@
       var el = document.getElementById('wz-anmeldungen-list');
       if(!rows.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Anmeldungen.</p>'; return; }
       // Varianten/Beilagen ausgeschrieben statt "X Position(en)"
+      // Mengen-Objekt auf Desserts bzw. Beilagen einschraenken
+      function wzAuswahlFilter(auswahl, dessert){
+        var out = {};
+        Object.keys(auswahl || {}).forEach(function(id){
+          var b = (wzBeilagen || []).find(function(x){ return x.id === id; });
+          if(wzIstDessert(b) === dessert) out[id] = auswahl[id];
+        });
+        return out;
+      }
       function nameMengeList(auswahl, list){
         var keys = Object.keys(auswahl || {});
         if(!keys.length) return '–';
@@ -2548,7 +2567,7 @@
         }).join(', ');
       }
       var html = '<table class="wz-anmeld-table"><thead><tr>';
-      html += '<th>ID</th><th>Name</th><th>Kontakt</th><th>Personen</th><th>Varianten</th><th>Beilagen</th><th>Allergien</th><th>Status</th>';
+      html += '<th>ID</th><th>Name</th><th>Kontakt</th><th>Personen</th><th>Varianten</th><th>Beilagen</th><th>Dessert</th><th>Allergien</th><th>Status</th>';
       html += '</tr></thead><tbody>';
       rows.forEach(function(r){
         html += '<tr>';
@@ -2557,7 +2576,8 @@
         html += '<td>'+esc(r.customer_email)+(r.customer_phone?'<br>'+esc(r.customer_phone):'')+'</td>';
         html += '<td>'+r.personen_anzahl+'</td>';
         html += '<td>'+nameMengeList(r.varianten_auswahl, wzVarianten)+'</td>';
-        html += '<td>'+nameMengeList(r.beilagen_auswahl, wzBeilagen)+'</td>';
+        html += '<td>'+nameMengeList(wzAuswahlFilter(r.beilagen_auswahl, false), wzBeilagen)+'</td>';
+        html += '<td>'+nameMengeList(wzAuswahlFilter(r.beilagen_auswahl, true), wzBeilagen)+'</td>';
         html += '<td>'+(r.allergien_hinweis?esc(r.allergien_hinweis):'–')+'</td>';
         html += '<td>'+WZ_STATUS_LABELS_ANMELD[r.status]+'</td>';
         html += '</tr>';
@@ -2573,14 +2593,18 @@
     function loadWinterzauberZutaten(){
       return Promise.all([
         fetch(SB_URL+'/rest/v1/fondue_varianten?order=sort_order.asc&select=id,name,description,price_per_person,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()}),
-        fetch(SB_URL+'/rest/v1/fondue_beilagen?order=sort_order.asc&select=id,name,description,price,is_active,sort_order',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()})
+        fetch(SB_URL+'/rest/v1/fondue_beilagen?order=sort_order.asc&select=*',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}}).then(function(r){return r.json()})
       ]).then(function(results){
         wzVarianten = results[0] || [];
         wzBeilagen = results[1] || [];
         renderWzZutatEditor('wz-varianten-editor', wzVarianten, 'fondue_varianten', 'price_per_person');
-        renderWzZutatEditor('wz-beilagen-editor', wzBeilagen, 'fondue_beilagen', 'price');
+        renderWzZutatEditor('wz-beilagen-editor', wzBeilagen.filter(function(b){ return !wzIstDessert(b); }), 'fondue_beilagen', 'price');
+        renderWzZutatEditor('wz-desserts-editor', wzBeilagen.filter(wzIstDessert), 'fondue_beilagen', 'price');
       });
     }
+
+    // Desserts liegen in fondue_beilagen mit kategorie='dessert' (Mengen in beilagen_auswahl)
+    function wzIstDessert(b){ return !!b && b.kategorie === 'dessert'; }
 
     function renderWzZutatEditor(containerId, items, table, priceField){
       var el = document.getElementById(containerId);
@@ -2617,11 +2641,21 @@
     });
 
     document.getElementById('btn-wz-add-beilage').addEventListener('click',function(){
-      var maxSort = 0; wzBeilagen.forEach(function(b){if(b.sort_order>maxSort)maxSort=b.sort_order});
+      var maxSort = 0; wzBeilagen.forEach(function(b){if(!wzIstDessert(b) && b.sort_order>maxSort)maxSort=b.sort_order});
       fetch(SB_URL+'/rest/v1/fondue_beilagen',{
         method:'POST',
         headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
         body:JSON.stringify({name:'Neue Beilage',price:0,is_active:true,sort_order:maxSort+1})
+      }).then(function(){ loadWinterzauberZutaten(); });
+    });
+
+    document.getElementById('btn-wz-add-dessert').addEventListener('click',function(){
+      // Desserts ab sort_order 100, damit sie in allen Listen nach den Beilagen stehen
+      var maxSort = 99; wzBeilagen.forEach(function(b){if(wzIstDessert(b) && b.sort_order>maxSort)maxSort=b.sort_order});
+      fetch(SB_URL+'/rest/v1/fondue_beilagen',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'},
+        body:JSON.stringify({name:'Neues Dessert',price:0,is_active:true,sort_order:maxSort+1,kategorie:'dessert'})
       }).then(function(){ loadWinterzauberZutaten(); });
     });
 
@@ -2647,7 +2681,7 @@
 
     // Autosave on blur (kein separater Save-Button — verhindert DOM-Rebuild-Race,
     // siehe memory/feedback_dom_rebuild_race.md: nie auf jeden Keystroke re-rendern)
-    ['wz-varianten-editor','wz-beilagen-editor'].forEach(function(containerId){
+    ['wz-varianten-editor','wz-beilagen-editor','wz-desserts-editor'].forEach(function(containerId){
       document.getElementById(containerId).addEventListener('blur', function(e){
         if(!e.target.matches('.wz-zutat-input, [data-field="is_active"]')) return;
         var row = e.target.closest('.wz-zutat-row');

@@ -599,6 +599,10 @@ footer{
         <span class="wz-beilagen-tag">Beilagen — gegen Aufpreis</span>
         <p class="wz-beilagen-hint">Zusätzlich zum Fondue-Preis, pro Portion.</p>
         <div class="wz-beilagen" id="wz-beilagen-list"></div>
+        <div id="wz-dessert-block" style="display:none">
+          <span class="wz-beilagen-tag">Dessert</span>
+          <div class="wz-fondue-list" id="wz-dessert-list" style="margin-top:.6rem"></div>
+        </div>
       </div>
       <div class="wz-fondue-photo"><img src="images/winter-hero.jpg" alt="Vereister Steg am Starnberger See im Sonnenaufgang"></div>
     </div>
@@ -677,6 +681,10 @@ footer{
                 <div style="display:flex;flex-direction:column;gap:.4rem">
                   <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(für die ganze Runde, nicht pro Person)</span></span>
                   <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
+                </div>
+                <div id="wz-dessertmengen-group" style="display:none;flex-direction:column;gap:.4rem">
+                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Dessert <span style="font-weight:400;color:var(--text3)">(Anzahl Portionen)</span></span>
+                  <div class="wz-beilmengen" id="wz-dessertmengen-list"></div>
                 </div>
                 <div style="display:flex;align-items:baseline;gap:.4rem">
                   <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
@@ -1035,7 +1043,7 @@ function loadAll() {
   Promise.all([
     fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=id,date,start_time,end_time,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
     fetch(SB_URL + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=id,name,description,price_per_person', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
-    fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=id,name,description,price', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
+    fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=*', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
   ]).then(function (results) {
     var today = new Date().toISOString().slice(0, 10);
     termine = (results[0] || []).filter(function (t) { return t.date >= today && t.status !== 'abgesagt'; });
@@ -1086,9 +1094,21 @@ function beilageIcon(name) {
   return '🍽️';
 }
 
+// Desserts liegen in fondue_beilagen mit kategorie='dessert' (Mengen laufen mit den Beilagen)
+function istDessert(b) { return !!b && b.kategorie === 'dessert'; }
+function nurBeilagen() { return beilagenList.filter(function (b) { return !istDessert(b); }); }
+function nurDesserts() { return beilagenList.filter(istDessert); }
+
 function renderBeilagen() {
   var el = document.getElementById('wz-beilagen-list');
-  el.innerHTML = beilagenList.map(function (b) {
+  var desserts = nurDesserts();
+  document.getElementById('wz-dessert-block').style.display = desserts.length ? '' : 'none';
+  document.getElementById('wz-dessert-list').innerHTML = desserts.map(function (d) {
+    return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(d.name) + '</h3>' +
+      (d.description ? '<p class="desc">' + escapeHtml(d.description) + '</p>' : '') + '</div>' +
+      '<div class="wz-fondue-price">' + formatEuro(d.price) + '<span>/ Portion</span></div></div>';
+  }).join('');
+  el.innerHTML = nurBeilagen().map(function (b) {
     var priceTxt = (b.price != null && Number(b.price) > 0) ? '<em>' + Number(b.price).toFixed(2).replace('.', ',') + ' €</em>' : '';
     var descTxt = b.description ? '<small>· ' + escapeHtml(b.description) + '</small>' : '';
     return '<span>' + beilageIcon(b.name) + ' ' + escapeHtml(b.name) + descTxt + priceTxt + '</span>';
@@ -1317,21 +1337,34 @@ function updateSumme() {
     var b = beilagenList.find(function (x) { return x.id === id; });
     return s + (b ? Number(b.price) * wzBeilagenMengen[id] : 0);
   }, 0);
+  var hatDessert = Object.keys(wzBeilagenMengen).some(function (id) { return istDessert(beilagenList.find(function (x) { return x.id === id; })); });
+  var hatBeilage = Object.keys(wzBeilagenMengen).some(function (id) { var b = beilagenList.find(function (x) { return x.id === id; }); return b && !istDessert(b); });
   var total = varSum + beilSum;
   document.getElementById('wz-summe').textContent = formatEuro(total);
   document.getElementById('wz-summe-hint').textContent =
-    'für ' + gaesteVarianten.length + ' × Fondue satt' + (beilSum > 0 ? ' inkl. Beilagen' : '');
+    'für ' + gaesteVarianten.length + ' × Fondue satt' +
+    (hatBeilage && hatDessert ? ' inkl. Beilagen & Dessert' : hatBeilage ? ' inkl. Beilagen' : hatDessert ? ' inkl. Dessert' : '');
 }
 
 function renderBeilMengen() {
   var el = document.getElementById('wz-beilmengen-list');
   if (!el) return;
-  if (!beilagenList.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
-  el.innerHTML = beilagenList.map(function (b) {
+  var desserts = nurDesserts();
+  document.getElementById('wz-dessertmengen-group').style.display = desserts.length ? 'flex' : 'none';
+  renderMengenListe(document.getElementById('wz-dessertmengen-list'), desserts);
+  var beilagen = nurBeilagen();
+  if (!beilagen.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
+  renderMengenListe(el, beilagen);
+}
+
+// Zeilen mit −/+ fuer eine Liste (Beilagen oder Desserts); Mengen landen gemeinsam in wzBeilagenMengen
+function renderMengenListe(el, items) {
+  el.innerHTML = items.map(function (b) {
+    var descTxt = b.description ? '<small style="display:block;font-size:.72rem;color:var(--text3)">' + escapeHtml(b.description) + '</small>' : '';
     var n = wzBeilagenMengen[b.id] || 0;
     var priceTxt = Number(b.price) > 0 ? (formatEuro(b.price) + '/Portion') : 'ohne Aufpreis';
     return '<div class="wz-beilmenge-row" data-id="' + b.id + '">' +
-      '<span class="lbl">' + escapeHtml(b.name) + '</span>' +
+      '<span class="lbl">' + escapeHtml(b.name) + (istDessert(b) ? descTxt : '') + '</span>' +
       '<span class="price">' + priceTxt + '</span>' +
       '<span class="wz-beilmenge-step">' +
         '<button type="button" class="wz-bm-dec" data-id="' + b.id + '" aria-label="Weniger">−</button>' +

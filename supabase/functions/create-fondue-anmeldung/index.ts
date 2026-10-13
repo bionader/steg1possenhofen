@@ -93,10 +93,11 @@ function buildMailHtml(opts: {
   personen: number;
   variantenLines: string[];
   beilagenLines: string[];
+  dessertLines: string[];
   gesamtpreis: number;
   aufteilung: string;
 }): string {
-  const { name, email, phone, address, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, gesamtpreis, aufteilung } = opts;
+  const { name, email, phone, address, anmeldungId, manageToken, dateFormatted, personen, variantenLines, beilagenLines, dessertLines, gesamtpreis, aufteilung } = opts;
   return `
     <style>@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600&family=Petrona:ital,wght@0,500;0,600;1,400;1,600&display=swap');</style>
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
@@ -123,6 +124,7 @@ function buildMailHtml(opts: {
             ${aufteilung ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Iglus</td><td style="padding:6px 0;font-weight:500">${esc(aufteilung)}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${variantenLines.map(esc).join("<br>")}</td></tr>
             ${beilagenLines.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Beilagen</td><td style="padding:6px 0;font-weight:500">${beilagenLines.map(esc).join("<br>")}</td></tr>` : ""}
+            ${dessertLines.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Dessert</td><td style="padding:6px 0;font-weight:500">${dessertLines.map(esc).join("<br>")}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871">Voraussichtl. Preis</td><td style="padding:6px 0;font-weight:500">${gesamtpreis.toFixed(2)} &euro;</td></tr>
           </table>
         </div>
@@ -239,7 +241,7 @@ serve(async (req) => {
 
   // Varianten + Beilagen serverseitig validieren und Preis berechnen — Client-Preis wird ignoriert
   const variantenRes = await pg("fondue_varianten?is_active=eq.true&select=id,name,price_per_person");
-  const beilagenRes = await pg("fondue_beilagen?is_active=eq.true&select=id,name,price");
+  const beilagenRes = await pg("fondue_beilagen?is_active=eq.true&select=*");
   if (!variantenRes.ok || !beilagenRes.ok) return jsonResponse({ error: "zutaten_lookup_failed" }, 500, corsHeaders);
   const variantenList = await variantenRes.json();
   const beilagenList = await beilagenRes.json();
@@ -262,13 +264,14 @@ serve(async (req) => {
   if (variantenLines.length === 0) return jsonResponse({ error: "no_variante_selected" }, 400, corsHeaders);
 
   const beilagenLines: string[] = [];
+  const dessertLines: string[] = []; // Desserts = fondue_beilagen mit kategorie 'dessert'
   for (const [bid, menge] of Object.entries(beilagen)) {
     const count = Number(menge);
     if (!Number.isInteger(count) || count <= 0) continue;
     const b = beilagenList.find((x: any) => x.id === bid);
     if (!b) return jsonResponse({ error: "invalid_beilage", id: bid }, 400, corsHeaders);
     gesamtpreis += count * Number(b.price);
-    beilagenLines.push(`${count}x ${b.name}`);
+    (b.kategorie === "dessert" ? dessertLines : beilagenLines).push(`${count}x ${b.name}`);
     beilagenClean[bid] = count;
   }
 
@@ -341,6 +344,7 @@ serve(async (req) => {
           personen,
           variantenLines,
           beilagenLines,
+          dessertLines,
           gesamtpreis,
           aufteilung: aufteilungsSatz(personen),
         }),

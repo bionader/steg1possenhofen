@@ -77,10 +77,10 @@ function zeilen(mengen: Mengen, liste: { id: string; name: string }[]): string[]
 
 async function sendAenderungsMail(opts: {
   email: string; name: string; anmeldungId: string; manageToken: string; dateFormatted: string;
-  personenAlt: number; personenNeu: number; fondueZeilen: string[]; beilagenZeilen: string[];
+  personenAlt: number; personenNeu: number; fondueZeilen: string[]; beilagenZeilen: string[]; dessertZeilen: string[];
   preis: number; aufteilung: string;
 }): Promise<boolean> {
-  const { email, name, anmeldungId, manageToken, dateFormatted, personenAlt, personenNeu, fondueZeilen, beilagenZeilen, preis, aufteilung } = opts;
+  const { email, name, anmeldungId, manageToken, dateFormatted, personenAlt, personenNeu, fondueZeilen, beilagenZeilen, dessertZeilen, preis, aufteilung } = opts;
   const personenText = personenAlt === personenNeu ? String(personenNeu) : `${personenAlt} → ${personenNeu}`;
   const preheader = `Deine Anmeldung zum Winterzauber am ${dateFormatted} wurde angepasst.`;
   const html = `
@@ -102,6 +102,7 @@ async function sendAenderungsMail(opts: {
             ${aufteilung ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Iglus</td><td style="padding:6px 0;font-weight:500">${esc(aufteilung)}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Fondue</td><td style="padding:6px 0;font-weight:500">${fondueZeilen.map(esc).join("<br>")}</td></tr>
             ${beilagenZeilen.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Beilagen</td><td style="padding:6px 0;font-weight:500">${beilagenZeilen.map(esc).join("<br>")}</td></tr>` : ""}
+            ${dessertZeilen.length ? `<tr><td style="padding:6px 0;color:#6C7871;vertical-align:top">Dessert</td><td style="padding:6px 0;font-weight:500">${dessertZeilen.map(esc).join("<br>")}</td></tr>` : ""}
             <tr><td style="padding:6px 0;color:#6C7871">Voraussichtl. Preis</td><td style="padding:6px 0;font-weight:500">${preis.toFixed(2)} &euro;</td></tr>
           </table>
         </div>
@@ -128,6 +129,7 @@ async function sendAenderungsMail(opts: {
     aufteilung ? `Iglus:     ${aufteilung}` : null,
     `Fondue:    ${fondueZeilen.join(", ")}`,
     beilagenZeilen.length ? `Beilagen:  ${beilagenZeilen.join(", ")}` : null,
+    dessertZeilen.length ? `Dessert:   ${dessertZeilen.join(", ")}` : null,
     `Voraussichtl. Preis: ${preis.toFixed(2)} EUR`,
     ``,
     `Anmeldung ansehen: https://steg1possenhofen.de/fondue-anmeldung?token=${manageToken}`,
@@ -186,7 +188,7 @@ serve(async (req) => {
   // Stammdaten: aktive Varianten/Beilagen plus die, die die Anmeldung schon hat (auch wenn inzwischen inaktiv)
   const [vRes, bRes] = await Promise.all([
     pg("fondue_varianten?select=id,name,price_per_person,is_active&order=sort_order.asc"),
-    pg("fondue_beilagen?select=id,name,price,is_active&order=sort_order.asc"),
+    pg("fondue_beilagen?select=*&order=sort_order.asc"),
   ]);
   if (!vRes.ok || !bRes.ok) return jsonResponse({ error: "zutaten_lookup_failed" }, 500, cors);
   const varianten = await vRes.json();
@@ -287,7 +289,9 @@ serve(async (req) => {
     dateFormatted: terminLabelDe(termin.date, termin.start_time, termin.end_time),
     personenAlt, personenNeu,
     fondueZeilen: zeilen(variantenNeu, varianten),
-    beilagenZeilen: zeilen(beilagenNeu, beilagen),
+    // Desserts = fondue_beilagen mit kategorie 'dessert', in der Mail getrennt ausgewiesen
+    beilagenZeilen: zeilen(beilagenNeu, beilagen.filter((b: any) => b.kategorie !== "dessert")),
+    dessertZeilen: zeilen(beilagenNeu, beilagen.filter((b: any) => b.kategorie === "dessert")),
     preis,
     aufteilung: aufteilungsSatz(personenNeu),
   });
