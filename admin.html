@@ -651,6 +651,14 @@
           </div>
         </div>
 
+        <!-- Unter-Tabs: Termine, Anmeldungen und Speisekarte getrennt, damit lange Listen nicht stören -->
+        <div class="wz-subtab-nav" role="tablist">
+          <button type="button" class="wz-subtab-btn active" data-wz-subtab="termine" role="tab" aria-selected="true">Termine</button>
+          <button type="button" class="wz-subtab-btn" data-wz-subtab="anmeldungen" role="tab" aria-selected="false">Anmeldungen</button>
+          <button type="button" class="wz-subtab-btn" data-wz-subtab="speisekarte" role="tab" aria-selected="false">Speisekarte</button>
+        </div>
+
+        <div class="wz-subtab active" id="wz-subtab-termine" role="tabpanel">
         <div class="month-section">
           <div class="month-section-header">
             <h3>Termine</h3>
@@ -695,14 +703,9 @@
           </div>
           <div id="wz-termine-list"></div>
         </div>
-
-        <!-- Unter-Tabs: Anmeldungen und Speisekarte getrennt, damit die lange Liste nicht stört -->
-        <div class="wz-subtab-nav" role="tablist">
-          <button type="button" class="wz-subtab-btn active" data-wz-subtab="anmeldungen" role="tab" aria-selected="true">Anmeldungen</button>
-          <button type="button" class="wz-subtab-btn" data-wz-subtab="speisekarte" role="tab" aria-selected="false">Speisekarte</button>
         </div>
 
-        <div class="wz-subtab active" id="wz-subtab-anmeldungen" role="tabpanel">
+        <div class="wz-subtab" id="wz-subtab-anmeldungen" role="tabpanel">
         <div class="month-section">
           <div class="month-section-header">
             <h3>Anmeldungen</h3>
@@ -2638,7 +2641,7 @@
     });
     try {
       var savedWzSubtab = localStorage.getItem('wzAdminSubtab');
-      if(savedWzSubtab === 'speisekarte') showWzSubtab('speisekarte');
+      if(savedWzSubtab === 'anmeldungen' || savedWzSubtab === 'speisekarte') showWzSubtab(savedWzSubtab);
     } catch(e) {}
 
     // Autosave on blur (kein separater Save-Button — verhindert DOM-Rebuild-Race,
