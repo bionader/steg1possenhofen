@@ -310,6 +310,7 @@ footer{
 .wz-beilagen{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
 .wz-beilagen span{font-size:.72rem;color:var(--text2);background:rgba(42,123,111,.08);border-radius:100px;padding:.28rem .65rem;display:inline-flex;align-items:center;gap:.3em}
 .wz-beilagen span em{font-style:normal;color:var(--accent2);font-weight:600}
+.wz-beilagen span small{font-size:.68rem;color:var(--text3)}
 .wz-zelt-banner{border-radius:16px;overflow:hidden;background:var(--dark)}
 .wz-zelt-banner img{width:100%;height:auto;display:block}
 
@@ -1072,7 +1073,8 @@ function renderBeilagen() {
   var el = document.getElementById('wz-beilagen-list');
   el.innerHTML = beilagenList.map(function (b) {
     var priceTxt = (b.price != null && Number(b.price) > 0) ? '<em>' + Number(b.price).toFixed(2).replace('.', ',') + ' €</em>' : '';
-    return '<span>' + beilageIcon(b.name) + ' ' + escapeHtml(b.name) + priceTxt + '</span>';
+    var descTxt = b.description ? '<small>· ' + escapeHtml(b.description) + '</small>' : '';
+    return '<span>' + beilageIcon(b.name) + ' ' + escapeHtml(b.name) + descTxt + priceTxt + '</span>';
   }).join('');
 }
 

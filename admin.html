@@ -357,13 +357,23 @@
     .wz-zutat-row:last-child{border-bottom:none}
     .wz-zutat-input{padding:6px 10px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit;font-size:.85rem;min-width:0}
     .wz-zutat-input.name{flex:2}
+    .wz-zutat-input.desc{flex:3;color:var(--text3)}
     .wz-zutat-input.price{flex:0 0 90px;text-align:right}
     @media(max-width:600px){
-      /* Zutat-Zeile umbrechen: Name volle Breite, Preis + Toggle + Löschen darunter */
+      /* Zutat-Zeile umbrechen: Name + Beschreibung volle Breite, Preis + Toggle + Löschen darunter */
       .wz-zutat-row{flex-wrap:wrap}
-      .wz-zutat-input.name{flex:1 1 100%}
+      .wz-zutat-input.name,.wz-zutat-input.desc{flex:1 1 100%}
       .wz-zutat-input.price{flex:1 1 90px}
     }
+    /* Unter-Tabs im Winterzauber-Tab (Anmeldungen | Speisekarte) */
+    .wz-subtab-nav{display:flex;gap:3px;background:var(--sand3);border-radius:12px;padding:4px;margin-top:32px}
+    /* eigene Klasse statt .tab-btn — sonst greift der globale Haupt-Tab-Handler */
+    .wz-subtab-btn{width:auto;flex:1 1 0;padding:8px 12px;background:transparent;border:none;border-radius:8px;font-family:inherit;font-size:.85rem;color:var(--text3);cursor:pointer;transition:all .18s;font-weight:500;white-space:nowrap;text-align:center}
+    .wz-subtab-btn:hover{color:var(--text);background:rgba(255,255,255,.5)}
+    .wz-subtab-btn.active{background:var(--g);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(42,123,111,.25)}
+    .wz-subtab{display:none}
+    .wz-subtab.active{display:block}
+    .wz-subtab > .month-section:first-child{margin-top:20px;border-top:none;padding-top:0}
     .wz-zutat-row .toggle{flex:0 0 auto}
     .wz-zutat-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:4px 8px;width:auto}
     .wz-zutat-del:hover{color:#D94F4F}
@@ -686,7 +696,13 @@
           <div id="wz-termine-list"></div>
         </div>
 
-        <!-- Anmeldungen + Zutaten sub-sections added in Task 11 -->
+        <!-- Unter-Tabs: Anmeldungen und Speisekarte getrennt, damit die lange Liste nicht stört -->
+        <div class="wz-subtab-nav" role="tablist">
+          <button type="button" class="wz-subtab-btn active" data-wz-subtab="anmeldungen" role="tab" aria-selected="true">Anmeldungen</button>
+          <button type="button" class="wz-subtab-btn" data-wz-subtab="speisekarte" role="tab" aria-selected="false">Speisekarte</button>
+        </div>
+
+        <div class="wz-subtab active" id="wz-subtab-anmeldungen" role="tabpanel">
         <div class="month-section">
           <div class="month-section-header">
             <h3>Anmeldungen</h3>
@@ -695,11 +711,14 @@
           <select id="wz-anmeldungen-termin-filter" style="margin:10px 0;padding:8px 12px;border:1.5px solid var(--sand2);border-radius:8px;font-family:inherit"></select>
           <div id="wz-anmeldungen-list" style="overflow-x:auto"></div>
         </div>
+        </div>
 
+        <div class="wz-subtab" id="wz-subtab-speisekarte" role="tabpanel">
         <div class="month-section">
           <div class="month-section-header">
             <h3>Fondue-Varianten</h3>
           </div>
+          <div class="month-hint">Die Beschreibung erscheint auf der Winterzauber-Seite beim jeweiligen Eintrag. Leer lassen = kein Zusatztext.</div>
           <div id="wz-varianten-editor"></div>
           <button type="button" id="btn-wz-add-variante" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Variante hinzufügen</button>
         </div>
@@ -710,6 +729,7 @@
           </div>
           <div id="wz-beilagen-editor"></div>
           <button type="button" id="btn-wz-add-beilage" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Beilage hinzufügen</button>
+        </div>
         </div>
       </div>
     </div>
@@ -2564,7 +2584,8 @@
       var html = '';
       items.forEach(function(item){
         html += '<div class="wz-zutat-row" data-id="'+item.id+'" data-table="'+table+'" data-price-field="'+priceField+'">';
-        html += '<input class="wz-zutat-input name" data-field="name" value="'+esc(item.name)+'" placeholder="Name">';
+        html += '<input class="wz-zutat-input name" data-field="name" value="'+esc(item.name).replace(/"/g,'&quot;')+'" placeholder="Name">';
+        html += '<input class="wz-zutat-input desc" data-field="description" value="'+esc(item.description || '').replace(/"/g,'&quot;')+'" placeholder="Beschreibung (optional)">';
         html += '<input class="wz-zutat-input price" data-field="'+priceField+'" value="'+item[priceField]+'" placeholder="Preis">';
         html += '<label class="toggle" title="Aktiv"><input type="checkbox" data-field="is_active" '+(item.is_active?'checked':'')+'><span class="slider"></span></label>';
         html += '<button class="wz-zutat-del" data-id="'+item.id+'" data-table="'+table+'" title="Löschen">✕</button>';
@@ -2600,6 +2621,26 @@
       }).then(function(){ loadWinterzauberZutaten(); });
     });
 
+    // Unter-Tabs im Winterzauber-Tab umschalten; letzte Auswahl im Browser merken
+    function showWzSubtab(name){
+      document.querySelectorAll('[data-wz-subtab]').forEach(function(b){
+        var on = b.dataset.wzSubtab === name;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.wz-subtab').forEach(function(p){
+        p.classList.toggle('active', p.id === 'wz-subtab-' + name);
+      });
+      try { localStorage.setItem('wzAdminSubtab', name); } catch(e) {}
+    }
+    document.querySelectorAll('[data-wz-subtab]').forEach(function(b){
+      b.addEventListener('click', function(){ showWzSubtab(this.dataset.wzSubtab); });
+    });
+    try {
+      var savedWzSubtab = localStorage.getItem('wzAdminSubtab');
+      if(savedWzSubtab === 'speisekarte') showWzSubtab('speisekarte');
+    } catch(e) {}
+
     // Autosave on blur (kein separater Save-Button — verhindert DOM-Rebuild-Race,
     // siehe memory/feedback_dom_rebuild_race.md: nie auf jeden Keystroke re-rendern)
     ['wz-varianten-editor','wz-beilagen-editor'].forEach(function(containerId){
@@ -2612,6 +2653,8 @@
         var active = row.querySelector('[data-field="is_active"]').checked;
         var patch = {name:name, is_active:active};
         patch[priceField] = price;
+        var descInput = row.querySelector('[data-field="description"]');
+        if(descInput) patch.description = descInput.value.trim() || null;
         fetch(SB_URL+'/rest/v1/'+tbl+'?id=eq.'+id,{
           method:'PATCH',
           headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token},
