@@ -908,7 +908,7 @@ footer{
       <div class="wz-teaser-snow" id="wz-teaser-snow"></div>
       <p class="wz-teaser-tag"><span></span>Neu im Winter</p>
       <h2>Winterzauber<em>am Steg 1.</em></h2>
-      <p class="wz-teaser-p">Käsefondue im beheizten Zelt, donnerstags und freitags am winterstillen Ufer. Ab zehn Personen findet der Abend statt — vormerken ist unverbindlich.</p>
+      <p class="wz-teaser-p">Käsefondue im beheizten Zelt, donnerstags und freitags am winterstillen Ufer. Ab zehn Personen findet der Abend statt — die Vormerkung ist verbindlich, bis 5 Tage vorher kostenlos stornierbar.</p>
       <div class="wz-teaser-pill">
         <div class="wz-teaser-dot"><i></i><i class="ripple"></i></div>
         <div>
@@ -929,7 +929,7 @@ footer{
   </section>
   <div class="wz-teaser-facts">
     <div class="wz-teaser-fact"><div class="wz-teaser-fact-val">Do &amp; Fr · 17:15 / 19:30</div><div class="wz-teaser-fact-lbl">Termine</div></div>
-    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val" id="wz-teaser-fact-preis">29 € p. P.</div><div class="wz-teaser-fact-lbl">Fondue satt</div></div>
+    <div class="wz-teaser-fact"><div class="wz-teaser-fact-val" id="wz-teaser-fact-preis">ab 26,50 € p. P.</div><div class="wz-teaser-fact-lbl">Fondue satt</div></div>
     <div class="wz-teaser-fact"><div class="wz-teaser-fact-val" id="wz-teaser-fact-min">ab 10 Personen</div><div class="wz-teaser-fact-lbl">Termin findet statt</div></div>
     <div class="wz-teaser-fact"><div class="wz-teaser-fact-val">beheiztes Zelt</div><div class="wz-teaser-fact-lbl">direkt am Ufer</div></div>
   </div>
@@ -1558,7 +1558,11 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
         var today = new Date().toISOString().slice(0, 10);
         var termine = (results[0] || []).filter(function (t) { return t.date >= today; });
         var varianten = results[1] || [];
-        if (varianten.length) document.getElementById('wz-teaser-fact-preis').textContent = Number(varianten[0].price_per_person).toFixed(0) + ' € p. P.';
+        if (varianten.length) {
+          // Guenstigste Variante ohne Rundung: 26.5 -> "ab 26,50 € p. P."
+          var minPreis = Math.min.apply(null, varianten.map(function (v) { return Number(v.price_per_person) || 0; }));
+          document.getElementById('wz-teaser-fact-preis').textContent = 'ab ' + (minPreis % 1 === 0 ? minPreis.toFixed(0) : minPreis.toFixed(2).replace('.', ',')) + ' € p. P.';
+        }
         if (termine.length) document.getElementById('wz-teaser-fact-min').textContent = 'ab ' + termine[0].capacity_min + ' Personen';
         var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
         if (next) {

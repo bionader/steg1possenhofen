@@ -308,8 +308,8 @@ footer{
       </table>
     </div>
 
-    <p class="fa-storno-hint">Eure Vormerkung ist verbindlich. Bis 5&nbsp;Tage vor dem Termin storniert ihr hier kostenlos. Danach ist eine Stornierung <strong>kostenpflichtig</strong>: Die Reservierung inklusive aller gewählten Beilagen wird berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
-    <p class="fa-late-warn" id="fa-late-warn" style="display:none">Achtung: Die kostenfreie Stornofrist (5&nbsp;Tage vor dem Termin) ist abgelaufen. Eine Stornierung ist jetzt <strong>kostenpflichtig</strong> – die Reservierung inklusive aller gewählten Beilagen wird berechnet.</p>
+    <p class="fa-storno-hint">Eure Vormerkung ist verbindlich. Bis 5&nbsp;Tage vor dem Termin storniert ihr hier kostenlos. Danach ist eine Stornierung <strong>kostenpflichtig</strong>: Die Reservierung inklusive aller gewählten Beilagen und Desserts wird berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
+    <p class="fa-late-warn" id="fa-late-warn" style="display:none">Achtung: Die kostenfreie Stornofrist (5&nbsp;Tage vor dem Termin) ist abgelaufen. Eine Stornierung ist jetzt <strong>kostenpflichtig</strong> – die Reservierung inklusive aller gewählten Beilagen und Desserts wird berechnet.</p>
 
     <div class="fa-actions" id="fa-action-buttons">
       <button class="fa-btn fa-btn-cancel" onclick="showCancelDialog()">Anmeldung stornieren</button>
@@ -320,7 +320,7 @@ footer{
       <p id="fa-cancel-msg">Möchtest du deine Anmeldung wirklich stornieren?</p>
       <label class="fa-late-ack" id="fa-late-ack">
         <input type="checkbox" id="fa-late-ack-box" onchange="updateCancelButton()">
-        <span>Mir ist bewusst, dass die kostenfreie Stornofrist abgelaufen ist und diese Stornierung <strong>kostenpflichtig</strong> ist: Die Reservierung inklusive aller gewählten Beilagen wird berechnet.</span>
+        <span>Mir ist bewusst, dass die kostenfreie Stornofrist abgelaufen ist und diese Stornierung <strong>kostenpflichtig</strong> ist: Die Reservierung inklusive aller gewählten Beilagen und Desserts wird berechnet.</span>
       </label>
       <div class="fa-actions" style="margin-bottom:0">
         <button class="fa-btn fa-btn-danger" id="fa-cancel-confirm" onclick="confirmCancel()">Ja, stornieren</button>
@@ -530,7 +530,7 @@ function confirmCancel() {
       anmeldung = updated;
       if (isLateCancel) {
         document.getElementById('fa-cancel-success-text').textContent =
-          'Deine Anmeldung wurde storniert. Da die Stornierung nach Ablauf der kostenfreien Frist erfolgt ist, wird die Reservierung inklusive aller gewählten Beilagen berechnet – die Rechnung erhältst du an deine angegebene Anschrift.';
+          'Deine Anmeldung wurde storniert. Da die Stornierung nach Ablauf der kostenfreien Frist erfolgt ist, wird die Reservierung inklusive aller gewählten Beilagen und Desserts berechnet – die Rechnung erhältst du an deine angegebene Anschrift.';
       }
       document.getElementById('fa-late-warn').style.display = 'none';
       document.getElementById('fa-cancel-dialog').classList.remove('active');

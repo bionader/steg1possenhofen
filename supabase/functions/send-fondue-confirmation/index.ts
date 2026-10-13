@@ -92,8 +92,9 @@ function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: s
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
           </table>
         </div>
+        <p style="color:#4A4840;font-size:13px;margin:0 0 20px">Zur Erinnerung: Bis 5&nbsp;Tage vor Terminbeginn kannst du &uuml;ber den Link unten kostenlos stornieren. Danach ist eine Stornierung kostenpflichtig &ndash; die Reservierung inklusive aller gew&auml;hlten Beilagen und Desserts wird berechnet. Details in den <a href="https://steg1possenhofen.de/stornobedingungen" style="color:#2A7B6F">Stornobedingungen</a>.</p>
         <div style="margin-bottom:20px;text-align:center">
-          <a href="https://steg1possenhofen.de/fondue-anmeldung?token=${manageToken}" style="display:inline-block;padding:12px 28px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Anmeldung ansehen</a>
+          <a href="https://steg1possenhofen.de/fondue-anmeldung?token=${manageToken}" style="display:inline-block;padding:12px 28px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Anmeldung ansehen oder stornieren</a>
         </div>
         <p style="color:#4A4840;font-size:14px;margin:0">Wir freuen uns auf einen gem&uuml;tlichen Abend im Zelt!</p>
       </div>

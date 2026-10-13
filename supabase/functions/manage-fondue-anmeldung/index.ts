@@ -76,7 +76,7 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
             <tr><td style="padding:6px 0;color:#6C7871">Personen</td><td style="padding:6px 0;font-weight:500">${esc(personen)}</td></tr>
           </table>
         </div>
-        ${lateCancel ? `<div style="background:#fff;border:1.5px solid #D94F4F;border-left-width:4px;border-radius:12px;padding:16px 18px;margin:0 0 20px"><p style="color:#163D36;font-size:13px;font-weight:600;margin:0 0 4px">Kostenpflichtige Stornierung</p><p style="color:#4A4840;font-size:13px;margin:0">Diese Stornierung erfolgte nach Ablauf der kostenfreien Frist (5 Tage vor dem Termin) und ist kostenpflichtig. Die Reservierung inklusive aller gew&auml;hlten Beilagen wird berechnet; die Rechnung geht an die angegebene Anschrift.</p></div>` : ""}
+        ${lateCancel ? `<div style="background:#fff;border:1.5px solid #D94F4F;border-left-width:4px;border-radius:12px;padding:16px 18px;margin:0 0 20px"><p style="color:#163D36;font-size:13px;font-weight:600;margin:0 0 4px">Kostenpflichtige Stornierung</p><p style="color:#4A4840;font-size:13px;margin:0">Diese Stornierung erfolgte nach Ablauf der kostenfreien Frist (5 Tage vor dem Termin) und ist kostenpflichtig. Die Reservierung inklusive aller gew&auml;hlten Beilagen und Desserts wird berechnet; die Rechnung geht an die angegebene Anschrift.</p></div>` : ""}
         <p style="color:#4A4840;font-size:14px;margin:0">Schade, dass es diesmal nicht klappt &mdash; wir hoffen, dich bald am Steg 1 begr&uuml;&szlig;en zu d&uuml;rfen.</p>
       </div>
       <div style="border-top:1px solid #E4D9C4;padding:20px 28px;text-align:center">
@@ -97,7 +97,7 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
     `Telefon: ${phone}`,
     `Personen: ${personen}`,
     lateCancel ? `` : null,
-    lateCancel ? `HINWEIS: Kostenpflichtige Stornierung nach Ablauf der kostenfreien Frist (5 Tage vor dem Termin) — die Reservierung inkl. gewählter Beilagen wird berechnet.` : null,
+    lateCancel ? `HINWEIS: Kostenpflichtige Stornierung nach Ablauf der kostenfreien Frist (5 Tage vor dem Termin) — die Reservierung inkl. gewählter Beilagen und Desserts wird berechnet.` : null,
     ``,
     `Wir hoffen, dich bald am Steg 1 begrüßen zu dürfen.`,
   ].filter(Boolean).join("\n");
