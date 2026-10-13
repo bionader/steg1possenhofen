@@ -406,6 +406,11 @@ footer{
 .wz-gast-opt-fill{position:absolute;inset:0;border-radius:100px;background:transparent;opacity:0;transition:opacity .22s;pointer-events:none;box-shadow:0 2px 10px rgba(42,123,111,.22)}
 .wz-gast-opt.active .wz-gast-opt-fill{background:var(--g);opacity:1}
 .wz-gast-opt-txt{position:relative;color:var(--text2);transition:color .22s}
+@media(max-width:560px){
+  .wz-gast-row{flex-wrap:wrap;border-radius:18px;padding:.55rem .4rem .4rem 1rem;gap:.35rem}
+  .wz-gast-opts{width:100%}
+  .wz-gast-opt{flex:1 1 0;padding:.55rem .25rem;font-size:.78rem;white-space:nowrap}
+}
 .wz-gast-opt.active .wz-gast-opt-txt{color:var(--w)}
 .wz-consent{display:flex;gap:.65rem;align-items:flex-start;margin-top:1.1rem;font-size:.8rem;color:var(--text2);line-height:1.55;cursor:pointer}
 .wz-consent input{margin-top:.15rem;width:18px;height:18px;accent-color:var(--g);flex-shrink:0}
@@ -587,7 +592,7 @@ footer{
       <div class="wz-fondue-inner">
         <p class="wz-sec-tag"><span></span>Aus dem Topf</p>
         <h2 class="wz-h2">Käse, Brot, <em>Nachschlag</em>.</h2>
-        <p class="wz-sec-p" style="margin-bottom:1.75rem">Zwei Varianten, beide so lange, bis keiner mehr kann.</p>
+        <p class="wz-sec-p" id="wz-varianten-intro" style="margin-bottom:1.75rem">Drei Varianten, alle so lange, bis keiner mehr kann.</p>
         <div class="wz-fondue-list" id="wz-varianten-list">
           <p style="color:var(--text3);font-size:.88rem">Lädt…</p>
         </div>
@@ -721,7 +726,7 @@ footer{
     <p class="wz-sec-p on-dark">Wenn draußen der Frost zieht, laden wir euch in unser winterlich dekoriertes Zelt direkt am Ufer. Käsefondue, Kerzenschein und gute Gesellschaft — ein Abend, der wärmt.</p>
     <div class="wz-exp-grid">
       <div class="wz-exp-card"><div class="wz-exp-icon">⛺</div><h3>Iglu-Zelte &amp; großes Zelt</h3><p>Gemütliche, beheizte Iglu-Zelte mit je bis zu 12 Plätzen — hier findet das Käsefondue statt, kleinere Gruppen auch gemischt an einem Tisch. Das große Zelt gibt es auf Anfrage für private Winter- und Weihnachtsfeiern.</p></div>
-      <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer oder ohne Alkohol — geschmolzener Käse, knuspriges Brot und ausgewählte Beilagen für ein echtes Genusserlebnis.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer, ohne Alkohol oder mit Kräutern der Provence — geschmolzener Käse, knuspriges Brot und ausgewählte Beilagen für ein echtes Genusserlebnis.</p></div>
       <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Donnerstags &amp; Freitags</h3><p>November 2026 bis Februar 2027, jeweils 17:15–19:15 oder 19:30–21:30 Uhr. Die konkreten Termine seht ihr weiter oben.</p></div>
       <div class="wz-exp-card"><div class="wz-exp-icon">📍</div><h3>Am Wasser in Possenhofen</h3><p>Steg 1 · Kurt-Stieler-Straße 58 · 82343 Possenhofen. Direkt am Starnberger See — mitten in der Natur.</p></div>
     </div>
@@ -923,7 +928,17 @@ function hhmm(t) { return String(t || '').slice(0, 5); }
 function slotLabel(t) { return hhmm(t.start_time) + '–' + hhmm(t.end_time) + ' Uhr'; }
 function slotsOfDate(date) { return termine.filter(function (x) { return x.date === date; }); }
 function shortVariantLabel(name) {
-  return /alkohol/i.test(name || '') ? 'Ohne Alkohol' : 'Klassisch';
+  var n = name || '';
+  if (/alkohol/i.test(n)) return 'Ohne Alkohol';
+  if (/provence/i.test(n)) return 'Provence';
+  if (/klassisch/i.test(n)) return 'Klassisch';
+  return n.split(/\s+/)[0]; // Fallback fuer neue Varianten: erstes Wort
+}
+
+// Preis ohne Rundung: 27 -> "27 €", 27.5 -> "27,50 €"
+function formatEuro(x) {
+  var n = Number(x) || 0;
+  return (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2).replace('.', ',')) + ' €';
 }
 
 function terminState(t) {
@@ -1048,10 +1063,12 @@ function loadAll() {
 function renderVarianten() {
   var el = document.getElementById('wz-varianten-list');
   if (!variantenList.length) { el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Wird noch eingerichtet.</p>'; return; }
+  var zahlwort = ['', 'Eine Variante', 'Zwei Varianten, beide', 'Drei Varianten, alle', 'Vier Varianten, alle', 'Fünf Varianten, alle'][variantenList.length] || (variantenList.length + ' Varianten, alle');
+  document.getElementById('wz-varianten-intro').textContent = zahlwort + ' so lange, bis keiner mehr kann.';
   el.innerHTML = variantenList.map(function (v) {
     return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(v.name) + '</h3>' +
       (v.description ? '<p class="desc">' + escapeHtml(v.description) + '</p>' : '') + '</div>' +
-      '<div class="wz-fondue-price">' + Number(v.price_per_person).toFixed(0) + ' €<span>/ Person</span></div></div>';
+      '<div class="wz-fondue-price">' + formatEuro(v.price_per_person) + '<span>/ Person</span></div></div>';
   }).join('');
 }
 
@@ -1080,7 +1097,8 @@ function renderBeilagen() {
 
 function renderHeroFacts() {
   if (variantenList.length) {
-    document.getElementById('wz-fact-preis').textContent = Number(variantenList[0].price_per_person).toFixed(0) + ' € p. P.';
+    var minPreis = Math.min.apply(null, variantenList.map(function (v) { return Number(v.price_per_person) || 0; }));
+    document.getElementById('wz-fact-preis').textContent = 'ab ' + formatEuro(minPreis) + ' p. P.';
   }
   if (termine.length) {
     document.getElementById('wz-fact-min').textContent = 'ab ' + termine[0].capacity_min + ' Personen';
@@ -1271,7 +1289,7 @@ function initGaeste(n) {
 
 function renderGaeste() {
   document.getElementById('wz-personen-count').textContent = gaesteVarianten.length;
-  var opts = variantenList.slice(0, 2);
+  var opts = variantenList;
   var el = document.getElementById('wz-gaeste-list');
   el.innerHTML = gaesteVarianten.map(function (vid, i) {
     var buttons = opts.map(function (v) {
@@ -1300,7 +1318,7 @@ function updateSumme() {
     return s + (b ? Number(b.price) * wzBeilagenMengen[id] : 0);
   }, 0);
   var total = varSum + beilSum;
-  document.getElementById('wz-summe').textContent = total.toFixed(0) + ' €';
+  document.getElementById('wz-summe').textContent = formatEuro(total);
   document.getElementById('wz-summe-hint').textContent =
     'für ' + gaesteVarianten.length + ' × Fondue satt' + (beilSum > 0 ? ' inkl. Beilagen' : '');
 }
@@ -1311,7 +1329,7 @@ function renderBeilMengen() {
   if (!beilagenList.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
   el.innerHTML = beilagenList.map(function (b) {
     var n = wzBeilagenMengen[b.id] || 0;
-    var priceTxt = Number(b.price) > 0 ? (Number(b.price).toFixed(2) + ' €/Portion') : 'ohne Aufpreis';
+    var priceTxt = Number(b.price) > 0 ? (formatEuro(b.price) + '/Portion') : 'ohne Aufpreis';
     return '<div class="wz-beilmenge-row" data-id="' + b.id + '">' +
       '<span class="lbl">' + escapeHtml(b.name) + '</span>' +
       '<span class="price">' + priceTxt + '</span>' +

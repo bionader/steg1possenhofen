@@ -2163,6 +2163,7 @@
       function wzVariantShort(name){
         if(/klassisch/i.test(name)) return 'Klass.';
         if(/alkoholfrei/i.test(name)) return 'Alkfr.';
+        if(/provence/i.test(name)) return 'Prov.';
         if(/vegan/i.test(name)) return 'Vegan';
         var w = String(name).split(/\s+/)[0];
         return w.length > 6 ? w.slice(0,5) + '.' : w;
