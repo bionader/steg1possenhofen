@@ -662,9 +662,12 @@
         <div class="month-section">
           <div class="month-section-header">
             <h3>Termine</h3>
-            <div style="display:flex;gap:10px;align-items:center">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <select id="wz-termine-monthfilter" style="width:auto;padding:6px 12px;font-size:.82rem;border:1.5px solid var(--sand2);border-radius:100px;font-family:inherit;background:var(--w);color:var(--text);cursor:pointer">
                 <option value="">Alle Monate</option>
+              </select>
+              <select id="wz-termine-kwfilter" aria-label="Kalenderwoche" style="width:auto;padding:6px 12px;font-size:.82rem;border:1.5px solid var(--sand2);border-radius:100px;font-family:inherit;background:var(--w);color:var(--text);cursor:pointer">
+                <option value="">Alle KW</option>
               </select>
               <button type="button" id="btn-wz-new-termin" style="width:auto;padding:6px 14px;font-size:.82rem">+ Neuer Termin</button>
             </div>
@@ -1764,17 +1767,55 @@
       sel.value = keys.indexOf(prev) !== -1 ? prev : '';
     }
 
+    // ISO-Kalenderwoche als Schlüssel "2026-W45" (Woche gehört zum Jahr ihres Donnerstags)
+    function wzIsoWeekKey(iso){
+      var p = iso.split('-').map(Number);
+      var d = new Date(Date.UTC(p[0], p[1]-1, p[2]));
+      var day = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - day);
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      var week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+      return d.getUTCFullYear() + '-W' + (week < 10 ? '0' : '') + week;
+    }
+
+    // KW-Filter-Optionen aus den Terminen des gewählten Monats aufbauen (Auswahl bleibt erhalten, sofern noch vorhanden)
+    function populateWzKwFilter(monthFilter){
+      var sel = document.getElementById('wz-termine-kwfilter');
+      var prev = sel.value;
+      var weeks = {}; // key -> { first, last } Datum der Termine in dieser Woche
+      wzTermine.forEach(function(t){
+        if(monthFilter && t.date.slice(0,7) !== monthFilter) return;
+        var k = wzIsoWeekKey(t.date);
+        if(!weeks[k]) weeks[k] = { first: t.date, last: t.date };
+        if(t.date < weeks[k].first) weeks[k].first = t.date;
+        if(t.date > weeks[k].last) weeks[k].last = t.date;
+      });
+      var keys = Object.keys(weeks).sort();
+      var fmt = function(iso){ var p = iso.split('-'); return p[2]+'.'+p[1]+'.'; };
+      sel.innerHTML = '<option value="">Alle KW</option>';
+      keys.forEach(function(k){
+        var w = weeks[k];
+        var range = w.first === w.last ? fmt(w.first) : fmt(w.first)+'–'+fmt(w.last);
+        sel.innerHTML += '<option value="'+k+'">KW '+parseInt(k.split('-W')[1],10)+' · '+range+'</option>';
+      });
+      sel.value = keys.indexOf(prev) !== -1 ? prev : '';
+    }
+
     function renderWinterzauberTermine(){
       var el = document.getElementById('wz-termine-list');
       populateWzMonthFilter();
       if(!wzTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Noch keine Termine angelegt.</p>'; return; }
 
       var monthFilter = document.getElementById('wz-termine-monthfilter').value;
-      var visibleTermine = monthFilter
-        ? wzTermine.filter(function(t){ return t.date.slice(0,7) === monthFilter; })
-        : wzTermine;
+      populateWzKwFilter(monthFilter);
+      var kwFilter = document.getElementById('wz-termine-kwfilter').value;
+      var visibleTermine = wzTermine.filter(function(t){
+        if(monthFilter && t.date.slice(0,7) !== monthFilter) return false;
+        if(kwFilter && wzIsoWeekKey(t.date) !== kwFilter) return false;
+        return true;
+      });
 
-      if(!visibleTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Termine in diesem Monat.</p>'; return; }
+      if(!visibleTermine.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Termine im gewählten Zeitraum.</p>'; return; }
 
       Promise.all(visibleTermine.map(function(t){
         // Volle Anmeldungsliste je Termin (fuer die aufklappbare Teilnehmeranzeige);
@@ -2461,6 +2502,7 @@
 
     // Monatsfilter: nur neu rendern, kein Reload nötig (Filterung ist rein clientseitig)
     document.getElementById('wz-termine-monthfilter').addEventListener('change', renderWinterzauberTermine);
+    document.getElementById('wz-termine-kwfilter').addEventListener('change', renderWinterzauberTermine);
 
     document.getElementById('btn-wz-nt-save').addEventListener('click',function(){
       var btn = this;
