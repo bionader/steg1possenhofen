@@ -910,7 +910,6 @@ var wzBeilagenMengen = {}; // { beilageId: menge } — gilt pro Vormerkung, nich
 var selectedTerminId = null;
 var currentMonat = null; // Monatsschlüssel (Jahr*12+Monat) des angezeigten Kalendermonats
 var gaesteVarianten = [];
-var baseYear = null;
 
 function escapeHtml(str) {
   return String(str == null ? '' : str)
@@ -927,7 +926,7 @@ function parseLocalDate(iso) {
 function monthKey(t) { var d = parseLocalDate(t.date); return d.getFullYear() * 12 + d.getMonth(); }
 function monthLabel(k) {
   var year = Math.floor(k / 12), month = k % 12;
-  return MON_LONG[month] + (year !== baseYear ? ' ’' + String(year).slice(2) : '');
+  return MON_LONG[month] + ' ’' + String(year).slice(2);
 }
 function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ', ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
 
@@ -1049,7 +1048,6 @@ function loadAll() {
     termine = (results[0] || []).filter(function (t) { return t.date >= today && t.status !== 'abgesagt'; });
     variantenList = results[1] || [];
     beilagenList = results[2] || [];
-    baseYear = termine.length ? parseLocalDate(termine[0].date).getFullYear() : new Date().getFullYear();
 
     renderVarianten();
     renderBeilagen();
