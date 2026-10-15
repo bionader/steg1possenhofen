@@ -77,7 +77,7 @@ function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: s
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
         <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
-        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue im beheizten Zelt</p>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue in beheizten Iglus</p>
       </div>
       <div style="padding:28px">
         <h2 style="font-family:'Petrona',Georgia,serif;color:#2E9E4A;font-size:20px;font-weight:600;margin:0 0 8px">Dein Termin ist verbindlich best&auml;tigt! &#127853;</h2>
@@ -96,7 +96,7 @@ function buildConfirmationHtml(name: string, anmeldungId: string, manageToken: s
         <div style="margin-bottom:20px;text-align:center">
           <a href="https://steg1possenhofen.de/fondue-anmeldung?token=${manageToken}" style="display:inline-block;padding:12px 28px;background:#fff;border:1.5px solid #2A7B6F;border-radius:100px;text-decoration:none;color:#2A7B6F;font-size:13px;font-weight:500">Anmeldung ansehen oder stornieren</a>
         </div>
-        <p style="color:#4A4840;font-size:14px;margin:0">Wir freuen uns auf einen gem&uuml;tlichen Abend im Zelt!</p>
+        <p style="color:#4A4840;font-size:14px;margin:0">Wir freuen uns auf einen gem&uuml;tlichen Abend im Iglu!</p>
       </div>
       <div style="border-top:1px solid #E4D9C4;padding:20px 28px;text-align:center">
         <p style="color:#6C7871;font-size:12px;margin:0">Steg 1 Possenhofen &middot; Am Starnberger See</p>
