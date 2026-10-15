@@ -1,5 +1,5 @@
-// Gemeinsame Helfer für Winterzauber-Zeitslots (von mehreren Edge Functions importiert).
-// Frontend-Pendants liegen bewusst dupliziert in winterzauber.html, fondue-anmeldung.html, admin.html.
+// Gemeinsame Helfer für Winterhafen-Zeitslots (von mehreren Edge Functions importiert).
+// Frontend-Pendants liegen bewusst dupliziert in winterhafen.html, fondue-anmeldung.html, admin.html.
 
 // "17:15:00" -> "17:15"
 export function hhmm(t: string | null | undefined): string {

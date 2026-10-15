@@ -365,7 +365,7 @@
       .wz-zutat-input.name,.wz-zutat-input.desc{flex:1 1 100%}
       .wz-zutat-input.price{flex:1 1 90px}
     }
-    /* Unter-Tabs im Winterzauber-Tab (Anmeldungen | Speisekarte) */
+    /* Unter-Tabs im Winterhafen-Tab (Anmeldungen | Speisekarte) */
     .wz-subtab-nav{display:flex;gap:3px;background:var(--sand3);border-radius:12px;padding:4px;margin-top:32px}
     /* eigene Klasse statt .tab-btn — sonst greift der globale Haupt-Tab-Handler */
     .wz-subtab-btn{width:auto;flex:1 1 0;padding:8px 12px;background:transparent;border:none;border-radius:8px;font-family:inherit;font-size:.85rem;color:var(--text3);cursor:pointer;transition:all .18s;font-weight:500;white-space:nowrap;text-align:center}
@@ -462,7 +462,7 @@
       </div>
 
       <select class="tab-select" id="tab-select" aria-label="Bereich wählen">
-        <option value="winterzauber">Winterzauber</option>
+        <option value="winterzauber">Winterhafen</option>
         <option value="schedule">Öffnungszeiten</option>
         <option value="sup">SUP-Buchungen</option>
         <option value="menu">Speisekarte</option>
@@ -471,7 +471,7 @@
         <option value="jobs">Jobs</option>
       </select>
       <div class="tab-nav" id="tab-nav">
-        <button class="tab-btn active" data-tab="winterzauber" id="tab-winterzauber">Winterzauber</button>
+        <button class="tab-btn active" data-tab="winterzauber" id="tab-winterzauber">Winterhafen</button>
         <button class="tab-btn" data-tab="schedule" id="tab-schedule">Öffnungszeiten</button>
         <button class="tab-btn" data-tab="sup" id="tab-sup">SUP-Buchungen</button>
         <button class="tab-btn" data-tab="menu" id="tab-menu">Speisekarte</button>
@@ -626,24 +626,24 @@
         </div>
       </div>
 
-      <!-- Tab 7: Winterzauber -->
+      <!-- Tab 7: Winterhafen -->
       <div class="tab-content active" id="content-winterzauber">
         <div class="cal-header">
-          <h2>Winterzauber — Käsefondue</h2>
+          <h2>Winterhafen — Käsefondue</h2>
           <span class="cal-hint">Feature-Flag, Termine, Anmeldungen, Zutaten</span>
         </div>
         <div id="wz-admin-message"></div>
 
         <div class="month-section">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
-            <label class="toggle" title="Winterzauber-Seite ein/aus">
+            <label class="toggle" title="Winterhafen-Seite ein/aus">
               <input type="checkbox" id="wz-active-toggle"><span class="slider"></span>
             </label>
             <span style="font-size:.92rem;color:var(--text);font-weight:500">Seite live schalten (Nav-Punkt, Startseiten-Teaser, Anmeldung)</span>
           </div>
           <p style="font-size:.82rem;color:var(--text3);margin:8px 0 0">
             Zum Testen ohne Live-Schaltung:
-            <a href="/winterzauber?preview=1" target="_blank" rel="noopener" style="color:var(--g);font-weight:500">Vorschau öffnen</a>
+            <a href="/winterhafen?preview=1" target="_blank" rel="noopener" style="color:var(--g);font-weight:500">Vorschau öffnen</a>
             — zeigt die Seite trotz ausgeschaltetem Flag, öffentlich bleibt sie unsichtbar.
           </p>
           <div style="display:flex;justify-content:flex-end;margin-top:16px">
@@ -724,7 +724,7 @@
           <div class="month-section-header">
             <h3>Fondue-Varianten</h3>
           </div>
-          <div class="month-hint">Die Beschreibung erscheint auf der Winterzauber-Seite beim jeweiligen Eintrag. Leer lassen = kein Zusatztext.</div>
+          <div class="month-hint">Die Beschreibung erscheint auf der Winterhafen-Seite beim jeweiligen Eintrag. Leer lassen = kein Zusatztext.</div>
           <div id="wz-varianten-editor"></div>
           <button type="button" id="btn-wz-add-variante" style="width:auto;padding:6px 14px;font-size:.82rem;margin-top:10px">+ Variante hinzufügen</button>
         </div>
@@ -781,7 +781,7 @@
 </div>
 
   <script type="module">
-    // Iglu-Verteilungslogik (gleiche Datei wie winterzauber.html; Edge Function nutzt eine Kopie)
+    // Iglu-Verteilungslogik (gleiche Datei wie winterhafen.html; Edge Function nutzt eine Kopie)
     import * as IgluVerteilung from './js/iglu-verteilung.js';
     window.IgluVerteilung = IgluVerteilung;
     window.dispatchEvent(new Event('iglu-ready'));
@@ -875,7 +875,7 @@
         document.getElementById('content-schedule').classList.add('active');
         loadSchedule();
       } else {
-        // Voll-Admin — alle Tabs. Startansicht: Winterzauber (Punkt 2 Feedback-Runde).
+        // Voll-Admin — alle Tabs. Startansicht: Winterhafen (Punkt 2 Feedback-Runde).
         document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
         document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
         document.getElementById('tab-winterzauber').classList.add('active');
@@ -1682,7 +1682,7 @@
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
     });
 
-    // ── Winterzauber: Feature-Flag ──
+    // ── Winterhafen: Feature-Flag ──
     function loadWinterzauberSettings(){
       fetch(SB_URL+'/rest/v1/winterzauber_settings?id=eq.1&select=active',{
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}
@@ -1693,7 +1693,7 @@
           document.getElementById('wz-active-toggle').checked = !!data[0].active;
         }
       })
-      .catch(function(){msg('Konnte Winterzauber-Einstellungen nicht laden','error','wz-admin-message')});
+      .catch(function(){msg('Konnte Winterhafen-Einstellungen nicht laden','error','wz-admin-message')});
     }
 
     document.getElementById('btn-save-wz-active').addEventListener('click',function(){
@@ -1717,7 +1717,7 @@
       .finally(function(){btn.disabled=false;btn.textContent='Speichern'});
     });
 
-    // ── Winterzauber: Termine ──
+    // ── Winterhafen: Termine ──
     var wzTermine = [];
     // Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15"
     function wzHhmm(t){ return String(t||'').slice(0,5); }
@@ -2333,7 +2333,7 @@
         + 'table.gl{width:auto;max-width:100%}table.gl th.nm{white-space:nowrap;padding:5px 14px}table.gl td{white-space:nowrap}th.rowlbl{white-space:nowrap;text-align:left}'
         + '@media print{body{margin:10mm}button{display:none}.pagebreak{break-before:page;page-break-before:always}table.gl{break-inside:avoid}}'
         + '</style></head><body>'
-        + '<h1>Winterzauber — Vorbereitungsliste</h1>'
+        + '<h1>Winterhafen — Vorbereitungsliste</h1>'
         + '<p class="meta">Termin ' + e(dateFmt) + ' &middot; Status: ' + e(termin.status) + ' &middot; erstellt ' + e(erstellt) + '</p>'
         + '<button onclick="window.print()">Drucken / als PDF sichern</button>'
         + '<h2>Zusammenfassung</h2>'
@@ -2565,7 +2565,7 @@
       .catch(function(){msg('Konnte Termine nicht laden','error','wz-admin-message')});
     }
 
-    // ── Winterzauber: Anmeldungen ──
+    // ── Winterhafen: Anmeldungen ──
     function loadWinterzauberAnmeldungenFilter(){
       var sel = document.getElementById('wz-anmeldungen-termin-filter');
       sel.innerHTML = '<option value="">Alle Termine</option>';
@@ -2629,7 +2629,7 @@
     }
     var WZ_STATUS_LABELS_ANMELD = {vorgemerkt:'Vorgemerkt',bestaetigt:'Bestätigt',storniert:'Storniert',abgesagt:'Abgesagt'};
 
-    // ── Winterzauber: Zutaten-Editor (Varianten + Beilagen, flache Listen) ──
+    // ── Winterhafen: Zutaten-Editor (Varianten + Beilagen, flache Listen) ──
     var wzVarianten = [], wzBeilagen = [];
 
     function loadWinterzauberZutaten(){
@@ -2701,7 +2701,7 @@
       }).then(function(){ loadWinterzauberZutaten(); });
     });
 
-    // Unter-Tabs im Winterzauber-Tab umschalten; letzte Auswahl im Browser merken
+    // Unter-Tabs im Winterhafen-Tab umschalten; letzte Auswahl im Browser merken
     function showWzSubtab(name){
       document.querySelectorAll('[data-wz-subtab]').forEach(function(b){
         var on = b.dataset.wzSubtab === name;

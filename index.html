@@ -52,7 +52,7 @@
   --dur-1:180ms;--dur-2:260ms;--dur-3:420ms;--dur-4:700ms;
   /* focus */
   --ring:0 0 0 3px rgba(42,123,111,.28), 0 0 0 1.5px var(--g);
-  /* winterzauber teaser */
+  /* winterhafen teaser */
   --wz-dark:#1B2B28;
 }
 @keyframes wz-fall{0%{transform:translate3d(0,-12vh,0) rotate(0deg);opacity:0}10%{opacity:.9}100%{transform:translate3d(var(--dx,20px),112vh,0) rotate(360deg);opacity:0}}
@@ -166,7 +166,7 @@ nav.scrolled{
   transform:translateY(-1px);
   box-shadow:0 4px 20px rgba(42,123,111,.22);
 }
-/* Winterzauber: Orange-Variante des Nav-CTA + durchlaufender Werbebanner */
+/* Winterhafen: Orange-Variante des Nav-CTA + durchlaufender Werbebanner */
 .nav-cta-group{display:flex;align-items:center;gap:.55rem}
 .nav-cta-group .nav-cta{white-space:nowrap}
 .nav-cta-wz{background:var(--accent);color:#1B2B28;box-shadow:0 2px 12px rgba(212,136,58,.22)}
@@ -187,8 +187,8 @@ nav.scrolled{
 @keyframes wz-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.wz-promo-on .hero-left{padding-top:2.4rem}
 @media(max-width:900px){
-  /* Nav ist mobil eng: solange Winterzauber laeuft, zeigt der Header oben nur den
-     Winterzauber-Button (SUP buchen bleibt ueber Mobile-Menue erreichbar). */
+  /* Nav ist mobil eng: solange Winterhafen laeuft, zeigt der Header oben nur den
+     Winterhafen-Button (SUP buchen bleibt ueber Mobile-Menue erreichbar). */
   body.wz-promo-on #nav-cta-sup{display:none}
   .wz-promo{margin-top:5.2rem;font-size:.8rem;padding:.7rem 0}
   .wz-promo-item{padding-right:2.75rem}
@@ -800,11 +800,11 @@ footer{
     <li><a href="galerie">Unser Steg 1</a></li>
     <li><a href="veranstaltungen">Veranstaltungen</a></li>
     <li id="nav-jobs-item"><a href="jobs">Jobs</a></li>
-    <li id="nav-winterzauber-item" style="display:none"><a href="winterzauber">Winterzauber</a></li>
+    <li id="nav-winterzauber-item" style="display:none"><a href="winterhafen">Winterhafen</a></li>
     <li><a href="kontakt">Kontakt</a></li>
   </ul>
   <div class="nav-cta-group">
-    <a href="winterzauber" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterzauber</a>
+    <a href="winterhafen" id="nav-winterzauber-cta" class="nav-cta nav-cta-wz" style="display:none">Winterhafen</a>
     <a href="sup" id="nav-cta-sup" class="nav-cta">SUP buchen</a>
   </div>
   <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false">
@@ -812,11 +812,11 @@ footer{
   </button>
 </nav>
 
-<!-- Winterzauber-Werbebanner: durchlaufender Marquee (nur sichtbar wenn Feature aktiv) -->
-<a href="winterzauber" id="wz-promo" class="wz-promo" style="display:none" aria-label="Neu ab diesem Herbst: Winterzauber — Käsefondue in beheizten Iglus">
+<!-- Winterhafen-Werbebanner: durchlaufender Marquee (nur sichtbar wenn Feature aktiv) -->
+<a href="winterhafen" id="wz-promo" class="wz-promo" style="display:none" aria-label="Neu ab diesem Herbst: Winterhafen — Käsefondue in beheizten Iglus">
   <span class="wz-promo-track" aria-hidden="true">
-    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue in beheizten Iglus&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Donnerstag bis Sonntag am winterstillen Ufer&nbsp;&nbsp;❄️</span>
-    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterzauber — Käsefondue in beheizten Iglus&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Donnerstag bis Sonntag am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterhafen — Käsefondue in beheizten Iglus&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Donnerstag bis Sonntag am winterstillen Ufer&nbsp;&nbsp;❄️</span>
+    <span class="wz-promo-item">⛺&nbsp;&nbsp;<strong>Neu ab diesem Herbst:</strong>&nbsp;Winterhafen — Käsefondue in beheizten Iglus&nbsp;&nbsp;🧀&nbsp;&nbsp;·&nbsp;&nbsp;Donnerstag bis Sonntag am winterstillen Ufer&nbsp;&nbsp;❄️</span>
   </span>
 </a>
 
@@ -828,9 +828,9 @@ footer{
   <a href="galerie">Unser Steg 1</a>
   <a href="veranstaltungen">Veranstaltungen</a>
   <a href="jobs" id="mm-jobs-item">Jobs</a>
-  <a href="winterzauber" id="mm-winterzauber-item" style="display:none">Winterzauber</a>
+  <a href="winterhafen" id="mm-winterzauber-item" style="display:none">Winterhafen</a>
   <a href="kontakt">Kontakt</a>
-  <a href="winterzauber" id="mm-winterzauber-cta" class="mm-cta mm-cta-wz" style="display:none">Winterzauber vormerken</a>
+  <a href="winterhafen" id="mm-winterzauber-cta" class="mm-cta mm-cta-wz" style="display:none">Winterhafen vormerken</a>
   <a href="sup" class="mm-cta">SUP buchen</a>
 </div>
 
@@ -895,19 +895,19 @@ footer{
         })();
       </script>
       <p class="schedule-hint">⛅ Abweichungen durch schlechtes Wetter möglich</p>
-      <p class="schedule-hint" id="wz-oeffnung-hint" style="display:none">⛺ Winterzauber-Öffnungszeiten können abweichen</p>
+      <p class="schedule-hint" id="wz-oeffnung-hint" style="display:none">⛺ Winterhafen-Öffnungszeiten können abweichen</p>
     </div>
   </div>
 </section>
 
-<!-- WINTERZAUBER TEASER: nur sichtbar wenn winterzauber_settings.active = true -->
+<!-- WINTERHAFEN TEASER: nur sichtbar wenn winterzauber_settings.active = true -->
 <div id="wz-teaser-wrap" style="display:none">
   <section class="wz-teaser">
     <div class="wz-teaser-left">
       <div class="wz-teaser-glow"></div>
       <div class="wz-teaser-snow" id="wz-teaser-snow"></div>
       <p class="wz-teaser-tag"><span></span>Neu im Winter</p>
-      <h2>Winterzauber<em>am Steg 1.</em></h2>
+      <h2>Winterhafen<em>am Steg 1.</em></h2>
       <p class="wz-teaser-p">Käsefondue in beheizten Iglus, Donnerstag bis Sonntag am winterstillen Ufer. Ab zehn Personen findet der Abend statt — die Vormerkung ist verbindlich, bis 5 Tage vorher kostenlos stornierbar.</p>
       <div class="wz-teaser-pill">
         <div class="wz-teaser-dot"><i></i><i class="ripple"></i></div>
@@ -917,9 +917,9 @@ footer{
         </div>
       </div>
       <div class="wz-teaser-ctas">
-        <a href="winterzauber" class="wz-teaser-btn">Platz vormerken</a>
-        <a href="winterzauber#fondue" class="wz-teaser-btn-outline">Was es gibt</a>
-        <a href="winterzauber#privatfeiern" class="wz-teaser-btn-outline">Private Winterfeiern</a>
+        <a href="winterhafen" class="wz-teaser-btn">Platz vormerken</a>
+        <a href="winterhafen#fondue" class="wz-teaser-btn-outline">Was es gibt</a>
+        <a href="winterhafen#privatfeiern" class="wz-teaser-btn-outline">Private Winterfeiern</a>
       </div>
     </div>
     <div class="wz-teaser-right">
@@ -1035,7 +1035,7 @@ footer{
       <a href="speisekarte">Speisekarte</a>
       <a href="galerie">Unser Steg 1</a>
       <a href="veranstaltungen">Veranstaltungen</a>
-      <a href="winterzauber" id="footer-winterzauber-item" style="display:none">Winterzauber</a>
+      <a href="winterhafen" id="footer-winterzauber-item" style="display:none">Winterhafen</a>
       <a href="kontakt">Kontakt</a>
     </div>
   </details>
@@ -1502,7 +1502,7 @@ setInterval(function(){atmIdx++;if(atmIdx>=atmCount)atmIdx=0;document.getElement
     .catch(function () {});
 })();
 
-// Winterzauber-Teaser + Nav/Footer-Punkt: nur sichtbar wenn winterzauber_settings.active = true
+// Winterhafen-Teaser + Nav/Footer-Punkt: nur sichtbar wenn winterzauber_settings.active = true
 // (fail-closed — anders als der Jobs-Toggle oben, der fail-open ist, weil ein unfertiges
 // Winter-Feature nicht versehentlich öffentlich sichtbar werden darf).
 (function () {

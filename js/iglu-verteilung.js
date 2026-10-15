@@ -1,4 +1,4 @@
-// Iglu-Verteilung fuer den Winterzauber (3 Iglus x 12 Plaetze pro Slot).
+// Iglu-Verteilung fuer den Winterhafen (3 Iglus x 12 Plaetze pro Slot).
 // ORIGINAL: js/iglu-verteilung.js — supabase/functions/_shared/iglu-verteilung.js ist eine
 // byte-identische Kopie fuer die Edge Function (der Test prueft die Gleichheit).
 // Nach jeder Aenderung: cp js/iglu-verteilung.js supabase/functions/_shared/iglu-verteilung.js

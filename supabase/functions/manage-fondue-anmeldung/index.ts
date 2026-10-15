@@ -61,11 +61,11 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
         <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
-        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue in beheizten Iglus</p>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterhafen &mdash; K&auml;sefondue in beheizten Iglus</p>
       </div>
       <div style="padding:28px">
         <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Anmeldung storniert</h2>
-        <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, deine Anmeldung zum Winterzauber am ${esc(dateFormattedStr)} wurde storniert.</p>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, deine Anmeldung zum Winterhafen am ${esc(dateFormattedStr)} wurde storniert.</p>
         <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin:0 0 20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             ${anmeldungId ? `<tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>` : ""}
@@ -86,11 +86,11 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
   `;
 
   const text = [
-    `Steg 1 Possenhofen — Winterzauber`,
+    `Steg 1 Possenhofen — Winterhafen`,
     ``,
     `ANMELDUNG STORNIERT`,
     ``,
-    `Hallo ${name}, deine Anmeldung zum Winterzauber am ${dateFormattedStr} wurde storniert.`,
+    `Hallo ${name}, deine Anmeldung zum Winterhafen am ${dateFormattedStr} wurde storniert.`,
     anmeldungId ? `Anmeldung: ${anmeldungId}` : null,
     `Name: ${name}`,
     `E-Mail: ${email}`,
@@ -111,7 +111,7 @@ async function sendStornoMail(email: string, name: string, dateFormattedStr: str
         to: [email],
         bcc: ["reservierung@steg1possenhofen.de"],
         reply_to: "reservierung@steg1possenhofen.de",
-        subject: `Deine Winterzauber-Anmeldung am ${dateFormattedStr} wurde storniert${lateCancel ? " (kostenpflichtig)" : ""}`,
+        subject: `Deine Winterhafen-Anmeldung am ${dateFormattedStr} wurde storniert${lateCancel ? " (kostenpflichtig)" : ""}`,
         html,
         text,
       }),

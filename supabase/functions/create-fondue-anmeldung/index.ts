@@ -103,11 +103,11 @@ function buildMailHtml(opts: {
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
         <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
-        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue in beheizten Iglus</p>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterhafen &mdash; K&auml;sefondue in beheizten Iglus</p>
       </div>
       <div style="padding:28px">
         <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Deine Vormerkung ist eingegangen</h2>
-        <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${esc(name)}, vielen Dank f&uuml;r deine Anmeldung zum Winterzauber.</p>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 20px">Hallo ${esc(name)}, vielen Dank f&uuml;r deine Anmeldung zum Winterhafen.</p>
         <div style="background:#fff;border:1.5px solid #D4883A;border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:20px">
           <p style="color:#163D36;font-size:14px;font-weight:600;margin:0 0 4px">Wichtiger Hinweis</p>
           <p style="color:#4A4840;font-size:13px;margin:0">Deine Vormerkung ist mit dem Absenden verbindlich. Der Termin findet ab insgesamt zehn angemeldeten Personen statt; sobald die Mindestteilnehmerzahl erreicht ist, bekommst du von uns die Best&auml;tigung. Bis 5&nbsp;Tage vor Terminbeginn kannst du &uuml;ber den Link unten kostenlos stornieren. <strong>Sp&auml;tere Stornierungen sind kostenpflichtig</strong> &ndash; dann wird die Reservierung inklusive aller gew&auml;hlten Beilagen und Desserts berechnet. Die vollst&auml;ndigen <a href="https://steg1possenhofen.de/stornobedingungen" style="color:#2A7B6F">Stornobedingungen</a> findest du auf unserer Website.</p>
@@ -332,7 +332,7 @@ serve(async (req) => {
         to: [email],
         bcc: ["reservierung@steg1possenhofen.de"],
         reply_to: "reservierung@steg1possenhofen.de",
-        subject: `Deine Vormerkung für den Winterzauber am ${dateFormatted}`,
+        subject: `Deine Vormerkung für den Winterhafen am ${dateFormatted}`,
         html: buildMailHtml({
           name,
           email,

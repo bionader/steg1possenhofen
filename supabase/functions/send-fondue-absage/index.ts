@@ -59,7 +59,7 @@ async function verifyAdmin(authHeader: string | null): Promise<boolean> {
   if (!res.ok) return false;
   // Nicht nur Login prüfen, sondern auch dass die Rolle nicht auf "sup" oder
   // "schedule_events" eingeschränkt ist — diese Accounts dürfen keine
-  // Winterzauber-Massenmails auslösen oder Gästedaten sehen.
+  // Winterhafen-Massenmails auslösen oder Gästedaten sehen.
   const user = await res.json();
   const role = user?.user_metadata?.role;
   return role !== "sup" && role !== "schedule_events";
@@ -77,11 +77,11 @@ function buildAbsageHtml(name: string, anmeldungId: string, dateFormatted: strin
     <div style="font-family:'Albert Sans',Arial,sans-serif;max-width:520px;margin:0 auto;background:#FDFAF4;border-radius:16px;overflow:hidden">
       <div style="background:#163D36;padding:32px 28px 24px;text-align:center">
         <h1 style="font-family:'Petrona',Georgia,serif;color:#FDFAF4;font-size:22px;font-weight:600;margin:0">Steg 1 Possenhofen</h1>
-        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterzauber &mdash; K&auml;sefondue in beheizten Iglus</p>
+        <p style="color:rgba(255,255,255,.7);font-size:13px;margin:6px 0 0">Winterhafen &mdash; K&auml;sefondue in beheizten Iglus</p>
       </div>
       <div style="padding:28px">
         <h2 style="font-family:'Petrona',Georgia,serif;color:#163D36;font-size:20px;font-weight:600;margin:0 0 8px">Termin leider abgesagt</h2>
-        <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, leider wurde die Mindestteilnehmerzahl f&uuml;r den Winterzauber am ${esc(dateFormatted)} nicht erreicht. Der Termin findet daher nicht statt.</p>
+        <p style="color:#4A4840;font-size:14px;margin:0 0 16px">Hallo ${esc(name)}, leider wurde die Mindestteilnehmerzahl f&uuml;r den Winterhafen am ${esc(dateFormatted)} nicht erreicht. Der Termin findet daher nicht statt.</p>
         <div style="background:#F2EBD9;border-radius:12px;padding:20px;margin:0 0 20px">
           <table style="width:100%;border-collapse:collapse;font-size:14px;color:#1A2421">
             <tr><td style="padding:6px 0;color:#6C7871;width:110px">Anmeldung</td><td style="padding:6px 0;font-weight:500">${esc(anmeldungId)}</td></tr>
@@ -144,7 +144,7 @@ serve(async (req) => {
           to: [a.customer_email],
           bcc: ["reservierung@steg1possenhofen.de"],
           reply_to: "reservierung@steg1possenhofen.de",
-          subject: `Winterzauber-Termin am ${dateFormatted} abgesagt`,
+          subject: `Winterhafen-Termin am ${dateFormatted} abgesagt`,
           html: buildAbsageHtml(a.customer_name, a.anmeldung_id, dateFormatted, a.personen_anzahl, a.customer_email, a.customer_phone, reason),
         }),
       });
