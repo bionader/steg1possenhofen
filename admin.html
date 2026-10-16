@@ -2590,6 +2590,15 @@
     function renderWinterzauberAnmeldungen(rows){
       var el = document.getElementById('wz-anmeldungen-list');
       if(!rows.length){ el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Keine Anmeldungen.</p>'; return; }
+      // Chronologisch nach Termin-Datum, dann Zeitslot; Anmeldungen ohne bekannten Termin ans Ende
+      function terminKey(r){
+        var t = wzTermine.find(function(x){ return x.id === r.termin_id; });
+        return t ? t.date + ' ' + t.start_time : '9999';
+      }
+      rows = rows.slice().sort(function(a, b){
+        var ka = terminKey(a), kb = terminKey(b);
+        return ka < kb ? -1 : ka > kb ? 1 : 0;
+      });
       // Varianten/Beilagen ausgeschrieben statt "X Position(en)"
       // Mengen-Objekt auf Desserts bzw. Beilagen einschraenken
       function wzAuswahlFilter(auswahl, dessert){
