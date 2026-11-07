@@ -1072,7 +1072,7 @@ function renderVarianten() {
   var el = document.getElementById('wz-varianten-list');
   if (!variantenList.length) { el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Wird noch eingerichtet.</p>'; return; }
   var zahlwort = ['', 'Eine Variante', 'Zwei Varianten, beide', 'Drei Varianten, alle', 'Vier Varianten, alle', 'Fünf Varianten, alle'][variantenList.length] || (variantenList.length + ' Varianten, alle');
-  document.getElementById('wz-varianten-intro').textContent = zahlwort + ' so lange, bis keiner mehr kann.';
+  document.getElementById('wz-varianten-intro').textContent = zahlwort + ' da wird garantiert jeder satt.';
   el.innerHTML = variantenList.map(function (v) {
     return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(v.name) + '</h3>' +
       (v.description ? '<p class="desc">' + escapeHtml(v.description) + '</p>' : '') + '</div>' +
