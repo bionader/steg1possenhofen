@@ -152,7 +152,7 @@ footer{
 .fcol a{display:block;font-size:.82rem;color:rgba(253,250,244,.6);text-decoration:none;margin-bottom:.4rem;transition:color .2s}
 .fcol a:hover{color:#2A7B6F}
 .fsocials{display:flex;gap:.6rem;margin-top:1.1rem}
-.fsocials a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(253,250,244,.7);transition:all .25s ease}
+.fsocials a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(253,250,244,.7);transition:all .25s ease;text-decoration:none}
 .fsocials a:hover{background:var(--g);color:#fff;transform:translateY(-2px)}
 .fsocials svg{width:16px;height:16px}
 .fbot{
@@ -229,7 +229,7 @@ footer{
 /* ── HERO ── */
 .wz-hero2{display:grid;grid-template-columns:1fr 1fr;min-height:660px;position:relative}
 .wz-hero2-left{display:flex;flex-direction:column;justify-content:center;padding:9rem 4.5rem 4rem;background:var(--dark);position:relative;overflow:hidden}
-.wz-hero2-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 85% 10%, rgba(212,136,58,.16) 0%, transparent 58%),radial-gradient(ellipse at 5% 95%, rgba(42,123,111,.12) 0%, transparent 42%)}
+.wz-hero2-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 85% 10%, rgba(212,136,58,.16) 0%, transparent 58%),radial-gradient(ellipse at 5% 95%, rgba(42,123,111,.28) 0%, transparent 55%)}
 .wz-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .wz-flake{position:absolute;top:0;border-radius:50%;background:rgba(253,251,247,.5);animation:wz-fall linear infinite}
 .wz-eyebrow{position:relative;z-index:1;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.6rem;margin-bottom:1.4rem}
@@ -237,19 +237,19 @@ footer{
 .wz-h1{position:relative;z-index:1;font-family:'Petrona',serif;font-size:clamp(3rem,5vw,4.8rem);line-height:1;font-weight:500;color:var(--w);letter-spacing:-.018em;margin-bottom:1.4rem}
 .wz-h1 em{font-style:italic;color:var(--accent);display:block;margin-top:.04em;font-weight:400;letter-spacing:-.01em}
 .wz-hero2-p{position:relative;z-index:1;font-size:1rem;color:rgba(253,250,244,.76);line-height:1.75;max-width:380px;font-weight:300;margin-bottom:2.2rem}
-.wz-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:1rem;background:rgba(253,250,244,.07);border:.5px solid rgba(253,250,244,.14);border-radius:18px;padding:1.05rem 1.5rem;max-width:100%}
+.wz-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:1rem;background:rgba(253,250,244,.07);border:.5px solid rgba(253,250,244,.14);border-radius:18px;padding:1.05rem 1.5rem 1.05rem 1.25rem;align-self:flex-start;margin-bottom:2.2rem;backdrop-filter:blur(14px)}
 .wz-pill-dot{position:relative;width:12px;height:12px;flex-shrink:0}
 .wz-pill-dot i{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(212,136,58,.18);display:block}
 .wz-pill-dot i.ripple{position:absolute;inset:0;background:rgba(212,136,58,.35);box-shadow:none;animation:wz-ripple 2.6s cubic-bezier(.4,0,.2,1) infinite}
 .wz-pill strong{font-size:.92rem;font-weight:600;color:var(--w);display:block;letter-spacing:.01em}
 .wz-pill span.hint{font-size:.76rem;color:rgba(253,250,244,.6);display:block;margin-top:2px}
 .wz-hero2-ctas{position:relative;z-index:1;display:flex;gap:.75rem;flex-wrap:wrap}
-.wz-btn-accent{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:var(--accent);color:var(--dark);box-shadow:0 10px 30px rgba(212,136,58,.18);transition:transform .2s ease, background .2s ease}
+.wz-btn-accent{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:var(--accent);color:var(--dark);box-shadow:0 4px 18px rgba(212,136,58,.28);transition:transform .26s var(--ease),background .26s}
 .wz-btn-accent:hover{background:#E39B4F;transform:translateY(-2px);color:var(--dark)}
-.wz-btn-outline-dark{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:transparent;color:var(--w);border:1.5px solid rgba(253,250,244,.35);transition:background .2s ease, border-color .2s ease}
+.wz-btn-outline-dark{padding:.78rem 1.7rem;border-radius:100px;font-size:.88rem;font-weight:500;min-height:44px;display:inline-flex;align-items:center;background:transparent;color:var(--w);border:1.5px solid rgba(253,250,244,.3);transition:background .26s,border-color .26s}
 .wz-btn-outline-dark:hover{background:rgba(253,250,244,.1);border-color:rgba(253,250,244,.55);color:var(--w)}
 .wz-hero2-right{overflow:hidden;position:relative;min-height:420px}
-.wz-hero2-right .ov{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to right, rgba(27,43,40,.55) 0%, transparent 28%),linear-gradient(to top, rgba(27,43,40,.35) 0%, rgba(27,43,40,.1) 100%)}
+.wz-hero2-right .ov{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to right, rgba(27,43,40,.55) 0%, transparent 28%),linear-gradient(to top, rgba(27,43,40,.35) 0%, transparent 45%)}
 .wz-hero2-right img{width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block;animation:wz-kb 26s ease-in-out infinite alternate}
 
 /* ── FAKTENBAR ── */
@@ -275,7 +275,7 @@ footer{
 .wz-ablauf-card{background:var(--sand);border-radius:16px;padding:1.6rem 1.4rem 1.5rem;position:relative}
 .wz-ablauf-card.dark{background:var(--dark);overflow:hidden}
 .wz-ablauf-card.dark::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%, rgba(212,136,58,.22) 0%, transparent 60%);pointer-events:none}
-.wz-ablauf-num{width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Petrona',serif;font-size:1.05rem;font-weight:600}
+.wz-ablauf-num{width:38px;height:38px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Petrona',serif;font-size:1.05rem;font-weight:600;margin-bottom:1rem;position:relative}
 .wz-ablauf-card.dark .wz-ablauf-num{background:var(--accent);color:var(--dark)}
 .wz-ablauf-card h3{font-size:1rem;font-weight:600;margin-bottom:.4rem;position:relative}
 .wz-ablauf-card.dark h3{color:var(--w)}
@@ -299,7 +299,7 @@ footer{
 .wz-fondue-photo{border-radius:16px;overflow:hidden;height:460px}
 .wz-fondue-photo img{width:100%;height:100%;object-fit:cover;display:block;animation:wz-kb 30s ease-in-out infinite alternate}
 .wz-fondue-list{display:grid;gap:.7rem;margin-top:1.75rem}
-.wz-fondue-item{background:var(--w);border-radius:14px;padding:1rem 1.25rem;border:.5px solid rgba(42,123,111,.12);display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:transform .25s ease, box-shadow .25s ease}
+.wz-fondue-item{background:var(--w);border-radius:14px;padding:1rem 1.25rem;border:.5px solid rgba(42,123,111,.12);display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:transform .42s var(--ease),box-shadow .42s}
 .wz-fondue-item:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(42,123,111,.1)}
 .wz-fondue-item h3{font-size:.95rem;font-weight:500}
 .wz-fondue-item .desc{font-size:.8rem;color:var(--text2);margin-top:.18rem;line-height:1.4}
@@ -319,7 +319,7 @@ footer{
 /* ── TERMINE: MONATSAUSWAHL ── */
 .wz-termine-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:2rem}
 .wz-monate{display:flex;gap:.4rem;flex-wrap:wrap}
-.wz-monat-pill{position:relative;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.5rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;transition:background .2s ease}
+.wz-monat-pill{position:relative;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.5rem 1.1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:40px;transition:background .25s}
 .wz-monat-pill:hover{background:rgba(42,123,111,.08)}
 .wz-monat-ring{position:absolute;inset:-1px;border-radius:100px;border:2px solid var(--g);pointer-events:none;opacity:0;transition:opacity .25s}
 .wz-monat-pill.active .wz-monat-ring{opacity:1}
@@ -346,7 +346,7 @@ footer{
 .wz-kal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem;margin-bottom:.4rem}
 .wz-kal-weekdays span{text-align:center;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
 .wz-kal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:.2rem}
-.wz-kal-day{min-height:32px;border-radius:9px;border:none;cursor:default;font-family:'Albert Sans',sans-serif;font-size:.78rem;font-weight:400;background:transparent;color:rgba(108,120,113,.55);transition:background .2s ease}
+.wz-kal-day{min-height:32px;border-radius:9px;border:none;cursor:default;font-family:'Albert Sans',sans-serif;font-size:.78rem;font-weight:400;background:transparent;color:rgba(108,120,113,.55);transition:background .25s,color .25s}
 .wz-kal-day.has{cursor:pointer;font-weight:600;background:rgba(42,123,111,.12);color:var(--text)}
 .wz-kal-day.voll{background:rgba(212,136,58,.2)}
 .wz-kal-day.sel{background:var(--g);color:var(--w)}
@@ -359,7 +359,7 @@ footer{
 .wz-detail-zeit{font-size:.88rem;color:var(--text2)}
 .wz-detail-hinweis{font-size:.85rem;color:var(--text2);line-height:1.65;margin-top:1.25rem}
 .wz-slots{display:grid;gap:.6rem;margin-top:1rem}
-.wz-slot{display:block;width:100%;text-align:left;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:12px;padding:.85rem 1rem;cursor:pointer;font-family:inherit;color:inherit;transition:border-color .2s ease, box-shadow .2s ease}
+.wz-slot{display:block;width:100%;text-align:left;background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:12px;padding:.85rem 1rem;cursor:pointer;font-family:inherit;color:inherit;transition:border-color .2s}
 .wz-slot:hover{border-color:var(--g)}
 .wz-slot.selected{border:2px solid var(--g);padding:calc(.85rem - 1px) calc(1rem - 1px)}
 .wz-slot[disabled]{opacity:.55;cursor:not-allowed}
@@ -380,7 +380,7 @@ footer{
 .wz-fgrid .full{grid-column:1 / -1}
 .wz-flabel{display:flex;flex-direction:column;gap:.4rem}
 .wz-flabel span{font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)}
-.wz-flabel input,.wz-flabel textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;color:var(--text)}
+.wz-flabel input,.wz-flabel textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;color:var(--text);min-height:44px;width:100%}
 .wz-flabel textarea{border-radius:16px;resize:vertical;min-height:80px}
 .wz-flabel input:focus,.wz-flabel textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
 .wz-addr-hint{font-size:.75rem;color:var(--text3);margin:-.35rem 0 0;line-height:1.5}
@@ -402,7 +402,7 @@ footer{
 .wz-gast-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:var(--w);border:1px solid rgba(42,123,111,.16);border-radius:100px;padding:.3rem .3rem .3rem 1.15rem}
 .wz-gast-label{font-size:.85rem;color:var(--text2)}
 .wz-gast-opts{display:flex;gap:.3rem}
-.wz-gast-opt{position:relative;background:transparent;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:36px;overflow:hidden}
+.wz-gast-opt{position:relative;background:transparent;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.82rem;font-family:'Albert Sans',sans-serif;color:var(--text);cursor:pointer;min-height:40px}
 .wz-gast-opt-fill{position:absolute;inset:0;border-radius:100px;background:transparent;opacity:0;transition:opacity .22s;pointer-events:none;box-shadow:0 2px 10px rgba(42,123,111,.22)}
 .wz-gast-opt.active .wz-gast-opt-fill{background:var(--g);opacity:1}
 .wz-gast-opt-txt{position:relative;color:var(--text2);transition:color .22s}
@@ -415,7 +415,7 @@ footer{
 .wz-consent{display:flex;gap:.65rem;align-items:flex-start;margin-top:1.1rem;font-size:.8rem;color:var(--text2);line-height:1.55;cursor:pointer}
 .wz-consent input{margin-top:.15rem;width:18px;height:18px;accent-color:var(--g);flex-shrink:0}
 .wz-consent a{color:var(--g)}
-.wz-submit2{margin-top:1.6rem;background:var(--g);color:var(--w);border:none;padding:.85rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease, background .2s ease}
+.wz-submit2{margin-top:1.6rem;background:var(--g);color:var(--w);border:none;padding:.85rem 2rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;min-height:44px;box-shadow:0 2px 14px rgba(42,123,111,.2);transition:background .26s,transform .26s,box-shadow .26s}
 .wz-submit2:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,123,111,.25)}
 .wz-submit2:disabled{opacity:.6;cursor:default;transform:none}
 .wz-iglu-hint{font-size:.8rem;line-height:1.5;color:var(--text2);margin:-.4rem 0 0}
@@ -426,7 +426,7 @@ footer{
 .wz-success2 .check{width:42px;height:42px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
 .wz-success2 h3{font-family:'Petrona',serif;font-size:1.5rem;font-weight:600;margin-bottom:.4rem}
 .wz-success2 p{font-size:.9rem;color:var(--text2);line-height:1.7;max-width:460px}
-.wz-reset-btn{margin-top:1.25rem;background:transparent;border:1.5px solid var(--g);color:var(--g);padding:.6rem 1.4rem;border-radius:100px;font-size:.85rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;transition:all .2s ease}
+.wz-reset-btn{margin-top:1.25rem;background:transparent;border:1.5px solid var(--g);color:var(--g);padding:.6rem 1.4rem;border-radius:100px;font-size:.85rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;transition:background .25s,color .25s}
 .wz-reset-btn:hover{background:var(--g);color:var(--w)}
 
 /* ── FOTO STRIP ── */
@@ -443,10 +443,10 @@ footer{
 .wz-pf2-card h3{font-family:'Petrona',serif;font-size:1.35rem;font-weight:600;margin-bottom:1.25rem}
 .wz-pf2-grid2{display:grid;gap:.9rem}
 .wz-pf2-row2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-.wz-pf2-card input,.wz-pf2-card textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;min-height:44px;color:var(--text)}
+.wz-pf2-card input,.wz-pf2-card textarea{background:var(--w);border:1px solid rgba(42,123,111,.18);border-radius:100px;padding:.75rem 1.1rem;font-family:'Albert Sans',sans-serif;font-size:.9rem;min-height:44px;width:100%}
 .wz-pf2-card textarea{border-radius:16px;resize:vertical;min-height:80px}
 .wz-pf2-card input:focus,.wz-pf2-card textarea:focus{outline:2px solid var(--g);outline-offset:2px;border-color:var(--g)}
-.wz-pf2-submit{background:transparent;border:1.5px solid var(--accent);color:var(--accent2);padding:.8rem 1.6rem;border-radius:100px;font-size:.88rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;transition:all .2s ease}
+.wz-pf2-submit{background:transparent;border:1.5px solid var(--accent);color:var(--accent2);padding:.8rem 1.6rem;border-radius:100px;font-size:.88rem;font-weight:500;font-family:'Albert Sans',sans-serif;cursor:pointer;min-height:44px;transition:background .26s,color .26s}
 .wz-pf2-submit:hover{background:var(--accent);color:var(--w)}
 .wz-pf2-submit:disabled{opacity:.6;cursor:default}
 
@@ -466,7 +466,9 @@ footer{
 
 @media(max-width:900px){
   .wz-hero2,.wz-fondue-grid,.wz-vormerk-grid{grid-template-columns:1fr}
+  /* Grid-Kinder duerfen unter ihre intrinsische Breite schrumpfen (sonst 8px H-Overflow durch das fixe hCaptcha-iFrame) */
   .wz-vormerk-grid>*,.wz-fondue-grid>*,.wz-hero2>*{min-width:0}
+  /* Formular einspaltig, Reihenfolge: Adresse -> Personen/Fondue/Beilagen -> Bestaetigung */
   .wz-form2col{display:flex;flex-direction:column;gap:1.5rem}
   .wz-form2col>*,.wz-fcolLeft>*{min-width:0}
   .wz-fcolLeft{display:contents}
@@ -477,11 +479,13 @@ footer{
   .wz-fondue-photo{height:260px;order:-1}
   .wz-faq-grid{grid-template-columns:1fr}
   .wz-faq-img{order:-1}
+  /* Hero mobil: Grünfläche kürzer (kein erzwungenes 660px-min), Bild grosszuegig */
   .wz-hero2{min-height:auto}
   .wz-hero2-left{padding:2.5rem 1.5rem 3rem;order:2}
   .wz-hero2-right{height:92vw;min-height:340px;max-height:460px;order:1}
   .wz-facts{grid-template-columns:repeat(2,1fr);padding:1rem 1.5rem}
   .wz-sec,.wz-fondue-sec,.wz-faq2,.wz-pf2{padding:2.4rem 1.5rem 3.2rem}
+  /* Private-Feiern-Karte mobil: schmaler, damit hCaptcha + Inputs in die Karte passen */
   .wz-pf2{padding-left:.9rem;padding-right:.9rem}
   .wz-pf2-card{padding:1.5rem .9rem}
   .wz-pf2-row2>*{min-width:0}
@@ -573,12 +577,12 @@ footer{
   <section class="wz-sec wz-reveal">
     <p class="wz-sec-tag"><span></span>So läuft's</p>
     <h2 class="wz-h2">Vormerken statt <em>buchen</em>.</h2>
-    <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Eure Vormerkung ist mit dem Absenden <strong>verbindlich</strong> — sobald genügend Anmeldungen zusammen sind, bekommt ihr von uns eine Bestätigung.</p>
+    <p class="wz-sec-p">Ein Fondue-Abend startet ab zehn Personen. Eure Vormerkung ist mit dem Absenden <strong>verbindlich</strong> — sobald genügend Anmeldungen zusammen sind, bekommt ihr von uns die Bestätigung per Mail. Bis 5&nbsp;Tage vor dem Termin könnt ihr kostenlos stornieren. <strong>Spätere Stornierungen sind kostenpflichtig</strong> – dann wird die Reservierung inklusive aller gewählten Beilagen und Desserts berechnet.</p>
     <div class="wz-ablauf-grid">
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">1</div><h3>Termin wählen</h3><p>Donnerstag bis Sonntag, 17:15–19:15 oder 19:30–21:30 Uhr in unseren Iglus.</p></div>
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">2</div><h3>Verbindlich vormerken</h3><p>Name, Personenzahl, Fondue-Variante. Dauert eine Minute — bis 5&nbsp;Tage vor dem Termin kostenlos stornierbar.</p></div>
       <div class="wz-ablauf-card"><div class="wz-ablauf-num">3</div><h3>Ab zehn geht’s los</h3><p>Sobald zehn Personen zusammen sind, steht der Abend — Platz ist für bis zu 36.</p></div>
-      <div class="wz-ablauf-card dark"><div class="wz-ablauf-num">4</div><h3>Verbindliche Bestätigung</h3><p>Kommt per Mail mit allen Infos. Bis 5&nbsp;Tage vorher storniert ihr kostenlos über den Link in der Mail.</p></div>
+      <div class="wz-ablauf-card dark"><div class="wz-ablauf-num">4</div><h3>Verbindliche Bestätigung</h3><p>Kommt per Mail mit allen Infos. Bis 5&nbsp;Tage vorher storniert ihr kostenlos über den Link; danach ist eine Stornierung kostenpflichtig (Reservierung inkl. Beilagen und Dessert).</p></div>
     </div>
   </section>
 
@@ -587,8 +591,8 @@ footer{
     <div class="wz-fondue-grid">
       <div class="wz-fondue-inner">
         <p class="wz-sec-tag"><span></span>Aus dem Topf</p>
-        <h2 class="wz-h2">Käse, Brot, <em>Extras</em>.</h2>
-        <p class="wz-sec-p" id="wz-varianten-intro" style="margin-bottom:1.75rem">Viele Varianten - da wird jeder garantiert satt.</p>
+        <h2 class="wz-h2">Käse, Brot, <em>Nachschlag</em>.</h2>
+        <p class="wz-sec-p" id="wz-varianten-intro" style="margin-bottom:1.75rem">Drei Varianten, alle so lange, bis keiner mehr kann.</p>
         <div class="wz-fondue-list" id="wz-varianten-list">
           <p style="color:var(--text3);font-size:.88rem">Lädt…</p>
         </div>
@@ -636,7 +640,7 @@ footer{
         <div id="wz-not-sent">
           <h3>Jetzt vormerken</h3>
           <p class="ctx">Für <strong id="wz-ctx-termin">–</strong></p>
-          <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Mit dem Absenden ist eure Vormerkung verbindlich. Bis 5&nbsp;Tage vor dem Termin könnt ihr über den Link in eurer Mail kostenlos stornieren.</p>
+          <p class="wz-form-hint" style="margin:.5rem 0 1.5rem">Mit dem Absenden ist eure Vormerkung verbindlich. Bis 5&nbsp;Tage vor dem Termin könnt ihr über den Link in eurer Mail kostenlos stornieren. <strong>Spätere Stornierungen sind kostenpflichtig</strong> – dann wird die Reservierung inklusive aller gewählten Beilagen und Desserts berechnet. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p>
           <form id="wz-form">
             <div class="wz-form2col">
               <div class="wz-fcolLeft">
@@ -654,8 +658,8 @@ footer{
               </div>
               <div class="wz-confirm">
                 <div id="wz-captcha" class="h-captcha" style="margin:0 0 1rem"></div>
-                <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> und die <a href="stornobedingungen">Stornobedingungen</a> gelesen.</span></label>
-                <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verwendet werden.</span></label>
+                <label class="wz-consent"><input type="checkbox" id="wz-agb" required><span>Ich habe die <a href="datenschutz">Datenschutzerklärung</a> und die <a href="stornobedingungen">Stornobedingungen</a> gelesen und akzeptiere sie.</span></label>
+                <label class="wz-consent"><input type="checkbox" id="wz-allergien-consent"><span>Falls angegeben: Ich willige ausdrücklich ein, dass meine Angaben zu Allergien für die Zubereitung verarbeitet werden.</span></label>
                 <div id="wz-form-message" style="margin-top:1rem;font-size:.86rem"></div>
                 <button type="submit" class="wz-submit2" id="wz-submit-btn">Platz vormerken →</button>
               </div>
@@ -675,7 +679,7 @@ footer{
                   <div class="wz-gaeste-list" id="wz-gaeste-list"></div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:.4rem">
-                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(Anzahl Portionen, 1&nbsp;Portion rein)</span></span>
+                  <span style="font-size:.78rem;font-weight:500;letter-spacing:.04em;color:var(--text2)">Beilagen <span style="font-weight:400;color:var(--text3)">(Anzahl Portionen, 1&nbsp;Portion reicht für 1&nbsp;Person)</span></span>
                   <span style="font-size:.74rem;font-style:italic;color:var(--text3)">z.&nbsp;B. 10 Personen, alle mit Pellkartoffeln → 10 Pellkartoffeln eintragen</span>
                   <div class="wz-beilmengen" id="wz-beilmengen-list"></div>
                 </div>
@@ -686,7 +690,7 @@ footer{
                 <div style="display:flex;align-items:baseline;gap:.4rem">
                   <span class="wz-summe-val" id="wz-summe">– €</span><span class="wz-summe-hint" id="wz-summe-hint"></span>
                 </div>
-                <label class="wz-flabel"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. Gluten, Milch, Nüsse"></textarea></label>
+                <label class="wz-flabel"><span>Allergien / Unverträglichkeiten <span style="font-weight:400;color:var(--text3)">(optional)</span></span><textarea id="wz-allergien" placeholder="z. B. laktosefrei, Nussallergie"></textarea></label>
               </div>
             </div>
           </form>
@@ -710,16 +714,16 @@ footer{
       <div>
         <p class="wz-sec-tag"><span></span>Gut zu wissen</p>
         <h2 class="wz-h2" style="margin-bottom:2rem">Häufige Fragen</h2>
-        <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und informieren euch.</p></details>
-        <details class="wz-faq-item"><summary>Wie funktioniert die Bestellung der Beilagen?<span class="plus">+</span></summary><p>Jede Beilage ist eine Portion für eine Person. Im Formular tragt ihr die Anzahl der Portionen pro Beilage ein.</p></details>
-        <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Die Vormerkung ist mit dem Absenden verbindlich, ihr habt aber bis 5 Tage vor dem Termin die Möglichkeit, kostenlos zu stornieren.</p></details>
-        <details class="wz-faq-item"><summary>Sitzen wir als Gruppe zusammen?<span class="plus">+</span></summary><p>Ja. Jedes unserer drei Iglus bietet Platz für bis zu 12 Personen, und Gruppen bis 36 teilen sich die Anlage.</p></details>
-        <details class="wz-faq-item"><summary>Was passiert bei Sturm oder Unwetter?<span class="plus">+</span></summary><p>Unsere Iglus sind beheizte, aber wetterabhängige Außenzelte. Bei extremer Witterung können wir die Veranstaltung kurzfristig umbuchen oder absetzen.</p></details>
-        <details class="wz-faq-item"><summary>Wie warm ist es im Iglu?<span class="plus">+</span></summary><p>Die Iglus sind beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht.</p></details>
-        <details class="wz-faq-item"><summary>Wo findet das Fondue statt?<span class="plus">+</span></summary><p>Das Käsefondue findet in unseren drei beheizten Iglu-Zelten mit je bis zu 12 Plätzen direkt am Starnberger See statt.</p></details>
-        <details class="wz-faq-item"><summary>Können wir als kleine Gruppe kommen?<span class="plus">+</span></summary><p>Ja. Kleinere Gruppen teilen sich ein Iglu mit anderen Gästen — genau das macht den Abend besonders gemütlich.</p></details>
-        <details class="wz-faq-item"><summary>Dürfen wir unseren Hund mitbringen?<span class="plus">+</span></summary><p>So sehr wir Vierbeiner lieben – in unseren Iglus müssen Hunde leider draußen bleiben.</p></details>
-        <details class="wz-faq-item"><summary>Wie kommen wir hin?<span class="plus">+</span></summary><p>Kurt-Stieler-Straße 58, 82343 Possenhofen. Parkplätze gibt es direkt vor Ort genug — im Winter bitte hinten an der Anlage beachten.</p></details>
+        <details class="wz-faq-item"><summary>Was passiert, wenn die zehn Personen nicht zusammenkommen?<span class="plus">+</span></summary><p>Dann sagen wir den Abend spätestens zwei Tage vorher ab und melden uns per Mail. Es entstehen keine Kosten — ihr könnt euch direkt für einen anderen Termin vormerken.</p></details>
+        <details class="wz-faq-item"><summary>Wie funktioniert die Bestellung der Beilagen?<span class="plus">+</span></summary><p>Jede Beilage ist eine Portion für eine Person. Im Formular tragt ihr ein, wie viele Portionen ihr insgesamt möchtet: Seid ihr zu zehnt und wollen alle Pellkartoffeln dazu, tragt ihr also 10 ein. Wenn nur drei von euch Lust darauf haben, reichen 3. Brot zum Fondue ist immer dabei und kostet nichts extra. Die Beilagen sind wie das Fondue verbindlich vorgemerkt, weil wir frisch für eure Runde einkaufen.</p></details>
+        <details class="wz-faq-item"><summary>Können wir unsere Vormerkung wieder stornieren?<span class="plus">+</span></summary><p>Die Vormerkung ist mit dem Absenden verbindlich, ihr habt aber ein kostenfreies Rücktrittsrecht: Bis 5&nbsp;Tage vor dem Termin storniert ihr kostenlos über den Link in eurer Mail. Innerhalb der letzten fünf Tage ist eine Stornierung weiterhin möglich, aber <strong>kostenpflichtig</strong>: Die Reservierung inklusive aller gewählten Beilagen und Desserts wird dann berechnet – wir kaufen die Zutaten frisch für eure Runde ein. Einzelheiten stehen in den <a href="stornobedingungen">Stornobedingungen</a>.</p></details>
+        <details class="wz-faq-item"><summary>Sitzen wir als Gruppe zusammen?<span class="plus">+</span></summary><p>Ja. Jedes unserer drei Iglus bietet Platz für bis zu 12 Personen, und Gruppen bis 12 sitzen immer gemeinsam in einem Iglu. Größere Gruppen verteilen sich gleichmäßig auf mehrere Iglus, 16 Personen zum Beispiel auf zweimal 8. Für eine eigene Winter- oder Weihnachtsfeier mit vielen Gästen fragt gern nach unserem großen Zelt.</p></details>
+        <details class="wz-faq-item"><summary>Was passiert bei Sturm oder Unwetter?<span class="plus">+</span></summary><p>Unsere Iglus sind beheizte, aber wetterabhängige Außenzelte. Bei extremer Witterung wie Sturm, Orkan oder Gewitter, bei akuter Sicherheitsgefahr oder einem unvorhergesehenen technischen Notfall müssen wir einen Abend im Zweifel auch kurzfristig absagen – eure Sicherheit geht vor. Wir melden uns dann schnellstmöglich per Mail; für euch entstehen keine Kosten. Fahrtkosten können wir leider nicht übernehmen. Details in den <a href="stornobedingungen">Stornobedingungen</a>.</p></details>
+        <details class="wz-faq-item"><summary>Wie warm ist es im Iglu?<span class="plus">+</span></summary><p>Die Iglus sind beheizt, Decken liegen bereit. Trotzdem: warme Schuhe und Jacke schaden nicht — der Weg zum Steg lohnt sich immer.</p></details>
+        <details class="wz-faq-item"><summary>Wo findet das Fondue statt?<span class="plus">+</span></summary><p>Das Käsefondue findet in unseren drei beheizten Iglu-Zelten mit je bis zu 12 Plätzen statt. Kleinere Gruppen setzen wir dort auch gemischt an einen Tisch. Das große Zelt vergeben wir nur auf Anfrage für private Winter- und Weihnachtsfeiern.</p></details>
+        <details class="wz-faq-item"><summary>Können wir als kleine Gruppe kommen?<span class="plus">+</span></summary><p>Ja. Kleinere Gruppen teilen sich ein Iglu mit anderen Gästen — genau das macht den Abend aus. Wer lieber unter sich bleibt, fragt eine private Winterfeier an.</p></details>
+        <details class="wz-faq-item"><summary>Dürfen wir unseren Hund mitbringen?<span class="plus">+</span></summary><p>So sehr wir Vierbeiner lieben – in unseren Iglus müssen Hunde leider draußen bleiben. Wegen der engen Raumverhältnisse und des intensiven Dufts von geschmolzenem Käse ist das weder für die Tiere noch für eventuell allergische Gäste optimal. Danke für euer Verständnis – und dafür, dass euer Liebling für die paar Stunden zu Hause bleibt.</p></details>
+        <details class="wz-faq-item"><summary>Wie kommen wir hin?<span class="plus">+</span></summary><p>Kurt-Stieler-Straße 58, 82343 Possenhofen. Parkplätze gibt es direkt vor Ort genug — im Winter müsst ihr euch um einen Platz keine Sorgen machen.</p></details>
       </div>
       <div class="wz-faq-img"><img src="images/zelt-illustration.svg" alt="Illustration: beheiztes Iglu am verschneiten Steg bei Nacht"></div>
     </div>
@@ -729,12 +733,12 @@ footer{
   <section class="wz-sec wz-experience wz-reveal">
     <p class="wz-sec-tag on-dark"><span></span>Das Erlebnis</p>
     <h2 class="wz-h2 on-dark">Warm. Gemütlich. <em>Unvergesslich.</em></h2>
-    <p class="wz-sec-p on-dark">Wenn draußen der Frost zieht, laden wir euch in unsere winterlich dekorierten Iglus direkt am Ufer. Käsefondue, Kerzenschein und gute Gesellschaft — ein Abend, mit dem man sich gern in den Winter hinein kuschelt.</p>
+    <p class="wz-sec-p on-dark">Wenn draußen der Frost zieht, laden wir euch in unsere winterlich dekorierten Iglus direkt am Ufer. Käsefondue, Kerzenschein und gute Gesellschaft — ein Abend, der wärmt.</p>
     <div class="wz-exp-grid">
-      <div class="wz-exp-card"><div class="wz-exp-icon">⛺</div><h3>Iglu-Zelte &amp; großes Zelt</h3><p>Gemütliche, beheizte Iglu-Zelte mit je bis zu 12 Plätzen — hier findet das Käsefondue statt.</p></div>
-      <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer, ohne Alkohol oder mit Kräutern der Provence — geschmolzener Käse, knuspriges Brot und die passende Atmosphäre.</p></div>
-      <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Donnerstag bis Sonntag</h3><p>Ende Oktober 2026 bis Februar 2027, jeweils 17:15–19:15 oder 19:30–21:30 Uhr. Die konkreten Termine seht ihr hier.</p></div>
-      <div class="wz-exp-card"><div class="wz-exp-icon">📍</div><h3>Am Wasser in Possenhofen</h3><p>Steg 1 · Kurt-Stieler-Straße 58 · 82343 Possenhofen. Direkt am Starnberger See — mitten in der winterlichen Natur.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">⛺</div><h3>Iglu-Zelte &amp; großes Zelt</h3><p>Gemütliche, beheizte Iglu-Zelte mit je bis zu 12 Plätzen — hier findet das Käsefondue statt, kleinere Gruppen auch gemischt an einem Tisch. Das große Zelt gibt es auf Anfrage für private Winter- und Weihnachtsfeiern.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">🧀</div><h3>Echtes Käsefondue</h3><p>Klassisch Schweizer, ohne Alkohol oder mit Kräutern der Provence — geschmolzener Käse, knuspriges Brot und ausgewählte Beilagen für ein echtes Genusserlebnis.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">📅</div><h3>Donnerstag bis Sonntag</h3><p>Ende Oktober 2026 bis Februar 2027, jeweils 17:15–19:15 oder 19:30–21:30 Uhr. Die konkreten Termine seht ihr weiter oben.</p></div>
+      <div class="wz-exp-card"><div class="wz-exp-icon">📍</div><h3>Am Wasser in Possenhofen</h3><p>Steg 1 · Kurt-Stieler-Straße 58 · 82343 Possenhofen. Direkt am Starnberger See — mitten in der Natur.</p></div>
     </div>
   </section>
 
@@ -744,7 +748,7 @@ footer{
       <div class="wz-pf2-intro">
         <p class="wz-sec-tag"><span></span>Ganz für euch</p>
         <h2 class="wz-h2">Private <em>Winterfeiern</em>.</h2>
-        <p class="wz-sec-p" style="margin-bottom:0">Weihnachtsfeier, Geburtstag, Vereinsabend — oder einfach Käsefondue an einem Termin, der nicht in der Liste steht: Über diese Anfrage bekommt ihr ein persönliches Angebot.</p>
+        <p class="wz-sec-p" style="margin-bottom:0">Weihnachtsfeier, Geburtstag, Vereinsabend — oder einfach Käsefondue an einem Termin, der nicht in der Liste steht: Über diese Anfrage bekommt ihr unser großes beheiztes Zelt ganz für euch, ab 10 Personen, mit Wunschtermin und abgestimmtem Essen. Schreibt uns kurz, was ihr vorhabt.</p>
         <div class="wz-pf2-bullets">
           <span>ab 10 Personen</span><span>großes Zelt exklusiv</span><span>Wunschtermin möglich</span><span>Menü nach Absprache</span>
         </div>
@@ -755,7 +759,9 @@ footer{
           <input type="text" id="pf-name" placeholder="Name *" required>
           <input type="email" id="pf-email" placeholder="E-Mail *" required>
           <div class="wz-pf2-row2">
-            <input type="text" id="pf-datum" placeholder="Wunschtermin *" required onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+            <!-- Startet als Text (damit der Placeholder sichtbar ist), wird bei Focus zum Datepicker -->
+            <input type="text" id="pf-datum" placeholder="Wunschtermin *" required
+                   onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
             <input type="text" id="pf-personen" placeholder="Personen *" required>
           </div>
           <input type="tel" id="pf-phone" placeholder="Telefon *" required>
@@ -775,6 +781,11 @@ footer{
 </div>
 
 <script>
+// Zwei hCaptcha-Widgets auf dieser Seite (Vormerk-Formular + Private-Feiern-Formular).
+// Explizites Rendering, weil hCaptchas implizites Rendering ohne Widget-ID immer nur
+// das erste Widget im DOM anspricht. onHcaptchaLoad MUSS vor dem hCaptcha-Script-Tag
+// definiert werden, da das async-Script (v.a. aus dem Cache) seinen onload-Callback
+// aufrufen kann, bevor spätere Inline-Scripts geparst wurden.
 var wzCaptchaWidgetId = null;
 var pfCaptchaWidgetId = null;
 var hcaptchaScriptReady = false;
@@ -808,10 +819,10 @@ function renderWzCaptchaIfReady() {
     <p class="fdesc">Biergarten &amp; SUP-Verleih direkt am Starnberger See. Im Winter: Käsefondue im Iglu.</p>
     <div class="fsocials">
       <a href="https://instagram.com/steg1possenhofen" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
       </a>
       <a href="https://www.facebook.com/Steg1Possenhofen/" target="_blank" rel="noopener" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-8h3l.4-3h-3.4V7.5c0-.9.3-1.5 1.6-1.5H17V3.1c-.3-.1-1.4-.1-2.7-.1-2.7 0-4.5 1.7-4.5 4.7V11H7v3h2.8v8h3.7z"></path></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
       </a>
     </div>
   </div>
@@ -854,10 +865,12 @@ function renderWzCaptchaIfReady() {
 </div>
 
 <script>
+// Scroll effect for nav
 window.addEventListener('scroll', function() {
   document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
 });
 
+// Hamburger / mobile menu
 var burger = document.querySelector('.nav-burger');
 var mobileMenu = document.getElementById('mobile-menu');
 burger.addEventListener('click', function() {
@@ -879,6 +892,7 @@ mobileMenu.querySelectorAll('a').forEach(function(link) {
 </script>
 
 <script type="module">
+  // Iglu-Verteilungslogik (gleiche Datei wie Admin; Edge Function nutzt eine Kopie)
   import * as IgluVerteilung from './js/iglu-verteilung.js';
   window.IgluVerteilung = IgluVerteilung;
   window.dispatchEvent(new Event('iglu-ready'));
@@ -886,7 +900,7 @@ mobileMenu.querySelectorAll('a').forEach(function(link) {
 
 <script>
 var SB_URL = 'https://tdnnfmfaymnzukjhoidq.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24a';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbm5mbWZheW1uenVramhvaWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3ODEzNTMsImV4cCI6MjA5MDM1NzM1M30.xS-xcS6Ds1Rtaz_7qh24arNPQ2EDgH6AtDZAONqvLIg';
 
 var WD_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -894,9 +908,9 @@ var MON_LONG = ['Januar','Februar','März','April','Mai','Juni','Juli','August',
 var termine = [];
 var variantenList = [];
 var beilagenList = [];
-var wzBeilagenMengen = {};
+var wzBeilagenMengen = {}; // { beilageId: menge } — gilt pro Vormerkung, nicht pro Person
 var selectedTerminId = null;
-var currentMonat = null;
+var currentMonat = null; // Monatsschlüssel (Jahr*12+Monat) des angezeigten Kalendermonats
 var gaesteVarianten = [];
 
 function escapeHtml(str) {
@@ -918,6 +932,7 @@ function monthLabel(k) {
 }
 function langLabel(t) { var d = parseLocalDate(t.date); return WD_LONG[d.getDay()] + ', ' + d.getDate() + '. ' + MON_LONG[d.getMonth()]; }
 
+// Zeitslots: "17:15:00" -> "17:15"; Label "17:15–19:15 Uhr"
 function hhmm(t) { return String(t || '').slice(0, 5); }
 function slotLabel(t) { return hhmm(t.start_time) + '–' + hhmm(t.end_time) + ' Uhr'; }
 function slotsOfDate(date) { return termine.filter(function (x) { return x.date === date; }); }
@@ -926,9 +941,10 @@ function shortVariantLabel(name) {
   if (/alkohol/i.test(n)) return 'Ohne Alkohol';
   if (/provence/i.test(n)) return 'Provence';
   if (/klassisch/i.test(n)) return 'Klassisch';
-  return n.split(/\s+/)[0];
+  return n.split(/\s+/)[0]; // Fallback fuer neue Varianten: erstes Wort
 }
 
+// Preis ohne Rundung: 27 -> "27 €", 27.5 -> "27,50 €"
 function formatEuro(x) {
   var n = Number(x) || 0;
   return (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2).replace('.', ',')) + ' €';
@@ -982,20 +998,572 @@ function buildSnow(container, count) {
     if (i % 3 === 0) span.style.filter = 'blur(1px)';
     span.style.setProperty('--dx', (((i * 37) % 80) - 40) + 'px');
     span.style.animationDuration = (11 + ((i * 3) % 12)) + 's';
-    span.style.animationDelay = (i * 0.7) + 's';
+    span.style.animationDelay = (((i * 17) % 130) / 10) + 's';
     frag.appendChild(span);
   }
   container.appendChild(frag);
 }
 
-var snowContainer = document.getElementById('wz-snow-hero');
-if (snowContainer) buildSnow(snowContainer, 26);
-
-function initWinterhafen() {
-  if (isPreviewMode()) showPreviewBanner();
-  if (document.getElementById('wz-active-content')) document.getElementById('wz-active-content').style.display = 'block';
+function initWinterzauber() {
+  var preview = isPreviewMode();
+  fetch(SB_URL + '/rest/v1/winterzauber_settings?id=eq.1&select=active', { headers: { apikey: SB_KEY } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var active = !!(data && data[0] && data[0].active);
+      if (!active && !preview) {
+        document.getElementById('wz-disabled-notice').style.display = 'block';
+        return;
+      }
+      showWinterzauberContent(!active && preview);
+    })
+    .catch(function () {
+      if (preview) { showWinterzauberContent(true); return; }
+      document.getElementById('wz-disabled-notice').style.display = 'block';
+    });
 }
-window.addEventListener('DOMContentLoaded', initWinterhafen);
+
+function showWinterzauberContent(preview) {
+  document.getElementById('wz-active-content').style.display = 'block';
+  wzContentIsVisible = true;
+  if (preview) showPreviewBanner();
+  buildSnow(document.getElementById('wz-snow-hero'), 34);
+  renderPfCaptchaIfReady();
+  loadAll();
+  // Anker aus der URL (z. B. #fondue vom Startseiten-Teaser) jetzt anspringen —
+  // der Inhalt war bis hier display:none, der Browser konnte nicht dorthin scrollen.
+  var hash = window.location.hash;
+  if (hash && hash.length > 1) {
+    try {
+      var target = document.querySelector(hash);
+      if (target) setTimeout(function () { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250);
+    } catch (e) {}
+  }
+}
+
+function loadAll() {
+  Promise.all([
+    fetch(SB_URL + '/rest/v1/fondue_termine?order=date.asc,start_time.asc&select=id,date,start_time,end_time,capacity_min,capacity_max,status,personen_gesamt', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_varianten?is_active=eq.true&order=sort_order.asc&select=id,name,description,price_per_person', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); }),
+    fetch(SB_URL + '/rest/v1/fondue_beilagen?is_active=eq.true&order=sort_order.asc&select=*', { headers: { apikey: SB_KEY } }).then(function (r) { return r.json(); })
+  ]).then(function (results) {
+    var today = new Date().toISOString().slice(0, 10);
+    termine = (results[0] || []).filter(function (t) { return t.date >= today && t.status !== 'abgesagt'; });
+    variantenList = results[1] || [];
+    beilagenList = results[2] || [];
+
+    renderVarianten();
+    renderBeilagen();
+    renderBeilMengen();
+    initGaeste(2);
+
+    selectedTerminId = null;
+    var offener = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; });
+    if (offener) selectedTerminId = offener.id;
+    else if (termine.length) selectedTerminId = termine[0].id;
+    var startTermin = termine.find(function (t) { return t.id === selectedTerminId; });
+    currentMonat = startTermin ? monthKey(startTermin) : null;
+
+    renderHeroFacts();
+    renderAll();
+  });
+}
+
+function renderVarianten() {
+  var el = document.getElementById('wz-varianten-list');
+  if (!variantenList.length) { el.innerHTML = '<p style="color:var(--text3);font-size:.88rem">Wird noch eingerichtet.</p>'; return; }
+  var zahlwort = ['', 'Eine Variante', 'Zwei Varianten, beide', 'Drei Varianten, alle', 'Vier Varianten, alle', 'Fünf Varianten, alle'][variantenList.length] || (variantenList.length + ' Varianten, alle');
+  document.getElementById('wz-varianten-intro').textContent = zahlwort + ' so lange, bis keiner mehr kann.';
+  el.innerHTML = variantenList.map(function (v) {
+    return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(v.name) + '</h3>' +
+      (v.description ? '<p class="desc">' + escapeHtml(v.description) + '</p>' : '') + '</div>' +
+      '<div class="wz-fondue-price">' + formatEuro(v.price_per_person) + '<span>/ Person</span></div></div>';
+  }).join('');
+}
+
+function beilageIcon(name) {
+  var n = (name || '').toLowerCase();
+  if (/brot|baguette/.test(n)) return '🥖';
+  if (/kartoffel/.test(n)) return '🥔';
+  if (/gurke/.test(n)) return '🥒';
+  if (/zwiebel/.test(n)) return '🧅';
+  if (/ananas/.test(n)) return '🍍';
+  if (/traube/.test(n)) return '🍇';
+  if (/speck/.test(n)) return '🥓';
+  if (/charcuterie|salami|schinken/.test(n)) return '🥩';
+  if (/gl(ü|u)hwein|punsch/.test(n)) return '🍷';
+  return '🍽️';
+}
+
+// Desserts liegen in fondue_beilagen mit kategorie='dessert' (Mengen laufen mit den Beilagen)
+function istDessert(b) { return !!b && b.kategorie === 'dessert'; }
+function nurBeilagen() { return beilagenList.filter(function (b) { return !istDessert(b); }); }
+function nurDesserts() { return beilagenList.filter(istDessert); }
+
+function renderBeilagen() {
+  var el = document.getElementById('wz-beilagen-list');
+  var desserts = nurDesserts();
+  document.getElementById('wz-dessert-block').style.display = desserts.length ? '' : 'none';
+  document.getElementById('wz-dessert-list').innerHTML = desserts.map(function (d) {
+    return '<div class="wz-fondue-item"><div><h3>' + escapeHtml(d.name) + '</h3>' +
+      (d.description ? '<p class="desc">' + escapeHtml(d.description) + '</p>' : '') + '</div>' +
+      '<div class="wz-fondue-price">' + formatEuro(d.price) + '<span>/ Portion</span></div></div>';
+  }).join('');
+  el.innerHTML = nurBeilagen().map(function (b) {
+    var priceTxt = (b.price != null && Number(b.price) > 0) ? '<em>' + Number(b.price).toFixed(2).replace('.', ',') + ' €</em>' : '';
+    var descTxt = b.description ? '<small>· ' + escapeHtml(b.description) + '</small>' : '';
+    return '<span>' + beilageIcon(b.name) + ' ' + escapeHtml(b.name) + descTxt + priceTxt + '</span>';
+  }).join('');
+}
+
+function renderHeroFacts() {
+  if (variantenList.length) {
+    var minPreis = Math.min.apply(null, variantenList.map(function (v) { return Number(v.price_per_person) || 0; }));
+    document.getElementById('wz-fact-preis').textContent = 'ab ' + formatEuro(minPreis) + ' p. P.';
+  }
+  if (termine.length) {
+    document.getElementById('wz-fact-min').textContent = 'ab ' + termine[0].capacity_min + ' Personen';
+  }
+  var next = termine.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || termine[0];
+  if (next) {
+    var st = terminState(next);
+    document.getElementById('wz-hero-pill-label').textContent = 'Nächster Termin: ' + langLabel(next) + ', ' + hhmm(next.start_time) + ' Uhr';
+    document.getElementById('wz-hero-pill-hint').textContent = st.laeuft ? ('Findet statt · ' + st.freiText) : 'Anmeldung läuft — jetzt Platz sichern';
+  } else {
+    document.getElementById('wz-hero-pill-label').textContent = 'Termine folgen in Kürze';
+    document.getElementById('wz-hero-pill-hint').textContent = '';
+  }
+}
+
+function renderAll() {
+  renderMonate();
+  renderKalender();
+  renderFormContext();
+  var keine = !termine.length;
+  document.getElementById('wz-keine-termine').style.display = keine ? 'block' : 'none';
+  document.getElementById('wz-vormerk-grid').style.display = keine ? 'none' : 'grid';
+  if (!keine) renderWzCaptchaIfReady();
+}
+
+function renderMonate() {
+  var el = document.getElementById('wz-monate');
+  var keys = [];
+  termine.forEach(function (t) { var k = monthKey(t); if (keys.indexOf(k) < 0) keys.push(k); });
+  el.innerHTML = keys.map(function (k) {
+    return '<button type="button" class="wz-monat-pill' + (currentMonat === k ? ' active' : '') + '" data-monat="' + k + '">' +
+      '<span class="wz-monat-ring"></span>' + escapeHtml(monthLabel(k)) + '</button>';
+  }).join('');
+  el.querySelectorAll('.wz-monat-pill').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      currentMonat = Number(btn.getAttribute('data-monat'));
+      // Liegt der gewählte Slot nicht im neuen Monat: ersten Slot mit freien Plätzen dort wählen
+      var sel = termine.find(function (t) { return t.id === selectedTerminId; });
+      if (!sel || monthKey(sel) !== currentMonat) {
+        var imMonat = termine.filter(function (t) { return monthKey(t) === currentMonat; });
+        var ziel = imMonat.find(function (t) { return (t.personen_gesamt || 0) < t.capacity_max; }) || imMonat[0];
+        if (ziel) selectedTerminId = ziel.id;
+      }
+      renderMonate(); renderKalender(); renderFormContext();
+    });
+  });
+}
+
+function renderKalender() {
+  if (!termine.length) { document.getElementById('wz-kal-days').innerHTML = ''; document.getElementById('wz-detail-card').innerHTML = ''; return; }
+  var calKey = currentMonat !== null ? currentMonat : monthKey(termine.find(function (t) { return t.id === selectedTerminId; }) || termine[0]);
+  var calYear = Math.floor(calKey / 12), calMonth = calKey % 12;
+  document.getElementById('wz-kal-title').textContent = MON_LONG[calMonth] + ' ' + calYear;
+
+  var first = new Date(calYear, calMonth, 1);
+  var lead = (first.getDay() + 6) % 7;
+  var days = new Date(calYear, calMonth + 1, 0).getDate();
+  var html = '';
+  for (var i = 0; i < lead; i++) html += '<button type="button" class="wz-kal-day" disabled></button>';
+  for (var n = 1; n <= days; n++) {
+    var daySlots = termine.filter(function (x) { var d = parseLocalDate(x.date); return d.getFullYear() === calYear && d.getMonth() === calMonth && d.getDate() === n; });
+    var has = daySlots.length > 0;
+    var isSel = daySlots.some(function (x) { return x.id === selectedTerminId; });
+    var voll = has && daySlots.every(function (x) { return (x.personen_gesamt || 0) >= x.capacity_max; });
+    // Klick auf den Tag wählt den ersten Slot mit freien Plätzen
+    var target = has ? (daySlots.find(function (x) { return (x.personen_gesamt || 0) < x.capacity_max; }) || daySlots[0]) : null;
+    var cls = 'wz-kal-day' + (has ? ' has' : '') + (voll ? ' voll' : '') + (isSel ? ' sel' : '');
+    html += '<button type="button" class="' + cls + '"' + (has ? ' data-id="' + target.id + '"' : ' disabled') + '>' + n + '</button>';
+  }
+  var el = document.getElementById('wz-kal-days');
+  el.innerHTML = html;
+  el.querySelectorAll('.wz-kal-day.has').forEach(function (btn) {
+    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
+  });
+
+  var selected = termine.find(function (t) { return t.id === selectedTerminId; }) || termine[0];
+  var slotsHtml = slotsOfDate(selected.date).map(function (s) {
+    var st = terminState(s);
+    var barInner = st.laeuft
+      ? '<span class="wz-bar-fill" style="width:' + st.barPercent + '%;background:' + (st.voll ? 'var(--accent)' : 'var(--g)') + '"></span><span class="wz-bar-mark on"></span>'
+      : '<span class="wz-bar-fill laeuft-nicht"></span><span class="wz-bar-mark"></span>';
+    return '<button type="button" class="wz-slot' + (s.id === selectedTerminId ? ' selected' : '') + '" data-id="' + s.id + '"' + (st.voll ? ' disabled' : '') + '>' +
+      '<span class="wz-t-mid" style="margin-top:0"><span class="wz-slot-zeit">' + slotLabel(s) + '</span><span class="wz-t-badge ' + st.badgeClass + '">' + st.badgeText + '</span></span>' +
+      '<span class="wz-bar-track">' + barInner + '</span>' +
+      '<span class="wz-t-bottom"><span>' + st.platzText + '</span><span class="' + st.freiClass + '">' + st.freiText + '</span></span>' +
+      '</button>';
+  }).join('');
+  var detail = document.getElementById('wz-detail-card');
+  detail.innerHTML =
+    '<p class="wz-detail-tag">Ausgewählter Abend</p>' +
+    '<p class="wz-detail-datum">' + langLabel(selected) + '</p>' +
+    '<p class="wz-detail-zeit">' + (slotsOfDate(selected.date).length === 1 ? 'Ein Zeitfenster' : 'Zwei Zeitfenster') + ' · beheizte Iglus am Steg</p>' +
+    '<div class="wz-slots">' + slotsHtml + '</div>' +
+    '<p class="wz-detail-hinweis">' + terminState(selected).hinweis + '</p>';
+  detail.querySelectorAll('.wz-slot:not([disabled])').forEach(function (btn) {
+    btn.addEventListener('click', function () { pickTermin(btn.getAttribute('data-id')); });
+  });
+}
+
+function pickTermin(id) {
+  selectedTerminId = id;
+  renderKalender(); renderFormContext();
+}
+
+function renderFormContext() {
+  var t = termine.find(function (x) { return x.id === selectedTerminId; });
+  document.getElementById('wz-ctx-termin').textContent = t ? (langLabel(t) + ' · ' + slotLabel(t)) : '–';
+  if (selectedTerminId && selectedTerminId !== wzBelegungFor) loadBelegung(selectedTerminId);
+}
+
+// ── Iglu-Belegung des gewaehlten Slots (nur Gruppengroessen, keine Namen) ──
+// Logik in js/iglu-verteilung.js; der Server prueft verbindlich (create-fondue-anmeldung).
+var wzBelegung = null;        // aktive Gruppen des Slots oder null (unbekannt)
+var wzBelegungFor = null;     // terminId, fuer den wzBelegung gilt/geladen wird
+var wzServerMaxGruppe = null; // max_gruppe aus einer 409-Antwort, gilt bis zum Slotwechsel
+
+function loadBelegung(terminId, keepServerMax) {
+  wzBelegung = null; wzBelegungFor = terminId;
+  if (!keepServerMax) wzServerMaxGruppe = null;
+  updateIgluHinweis();
+  fetch(SB_URL + '/rest/v1/rpc/fondue_belegung', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+    body: JSON.stringify({ p_termin_id: terminId })
+  })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rows) {
+      // Inzwischen anderer Slot gewaehlt -> veraltete Antwort verwerfen
+      if (wzBelegungFor !== terminId || !Array.isArray(rows)) return;
+      wzBelegung = rows.map(function (r, i) {
+        return { id: 'b' + i, personen: Number(r.personen_anzahl), verteilung: r.iglu_verteilung, fixiert: !!r.iglu_fixiert };
+      });
+      updateIgluHinweis();
+    })
+    .catch(function () { /* ohne Belegung kein Hinweis – der Server prueft verbindlich */ });
+}
+
+function igluStatus(n) {
+  var IV = window.IgluVerteilung;
+  if (wzServerMaxGruppe !== null && n > wzServerMaxGruppe) return { passt: false, max: wzServerMaxGruppe };
+  // Restkapazitaet des Slots (capacity_max) – der Server prueft sie vor dem Iglu-Check
+  var t = termine.find(function (x) { return x.id === selectedTerminId; });
+  var rest = t ? Math.max(0, Number(t.capacity_max) - (t.personen_gesamt || 0)) : null;
+  var belegungMax = (IV && wzBelegung) ? IV.maxGruppe(wzBelegung) : null;
+  if (rest !== null && n > rest) {
+    return { passt: false, max: belegungMax !== null ? Math.min(rest, belegungMax) : rest };
+  }
+  if (!IV || !wzBelegung) return { passt: true, max: null };
+  if (IV.platziere(wzBelegung, n).ok) return { passt: true, max: null };
+  return { passt: false, max: rest !== null ? Math.min(rest, belegungMax) : belegungMax };
+}
+
+function updateIgluHinweis() {
+  var el = document.getElementById('wz-iglu-hint');
+  var btn = document.getElementById('wz-submit-btn');
+  if (!el || !btn) return;
+  var n = gaesteVarianten.length;
+  var st = igluStatus(n);
+  if (!st.passt) {
+    var t = termine.find(function (x) { return x.id === selectedTerminId; });
+    var andere = t ? slotsOfDate(t.date).filter(function (x) { return x.id !== t.id && (x.personen_gesamt || 0) < x.capacity_max; })[0] : null;
+    el.textContent = 'Für ' + n + (n === 1 ? ' Person' : ' Personen') + ' ist an diesem Abend '
+      + (n <= 12 ? 'kein gemeinsamer Tisch mehr frei' : 'leider kein Platz mehr frei')
+      + (st.max > 0 ? ', für bis zu ' + st.max + (st.max === 1 ? ' Person' : ' Personen') + ' noch ja.' : '.')
+      + (andere ? ' Probiert gern das Zeitfenster um ' + hhmm(andere.start_time) + ' Uhr.' : '');
+    el.className = 'wz-iglu-hint err';
+    el.style.display = 'block';
+    btn.disabled = true;
+    return;
+  }
+  var satz = window.IgluVerteilung ? window.IgluVerteilung.aufteilungsSatz(n) : '';
+  el.textContent = satz;
+  el.className = 'wz-iglu-hint';
+  el.style.display = satz ? 'block' : 'none';
+  // Nur freigeben, wenn nicht gerade gesendet wird
+  if (btn.textContent === 'Platz vormerken →') btn.disabled = false;
+}
+
+window.addEventListener('iglu-ready', updateIgluHinweis);
+
+
+function initGaeste(n) {
+  var v0 = variantenList.length ? variantenList[0].id : null;
+  gaesteVarianten = [];
+  for (var i = 0; i < n; i++) gaesteVarianten.push(v0);
+  renderGaeste();
+}
+
+function renderGaeste() {
+  document.getElementById('wz-personen-count').textContent = gaesteVarianten.length;
+  var opts = variantenList;
+  var el = document.getElementById('wz-gaeste-list');
+  el.innerHTML = gaesteVarianten.map(function (vid, i) {
+    var buttons = opts.map(function (v) {
+      return '<button type="button" class="wz-gast-opt' + (vid === v.id ? ' active' : '') + '" data-idx="' + i + '" data-vid="' + v.id + '">' +
+        '<span class="wz-gast-opt-fill"></span><span class="wz-gast-opt-txt">' + escapeHtml(shortVariantLabel(v.name)) + '</span></button>';
+    }).join('');
+    return '<div class="wz-gast-row"><span class="wz-gast-label">' + (i + 1) + '. Person</span><div class="wz-gast-opts">' + buttons + '</div></div>';
+  }).join('');
+  el.querySelectorAll('.wz-gast-opt').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      gaesteVarianten[Number(btn.getAttribute('data-idx'))] = btn.getAttribute('data-vid');
+      renderGaeste();
+    });
+  });
+  updateSumme();
+  updateIgluHinweis();
+}
+
+function updateSumme() {
+  var varSum = gaesteVarianten.reduce(function (s, vid) {
+    var v = variantenList.find(function (x) { return x.id === vid; });
+    return s + (v ? Number(v.price_per_person) : 0);
+  }, 0);
+  var beilSum = Object.keys(wzBeilagenMengen).reduce(function (s, id) {
+    var b = beilagenList.find(function (x) { return x.id === id; });
+    return s + (b ? Number(b.price) * wzBeilagenMengen[id] : 0);
+  }, 0);
+  var hatDessert = Object.keys(wzBeilagenMengen).some(function (id) { return istDessert(beilagenList.find(function (x) { return x.id === id; })); });
+  var hatBeilage = Object.keys(wzBeilagenMengen).some(function (id) { var b = beilagenList.find(function (x) { return x.id === id; }); return b && !istDessert(b); });
+  var total = varSum + beilSum;
+  document.getElementById('wz-summe').textContent = formatEuro(total);
+  document.getElementById('wz-summe-hint').textContent =
+    'für ' + gaesteVarianten.length + ' × Fondue satt' +
+    (hatBeilage && hatDessert ? ' inkl. Beilagen & Dessert' : hatBeilage ? ' inkl. Beilagen' : hatDessert ? ' inkl. Dessert' : '');
+}
+
+function renderBeilMengen() {
+  var el = document.getElementById('wz-beilmengen-list');
+  if (!el) return;
+  var desserts = nurDesserts();
+  document.getElementById('wz-dessertmengen-group').style.display = desserts.length ? 'flex' : 'none';
+  renderMengenListe(document.getElementById('wz-dessertmengen-list'), desserts);
+  var beilagen = nurBeilagen();
+  if (!beilagen.length) { el.innerHTML = '<span style="font-size:.8rem;color:var(--text3)">Zurzeit keine Beilagen verfügbar.</span>'; return; }
+  renderMengenListe(el, beilagen);
+}
+
+// Zeilen mit −/+ fuer eine Liste (Beilagen oder Desserts); Mengen landen gemeinsam in wzBeilagenMengen
+function renderMengenListe(el, items) {
+  el.innerHTML = items.map(function (b) {
+    var descTxt = b.description ? '<small style="display:block;font-size:.72rem;color:var(--text3)">' + escapeHtml(b.description) + '</small>' : '';
+    var n = wzBeilagenMengen[b.id] || 0;
+    var priceTxt = Number(b.price) > 0 ? (formatEuro(b.price) + '/Portion') : 'ohne Aufpreis';
+    return '<div class="wz-beilmenge-row" data-id="' + b.id + '">' +
+      '<span class="lbl">' + escapeHtml(b.name) + (istDessert(b) ? descTxt : '') + '</span>' +
+      '<span class="price">' + priceTxt + '</span>' +
+      '<span class="wz-beilmenge-step">' +
+        '<button type="button" class="wz-bm-dec" data-id="' + b.id + '" aria-label="Weniger">−</button>' +
+        '<span class="cnt" id="wz-bm-cnt-' + b.id + '">' + n + '</span>' +
+        '<button type="button" class="wz-bm-inc" data-id="' + b.id + '" aria-label="Mehr">+</button>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.wz-bm-inc').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.min(99, (wzBeilagenMengen[id] || 0) + 1);
+      document.getElementById('wz-bm-cnt-' + id).textContent = wzBeilagenMengen[id];
+      updateSumme();
+    });
+  });
+  el.querySelectorAll('.wz-bm-dec').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-id');
+      wzBeilagenMengen[id] = Math.max(0, (wzBeilagenMengen[id] || 0) - 1);
+      var shown = wzBeilagenMengen[id];
+      if (wzBeilagenMengen[id] === 0) delete wzBeilagenMengen[id];
+      document.getElementById('wz-bm-cnt-' + id).textContent = shown;
+      updateSumme();
+    });
+  });
+}
+
+document.getElementById('wz-inc').addEventListener('click', function () {
+  if (gaesteVarianten.length < 30) { // = Server-Limit pro Anmeldung (create-fondue-anmeldung)
+    gaesteVarianten.push(variantenList.length ? variantenList[0].id : null);
+    renderGaeste();
+  }
+});
+document.getElementById('wz-dec').addEventListener('click', function () {
+  if (gaesteVarianten.length > 1) { gaesteVarianten.pop(); renderGaeste(); }
+});
+
+document.getElementById('wz-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('wz-submit-btn');
+  var msg = document.getElementById('wz-form-message');
+  msg.textContent = '';
+
+  if (!selectedTerminId) { msg.textContent = 'Bitte wähle zuerst einen Termin.'; msg.style.color = 'var(--err)'; return; }
+  if (!igluStatus(gaesteVarianten.length).passt) { updateIgluHinweis(); return; }
+
+  var phoneValue = document.getElementById('wz-phone').value.trim();
+  if (phoneValue.replace(/[^0-9]/g, '').length < 6) {
+    msg.textContent = 'Bitte gib eine gültige Telefonnummer an.'; msg.style.color = 'var(--err)'; return;
+  }
+
+  var streetValue = document.getElementById('wz-street').value.trim();
+  var housenoValue = document.getElementById('wz-houseno').value.trim();
+  var plzValue = document.getElementById('wz-plz').value.trim();
+  var cityValue = document.getElementById('wz-city').value.trim();
+  if (!streetValue || !housenoValue || !plzValue || !cityValue) {
+    msg.textContent = 'Bitte gib deine vollständige Anschrift an.'; msg.style.color = 'var(--err)'; return;
+  }
+
+  var allergienValue = document.getElementById('wz-allergien').value.trim();
+  var allergienConsentChecked = document.getElementById('wz-allergien-consent').checked;
+  if (allergienValue && !allergienConsentChecked) {
+    msg.textContent = 'Bitte bestätige die gesonderte Einwilligung zur Verarbeitung deiner Allergie-Angaben.';
+    msg.style.color = 'var(--err)';
+    return;
+  }
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(wzCaptchaWidgetId) : '';
+  if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
+
+  var variantenSel = {};
+  gaesteVarianten.forEach(function (vid) {
+    if (!vid) return;
+    variantenSel[vid] = (variantenSel[vid] || 0) + 1;
+  });
+
+  var payload = {
+    captchaToken: captchaToken,
+    terminId: selectedTerminId,
+    name: document.getElementById('wz-name').value.trim(),
+    email: document.getElementById('wz-email').value.trim(),
+    phone: phoneValue,
+    street: streetValue,
+    houseNo: housenoValue,
+    postalCode: plzValue,
+    city: cityValue,
+    personen: gaesteVarianten.length,
+    varianten: variantenSel,
+    beilagen: wzBeilagenMengen,
+    allergien: allergienValue,
+    allergienConsent: allergienConsentChecked,
+    agb: document.getElementById('wz-agb').checked
+  };
+
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+
+  fetch(SB_URL + '/functions/v1/create-fondue-anmeldung', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify(payload)
+  })
+    .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+    .then(function (result) {
+      if (!result.ok) {
+        if (result.data && (result.data.error === 'iglu_kein_platz' || result.data.error === 'capacity_exceeded')) {
+          // Zwischen Laden und Absenden hat jemand anderes gebucht -> freundlicher Hinweis statt Fehlercode
+          wzServerMaxGruppe = Number(result.data.error === 'capacity_exceeded' ? result.data.available : result.data.max_gruppe) || 0;
+          btn.textContent = 'Platz vormerken →';
+          msg.textContent = '';
+          updateIgluHinweis();
+          if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
+          if (selectedTerminId) loadBelegung(selectedTerminId, true);
+          return;
+        }
+        msg.textContent = 'Fehler: ' + (result.data.error || 'unbekannt') + '. Bitte versuche es erneut.';
+        msg.style.color = 'var(--err)';
+        btn.disabled = false; btn.textContent = 'Platz vormerken →';
+        if (window.hcaptcha) hcaptcha.reset(wzCaptchaWidgetId);
+        return;
+      }
+      document.getElementById('wz-not-sent').style.display = 'none';
+      document.getElementById('wz-sent').style.display = 'flex';
+      document.getElementById('wz-sent').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      wzBelegungFor = null;
+      loadAll();
+    })
+    .catch(function () {
+      msg.textContent = 'Netzwerkfehler. Bitte versuche es erneut.';
+      msg.style.color = 'var(--err)';
+      btn.disabled = false; btn.textContent = 'Platz vormerken →';
+    });
+});
+
+document.getElementById('wz-reset-btn').addEventListener('click', function () {
+  document.getElementById('wz-sent').style.display = 'none';
+  document.getElementById('wz-not-sent').style.display = 'block';
+  document.getElementById('wz-submit-btn').disabled = false;
+  document.getElementById('wz-submit-btn').textContent = 'Platz vormerken →';
+  if (window.hcaptcha && wzCaptchaWidgetId !== null) hcaptcha.reset(wzCaptchaWidgetId);
+  wzBeilagenMengen = {};
+  renderBeilMengen();
+});
+
+document.getElementById('wz-pf-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('wz-pf-submit-btn');
+  var msg = document.getElementById('wz-pf-message');
+  msg.textContent = '';
+
+  // Pflichtfelder erzwingen (preventDefault umgeht die native HTML5-Validierung)
+  if (!this.reportValidity()) return;
+
+  var captchaToken = window.hcaptcha ? hcaptcha.getResponse(pfCaptchaWidgetId) : '';
+  if (!captchaToken) { msg.textContent = 'Bitte bestätige das Captcha.'; msg.style.color = 'var(--err)'; return; }
+
+  // ISO-Datum (YYYY-MM-DD) fuer die Mail nach DD.MM.YYYY umformen
+  var pfDatumRaw = document.getElementById('pf-datum').value.trim();
+  var pfDatum = /^\d{4}-\d{2}-\d{2}$/.test(pfDatumRaw) ? pfDatumRaw.split('-').reverse().join('.') : pfDatumRaw;
+
+  var messageBody = [
+    'Wunschtermin: ' + pfDatum,
+    'Personen: ' + document.getElementById('pf-personen').value.trim(),
+    '',
+    document.getElementById('pf-message').value.trim() || '–'
+  ].join('\n');
+
+  var payload = {
+    name: document.getElementById('pf-name').value.trim(),
+    email: document.getElementById('pf-email').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    subject: 'Private Winterfeier-Anfrage',
+    message: messageBody,
+    captchaToken: captchaToken,
+    formType: 'private-feier'
+  };
+
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+
+  fetch(SB_URL + '/functions/v1/send-contact-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+    body: JSON.stringify(payload)
+  })
+    .then(function (r) { if (!r.ok) throw new Error('send_failed'); })
+    .then(function () {
+      document.getElementById('wz-pf-form').style.display = 'none';
+      document.getElementById('wz-pf-success').style.display = 'block';
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
+    })
+    .catch(function () {
+      msg.textContent = 'Fehler beim Senden. Bitte versuche es erneut.';
+      msg.style.color = 'var(--err)';
+      btn.disabled = false; btn.textContent = 'Anfrage senden';
+      if (window.hcaptcha) hcaptcha.reset(pfCaptchaWidgetId);
+    });
+});
+
+initWinterzauber();
 </script>
+
 </body>
 </html>
